@@ -18,7 +18,7 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   }
 }
 
-void for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation) {
+void world_map::for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation) {
   for (auto tile : s_map) {
     operation(tile.first, tile.second);
   }

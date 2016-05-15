@@ -103,7 +103,11 @@ namespace {
     // QUERIES
 
     if (tokens[0] == "tiles") {
-      
+      CHECK_VALID(1, tokens);
+      world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
+        std::cout << format::vector3(coord) << ": " << format::tile(tile) << std::endl;
+      });
+      return;
     } 
 
     if (tokens[0] == "tile") {
@@ -115,6 +119,7 @@ namespace {
         return;
       }
       std::cout << format::tile(*tile) << std::endl; 
+      return;
     }
 
   }
