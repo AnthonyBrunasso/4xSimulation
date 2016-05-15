@@ -6,6 +6,7 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 namespace format {
 
@@ -13,14 +14,28 @@ namespace format {
   std::string vector2(const VEC2& vec) {
     std::stringstream ss;
     ss << "(" << vec.x << "," << vec.y << ")";
-    return ss.str();
+    return std::move(ss.str());
   }
 
   template <typename VEC3>
   std::string vector3(const VEC3& vec) {
     std::stringstream ss;
     ss << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
-    return ss.str();
+    return std::move(ss.str());
+  }
+
+  template <typename ENTRY>
+  std::string tokens(const std::vector<ENTRY>& tokens) {
+    std::stringstream ss;
+    ss << "[";
+    for (uint32_t i = 0; i < tokens.size(); ++i) {
+      ss << tokens[i];
+      if (i != tokens.size() - 1) {
+        ss << ",";
+      }
+    }
+    ss << "]";
+    return std::move(ss.str());
   }
 
   std::string cube_neighbors(const sf::Vector3i& start);

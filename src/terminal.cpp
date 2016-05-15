@@ -5,123 +5,56 @@
 #include "tile.h"
 #include "util.h"
 #include "world_map.h"
+#include "step_parser.h"
 
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <algorithm>
-#include <iterator>
 #include <vector>
 
 namespace {
 
 #define CHECK_VALID(arg_count, tokens) { \
   if (tokens.size() != arg_count) { \
-    bad_arguments(); \
-    return; \
+    bad_arguments(tokens); \
+    return false; \
   } \
-}
+} 
 
-#define CREATE_GENERIC_STEP(arg_count, tokens, step, COMMAND) { \
-  CHECK_VALID(arg_count, tokens); \
-  step = new Step(COMMAND); \
-  return; \
-}
-
-  void parse_tokens(const std::vector<std::string>& tokens, Step*& step);
+  bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
-  void bad_arguments();
+  void bad_arguments(const std::vector<std::string>& tokens);
 
-  void parse_tokens(const std::vector<std::string>& tokens, Step*& step) {
+  bool execute_queries(const std::vector<std::string>& tokens) {
     if (!tokens.size()) {
-      return;
+      return false;
     }
-
-    // COMMANDS
 
     if (tokens[0] == "help") {
       execute_help();
-      return;
+      return true;
     }
 
-    if (tokens[0] == "quit") {
-      CREATE_GENERIC_STEP(1, tokens, step, COMMAND::QUIT);
-    }
-
-    if (tokens[0] == "begin") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::BEGIN_TURN);
-    }
-
-    if (tokens[0] == "end") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::END_TURN);
-    }
-
-    if (tokens[0] == "attack") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::ATTACK);
-    }
-
-    if (tokens[0] == "colonize") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::COLONIZE);
-    }
-
-    if (tokens[0] == "construct") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::CONSTRUCT);
-    }
-
-    if (tokens[0] == "discover") {
-      CREATE_GENERIC_STEP(4, tokens, step, COMMAND::DISCOVER);
-    }
-
-    if (tokens[0] == "improve") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::IMPROVE);
-    }
-
-    if (tokens[0] == "kill") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::KILL);
-    }
-
-    if (tokens[0] == "move") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::MOVE);
-    }
-
-    if (tokens[0] == "purchase") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::PURCHASE);
-    }
-
-    if (tokens[0] == "sell") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::SELL);
-    }
-
-    if (tokens[0] == "spawn") {
-      CHECK_VALID(5, tokens);
-      step = new SpawnStep(COMMAND::SPAWN);
-      SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
-      spawn_step->m_uintId = std::stoul(tokens[1]);
-      spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
-    }
-
-    // QUERIES
-
-    if (tokens[0] == "tiles") {
+    else if (tokens[0] == "tiles") {
       CHECK_VALID(1, tokens);
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
         std::cout << format::vector3(coord) << ": " << format::tile(tile) << std::endl;
       });
-      return;
+      return true;
     } 
 
-    if (tokens[0] == "tile") {
+    else if (tokens[0] == "tile") {
       CHECK_VALID(4, tokens);
       sf::Vector3i key = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       Tile* tile = world_map::get_tile(key);
       if (!tile) {
         std::cout << "tile: " << format::vector3(key) << " does not exist" << std::endl;
-        return;
+        return true;
       }
       std::cout << format::tile(*tile) << std::endl; 
-      return;
+      return true;
     }
 
+    return false;
   }
 
   void execute_help() {
@@ -138,7 +71,7 @@ namespace {
     std::cout << "  end turn" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  move <unitId> (<x> <y> <z> OR ne OR we OR se OR sw OR we OR nw)" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
@@ -150,8 +83,8 @@ namespace {
     std::cout << "  tile <x> <y> <z>" << std::endl;
   }
 
-  void bad_arguments() {
-    std::cout << "Invalid arguments" << std::endl;
+  void bad_arguments(const std::vector<std::string>& tokens) {
+    std::cout << "Invalid arguments: " << format::tokens(tokens) << std::endl;
   }
 }
 
@@ -165,15 +98,14 @@ Step* terminal::parse_input() {
     std::cout << "> ";
     std::getline(std::cin, value);
 
-    std::stringstream iss(value);
     std::vector<std::string> tokens;
-
-    // Split string on space
-    std::copy(std::istream_iterator<std::string>(iss),
-      std::istream_iterator<std::string>(),
-      std::back_inserter(tokens));
-
-    parse_tokens(tokens, step); 
+    step_parser::split_to_tokens(value, tokens);
+    // Execute any valid queries based on the tokens, if 
+    // tokens make a query continue to next iteration.
+    // Therefore, no command can be both a query and a step
+    if (execute_queries(tokens)) continue;
+    // Generate any valid steps from the tokens
+    step = step_parser::parse(tokens); 
   }
 
   return step;

@@ -4,21 +4,15 @@
 #include "simulation.h"
 #include "terminal.h"
 #include "step.h"
-
-void read_file(std::string filename, std::vector<Step*>& steps) {
-
-}
+#include "file_reader.h"
 
 int main(int argc, char* argv[]) {
   std::vector<Step*> steps;
-  const std::string filename = "";
-
   simulation::start();
 
   // Process steps from file
   if (argc > 1) {
-    read_file(filename, steps);
-
+    file_reader::extract_steps(argv[1], steps);
     for (auto step : steps) {
       simulation::process_step(step);
       delete step;
