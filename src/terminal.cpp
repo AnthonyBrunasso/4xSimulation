@@ -1,6 +1,10 @@
 #include "terminal.h"
 
+#include "format.h"
 #include "step.h"
+#include "tile.h"
+#include "util.h"
+#include "world_map.h"
 
 #include <iostream>
 #include <string>
@@ -13,8 +17,8 @@ namespace {
 
 #define CHECK_VALID(arg_count, tokens) { \
   if (tokens.size() != arg_count) { \
-        bad_arguments(); \
-        return; \
+    bad_arguments(); \
+    return; \
   } \
 }
 
@@ -32,6 +36,8 @@ namespace {
     if (!tokens.size()) {
       return;
     }
+
+    // COMMANDS
 
     if (tokens[0] == "help") {
       execute_help();
@@ -51,11 +57,11 @@ namespace {
     }
 
     if (tokens[0] == "attack") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::ATTACK);
+      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::ATTACK);
     }
 
     if (tokens[0] == "colonize") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::COLONIZE);
+      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::COLONIZE);
     }
 
     if (tokens[0] == "construct") {
@@ -63,11 +69,11 @@ namespace {
     }
 
     if (tokens[0] == "discover") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::DISCOVER);
+      CREATE_GENERIC_STEP(4, tokens, step, COMMAND::DISCOVER);
     }
 
     if (tokens[0] == "improve") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::IMPROVE);
+      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::IMPROVE);
     }
 
     if (tokens[0] == "kill") {
@@ -75,7 +81,7 @@ namespace {
     }
 
     if (tokens[0] == "move") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::MOVE);
+      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::MOVE);
     }
 
     if (tokens[0] == "purchase") {
@@ -86,26 +92,57 @@ namespace {
       CREATE_GENERIC_STEP(2, tokens, step, COMMAND::SELL);
     }
 
+    if (tokens[0] == "spawn") {
+      CHECK_VALID(5, tokens);
+      step = new SpawnStep(COMMAND::SPAWN);
+      SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
+      spawn_step->m_uintId = std::stoul(tokens[1]);
+      spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+    }
+
+    // QUERIES
+
+    if (tokens[0] == "tiles") {
+      
+    } 
+
+    if (tokens[0] == "tile") {
+      CHECK_VALID(4, tokens);
+      sf::Vector3i key = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      Tile* tile = world_map::get_tile(key);
+      if (!tile) {
+        std::cout << "tile: " << format::vector3(key) << " does not exist" << std::endl;
+        return;
+      }
+      std::cout << format::tile(*tile) << std::endl; 
+    }
+
   }
 
   void execute_help() {
+    // Targets are represented by <x> <y> <z> cube coordinates
     std::cout << "Commands: " << std::endl;
     std::cout << "  help" << std::endl;
     std::cout << "  quit" << std::endl;
-    std::cout << "  attack <unitId> <target>" << std::endl;
+    std::cout << "  attack <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  begin turn" << std::endl;
-    std::cout << "  colonize <unitId> <target>" << std::endl;
+    std::cout << "  colonize <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <buildingId>" << std::endl;
     std::cout << "  construct <cityId> <unitId>" << std::endl;
-    std::cout << "  discover <target>" << std::endl;
+    std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end turn" << std::endl;
-    std::cout << "  improve <target> <improvement>" << std::endl;
+    std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  move <unitId> <target>" << std::endl;
+    std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
+    std::cout << "  spawn <unitId> <x> <y> <z>" << std::endl << std::endl;
+
+    std::cout << "Queries: " << std::endl;
+    std::cout << "  tiles" << std::endl;
+    std::cout << "  tile <x> <y> <z>" << std::endl;
   }
 
   void bad_arguments() {

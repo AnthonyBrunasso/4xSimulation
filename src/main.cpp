@@ -13,6 +13,8 @@ int main(int argc, char* argv[]) {
   std::vector<Step*> steps;
   const std::string filename = "";
 
+  simulation::start();
+
   // Process steps from file
   if (argc > 1) {
     read_file(filename, steps);
@@ -27,6 +29,7 @@ int main(int argc, char* argv[]) {
   while (Step* step = terminal::parse_input()) {
     simulation::process_step(step);
     if (step->m_command == COMMAND::QUIT) {
+      delete step;
       break;
     }
     // Finished with the step, clean it up

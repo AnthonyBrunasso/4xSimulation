@@ -1,6 +1,7 @@
 #include "simulation.h"
 
 #include "step.h"
+#include "world_map.h"
 
 namespace {
   // Order of operations that should be checked after a step
@@ -88,6 +89,12 @@ namespace {
   void phase_science_done() {
 
   }
+}
+
+void simulation::start() {
+  // Magic numbers
+  sf::Vector3i start(0, 0, 0);
+  world_map::build(start, 10);
 }
 
 void simulation::process_step(Step* step) {
