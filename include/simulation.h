@@ -1,6 +1,6 @@
 #pragma once
 
-class Step;
+struct Step;
 
 namespace simulation {
 
