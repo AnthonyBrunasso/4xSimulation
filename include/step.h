@@ -28,6 +28,6 @@ struct Step {
 
 struct SpawnStep : public Step {
   SpawnStep(COMMAND command) : Step(command) {};
-  uint32_t m_uintId;
+  uint32_t m_entity_id;
   sf::Vector3i m_location;
 };

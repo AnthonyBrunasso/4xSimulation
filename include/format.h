@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tile.h"
+#include "units.h"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
@@ -25,7 +26,7 @@ namespace format {
   }
 
   template <typename ENTRY>
-  std::string tokens(const std::vector<ENTRY>& tokens) {
+  std::string vector(const std::vector<ENTRY>& tokens) {
     std::stringstream ss;
     ss << "[";
     for (uint32_t i = 0; i < tokens.size(); ++i) {
@@ -41,4 +42,5 @@ namespace format {
   std::string cube_neighbors(const sf::Vector3i& start);
   std::string axial_neighbors(const sf::Vector2i& start);
   std::string tile(const Tile& tile);
+  std::string unit(const Unit& unit);
 }

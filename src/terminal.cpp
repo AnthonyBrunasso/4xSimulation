@@ -73,6 +73,26 @@ namespace {
       return true;
     }
 
+    else if (tokens[0] == "units") {
+      CHECK_VALID(1, tokens);
+      units::for_each_unit([](const Unit& unit) {
+        std::cout << format::unit(unit) << std::endl;
+      });
+      return true;
+    }
+
+    else if (tokens[0] == "unit") {
+      CHECK_VALID(2, tokens);
+      Unit* unit = units::get_unit(std::stoul(tokens[1]));
+      if (!unit) {
+        std::cout << "id: " << tokens[1] << " does not exist" << std::endl;
+        return true;
+      }
+
+      std::cout << format::unit(*unit) << std::endl;
+      return true;
+    }
+
     else if (tokens[0] == "draw") {
       if (tokens[1] == "tile") {
         CHECK_VALID(5, tokens);
@@ -108,14 +128,16 @@ namespace {
     std::cout << "Queries: " << std::endl;
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
-    std::cout << "  range <x> <y> <z> <n>" << std::endl << std::endl;
+    std::cout << "  range <x> <y> <z> <n>" << std::endl;
+    std::cout << "  units" << std::endl;
+    std::cout << "  unit <unitId>" << std::endl << std::endl;
 
     std::cout << "ACII Drawing: " << std::endl;
     std::cout << "  draw tile <x> <y> <z>" << std::endl;
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
-    std::cout << "Invalid arguments: " << format::tokens(tokens) << std::endl;
+    std::cout << "Invalid arguments: " << format::vector(tokens) << std::endl;
   }
 
   void draw_tile(sf::Vector3i coord) {

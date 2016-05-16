@@ -84,17 +84,17 @@ namespace {
       CHECK_VALID(5, tokens);
       step = new SpawnStep(COMMAND::SPAWN);
       SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
-      spawn_step->m_uintId = std::stoul(tokens[1]);
+      spawn_step->m_entity_id = std::stoul(tokens[1]);
       spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
     }
 
     else {
-      std::cout << "Unrecognized step: " << format::tokens(tokens) << std::endl;
+      std::cout << "Unrecognized step: " << format::vector(tokens) << std::endl;
     }
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
-    std::cout << "Invalid arguments: " << format::tokens(tokens) << std::endl;
+    std::cout << "Invalid arguments: " << format::vector(tokens) << std::endl;
   }
 }
 

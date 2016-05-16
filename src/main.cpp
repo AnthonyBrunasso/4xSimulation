@@ -30,5 +30,7 @@ int main(int argc, char* argv[]) {
     delete step;
   }
 
+  simulation::kill();
+
   return 0;
 }

@@ -1,9 +1,12 @@
 #include "simulation.h"
 
 #include "step.h"
+#include "units.h"
 #include "world_map.h"
 
 namespace {
+  Step* s_current_step;
+
   // Order of operations that should be checked after a step
   void step_move();
   void step_negotiate();
@@ -21,10 +24,12 @@ namespace {
   void phase_global_events();
 
   // Order of operations when a turn begins
-  void phase_spawn_units();
+  void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
   void phase_spawn_buildings();
   void phase_notifications();
   void phase_science_done();
+
+  void process_spawn();         // Immediate spawn 
 
   void step_move() {
 
@@ -89,6 +94,11 @@ namespace {
   void phase_science_done() {
 
   }
+
+  void execute_spawn() {
+    SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
+    units::create(static_cast<ENTITY_ID>(spawn_step->m_entity_id), spawn_step->m_location);
+  }
 }
 
 void simulation::start() {
@@ -97,7 +107,14 @@ void simulation::start() {
   world_map::build(start, 10);
 }
 
+void simulation::kill() {
+  units::clear();
+}
+
 void simulation::process_step(Step* step) {
+  // Save a pointer to the current step
+  s_current_step = step;
+
   // Process the step
   switch (step->m_command) {
     case COMMAND::QUIT:
@@ -125,6 +142,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::PURCHASE:
       break;
     case COMMAND::SELL:
+      break;
+    case COMMAND::SPAWN:
+      execute_spawn();
       break;
     default:
       break;

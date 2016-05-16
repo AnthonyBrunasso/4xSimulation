@@ -15,7 +15,8 @@ public:
 
   uint32_t m_unique_id;
   uint32_t m_terrain_id;
-  std::vector<uint32_t> m_entity_ids;
+  // These are unique ids of the entity, not the id of the type
+  std::vector<uint32_t> m_occupied_ids;
 };
 
 namespace std {
