@@ -4,6 +4,8 @@
 #include "tile.h"
 
 #include <unordered_map>
+#include <iostream>
+#include <algorithm>
 
 namespace {
   static std::unordered_map<uint32_t, Unit*> s_units;
@@ -21,8 +23,27 @@ uint32_t units::create(ENTITY_ID entity_id, const sf::Vector3i& location) {
 
   // Add the unit to storage and the world map
   s_units[s_unique_ids] = unit;
+  std::cout << "Created unit id " << s_unique_ids << ", entity type: " << static_cast<uint32_t>(entity_id) << std::endl;
   tile->m_occupied_ids.push_back(s_unique_ids);
   return s_unique_ids++;
+}
+
+void units::destroy(uint32_t id) {
+  Unit* unit = s_units[id];
+  if (!unit) {
+    return;
+  }
+
+  Tile* tile = world_map::get_tile(unit->m_location);
+  if (tile) {
+    auto findIt = std::find(tile->m_occupied_ids.begin(), tile->m_occupied_ids.end(), unit->m_unique_id);
+    if (findIt != tile->m_occupied_ids.end()) {
+      tile->m_occupied_ids.erase(findIt);
+    }
+  }
+
+  s_units.erase(unit->m_unique_id);
+  delete unit;
 }
 
 Unit* units::get_unit(uint32_t id) {

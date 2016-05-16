@@ -49,7 +49,11 @@ namespace {
     }
 
     else if (tokens[0] == "colonize") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::COLONIZE);
+      CHECK_VALID(5, tokens);
+      ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
+      colonize_step->m_entity_id = std::stoul(tokens[1]);
+      colonize_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      step = colonize_step;
     }
 
     else if (tokens[0] == "construct") {

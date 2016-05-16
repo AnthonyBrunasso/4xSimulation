@@ -31,3 +31,9 @@ struct SpawnStep : public Step {
   uint32_t m_entity_id;
   sf::Vector3i m_location;
 };
+
+struct ColonizeStep : public Step {
+  ColonizeStep(COMMAND command) : Step(command) {};
+  uint32_t m_entity_id;
+  sf::Vector3i m_location;
+};

@@ -2,7 +2,10 @@
 
 #include "step.h"
 #include "units.h"
+#include "city.h"
 #include "world_map.h"
+
+#include <iostream>
 
 namespace {
   Step* s_current_step;
@@ -64,7 +67,9 @@ namespace {
   }
 
   void phase_city_growth() {
-
+    city::for_each_city([](City& cityInstance) { 
+      cityInstance.Simulate();
+    });
   }
 
   void phase_science_progression() {
@@ -95,6 +100,12 @@ namespace {
 
   }
 
+  void execute_colonize() {
+    ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
+    units::destroy(colonize_step->m_entity_id);
+    city::create(colonize_step->m_entity_id, colonize_step->m_location);
+  }
+
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
     units::create(static_cast<ENTITY_ID>(spawn_step->m_entity_id), spawn_step->m_location);
@@ -109,6 +120,7 @@ void simulation::start() {
 
 void simulation::kill() {
   units::clear();
+  city::clear();
 }
 
 void simulation::process_step(Step* step) {
@@ -128,6 +140,7 @@ void simulation::process_step(Step* step) {
     case COMMAND::ATTACK:
       break;
     case COMMAND::COLONIZE:
+      execute_colonize();
       break;
     case COMMAND::CONSTRUCT:
       break;
@@ -162,6 +175,7 @@ void simulation::process_step(Step* step) {
 }
 
 void simulation::process_begin_turn() {
+  std::cout << "Beginning turn..." << std::endl;
   phase_city_growth();
   phase_science_progression();
   phase_diplomatic_progression();

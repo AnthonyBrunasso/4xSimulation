@@ -19,6 +19,7 @@ public:
 
 namespace units {
   uint32_t create(ENTITY_ID entity_id, const sf::Vector3i& location);
+  void destroy(uint32_t entity_id);
   Unit* get_unit(uint32_t id);
   void for_each_unit(std::function<void(const Unit& unit)> operation);
 
