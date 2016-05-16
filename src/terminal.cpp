@@ -1,5 +1,6 @@
 #include "terminal.h"
 
+#include "city.h"
 #include "format.h"
 #include "step.h"
 #include "tile.h"
@@ -34,7 +35,23 @@ namespace {
 
     if (tokens[0] == "help") {
       execute_help();
-      return true;
+    }
+
+    else if (tokens[0] == "cities") {
+      CHECK_VALID(1, tokens);
+      city::for_each_city([](City& city) {
+        std::cout << format::city(city) << std::endl;
+      });
+    }
+
+    else if (tokens[0] == "city") {
+      CHECK_VALID(2, tokens);
+      City* city = city::get_city(std::stoul(tokens[1]));
+      if (!city) {
+        std::cout << "city: " << tokens[1] << " does not exist" << std::endl;
+        return true;
+      }
+      std::cout << format::city(*city);
     }
 
     else if (tokens[0] == "tiles") {
@@ -42,7 +59,6 @@ namespace {
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
         std::cout << format::vector3(coord) << ": " << format::tile(tile) << std::endl;
       });
-      return true;
     } 
 
     else if (tokens[0] == "tile") {
@@ -54,7 +70,6 @@ namespace {
         return true;
       }
       std::cout << format::tile(*tile) << std::endl; 
-      return true;
     }
 
     else if (tokens[0] == "range") {
@@ -69,8 +84,6 @@ namespace {
         if (!near) continue;
         std::cout << "location: " << format::vector3(coords[i]) << " tile: " << format::tile(*near) << std::endl;
       }
-
-      return true;
     }
 
     else if (tokens[0] == "units") {
@@ -78,7 +91,6 @@ namespace {
       units::for_each_unit([](const Unit& unit) {
         std::cout << format::unit(unit) << std::endl;
       });
-      return true;
     }
 
     else if (tokens[0] == "unit") {
@@ -90,18 +102,20 @@ namespace {
       }
 
       std::cout << format::unit(*unit) << std::endl;
-      return true;
     }
 
     else if (tokens[0] == "draw") {
       if (tokens[1] == "tile") {
         CHECK_VALID(5, tokens);
         draw_tile(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-        return true;
       }
     }
 
-    return false;
+    else {
+      return false;
+    }
+
+    return true;
   }
 
   void execute_help() {
@@ -126,6 +140,8 @@ namespace {
     std::cout << "  spawn <unitId> <x> <y> <z>" << std::endl << std::endl;
 
     std::cout << "Queries: " << std::endl;
+    std::cout << "  cities" << std::endl;
+    std::cout << "  city <cityId>" << std::endl;
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
     std::cout << "  range <x> <y> <z> <n>" << std::endl;

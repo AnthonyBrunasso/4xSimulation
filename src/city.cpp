@@ -23,19 +23,19 @@ void City::Simulate() {
     << std::endl;
 }
 
-float City::GetPopulation() {
+float City::GetPopulation() const {
   return city::population_size_from_food(m_food);
 }
 
-float City::FoodForSustain() {
+float City::FoodForSustain() const {
   return city::food_required_by_population(GetPopulation());
 }
 
-float City::FoodForGrowth() {
+float City::FoodForGrowth() const {
   return city::food_required_by_population(GetPopulation()+1);
 }
 
-float City::GetTurnsForGrowth() {
+float City::GetTurnsForGrowth() const {
   return std::ceil((FoodForGrowth() - m_food) / city::FOOD_PER_TURN);
 }
 

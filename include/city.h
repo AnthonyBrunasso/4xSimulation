@@ -10,10 +10,10 @@ public:
   City();
 
   void Simulate();
-  float GetPopulation() ;
-  float FoodForSustain() ;
-  float FoodForGrowth() ;
-  float GetTurnsForGrowth() ;
+  float GetPopulation() const;
+  float FoodForSustain() const;
+  float FoodForGrowth() const;
+  float GetTurnsForGrowth() const;
 
 
   sf::Vector3i m_location;

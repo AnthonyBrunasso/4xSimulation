@@ -1,5 +1,6 @@
 #pragma once
 
+#include "city.h"
 #include "tile.h"
 #include "units.h"
 #include "Vector2.hpp"
@@ -43,4 +44,5 @@ namespace format {
   std::string axial_neighbors(const sf::Vector2i& start);
   std::string tile(const Tile& tile);
   std::string unit(const Unit& unit);
+  std::string city(const City& city);
 }
