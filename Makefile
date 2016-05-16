@@ -1,4 +1,4 @@
-CC=Clang++
+CC=clang++
 
 APP = 4xSimulation
 
