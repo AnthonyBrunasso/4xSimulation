@@ -5,7 +5,9 @@
 #include "tile.h"
 #include "util.h"
 #include "world_map.h"
+#include "search.h"
 #include "step_parser.h"
+#include "hex.h"
 
 #include <iostream>
 #include <string>
@@ -23,6 +25,7 @@ namespace {
   bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
   void bad_arguments(const std::vector<std::string>& tokens);
+  void draw_tile(const sf::Vector3i coord);
 
   bool execute_queries(const std::vector<std::string>& tokens) {
     if (!tokens.size()) {
@@ -54,6 +57,30 @@ namespace {
       return true;
     }
 
+    else if (tokens[0] == "range") {
+      CHECK_VALID(5, tokens);
+      sf::Vector3i start = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      int32_t distance = std::stoi(tokens[4]);
+      std::vector<sf::Vector3i> coords;
+      search::range(start, distance, coords);
+
+      for (uint32_t i = 0; i < coords.size(); ++i) {
+        Tile* near = world_map::get_tile(coords[i]);
+        if (!near) continue;
+        std::cout << "location: " << format::vector3(coords[i]) << " tile: " << format::tile(*near) << std::endl;
+      }
+
+      return true;
+    }
+
+    else if (tokens[0] == "draw") {
+      if (tokens[1] == "tile") {
+        CHECK_VALID(5, tokens);
+        draw_tile(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
+        return true;
+      }
+    }
+
     return false;
   }
 
@@ -71,7 +98,7 @@ namespace {
     std::cout << "  end turn" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  move <unitId> (<x> <y> <z> OR ne OR we OR se OR sw OR we OR nw)" << std::endl;
+    std::cout << "  move <unitId> (<x> <y> <z> OR nw OR ne OR e OR se OR sw OR w)" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
@@ -81,10 +108,51 @@ namespace {
     std::cout << "Queries: " << std::endl;
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
+    std::cout << "  range <x> <y> <z> <n>" << std::endl << std::endl;
+
+    std::cout << "ACII Drawing: " << std::endl;
+    std::cout << "  draw tile <x> <y> <z>" << std::endl;
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
     std::cout << "Invalid arguments: " << format::tokens(tokens) << std::endl;
+  }
+
+  void draw_tile(sf::Vector3i coord) {
+    Tile* tile = world_map::get_tile(coord);
+    if (!tile) {
+      std::cout << "Invalid tile: " << format::vector3(coord);
+      return;
+    }
+
+    hex::CubeNeighbors adj(coord);
+
+    std::cout << "Legend: " << std::endl;
+    std::cout << "  NW - North West" << std::endl;
+    std::cout << "  NE - North East" << std::endl;
+    std::cout << "  E  - East      " << std::endl;
+    std::cout << "  SE - South East" << std::endl;
+    std::cout << "  SW - South West" << std::endl;
+    std::cout << "  W  - West      " << std::endl;
+    std::cout << "  C  - Center    " << std::endl;
+    std::cout << "  *  - Unit      " << std::endl;
+    std::cout << "  ^  - Building  " << std::endl;
+    std::cout << "           _____                " << std::endl;
+    std::cout << "          /     \\              " << std::endl;
+    std::cout << "         /       \\          W" << format::vector3(adj[4]) << std::endl;
+    std::cout << "   ,----<         >----.        " << std::endl;
+    std::cout << "  /      \\   W   /      \\     " << std::endl;
+    std::cout << " /        \\_____/        \\  SW" << format::vector3(adj[3]) << " NW" << format::vector3(adj[5]) << std::endl;
+    std::cout << " \\        /     \\        /    " << std::endl;
+    std::cout << "  \\  SW  /       \\  NW  /     " << std::endl;
+    std::cout << "   >----<         >----<    C" << format::vector3(coord) << std::endl;
+    std::cout << "  /      \\       /      \\     " << std::endl;
+    std::cout << " /        \\_____/        \\    " << std::endl;
+    std::cout << " \\        /     \\        /  SE" << format::vector3(adj[2]) << "  NE" << format::vector3(adj[0]) << std::endl;
+    std::cout << "  \\  SE  /       \\  NE  /     " << std::endl;
+    std::cout << "   `----<         >----'        " << std::endl;
+    std::cout << "         \\   E   /          E" << format::vector3(adj[1]) << std::endl;
+    std::cout << "          \\____ /            " << std::endl;       
   }
 }
 
