@@ -26,7 +26,7 @@ namespace city {
   float population_size_from_food(float food);
 
   // Access
-  void create(uint32_t id, sf::Vector3i);
+  uint32_t create(sf::Vector3i);
   void raze(uint32_t id);
   City* get_city(uint32_t id);
   void for_each_city(std::function<void(City& )> operation);

@@ -145,7 +145,7 @@ namespace {
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
     std::cout << "  range <x> <y> <z> <n>" << std::endl;
-    std::cout << "  units" << std::endl;
+    std::cout << "  unit" << std::endl;
     std::cout << "  unit <unitId>" << std::endl << std::endl;
 
     std::cout << "ACII Drawing: " << std::endl;
@@ -165,30 +165,39 @@ namespace {
 
     hex::CubeNeighbors adj(coord);
 
+    std::string ce = format::ascii_tile(tile);
+    std::string ne = format::ascii_tile(world_map::get_tile(adj[0]));
+    std::string ea = format::ascii_tile(world_map::get_tile(adj[1]));
+    std::string se = format::ascii_tile(world_map::get_tile(adj[2]));
+    std::string sw = format::ascii_tile(world_map::get_tile(adj[3]));
+    std::string we = format::ascii_tile(world_map::get_tile(adj[4]));
+    std::string nw = format::ascii_tile(world_map::get_tile(adj[5]));
+
     std::cout << "Legend: " << std::endl;
-    std::cout << "  NW - North West" << std::endl;
     std::cout << "  NE - North East" << std::endl;
     std::cout << "  E  - East      " << std::endl;
     std::cout << "  SE - South East" << std::endl;
     std::cout << "  SW - South West" << std::endl;
     std::cout << "  W  - West      " << std::endl;
+    std::cout << "  NW - North West" << std::endl;
     std::cout << "  C  - Center    " << std::endl;
     std::cout << "  *  - Unit      " << std::endl;
     std::cout << "  ^  - Building  " << std::endl;
+    std::cout << " */^ - Unit and Building" << std::endl;
     std::cout << "           _____                " << std::endl;
     std::cout << "          /     \\              " << std::endl;
     std::cout << "         /       \\          W" << format::vector3(adj[4]) << std::endl;
-    std::cout << "   ,----<         >----.        " << std::endl;
+    std::cout << "   ,----<   " << we << "   >----.        " << std::endl;
     std::cout << "  /      \\   W   /      \\     " << std::endl;
-    std::cout << " /        \\_____/        \\  SW" << format::vector3(adj[3]) << " NW" << format::vector3(adj[5]) << std::endl;
+    std::cout << " /   " << sw << "  \\_____/   " << nw << "  \\  SW" << format::vector3(adj[3]) << " NW" << format::vector3(adj[5]) << std::endl;
     std::cout << " \\        /     \\        /    " << std::endl;
     std::cout << "  \\  SW  /       \\  NW  /     " << std::endl;
-    std::cout << "   >----<         >----<    C" << format::vector3(coord) << std::endl;
+    std::cout << "   >----<   " << ce << "   >----<    C" << format::vector3(coord) << std::endl;
     std::cout << "  /      \\       /      \\     " << std::endl;
-    std::cout << " /        \\_____/        \\    " << std::endl;
+    std::cout << " /   " << se << "  \\_____/   " << ne << "  \\    " << std::endl;
     std::cout << " \\        /     \\        /  SE" << format::vector3(adj[2]) << "  NE" << format::vector3(adj[0]) << std::endl;
     std::cout << "  \\  SE  /       \\  NE  /     " << std::endl;
-    std::cout << "   `----<         >----'        " << std::endl;
+    std::cout << "   `----<   " << ea << "   >----'        " << std::endl;
     std::cout << "         \\   E   /          E" << format::vector3(adj[1]) << std::endl;
     std::cout << "          \\____ /            " << std::endl;       
   }

@@ -5,18 +5,24 @@
 #include <cstdint>
 #include <vector>
 
+enum class TERRAIN_TYPE {
+  GRASS = 1,
+};
+
 // Tiles contain -
 // * unique id : to identify any improvements on the tile
 // * terrain id: to identify any special geogrpahic properties of the tile
-// * array of entity ids: to identify buildings, units, etc that are contained on the tile
+// * array of entity ids: to identify buildings, unit, etc that are contained on the tile
 class Tile {
 public:
   Tile();
 
-  uint32_t m_unique_id;
-  uint32_t m_terrain_id;
-  // These are unique ids of the entity, not the id of the type
-  std::vector<uint32_t> m_occupied_ids;
+  TERRAIN_TYPE m_terrain_type;
+
+  // Multiple unit can be contained on a tile, ex: Worker and warrior
+  std::vector<uint32_t> m_unit_ids;
+  // Only one city can be on a tile at once
+  uint32_t m_city_id;
 };
 
 namespace std {

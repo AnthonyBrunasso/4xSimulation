@@ -1,6 +1,7 @@
 #include "format.h"
 
 #include "hex.h"
+#include "unique_id.h"
 
 std::string format::cube_neighbors(const sf::Vector3i& start) {
   hex::CubeNeighbors adj(start);
@@ -27,9 +28,9 @@ std::string format::axial_neighbors(const sf::Vector2i& start) {
 std::string format::tile(const Tile& tile) {
   std::stringstream ss;
 
-  ss << "unique id: " << tile.m_unique_id
-     << " terrain id: " << tile.m_terrain_id
-     << " entity ids: " << format::vector(tile.m_occupied_ids);
+  ss << "terrain: " << static_cast<uint32_t>(tile.m_terrain_type)
+     << " units: " << format::vector(tile.m_unit_ids)
+     << " city: " << tile.m_city_id;
 
   return std::move(ss.str());
 }
@@ -38,7 +39,7 @@ std::string format::unit(const Unit& unit) {
   std::stringstream ss;
 
   ss << "unique id: " << unit.m_unique_id
-     << " entity id: " << static_cast<uint32_t>(unit.m_entity_id)
+     << " entity id: " << static_cast<uint32_t>(unit.m_entity_type)
      << " location: " << format::vector3(unit.m_location);
 
   return std::move(ss.str());
@@ -55,4 +56,24 @@ std::string format::city(const City& city) {
      << " location: " << format::vector3(city.m_location);
 
   return std::move(ss.str());
+}
+
+std::string format::ascii_tile(Tile* tile) {
+  if (!tile) {
+    return "   ";
+  }
+
+  std::string ascii = "   ";
+  if (tile->m_unit_ids.size()) {
+    ascii = " * ";
+  }
+  if (tile->m_city_id != 0) {
+    ascii = " ^ ";
+  }
+
+  if (tile->m_unit_ids.size() && tile->m_city_id != 0) {
+    ascii = "* ^";
+  }
+
+  return std::move(ascii);
 }

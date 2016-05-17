@@ -1,7 +1,9 @@
 #include "tile.h"
 
-namespace {
-  static uint32_t s_unique_tile_ids = 0;
-}
+#include "unique_id.h"
 
-Tile::Tile() : m_unique_id(s_unique_tile_ids++), m_terrain_id(0) {}
+Tile::Tile() : 
+  m_terrain_type(TERRAIN_TYPE::GRASS)
+  , m_unit_ids()
+  , m_city_id(unique_id::INVALID_ID)
+{}

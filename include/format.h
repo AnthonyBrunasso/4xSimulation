@@ -45,4 +45,5 @@ namespace format {
   std::string tile(const Tile& tile);
   std::string unit(const Unit& unit);
   std::string city(const City& city);
+  std::string ascii_tile(Tile* tile);
 }

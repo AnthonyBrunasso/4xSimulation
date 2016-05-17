@@ -4,6 +4,10 @@
 #include <unordered_map>
 #include <cmath>
 
+#include "unique_id.h"
+#include "world_map.h"
+#include "tile.h"
+
 namespace city {
   typedef std::unordered_map<uint32_t, City*> CityMap;
   CityMap s_cities;
@@ -47,15 +51,20 @@ float city::population_size_from_food(float food) {
   return std::floor(std::pow(food/5.f, (1.f/2.75f)));
 }
 
-void city::create(uint32_t id, sf::Vector3i location) {
-  auto findIt = s_cities.find(id);
-  if (findIt != s_cities.end()) {
-    return;
+uint32_t city::create(sf::Vector3i location) {
+  Tile* tile = world_map::get_tile(location);
+  if (!tile) {
+    return unique_id::INVALID_ID;
   }
 
+  uint32_t id = unique_id::generate();
+
   City* foundedCity = new City();
-  s_cities.insert(findIt, CityMap::value_type(id, foundedCity));
+  s_cities[id] = foundedCity;
   foundedCity->m_location = location;
+  tile->m_city_id = id;
+
+  return id;
 }
 
 void city::raze(uint32_t id)
@@ -65,6 +74,12 @@ void city::raze(uint32_t id)
     return;
   }
 
+  Tile* tile = world_map::get_tile(findIt->second->m_location);
+  if (!tile) {
+    return;
+  }
+
+  tile->m_city_id = unique_id::INVALID_ID;
   delete findIt->second;
   s_cities.erase(findIt);
 }

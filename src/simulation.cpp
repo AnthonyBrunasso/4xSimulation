@@ -102,13 +102,13 @@ namespace {
 
   void execute_colonize() {
     ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
-    units::destroy(colonize_step->m_entity_id);
-    city::create(colonize_step->m_entity_id, colonize_step->m_location);
+    units::destroy(colonize_step->m_unit_id);
+    city::create(colonize_step->m_location);
   }
 
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
-    units::create(static_cast<ENTITY_ID>(spawn_step->m_entity_id), spawn_step->m_location);
+    units::create(static_cast<ENTITY_TYPE>(spawn_step->m_entity_type), spawn_step->m_location);
   }
 }
 

@@ -22,18 +22,19 @@ enum class COMMAND {
 
 struct Step {
   Step(COMMAND command) : m_command(command) {};
+  virtual ~Step() {};
 
   COMMAND m_command;
 };
 
 struct SpawnStep : public Step {
   SpawnStep(COMMAND command) : Step(command) {};
-  uint32_t m_entity_id;
+  uint32_t m_entity_type;
   sf::Vector3i m_location;
 };
 
 struct ColonizeStep : public Step {
   ColonizeStep(COMMAND command) : Step(command) {};
-  uint32_t m_entity_id;
+  uint32_t m_unit_id;
   sf::Vector3i m_location;
 };

@@ -51,7 +51,7 @@ namespace {
     else if (tokens[0] == "colonize") {
       CHECK_VALID(5, tokens);
       ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
-      colonize_step->m_entity_id = std::stoul(tokens[1]);
+      colonize_step->m_unit_id = std::stoul(tokens[1]);
       colonize_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       step = colonize_step;
     }
@@ -88,7 +88,7 @@ namespace {
       CHECK_VALID(5, tokens);
       step = new SpawnStep(COMMAND::SPAWN);
       SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
-      spawn_step->m_entity_id = std::stoul(tokens[1]);
+      spawn_step->m_entity_type = std::stoul(tokens[1]);
       spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
     }
 

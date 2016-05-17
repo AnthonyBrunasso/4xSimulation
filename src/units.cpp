@@ -1,5 +1,6 @@
 #include "units.h"
 
+#include "unique_id.h"
 #include "world_map.h"
 #include "tile.h"
 
@@ -8,24 +9,24 @@
 #include <algorithm>
 
 namespace {
-  static std::unordered_map<uint32_t, Unit*> s_units;
-  static uint32_t s_unique_ids = 0;
-  static const uint32_t INVALID_ID = UINT32_MAX;
+  typedef std::unordered_map<uint32_t, Unit*> UnitMap;
+  UnitMap s_units;
 }
 
-uint32_t units::create(ENTITY_ID entity_id, const sf::Vector3i& location) {
+uint32_t units::create(ENTITY_TYPE entity_type, const sf::Vector3i& location) {
   Tile* tile = world_map::get_tile(location);
   if (!tile) {
-    return INVALID_ID;
+    return unique_id::INVALID_ID;
   }
-  Unit* unit = new Unit(s_unique_ids, entity_id);
+  uint32_t id = unique_id::generate();
+  Unit* unit = new Unit(id, entity_type);
   unit->m_location = location;
 
   // Add the unit to storage and the world map
-  s_units[s_unique_ids] = unit;
-  std::cout << "Created unit id " << s_unique_ids << ", entity type: " << static_cast<uint32_t>(entity_id) << std::endl;
-  tile->m_occupied_ids.push_back(s_unique_ids);
-  return s_unique_ids++;
+  s_units[id] = unit;
+  std::cout << "Created unit id " << id << ", entity type: " << static_cast<uint32_t>(entity_type) << std::endl;
+  tile->m_unit_ids.push_back(id);
+  return id;
 }
 
 void units::destroy(uint32_t id) {
@@ -36,9 +37,9 @@ void units::destroy(uint32_t id) {
 
   Tile* tile = world_map::get_tile(unit->m_location);
   if (tile) {
-    auto findIt = std::find(tile->m_occupied_ids.begin(), tile->m_occupied_ids.end(), unit->m_unique_id);
-    if (findIt != tile->m_occupied_ids.end()) {
-      tile->m_occupied_ids.erase(findIt);
+    auto findIt = std::find(tile->m_unit_ids.begin(), tile->m_unit_ids.end(), unit->m_unique_id);
+    if (findIt != tile->m_unit_ids.end()) {
+      tile->m_unit_ids.erase(findIt);
     }
   }
 
