@@ -40,7 +40,8 @@ std::string format::unit(const Unit& unit) {
 
   ss << "unique id: " << unit.m_unique_id
      << " entity id: " << static_cast<uint32_t>(unit.m_entity_type)
-     << " location: " << format::vector3(unit.m_location);
+     << " location: " << format::vector3(unit.m_location)
+     << " actions: " << unit.m_action_points;
 
   return std::move(ss.str());
 }

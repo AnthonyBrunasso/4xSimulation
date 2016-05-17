@@ -86,6 +86,18 @@ namespace {
       }
     }
 
+    else if (tokens[0] == "route") {
+      CHECK_VALID(7, tokens);
+      // Shows the route from start to end, inclusive
+      sf::Vector3f start = util::str_to_vector3f(tokens[1], tokens[2], tokens[3]);
+      sf::Vector3f end = util::str_to_vector3f(tokens[4], tokens[5], tokens[6]);
+      std::vector<sf::Vector3i> route;
+      hex::cubes_on_line(start, end, route);
+      for (uint32_t i = 0; i < route.size(); ++i) {
+        std::cout << format::vector3(route[i]) << std::endl;
+      }
+    }
+
     else if (tokens[0] == "units") {
       CHECK_VALID(1, tokens);
       units::for_each_unit([](const Unit& unit) {
@@ -145,6 +157,7 @@ namespace {
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
     std::cout << "  range <x> <y> <z> <n>" << std::endl;
+    std::cout << "  route <x> <y> <z> <x> <y> <z>" << std::endl;
     std::cout << "  unit" << std::endl;
     std::cout << "  unit <unitId>" << std::endl << std::endl;
 

@@ -73,7 +73,11 @@ namespace {
     }
 
     else if (tokens[0] == "move") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::MOVE);
+      CHECK_VALID(5, tokens);
+      MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+      move_step->m_unit_id = std::stoul(tokens[1]);
+      move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      step = move_step;
     }
 
     else if (tokens[0] == "purchase") {
