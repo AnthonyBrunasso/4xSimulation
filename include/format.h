@@ -3,12 +3,14 @@
 #include "city.h"
 #include "tile.h"
 #include "units.h"
+#include "player.h"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
 #include <string>
 #include <sstream>
 #include <vector>
+#include <set>
 
 namespace format {
 
@@ -40,10 +42,22 @@ namespace format {
     return std::move(ss.str());
   }
 
+  template <typename ENTRY>
+  std::string set(const std::set<ENTRY>& tokens) {
+    std::stringstream ss;
+    ss << "[ ";
+    for (auto entry : tokens) {
+      ss << entry << " ";
+    }
+    ss << "]";
+    return std::move(ss.str());
+  }
+
   std::string cube_neighbors(const sf::Vector3i& start);
   std::string axial_neighbors(const sf::Vector2i& start);
   std::string tile(const Tile& tile);
   std::string unit(const Unit& unit);
   std::string city(const City& city);
   std::string ascii_tile(Tile* tile);
+  std::string player(const Player& player);
 }

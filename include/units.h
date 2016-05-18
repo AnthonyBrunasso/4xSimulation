@@ -30,9 +30,16 @@ public:
 
 namespace units {
   uint32_t create(ENTITY_TYPE entity_type, const sf::Vector3i& location);
+  // Subscribe to creation of a unit
+  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void destroy(uint32_t entity_id);
+  // Subscribe to destruction of a unit
+  void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   Unit* get_unit(uint32_t id);
   void for_each_unit(std::function<void(const Unit& unit)> operation);
+
+  // Set the units current path to the path to get them to destination
+  void set_path(uint32_t id, const sf::Vector3i& destination);
   // Move unit forward on it's path by some distance, returns how far it was able to move
   uint32_t move(uint32_t id, uint32_t distance);
   // Replenish action points to units

@@ -78,3 +78,13 @@ std::string format::ascii_tile(Tile* tile) {
 
   return std::move(ascii);
 }
+
+std::string format::player(const Player& player) {
+  std::stringstream ss;
+
+  ss << "name: " << player.m_name 
+     << " buildings: " << format::set(player.m_cities)
+     << " units: " << format::set(player.m_units);
+
+  return std::move(ss.str());
+}

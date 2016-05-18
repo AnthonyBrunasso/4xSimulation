@@ -6,6 +6,7 @@
 #include "world_map.h"
 #include "hex.h"
 #include "util.h"
+#include "player.h"
 
 #include <iostream>
 #include <vector>
@@ -13,9 +14,10 @@
 namespace {
   // Contains the current execution step
   Step* s_current_step;
-
   // Units to move in the current step, likely size 1 or 0
   std::vector<Unit*> s_units_to_move;
+  // Used to count turns and index into player array
+  uint32_t s_current_turn = 0;
 
   // Order of operations that should be checked after a step
   void step_move();
@@ -53,7 +55,7 @@ namespace {
       }
 
       // If they have arrived at their destination they are done moving
-      if (!unit->m_path.size()) {
+      if (unit->m_path.empty()) {
         done_moving.push_back(unit);
       }
     }
@@ -136,12 +138,14 @@ namespace {
   void execute_colonize() {
     ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
     units::destroy(colonize_step->m_unit_id);
-    city::create(colonize_step->m_location);
+    uint32_t id = city::create(colonize_step->m_location);
+    player::add_city(colonize_step->m_player, id);
   }
 
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
-    units::create(static_cast<ENTITY_TYPE>(spawn_step->m_entity_type), spawn_step->m_location);
+    uint32_t id = units::create(static_cast<ENTITY_TYPE>(spawn_step->m_entity_type), spawn_step->m_location);
+    player::add_unit(spawn_step->m_player, id);
   }
 
   void execute_move() {
@@ -151,21 +155,13 @@ namespace {
     if (!unit) {
       return;
     }
-
-    // Set the destination of the unit and queue it to move
-    // TODO: Change this to a search algorithm like A* that weights tiles, for now, assume all tiles can be pathed
-    hex::cubes_on_line(util::to_vector3f(unit->m_location), 
-      util::to_vector3f(move_step->m_destination), 
-      unit->m_path);
-
-    std::cout << "Path size: " << unit->m_path.size() << std::endl;
-
-    // TODO: When pathing algorithm built deal with not removing the first element on each move
-    if (unit->m_path.size()) {
-      unit->m_path.erase(unit->m_path.begin());
-    }
-
+    units::set_path(move_step->m_unit_id, move_step->m_destination);
     s_units_to_move.push_back(unit);
+  }
+
+  void execute_add_player() {
+    AddPlayerStep* player_step = static_cast<AddPlayerStep*>(s_current_step);
+    player::create(player_step->m_name);
   }
 }
 
@@ -217,6 +213,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::SPAWN:
       execute_spawn();
       break;
+    case COMMAND::ADD_PLAYER:
+      execute_add_player();
+      return; // Special case, adding a player does not have output
     default:
       break;
   }
@@ -234,6 +233,7 @@ void simulation::process_step(Step* step) {
 
 void simulation::process_begin_turn() {
   std::cout << "Beginning turn..." << std::endl;
+
   phase_city_growth();
   phase_science_progression();
   phase_diplomatic_progression();
@@ -242,10 +242,11 @@ void simulation::process_begin_turn() {
 }
 
 void simulation::process_end_turn() {
+  phase_notifications();
   phase_spawn_units();
   phase_spawn_buildings();
-  phase_notifications();
   phase_science_done();
 
-  // Write output file
+  // Increment turn counter
+  ++s_current_turn;
 }

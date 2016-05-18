@@ -27,7 +27,9 @@ namespace city {
 
   // Access
   uint32_t create(sf::Vector3i);
+  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
+  void sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   City* get_city(uint32_t id);
   void for_each_city(std::function<void(City& )> operation);
 

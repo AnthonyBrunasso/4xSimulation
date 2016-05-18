@@ -5,12 +5,14 @@
 #include <cmath>
 
 #include "unique_id.h"
-#include "world_map.h"
 #include "tile.h"
 
 namespace city {
   typedef std::unordered_map<uint32_t, City*> CityMap;
+  typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
   CityMap s_cities;
+  SubMap s_raze_subs;
+  SubMap s_create_subs;
   const float FOOD_PER_TURN = 2.f;
 }
 
@@ -52,36 +54,40 @@ float city::population_size_from_food(float food) {
 }
 
 uint32_t city::create(sf::Vector3i location) {
-  Tile* tile = world_map::get_tile(location);
-  if (!tile) {
-    return unique_id::INVALID_ID;
-  }
-
   uint32_t id = unique_id::generate();
 
   City* foundedCity = new City();
   s_cities[id] = foundedCity;
   foundedCity->m_location = location;
-  tile->m_city_id = id;
+  
+  for (auto sub : s_create_subs) {
+    sub(location, id);
+  }
 
   return id;
 }
 
-void city::raze(uint32_t id)
-{
+void city::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+  s_create_subs.push_back(sub);
+}
+
+void city::raze(uint32_t id) {
   auto findIt = s_cities.find(id);
   if (findIt == s_cities.end()) {
     return;
   }
 
-  Tile* tile = world_map::get_tile(findIt->second->m_location);
-  if (!tile) {
-    return;
+  // Notify subscribers of razed city
+  for (auto sub : s_raze_subs) {
+    sub(findIt->second->m_location, id);
   }
 
-  tile->m_city_id = unique_id::INVALID_ID;
   delete findIt->second;
   s_cities.erase(findIt);
+}
+
+void city::sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+  s_raze_subs.push_back(sub);
 }
 
 City* city::get_city(uint32_t id) {

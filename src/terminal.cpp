@@ -72,6 +72,13 @@ namespace {
       std::cout << format::tile(*tile) << std::endl; 
     }
 
+    else if (tokens[0] == "players") {
+      CHECK_VALID(1, tokens);
+      player::for_each_player([](Player& player) {
+        std::cout << format::player(player) << std::endl;
+      });
+    }
+
     else if (tokens[0] == "range") {
       CHECK_VALID(5, tokens);
       sf::Vector3i start = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
@@ -137,25 +144,27 @@ namespace {
     std::cout << "  quit" << std::endl;
     std::cout << "  attack <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  begin turn" << std::endl;
-    std::cout << "  colonize <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
     std::cout << "  construct <cityId> <buildingId>" << std::endl;
     std::cout << "  construct <cityId> <unitId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end turn" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
+    std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  move <unitId> (<x> <y> <z> OR nw OR ne OR e OR se OR sw OR w)" << std::endl;
+    std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
-    std::cout << "  spawn <unitId> <x> <y> <z>" << std::endl << std::endl;
+    std::cout << "  spawn <unitId> <x> <y> <z> [<player>]" << std::endl << std::endl;
 
     std::cout << "Queries: " << std::endl;
     std::cout << "  cities" << std::endl;
     std::cout << "  city <cityId>" << std::endl;
     std::cout << "  tiles" << std::endl;
     std::cout << "  tile <x> <y> <z>" << std::endl;
+    std::cout << "  players" << std::endl;
     std::cout << "  range <x> <y> <z> <n>" << std::endl;
     std::cout << "  route <x> <y> <z> <x> <y> <z>" << std::endl;
     std::cout << "  unit" << std::endl;
