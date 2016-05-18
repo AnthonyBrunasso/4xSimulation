@@ -144,7 +144,7 @@ namespace {
     std::cout << "  end turn" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  move <unitId> (<x> <y> <z> OR nw OR ne OR e OR se OR sw OR w)" << std::endl;
+    std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
