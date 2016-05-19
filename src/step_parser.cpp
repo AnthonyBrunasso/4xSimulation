@@ -52,7 +52,11 @@ namespace {
     }
 
     else if (tokens[0] == "attack") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::ATTACK);
+      CHECK_VALID(3, tokens);
+      AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);
+      attack_step->m_attacker_id = std::stoul(tokens[1]);
+      attack_step->m_defender_id = std::stoul(tokens[2]);
+      step = attack_step;
     }
 
     else if (tokens[0] == "colonize") {
@@ -115,6 +119,16 @@ namespace {
       if (tokens.size() == 6) {
         spawn_step->m_player = std::stoul(tokens[5]);
       }
+    }
+
+    else if (tokens[0] == "stats") {
+      CHECK_VALID(5, tokens);
+      UnitStatsStep* stats = new UnitStatsStep(COMMAND::MODIFY_UNIT_STATS);
+      stats->m_unit_id = std::stoul(tokens[1]);
+      stats->m_health = std::stoul(tokens[2]);
+      stats->m_attack = std::stoul(tokens[3]);
+      stats->m_range = std::stoul(tokens[4]);
+      step = stats;
     }
 
     else {

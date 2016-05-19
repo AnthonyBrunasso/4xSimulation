@@ -142,7 +142,7 @@ namespace {
     std::cout << "Commands: " << std::endl;
     std::cout << "  help" << std::endl;
     std::cout << "  quit" << std::endl;
-    std::cout << "  attack <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  attack <unitId> <unitId>" << std::endl;
     std::cout << "  begin turn" << std::endl;
     std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
     std::cout << "  construct <cityId> <buildingId>" << std::endl;
@@ -157,7 +157,9 @@ namespace {
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
-    std::cout << "  spawn <unitId> <x> <y> <z> [<player>]" << std::endl << std::endl;
+    std::cout << "  spawn <unitId> <x> <y> <z> [<player>]" << std::endl;
+    // Modifies the stats of a unit
+    std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl << std::endl;
 
     std::cout << "Queries: " << std::endl;
     std::cout << "  cities" << std::endl;

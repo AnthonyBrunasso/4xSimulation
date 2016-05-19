@@ -20,6 +20,7 @@ enum class COMMAND {
   SELL,
   SPAWN,
   ADD_PLAYER,
+  MODIFY_UNIT_STATS,
 };
 
 struct Step {
@@ -60,4 +61,18 @@ struct MoveStep : public Step {
 struct AddPlayerStep : public Step {
   AddPlayerStep(COMMAND command) : Step(command) {};
   std::string m_name;
+};
+
+struct AttackStep : public Step {
+  AttackStep(COMMAND command) : Step(command) {};
+  uint32_t m_attacker_id;
+  uint32_t m_defender_id;
+};
+
+struct UnitStatsStep : public Step {
+  UnitStatsStep(COMMAND command) : Step(command) {};
+  uint32_t m_unit_id;
+  uint32_t m_health;
+  uint32_t m_attack; 
+  uint32_t m_range;
 };

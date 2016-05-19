@@ -6,6 +6,7 @@
 #include "format.h"
 #include "hex.h"
 #include "util.h"
+#include "combat.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -124,6 +125,29 @@ uint32_t units::move(uint32_t id, uint32_t distance) {
 void units::replenish_actions() {
   for (auto unit : s_units) {
     unit.second->m_action_points = unit.second->m_max_actions;
+  }
+}
+
+void units::combat(uint32_t attacker_id, uint32_t defender_id) {
+  Unit* attacker = get_unit(attacker_id);
+  Unit* defender = get_unit(defender_id);
+
+  if (!attacker || !defender) {
+    return;
+  }
+
+  // Get distance between characters
+  uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
+  // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
+  combat::engage(attacker->m_combat_stats, defender->m_combat_stats, distance);
+
+  // If attacker or defender died, kill them
+  if (defender->m_combat_stats.m_health == 0) {
+    destroy(defender_id);
+  }
+
+  if (attacker->m_combat_stats.m_health == 0) {
+    destroy(attacker_id);
   }
 }
 

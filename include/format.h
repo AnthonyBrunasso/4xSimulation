@@ -4,6 +4,7 @@
 #include "tile.h"
 #include "units.h"
 #include "player.h"
+#include "combat.h"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
@@ -60,4 +61,5 @@ namespace format {
   std::string city(const City& city);
   std::string ascii_tile(Tile* tile);
   std::string player(const Player& player);
+  std::string combat_stats(const CombatStats& stats);
 }

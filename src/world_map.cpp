@@ -4,6 +4,7 @@
 #include "tile.h"
 #include "units.h"
 #include "city.h"
+#include "unique_id.h"
 
 #include <unordered_map>
 #include <vector>
@@ -36,6 +37,7 @@ namespace {
       if (!tile) {
         return;
       }
+      
       tile->m_city_id = unique_id::INVALID_ID;
     });
   }

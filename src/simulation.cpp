@@ -15,8 +15,10 @@
 namespace {
   // Contains the current execution step
   Step* s_current_step;
-  // Units to move in the current step, likely size 1 or 0
+  // Units to move in the current step
   std::vector<Unit*> s_units_to_move;
+  // Units to fight in the current step
+  std::vector<std::pair<uint32_t, uint32_t> > s_units_to_fight;
   // Used to count turns and index into player array
   uint32_t s_current_turn = 0;
 
@@ -79,7 +81,12 @@ namespace {
   }
 
   void step_combat() {
+    for (auto pair : s_units_to_fight) {
+      units::combat(pair.first, pair.second);
+    }
 
+    // Attacks should all complete in a single step?
+    s_units_to_fight.clear();
   }
 
   void step_death() {
@@ -164,6 +171,23 @@ namespace {
     AddPlayerStep* player_step = static_cast<AddPlayerStep*>(s_current_step);
     player::create(player_step->m_name);
   }
+
+  void execute_attack() {
+    // Add a fight to the list to be executed in the combat phase
+    AttackStep* attack_step = static_cast<AttackStep*>(s_current_step);
+    s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step->m_attacker_id, attack_step->m_defender_id));
+  }
+
+  void execute_modify_stats() {
+    UnitStatsStep* stats_step = static_cast<UnitStatsStep*>(s_current_step);
+    Unit* unit = units::get_unit(stats_step->m_unit_id);
+    if (!unit) {
+      return;
+    }
+    unit->m_combat_stats.m_health = stats_step->m_health;
+    unit->m_combat_stats.m_attack = stats_step->m_attack;
+    unit->m_combat_stats.m_range = stats_step->m_range;
+  }
 }
 
 void simulation::start() {
@@ -192,6 +216,7 @@ void simulation::process_step(Step* step) {
       process_end_turn();
       break;
     case COMMAND::ATTACK:
+      execute_attack();
       break;
     case COMMAND::COLONIZE:
       execute_colonize();
@@ -217,6 +242,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::ADD_PLAYER:
       execute_add_player();
       return; // Special case, adding a player does not have output
+    case COMMAND::MODIFY_UNIT_STATS:
+      execute_modify_stats();
+      return; // Modifying stats also does not have output
     default:
       break;
   }
