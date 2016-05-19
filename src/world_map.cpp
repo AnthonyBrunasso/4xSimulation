@@ -36,7 +36,7 @@ namespace {
       if (!tile) {
         return;
       }
-      tile->m_city_id = id;
+      tile->m_city_id = unique_id::INVALID_ID;
     });
   }
 }
