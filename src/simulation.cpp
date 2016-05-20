@@ -52,7 +52,7 @@ namespace {
     for (auto unit : s_units_to_move) {
       // Advance unit forward by a single action point
       if (unit->m_action_points) {
-        if (units::move(unit->m_unique_id, 1)) {
+        if (world_map::move_unit(unit->m_unique_id, 1)) {
           --unit->m_action_points;
         }
       }

@@ -5,7 +5,9 @@
 #include "units.h"
 #include "city.h"
 #include "unique_id.h"
+#include "format.h"
 
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 
@@ -76,6 +78,34 @@ bool world_map::add_unit(const sf::Vector3i& location, uint32_t unit_id) {
     return false;
   }
   tile->m_unit_ids.push_back(unit_id);
+}
+
+uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
+  Unit* unit = units::get_unit(unit_id);
+  if (!unit) {
+    return 0;
+  }
+
+  uint32_t moved = 0;
+  for (uint32_t i = 0; i < distance; ++i) {
+    // First item in list is up next 
+    Tile* next = get_tile(unit->m_path[0]);
+    // Early out if invalid tile
+    if (!next) {
+      return moved;
+    }
+    // Remove unit from it's current standing place
+    remove_unit(unit->m_location, unit->m_unique_id);
+    // Move it to new tile
+    std::cout << "Unit moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
+    unit->m_location = unit->m_path[0];
+    next->m_unit_ids.push_back(unit->m_unique_id);
+    // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
+    unit->m_path.erase(unit->m_path.begin());
+    ++moved;
+  }
+
+  return moved;
 }
 
 Tile* world_map::get_tile(sf::Vector3i location) {

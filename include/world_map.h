@@ -13,5 +13,7 @@ namespace world_map {
 
   bool remove_unit(const sf::Vector3i& location, uint32_t unit_id);
   bool add_unit(const sf::Vector3i& location, uint32_t unit_id);
+  uint32_t move_unit(uint32_t unit_id, uint32_t distance);
+
   Tile* get_tile(sf::Vector3i location);
 }

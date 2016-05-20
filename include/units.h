@@ -45,8 +45,6 @@ namespace units {
 
   // Set the units current path to the path to get them to destination
   void set_path(uint32_t id, const sf::Vector3i& destination);
-  // Move unit forward on it's path by some distance, returns how far it was able to move
-  uint32_t move(uint32_t id, uint32_t distance);
   // Replenish action points to units
   void replenish_actions();
 

@@ -1,7 +1,6 @@
 #include "units.h"
 
 #include "unique_id.h"
-#include "world_map.h"
 #include "tile.h"
 #include "format.h"
 #include "hex.h"
@@ -92,34 +91,6 @@ void units::set_path(uint32_t id, const sf::Vector3i& destination) {
   if (unit->m_path.size()) {
     unit->m_path.erase(unit->m_path.begin());
   }
-}
-
-uint32_t units::move(uint32_t id, uint32_t distance) {
-  Unit* unit = get_unit(id);
-  if (!unit) {
-    return 0;
-  }
-
-  uint32_t moved = 0;
-  for (uint32_t i = 0; i < distance; ++i) {
-    // First item in list is up next 
-    Tile* next = world_map::get_tile(unit->m_path[0]);
-    // Early out if invalid tile
-    if (!next) {
-      return moved;
-    }
-    // Remove unit from it's current standing place
-    world_map::remove_unit(unit->m_location, unit->m_unique_id);
-    // Move it to new tile
-    std::cout << "Unit moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
-    unit->m_location = unit->m_path[0];
-    next->m_unit_ids.push_back(unit->m_unique_id);
-    // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
-    unit->m_path.erase(unit->m_path.begin());
-    ++moved;
-  }
-
-  return moved;
 }
 
 void units::replenish_actions() {
