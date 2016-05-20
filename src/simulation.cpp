@@ -82,7 +82,15 @@ namespace {
 
   void step_combat() {
     for (auto pair : s_units_to_fight) {
-      units::combat(pair.first, pair.second);
+      Unit* unit = units::get_unit(pair.first);
+      if (!unit) {
+        continue;
+      }
+
+      if (unit->m_action_points) {
+        units::combat(pair.first, pair.second);
+        --unit->m_action_points;
+      }
     }
 
     // Attacks should all complete in a single step?

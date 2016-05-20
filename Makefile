@@ -16,6 +16,9 @@ LDFLAGS = -rpath $(LIBDIR)
 
 all: $(APP)
 
+debug: CFLAGS += -DDEBUG -g
+debug: $(APP)
+
 $(APP) : buildsim $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
 

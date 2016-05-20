@@ -41,7 +41,7 @@ void units::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
 }
 
 void units::destroy(uint32_t id) {
-  Unit* unit = s_units[id];
+  Unit* unit = get_unit(id);
   if (!unit) {
     return;
   }

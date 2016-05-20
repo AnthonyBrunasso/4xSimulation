@@ -1,5 +1,6 @@
 #include "player.h"
 #include "units.h"
+#include "city.h"
 
 #include <iostream>
 #include <vector>
@@ -14,6 +15,13 @@ Player::Player(const std::string& name) : m_name(name)
       return;
     }
     this->m_units.erase(id);
+  });
+
+  city::sub_raze([this](const sf::Vector3i /*location*/, uint32_t id) {
+    if (!this->OwnsCity(id)) {
+      return;
+    }
+    this->m_cities.erase(id);
   });
 }
 
