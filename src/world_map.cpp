@@ -34,7 +34,7 @@ namespace {
       world_map::remove_unit(location, id);
     });
 
-    city::sub_raze([](const sf::Vector3i& location, uint32_t id) {
+    city::sub_raze([](const sf::Vector3i& location, uint32_t /*id*/) {
       Tile* tile = world_map::get_tile(location);
       if (!tile) {
         return;
@@ -78,6 +78,7 @@ bool world_map::add_unit(const sf::Vector3i& location, uint32_t unit_id) {
     return false;
   }
   tile->m_unit_ids.push_back(unit_id);
+  return true;
 }
 
 uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
