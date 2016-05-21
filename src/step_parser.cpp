@@ -90,12 +90,15 @@ namespace {
     }
 
     else if (tokens[0] == "kill") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::KILL);
+      CHECK_VALID(2, tokens);
+      KillStep* kill_step = new KillStep(COMMAND::KILL);
+      kill_step->m_unit_id = std::stoul(tokens[1]);
+      step = kill_step;
     }
 
-    else if (tokens[0] == "move") {
+    else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
-      MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+      QueueMoveStep* move_step = new QueueMoveStep(COMMAND::QUEUE_MOVE);
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       step = move_step;

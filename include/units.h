@@ -15,8 +15,7 @@ public:
     , m_unique_id(unique_id)
     , m_location()
     , m_path()
-    // Units can do one action per turn by default
-    , m_max_actions(1)
+    , m_max_actions(3)
     , m_action_points(m_max_actions)
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1) {};

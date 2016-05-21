@@ -3,6 +3,7 @@
 #include "hex.h"
 
 #include <cmath>
+#include <algorithm>
 
 void combat::engage(CombatStats& attack_stats, 
   const Modifier& attack_modifier, 
