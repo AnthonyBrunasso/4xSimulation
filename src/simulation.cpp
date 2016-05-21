@@ -16,14 +16,15 @@ namespace {
   // Contains the current execution step
   Step* s_current_step;
   // Units to move in the current step
-  std::vector<Unit*> s_units_to_move;
+  typedef std::vector<uint32_t> UnitMovementVector;
+  UnitMovementVector s_units_to_move;
   // Units to fight in the current step
   std::vector<std::pair<uint32_t, uint32_t> > s_units_to_fight;
   // Used to count turns and index into player array
   uint32_t s_current_turn = 0;
 
   // Order of operations that should be checked after a step
-  void step_move();
+  bool step_move(UnitMovementVector& units_to_move);
   void step_negotiate();
   void step_discoever();
   void step_combat();
@@ -47,29 +48,46 @@ namespace {
 
   void process_spawn();         // Immediate spawn 
 
-  void step_move() {
-    std::vector<Unit*> done_moving;
-    for (auto unit : s_units_to_move) {
+  bool step_move(UnitMovementVector& units_to_move) {
+    bool movement = false;
+
+    UnitMovementVector still_moving;
+    for (auto unit_id : units_to_move) {
+      // Make sure the unit continues to exist
+      Unit* unit = units::get_unit(unit_id);
+      if (!unit) {
+        std::cout << "Dropping dead unit " << unit_id << " (id) from movement. " << std::endl;
+        continue;
+      }
+
+      // Unit arrived at destination
+      if (unit->m_path.empty())
+      {
+        std::cout << "Path complete; dropping unit " << unit_id << " (id) from movement " << std::endl;
+        continue;
+      }
+
+      // Unit is engaged in movement, but exhausted
+      if (!unit->m_action_points) {
+        still_moving.push_back(unit_id);
+        continue;
+      }
+
       // Advance unit forward by a single action point
-      if (unit->m_action_points) {
-        if (world_map::move_unit(unit->m_unique_id, 1)) {
-          --unit->m_action_points;
-        }
-      }
+      uint32_t moved = world_map::move_unit(unit_id, 1);
+      if (moved) {
+        movement = true;
+        unit->m_action_points -= moved;
 
-      // If they have arrived at their destination they are done moving
-      if (unit->m_path.empty()) {
-        done_moving.push_back(unit);
+        still_moving.push_back(unit_id);
       }
+      // else
+      // there is an unforseen problem with the unit's path
     }
 
-    // Remove all units that are finished moving
-    for (auto unit : done_moving) {
-      auto findIt = std::find(s_units_to_move.begin(), s_units_to_move.end(), unit);
-      if (findIt != s_units_to_move.end()) {
-        s_units_to_move.erase(findIt);
-      }
-    }
+    units_to_move.swap(still_moving);
+
+    return movement;
   }
 
   void step_negotiate() {
@@ -143,6 +161,11 @@ namespace {
 
   }
 
+  void phase_queued_movement() {
+    while (step_move(s_units_to_move)) {
+
+    }
+  }
   void phase_notifications() {
 
   }
@@ -158,6 +181,12 @@ namespace {
     player::add_city(colonize_step->m_player, id);
   }
 
+  void execute_kill() {
+    KillStep* kill_step = static_cast<KillStep*>(s_current_step);
+    units::destroy(kill_step->m_unit_id);
+    std::cout << kill_step->m_unit_id << " (id) has been slain." << std::endl;
+  }
+
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
     uint32_t id = units::create(static_cast<ENTITY_TYPE>(spawn_step->m_entity_type), spawn_step->m_location);
@@ -165,14 +194,30 @@ namespace {
   }
 
   void execute_move() {
+    std::cout << "Executing immediate movement " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
     MoveStep* move_step = static_cast<MoveStep*>(s_current_step);
+
+    // Set path
+    units::set_path(move_step->m_unit_id, move_step->m_destination);
+
+    // Execute on path
+    UnitMovementVector units_to_move;
+    units_to_move.push_back(move_step->m_unit_id);
+    while (step_move(units_to_move)) {
+
+    }
+  }
+
+  void execute_queue_move() {
+    // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
+    QueueMoveStep* move_step = static_cast<QueueMoveStep*>(s_current_step);
     Unit* unit = units::get_unit(move_step->m_unit_id);
     if (!unit) {
       return;
     }
     units::set_path(move_step->m_unit_id, move_step->m_destination);
-    s_units_to_move.push_back(unit);
+    s_units_to_move.push_back(move_step->m_unit_id);
   }
 
   void execute_add_player() {
@@ -236,9 +281,13 @@ void simulation::process_step(Step* step) {
     case COMMAND::IMPROVE:
       break;
     case COMMAND::KILL:
+      execute_kill();
       break;
     case COMMAND::MOVE:
       execute_move();
+      break;
+    case COMMAND::QUEUE_MOVE:
+      execute_queue_move();
       break;
     case COMMAND::PURCHASE:
       break;
@@ -258,7 +307,6 @@ void simulation::process_step(Step* step) {
   }
 
   // Process potential outputs of steps
-  step_move();
   step_negotiate();
   step_discoever();
   step_combat();
@@ -279,6 +327,7 @@ void simulation::process_begin_turn() {
 }
 
 void simulation::process_end_turn() {
+  phase_queued_movement();
   phase_notifications();
   phase_spawn_units();
   phase_spawn_buildings();

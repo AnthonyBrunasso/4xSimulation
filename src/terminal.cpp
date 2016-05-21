@@ -153,6 +153,7 @@ namespace {
     std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;

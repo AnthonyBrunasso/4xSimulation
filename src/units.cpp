@@ -94,6 +94,7 @@ void units::set_path(uint32_t id, const sf::Vector3i& destination) {
 }
 
 void units::replenish_actions() {
+  std::cout << "Replentish action points" << std::endl;
   for (auto unit : s_units) {
     unit.second->m_action_points = unit.second->m_max_actions;
   }
