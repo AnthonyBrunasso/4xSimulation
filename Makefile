@@ -13,8 +13,8 @@ else
 	endif
 endif
 
-APP = 4xSimulation
-LIB = 4xLib$(DLLEXT)
+APP = 4xsim
+LIB = lib4xsim$(DLLEXT)
 
 INCDIR = include
 SRCDIR = src
@@ -33,11 +33,14 @@ all: $(APP)
 debug: CFLAGS += -DDEBUG -g
 debug: $(APP)
 
+# Remove main when creating a dynamic lib
+lib: SRCS := $(filter-out $(SRCDIR)/main.cpp, $(SRCS))
+lib: OBJS := $(filter-out $(OBJDIR)/$(SRCDIR)/main.o, $(OBJS))
 lib: $(LIB)
 
 # Make dynamic library
 $(LIB) : buildsim $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -shared -o $@
+	$(CC) $(OBJS) -dynamiclib -o $@
 
 # Make simulation executable
 $(APP) : buildsim $(OBJS)

@@ -19,7 +19,8 @@ if __name__ == '__main__':
 
   for lib in [each for each in os.listdir(lib_dir) if each.endswith(tuple(lib_ext))]:
     lib_src = os.path.join(lib_dir,lib)
-    dest = os.path.join(game_dir, 'lib')
+    # copy to game here or lib?
+    dest = game_dir
     print("Copying: " + lib_src + " to: " + dest)
     shutil.copy(lib_src, dest)
     
