@@ -1,6 +1,20 @@
 CC=clang++
 
+# Detect operating system for proper dynamic lib extension
+ifeq ($(OS),Windows_NT)
+	DLLEXT := .dll
+else
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		DLLEXT := .so
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		DLLEXT := .dylib
+	endif
+endif
+
 APP = 4xSimulation
+LIB = 4xLib$(DLLEXT)
 
 INCDIR = include
 SRCDIR = src
@@ -19,6 +33,13 @@ all: $(APP)
 debug: CFLAGS += -DDEBUG -g
 debug: $(APP)
 
+lib: $(LIB)
+
+# Make dynamic library
+$(LIB) : buildsim $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -shared -o $@
+
+# Make simulation executable
 $(APP) : buildsim $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
