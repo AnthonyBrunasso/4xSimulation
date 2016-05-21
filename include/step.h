@@ -15,6 +15,7 @@ enum class COMMAND {
   DISCOVER,
   IMPROVE,
   KILL,
+  MOVE,
   QUEUE_MOVE,
   PURCHASE,
   SELL,
@@ -50,6 +51,12 @@ struct ColonizeStep : public Step {
   uint32_t m_unit_id;
   sf::Vector3i m_location;
   uint32_t m_player;
+};
+
+struct MoveStep : public Step {
+  MoveStep(COMMAND command) : Step(command) {};
+  uint32_t m_unit_id;
+  sf::Vector3i m_destination;
 };
 
 struct QueueMoveStep : public Step {

@@ -56,13 +56,14 @@ namespace {
       // Make sure the unit continues to exist
       Unit* unit = units::get_unit(unit_id);
       if (!unit) {
-        std::cout << "Dropping dead unit from movement" << std::endl;
+        std::cout << "Dropping dead unit " << unit_id << " (id) from movement. " << std::endl;
         continue;
       }
 
       // Unit arrived at destination
       if (unit->m_path.empty())
       {
+        std::cout << "Path complete; dropping unit " << unit_id << " (id) from movement " << std::endl;
         continue;
       }
 
@@ -192,6 +193,22 @@ namespace {
     player::add_unit(spawn_step->m_player, id);
   }
 
+  void execute_move() {
+    std::cout << "Executing immediate movement " << std::endl;
+    // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
+    MoveStep* move_step = static_cast<MoveStep*>(s_current_step);
+
+    // Set path
+    units::set_path(move_step->m_unit_id, move_step->m_destination);
+
+    // Execute on path
+    UnitMovementVector units_to_move;
+    units_to_move.push_back(move_step->m_unit_id);
+    while (step_move(units_to_move)) {
+
+    }
+  }
+
   void execute_queue_move() {
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
     QueueMoveStep* move_step = static_cast<QueueMoveStep*>(s_current_step);
@@ -265,6 +282,9 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::KILL:
       execute_kill();
+      break;
+    case COMMAND::MOVE:
+      execute_move();
       break;
     case COMMAND::QUEUE_MOVE:
       execute_queue_move();
