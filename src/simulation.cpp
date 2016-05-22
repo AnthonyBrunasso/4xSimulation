@@ -206,6 +206,9 @@ namespace {
     while (step_move(units_to_move)) {
 
     }
+
+    // Queue it for continued movement, unit will remove itself if it is done moving
+    s_units_to_move.push_back(move_step->m_unit_id);
   }
 
   void execute_queue_move() {

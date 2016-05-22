@@ -38,11 +38,12 @@ std::string format::tile(const Tile& tile) {
 std::string format::unit(const Unit& unit) {
   std::stringstream ss;
 
-  ss << "unique id: " << unit.m_unique_id
-     << " entity id: " << static_cast<uint32_t>(unit.m_entity_type)
-     << " location: " << format::vector3(unit.m_location)
-     << " actions: " << unit.m_action_points
-     << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]";
+  ss << "unique id: " << unit.m_unique_id << std::endl
+     << " entity id: " << static_cast<uint32_t>(unit.m_entity_type) << std::endl
+     << " location: " << format::vector3(unit.m_location) << std::endl
+     << " actions: " << unit.m_action_points << std::endl
+     << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl
+     << " path: " << unit.m_path.size();
 
   return std::move(ss.str());
 }
