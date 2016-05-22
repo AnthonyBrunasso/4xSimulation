@@ -5,6 +5,11 @@
 #include <cstdint>
 #include <functional>
 
+enum class TURN_STATE {
+  PLAYING,
+  COMPLETE,
+};
+
 //
 // Player is a generic class that ties units and buildings to some entity.
 //
@@ -20,6 +25,7 @@ public:
   // Unique ids of buildings and units that belong to this player
   std::set<uint32_t> m_cities;
   std::set<uint32_t> m_units;
+  TURN_STATE m_turn_state;
 };
 
 namespace player {

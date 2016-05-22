@@ -86,7 +86,8 @@ std::string format::player(const Player& player) {
 
   ss << "name: " << player.m_name 
      << " buildings: " << format::set(player.m_cities)
-     << " units: " << format::set(player.m_units);
+     << " units: " << format::set(player.m_units)
+     << " turn_state: " << static_cast<size_t>(player.m_turn_state);
 
   return std::move(ss.str());
 }

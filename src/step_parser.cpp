@@ -43,12 +43,15 @@ namespace {
       CREATE_GENERIC_STEP(1, tokens, step, COMMAND::QUIT);
     }
 
-    else if (tokens[0] == "begin") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::BEGIN_TURN);
+    else if (tokens[0] == "begin_turn") {
+      CREATE_GENERIC_STEP(1, tokens, step, COMMAND::BEGIN_TURN);
     }
 
-    else if (tokens[0] == "end") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::END_TURN);
+    else if (tokens[0] == "end_turn") {
+      CHECK_VALID(2, tokens);
+      EndTurnStep* end_turn_step = new EndTurnStep(COMMAND::END_TURN);
+      end_turn_step->m_player = std::stoul(tokens[1]);
+      step = end_turn_step;
     }
 
     else if (tokens[0] == "attack") {

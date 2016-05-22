@@ -88,3 +88,9 @@ struct UnitStatsStep : public Step {
   uint32_t m_attack; 
   uint32_t m_range;
 };
+
+struct EndTurnStep : public Step {
+  EndTurnStep(COMMAND command) : Step(command) {};
+
+  uint32_t m_player;
+};

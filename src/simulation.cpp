@@ -22,14 +22,8 @@ namespace {
   // Units to fight in the current step
   std::vector<std::pair<uint32_t, uint32_t> > s_units_to_fight;
 
-  enum class TURN_STATE {
-    VOID = 0,
-    PLAYING,
-  };
-
   // Used to count turns and index into player array
   uint32_t s_current_turn = 0;
-  TURN_STATE s_turn_state = TURN_STATE::PLAYING;
 
   // Order of operations that should be checked after a step
   bool step_move(UnitMovementVector& units_to_move);
@@ -332,31 +326,49 @@ void simulation::process_step(Step* step) {
 }
 
 void simulation::process_begin_turn() {
-  if (s_turn_state != TURN_STATE::VOID) {
+
+  bool allPlayersReady = true;
+  player::for_each_player([&allPlayersReady](Player& player) {
+    allPlayersReady &= player.m_turn_state == TURN_STATE::COMPLETE;
+  });
+
+  if (!allPlayersReady) {
+    std::cout << "Not all players ready for next turn. " << std::endl;
     return;
   }
-  s_turn_state = TURN_STATE::VOID;
-  std::cout << "Beginning turn #" << s_current_turn << std::endl;
 
+  // Apply changes
+  phase_queued_movement();
   phase_city_growth();
   phase_science_progression();
   phase_diplomatic_progression();
-  phase_global_events();
-  phase_restore_actions();
-}
-
-void simulation::process_end_turn() {
-  if (s_turn_state != TURN_STATE::PLAYING) {
-    return;
-  }
-
-  phase_queued_movement();
-  phase_notifications();
   phase_spawn_units();
   phase_spawn_buildings();
+  phase_restore_actions();
+
+  // Provide turn feedback
+  phase_global_events();
   phase_science_done();
+  phase_notifications();
 
   // Increment turn counter
   ++s_current_turn;
-  s_turn_state = TURN_STATE::VOID;
+
+  // Each player state -> Playing
+  player::for_each_player([](Player& player) {
+    player.m_turn_state = TURN_STATE::PLAYING;
+  });
+  std::cout << "Beginning turn #" << s_current_turn << std::endl;
+}
+
+void simulation::process_end_turn() {
+  EndTurnStep* end_step = static_cast<EndTurnStep*>(s_current_step);
+
+  Player* player = player::get_player(end_step->m_player);
+
+  if (!player) {
+    return;
+  }
+
+  player->m_turn_state = TURN_STATE::COMPLETE;
 }

@@ -82,8 +82,10 @@ namespace {
 
     terminal::add_query("players", "players", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      player::for_each_player([](Player& player) {
-        std::cout << format::player(player) << std::endl;
+      int count = 0;
+      player::for_each_player([&count](Player& player) {
+        std::cout << count << ": " << format::player(player) << std::endl;
+        ++count;
       });
       return true;
     });
@@ -160,12 +162,12 @@ namespace {
     std::cout << "  help" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "  attack <unitId> <unitId>" << std::endl;
-    std::cout << "  begin turn" << std::endl;
+    std::cout << "  begin_turn" << std::endl;
     std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
     std::cout << "  construct <cityId> <buildingId>" << std::endl;
     std::cout << "  construct <cityId> <unitId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
-    std::cout << "  end turn" << std::endl;
+    std::cout << "  end_turn" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
