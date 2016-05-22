@@ -22,12 +22,14 @@ int main(int argc, char* argv[]) {
   // Enter interactive mode
   while (Step* step = terminal::parse_input()) {
     simulation::process_step(step);
-    if (step->m_command == COMMAND::QUIT) {
-      delete step;
-      break;
-    }
+
+    bool quitting = step->m_command == COMMAND::QUIT;
     // Finished with the step, clean it up
     delete step;
+
+    if (quitting) {
+      break;
+    }
   }
 
   simulation::kill();
