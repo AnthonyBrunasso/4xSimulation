@@ -21,8 +21,15 @@ namespace {
   UnitMovementVector s_units_to_move;
   // Units to fight in the current step
   std::vector<std::pair<uint32_t, uint32_t> > s_units_to_fight;
+
+  enum class TURN_STATE {
+    VOID = 0,
+    PLAYING,
+  };
+
   // Used to count turns and index into player array
   uint32_t s_current_turn = 0;
+  TURN_STATE s_turn_state = TURN_STATE::PLAYING;
 
   // Order of operations that should be checked after a step
   bool step_move(UnitMovementVector& units_to_move);
@@ -325,7 +332,11 @@ void simulation::process_step(Step* step) {
 }
 
 void simulation::process_begin_turn() {
-  std::cout << "Beginning turn..." << std::endl;
+  if (s_turn_state != TURN_STATE::VOID) {
+    return;
+  }
+  s_turn_state = TURN_STATE::VOID;
+  std::cout << "Beginning turn #" << s_current_turn << std::endl;
 
   phase_city_growth();
   phase_science_progression();
@@ -335,6 +346,10 @@ void simulation::process_begin_turn() {
 }
 
 void simulation::process_end_turn() {
+  if (s_turn_state != TURN_STATE::PLAYING) {
+    return;
+  }
+
   phase_queued_movement();
   phase_notifications();
   phase_spawn_units();
@@ -343,4 +358,5 @@ void simulation::process_end_turn() {
 
   // Increment turn counter
   ++s_current_turn;
+  s_turn_state = TURN_STATE::VOID;
 }
