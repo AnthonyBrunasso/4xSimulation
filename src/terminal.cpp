@@ -10,41 +10,46 @@
 #include "step_parser.h"
 #include "hex.h"
 
+#include <algorithm>
 #include <iostream>
-#include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace {
 
+// Return true because it was a valid query command but invalid arguments.
+// Returning true will enforce that the query will not attempt to be parsed as a step.
 #define CHECK_VALID(arg_count, tokens) { \
   if (tokens.size() != arg_count) { \
     bad_arguments(tokens); \
-    return false; \
+    return true; \
   } \
 } 
 
+  typedef std::unordered_map<std::string, std::function<bool(const std::vector<std::string>&)> > CommandMap;
+  std::vector<std::string> s_help_list;
+  CommandMap s_query_map;
+
+  void initialize();
   bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
   void bad_arguments(const std::vector<std::string>& tokens);
   void draw_tile(const sf::Vector3i coord);
 
-  bool execute_queries(const std::vector<std::string>& tokens) {
-    if (!tokens.size()) {
-      return false;
-    }
-
-    if (tokens[0] == "help") {
+  void initialize() {
+    terminal::add_query("help", "help", [](const std::vector<std::string>&) -> bool {
       execute_help();
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "cities") {
+    terminal::add_query("cities", "cities", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       city::for_each_city([](City& city) {
         std::cout << format::city(city) << std::endl;
       });
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "city") {
+    terminal::add_query("city", "city <cityId>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(2, tokens);
       City* city = city::get_city(std::stoul(tokens[1]));
       if (!city) {
@@ -52,16 +57,18 @@ namespace {
         return true;
       }
       std::cout << format::city(*city);
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "tiles") {
+    terminal::add_query("tiles", "tiles", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
         std::cout << format::vector3(coord) << ": " << format::tile(tile) << std::endl;
       });
-    } 
+      return true;
+    });
 
-    else if (tokens[0] == "tile") {
+    terminal::add_query("tile", "tile <x> <y> <z>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(4, tokens);
       sf::Vector3i key = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       Tile* tile = world_map::get_tile(key);
@@ -70,30 +77,32 @@ namespace {
         return true;
       }
       std::cout << format::tile(*tile) << std::endl; 
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "players") {
+    terminal::add_query("players", "players", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       player::for_each_player([](Player& player) {
         std::cout << format::player(player) << std::endl;
       });
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "range") {
+    terminal::add_query("range", "range <x> <y> <z> <n>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(5, tokens);
       sf::Vector3i start = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       int32_t distance = std::stoi(tokens[4]);
       std::vector<sf::Vector3i> coords;
       search::range(start, distance, coords);
-
       for (uint32_t i = 0; i < coords.size(); ++i) {
         Tile* near = world_map::get_tile(coords[i]);
         if (!near) continue;
         std::cout << "location: " << format::vector3(coords[i]) << " tile: " << format::tile(*near) << std::endl;
       }
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "route") {
+    terminal::add_query("route", "route <xs> <ys> <zs> <xt> <yt> <zt>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(7, tokens);
       // Shows the route from start to end, inclusive
       sf::Vector3f start = util::str_to_vector3f(tokens[1], tokens[2], tokens[3]);
@@ -103,38 +112,46 @@ namespace {
       for (uint32_t i = 0; i < route.size(); ++i) {
         std::cout << format::vector3(route[i]) << std::endl;
       }
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "units") {
+    terminal::add_query("units", "units", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       units::for_each_unit([](const Unit& unit) {
         std::cout << format::unit(unit) << std::endl;
       });
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "unit") {
+    terminal::add_query("unit", "unit <unitId>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(2, tokens);
       Unit* unit = units::get_unit(std::stoul(tokens[1]));
       if (!unit) {
         std::cout << "id: " << tokens[1] << " does not exist" << std::endl;
         return true;
       }
-
       std::cout << format::unit(*unit) << std::endl;
-    }
+      return true;
+    });
 
-    else if (tokens[0] == "draw") {
-      if (tokens[1] == "tile") {
-        CHECK_VALID(5, tokens);
-        draw_tile(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      }
-    }
+    terminal::add_query("draw", "draw tile <x> <y> <z>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(5, tokens);
+      draw_tile(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
+      return true;
+    });
+  }
 
-    else {
+  bool execute_queries(const std::vector<std::string>& tokens) {
+    if (!tokens.size()) {
       return false;
     }
 
-    return true;
+    auto operation = s_query_map.find(tokens[0]);
+    if (operation == s_query_map.end()) {
+      return false;
+    }
+
+    return operation->second(tokens);
   }
 
   void execute_help() {
@@ -163,22 +180,16 @@ namespace {
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl << std::endl;
 
     std::cout << "Queries: " << std::endl;
-    std::cout << "  cities" << std::endl;
-    std::cout << "  city <cityId>" << std::endl;
-    std::cout << "  tiles" << std::endl;
-    std::cout << "  tile <x> <y> <z>" << std::endl;
-    std::cout << "  players" << std::endl;
-    std::cout << "  range <x> <y> <z> <n>" << std::endl;
-    std::cout << "  route <x> <y> <z> <x> <y> <z>" << std::endl;
-    std::cout << "  unit" << std::endl;
-    std::cout << "  unit <unitId>" << std::endl << std::endl;
+    for (auto help : s_help_list) {
+      std::cout << "  " << help << std::endl;
+    }
 
-    std::cout << "ACII Drawing: " << std::endl;
+    std::cout << std::endl << "ACII Drawing: " << std::endl;
     std::cout << "  draw tile <x> <y> <z>" << std::endl;
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
-    std::cout << "Invalid arguments: " << format::vector(tokens) << std::endl;
+    std::cout << "Invalid query: " << format::vector(tokens) << std::endl;
   }
 
   void draw_tile(sf::Vector3i coord) {
@@ -228,8 +239,19 @@ namespace {
   }
 }
 
+void terminal::add_query(
+    const std::string& command, 
+    const std::string& help,
+    std::function<bool(const std::vector<std::string>&)> operation) {
+  s_query_map[command] = operation;
+  s_help_list.push_back(help);
+  std::sort(s_help_list.begin(), s_help_list.end());
+}
+
 Step* terminal::parse_input() {
   Step* step = nullptr;
+  // Initialize queries
+  initialize();
 
   // Get input until we've created a valid step
   while (!step) {

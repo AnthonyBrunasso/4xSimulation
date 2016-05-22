@@ -61,8 +61,7 @@ namespace {
       }
 
       // Unit arrived at destination
-      if (unit->m_path.empty())
-      {
+      if (unit->m_path.empty()) {
         std::cout << "Path complete; dropping unit " << unit_id << " (id) from movement " << std::endl;
         continue;
       }
