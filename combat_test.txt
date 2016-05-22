@@ -1,0 +1,17 @@
+spawn 0 0 0 0
+spawn 0 0 0 0
+stats 1 50 20 1
+stats 2 50 15 1
+spawn 0 1 0 -1
+spawn 0 2 0 -2
+stats 4 50 2 2
+attack 1 2
+attack 1 2
+attack 1 2
+attack 1 2
+end turn
+begin turn
+attack 3 1
+attack 1 4
+attack 4 1
+attack 4 1
