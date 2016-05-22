@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 void combat::engage(CombatStats& attack_stats, 
   const Modifier& attack_modifier, 
@@ -23,15 +24,19 @@ void combat::engage(CombatStats& attack_stats,
   if (attacker_range < static_cast<float>(distance)) {
     return;
   }
+
   defender_health -= attacker_attack;
   defend_stats.m_health = static_cast<uint32_t>(std::max(0.0f, roundf(defender_health)));
+  std::cout << "Defender is delt " << attacker_attack << " damage! " << std::endl;
 
   // Only return fire if the defender can reach the attacker
   if (defender_range < static_cast<float>(distance)) {
     return;
   }
+
   attacker_health -= defender_attack;
   attack_stats.m_health = static_cast<uint32_t>(std::max(0.0f, roundf(attacker_health)));
+  std::cout << "Attacker received " << defender_attack << " damage! " << std::endl;
 }
 
 void combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance) {

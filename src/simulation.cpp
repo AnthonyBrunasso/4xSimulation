@@ -3,6 +3,7 @@
 #include "step.h"
 #include "units.h"
 #include "city.h"
+#include "format.h"
 #include "world_map.h"
 #include "hex.h"
 #include "util.h"
@@ -103,11 +104,14 @@ namespace {
       if (!unit) {
         continue;
       }
-
-      if (unit->m_action_points) {
-        units::combat(pair.first, pair.second);
-        --unit->m_action_points;
+      
+      if (!unit->m_action_points) {
+        std::cout << "Unit " << unit->m_unique_id << " (id) is too exhausted to initiate combat. " << std::endl;
+        continue;
       }
+
+      units::combat(pair.first, pair.second);
+      --unit->m_action_points;
     }
 
     // Attacks should all complete in a single step?
@@ -242,6 +246,8 @@ namespace {
     unit->m_combat_stats.m_health = stats_step->m_health;
     unit->m_combat_stats.m_attack = stats_step->m_attack;
     unit->m_combat_stats.m_range = stats_step->m_range;
+
+    std::cout << format::combat_stats(unit->m_combat_stats) << std::endl;
   }
 }
 

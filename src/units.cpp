@@ -108,6 +108,8 @@ void units::combat(uint32_t attacker_id, uint32_t defender_id) {
     return;
   }
 
+  std::cout << "Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
+
   // Get distance between characters
   uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
@@ -115,10 +117,12 @@ void units::combat(uint32_t attacker_id, uint32_t defender_id) {
 
   // If attacker or defender died, kill them
   if (defender->m_combat_stats.m_health == 0) {
+    std::cout << "defending unit " << defender_id << " (id) destroyed in combat." << std::endl;
     destroy(defender_id);
   }
 
   if (attacker->m_combat_stats.m_health == 0) {
+    std::cout << "attacking unit " << attacker_id << " (id) destroyed in combat." << std::endl;
     destroy(attacker_id);
   }
 }
