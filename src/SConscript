@@ -1,0 +1,15 @@
+Import('env')
+
+env['LIBS'] = ['sfml-audio.lib', 'sfml-graphics.lib', 'sfml-network.lib', 'sfml-system.lib', 'sfml-window.lib']
+
+srcFiles = Glob('*.cpp')
+
+if not GetOption('projects'):
+  if not GetOption('lib'):
+    env.Program('Game', source=srcFiles)
+
+if GetOption('lib'):
+  env.Library('4xsim', source=srcFiles)
+
+
+Return('srcFiles')
