@@ -37,10 +37,6 @@ namespace {
       return lhs.m_heuristic.m_value > rhs.m_heuristic.m_value; 
     }
   };
- 
-  /*auto s_comparator = [](const PathNode& lhs, const PathNode& rhs) { 
-    return lhs.m_heuristic.m_value > rhs.m_heuristic.m_value; 
-  };*/
 
   // Helper function to set the actual value of a score.
   void set(Score& score, uint32_t value) {
@@ -51,18 +47,6 @@ namespace {
   uint32_t heuristic_estimate(const sf::Vector3i& from, const sf::Vector3i& goal) {
     return hex::cube_distance(from, goal);
   }
-
-  // Appends the list and formats it as a heap.
-/*  void push_heap(std::vector<PathNode>& list, const PathNode& record) {
-    list.push_back(record);
-    std::push_heap(list.begin(), list.end(), s_comparator);
-  }
-
-  // Pops the list and maintains heap structure.
-  void pop_heap(std::vector<PathNode>& list) {
-    std::pop_heap(list.begin(), list.end(), s_comparator);
-    list.pop_back();
-  }*/
 
   void find_neighbors(const PathNode& record, const sf::Vector3i& goal, std::vector<PathNode>& neighbors, world_map::TileMap& tile_map) {
     // This is a little inefficient since this will need to be copied into neighbors.
@@ -113,7 +97,6 @@ void search::path_to(const sf::Vector3i& start,
     world_map::TileMap& tile_map, 
     std::vector<sf::Vector3i>& coords) {
   // All the discovered nodes that require evaluation.
-//  std::vector<PathNode> open { PathNode(start, 0, heuristic_estimate(start, end)) }; 
   std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparator> open;
   open.push(PathNode(start, 0, heuristic_estimate(start, end))); 
   // Set of open list discoveries for quick lookup. Unordered map because set uses tree and needs >,< operator.
