@@ -22,6 +22,13 @@ hex::AxialNeighbors::AxialNeighbors(const sf::Vector2i& start) {
     neighbors[i] = start + AXIAL_DIRECTIONS[i];
   }
 }
+  
+void hex::cube_neighbors(const sf::Vector3i& start, std::vector<sf::Vector3i>& neighbors) {
+  neighbors.clear();
+  for (uint32_t i = 0; i < NEIGHBOR_COUNT; ++i) {
+    neighbors.push_back(start + CUBE_DIRECTIONS[i]);
+  }
+}
 
 sf::Vector2i hex::cube_to_axial(const sf::Vector3i& cube_coord) {
   return sf::Vector2i(cube_coord.x, cube_coord.y);

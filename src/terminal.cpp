@@ -141,6 +141,33 @@ namespace {
       draw_tile(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       return true;
     });
+    
+    terminal::add_query("tile_cost", "tile_cost <x> <y> <z> <cost>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(5, tokens);
+      Tile* tile = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
+      if (!tile) {
+        return true;
+      }
+      tile->m_path_cost = std::stoul(tokens[4]);
+      return true;
+    });
+
+    terminal::add_query("path_to", "path_to <x> <y> <z> <tox> <toy> <toz>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(7, tokens);
+      std::vector<sf::Vector3i> path;
+      search::path_to(util::str_to_vector3(tokens[1], tokens[2], tokens[3]), 
+        util::str_to_vector3(tokens[4], tokens[5], tokens[6]),
+        world_map::get_map(), 
+        path);
+
+      std::cout << "Path size: " << path.size() << std::endl;
+      for (auto node : path) {
+        std::cout << format::vector3(node) << " ";
+      }
+      std::cout << std::endl;
+      return true;
+    });
+
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {

@@ -23,6 +23,8 @@ public:
   std::vector<uint32_t> m_unit_ids;
   // Only one city can be on a tile at once
   uint32_t m_city_id;
+  // The cost to navigate over this tile
+  uint32_t m_path_cost;
 };
 
 namespace std {

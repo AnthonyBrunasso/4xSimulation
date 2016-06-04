@@ -8,11 +8,10 @@
 #include "format.h"
 
 #include <iostream>
-#include <unordered_map>
 #include <vector>
 
 namespace {
-  static std::unordered_map<sf::Vector3i, Tile> s_map;
+  static world_map::TileMap s_map;
   static std::vector<sf::Vector3i> s_coords;
 
   void subscribe_to_events();
@@ -107,6 +106,10 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
   }
 
   return moved;
+}
+
+world_map::TileMap& world_map::get_map() {
+  return s_map;
 }
 
 Tile* world_map::get_tile(sf::Vector3i location) {

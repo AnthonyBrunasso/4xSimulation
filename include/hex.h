@@ -50,6 +50,8 @@ namespace hex
     sf::Vector2i neighbors[NEIGHBOR_COUNT];
   };
 
+  void cube_neighbors(const sf::Vector3i& start, std::vector<sf::Vector3i>& neighbors);
+
   // Grid conversions
   sf::Vector2i cube_to_axial(const sf::Vector3i& cube_coord);
   sf::Vector2f cube_to_axial(const sf::Vector3f& cube_coord);

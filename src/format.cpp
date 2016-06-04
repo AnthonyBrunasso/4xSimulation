@@ -30,7 +30,8 @@ std::string format::tile(const Tile& tile) {
 
   ss << "terrain: " << static_cast<uint32_t>(tile.m_terrain_type)
      << " units: " << format::vector(tile.m_unit_ids)
-     << " city: " << tile.m_city_id;
+     << " city: " << tile.m_city_id
+     << " path_cost: " << tile.m_path_cost;
 
   return std::move(ss.str());
 }
