@@ -1,9 +1,11 @@
-CC=g++
+CC=clang++
 
 # Detect operating system for proper dynamic lib extension
 ifeq ($(OS),Windows_NT)
 	DLLEXT := .dll
   EXEEXT := .exe
+  # Compile with gcc on windows
+  CC=g++
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
