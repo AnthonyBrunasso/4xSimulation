@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 namespace {
   static world_map::TileMap s_map;

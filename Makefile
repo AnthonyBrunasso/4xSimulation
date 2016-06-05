@@ -1,8 +1,9 @@
-CC=clang++
+CC=g++
 
 # Detect operating system for proper dynamic lib extension
 ifeq ($(OS),Windows_NT)
 	DLLEXT := .dll
+  EXEEXT := .exe
 else
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -13,7 +14,7 @@ else
 	endif
 endif
 
-APP = 4xsim
+APP = 4xsim$(EXEEXT)
 LIB = lib4xsim$(DLLEXT)
 
 INCDIR = include
@@ -21,12 +22,11 @@ SRCDIR = src
 OBJDIR = obj
 LIBDIR = lib
 
-SRCS    := $(shell find $(SRCDIR) -name '*.cpp')
-SRCDIRS := $(shell find . -name '*.cpp' -exec dirname {} \; | uniq)
+SRCS    := $(wildcard src/*.cpp)
+SRCDIRS := $(filter %/, $(wildcard src/*/))
 OBJS    := $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS))
 
 CFLAGS  = -std=c++11 -c -Wall -Wextra -I$(INCDIR)
-LDFLAGS = -rpath $(LIBDIR)
 
 all: $(APP)
 
@@ -44,7 +44,7 @@ $(LIB) : buildsim $(OBJS)
 
 # Make simulation executable
 $(APP) : buildsim $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o $@
+	$(CC) $(OBJS) -o $@
 
 $(OBJDIR)/%.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
