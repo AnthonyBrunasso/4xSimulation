@@ -88,7 +88,8 @@ std::string format::player(const Player& player) {
   ss << "name: " << player.m_name 
      << " buildings: " << format::set(player.m_cities)
      << " units: " << format::set(player.m_units)
-     << " turn_state: " << static_cast<size_t>(player.m_turn_state);
+     << " turn_state: " << static_cast<size_t>(player.m_turn_state)
+     << " resources: " << format::resources(player.m_resources);
 
   return std::move(ss.str());
 }
@@ -99,6 +100,18 @@ std::string format::combat_stats(const CombatStats& stats) {
   ss << "health: " << stats.m_health
      << " attack: " << stats.m_attack
      << " range: " << stats.m_range;
+
+  return std::move(ss.str());
+}
+
+std::string format::resources(const Resources& resources) {
+  std::stringstream ss;
+
+  ss << "[ ";
+  resources.for_each_resource([&ss](RESOURCE_TYPE type, const Resource& resource) {
+    ss << print_resource_name(type) << ": " << resource.m_quantity << " ";
+  });
+  ss << "]";
 
   return std::move(ss.str());
 }

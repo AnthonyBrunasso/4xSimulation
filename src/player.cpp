@@ -10,6 +10,7 @@ Player::Player(const std::string& name)
     , m_cities()
     , m_units() 
     , m_turn_state(TURN_STATE::PLAYING)
+    , m_resources()
 {
   // Remove unit when notified
   units::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {

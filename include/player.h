@@ -1,5 +1,7 @@
 #pragma once
 
+#include "resources.h"
+
 #include <set>
 #include <string>
 #include <cstdint>
@@ -22,10 +24,13 @@ public:
   bool OwnsUnit(uint32_t id) const;
 
   std::string m_name;
-  // Unique ids of buildings and units that belong to this player
+  // Unique ids of buildings and units that belong to this player.
   std::set<uint32_t> m_cities;
   std::set<uint32_t> m_units;
   TURN_STATE m_turn_state;
+
+  // Resources owned by this player.
+  Resources m_resources;
 };
 
 namespace player {
