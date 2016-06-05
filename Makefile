@@ -25,7 +25,7 @@ OBJDIR = obj
 LIBDIR = lib
 
 SRCS    := $(wildcard $(SRCDIR)/*.cpp)
-SRCDIRS := $(filter %/, $(wildcard $(SRCDIR)/*/))
+SRCDIRS := $(sort $(dir $(wildcard $(SRCDIR)/*/)))
 OBJS    := $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS))
 
 CFLAGS  = -std=c++11 -c -Wall -Wextra -I$(INCDIR)
