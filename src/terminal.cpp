@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <fstream>
 #include <unordered_map>
 
 namespace terminal  {
@@ -304,7 +303,17 @@ Step* terminal::parse_input() {
   return step;
 }
 
-void terminal::output_steps(const std::string& filename) {
+void terminal::output_steps(const std::string& filename, std::vector<std::string>* file_commands) {
   s_target_file.open(filename, std::ios::out);
+  if (file_commands) {
+    for (auto command : *file_commands) {
+      s_target_file << command << std::endl;
+    }
+  }
 }
 
+void terminal::kill() {
+  if (s_target_file.is_open()) {
+    s_target_file.close();
+  }
+}
