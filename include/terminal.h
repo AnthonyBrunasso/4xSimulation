@@ -3,7 +3,6 @@
 #include <functional>
 #include <vector>
 #include <string>
-#include <fstream>
 
 #include "terminal.h"
 

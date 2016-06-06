@@ -4,6 +4,7 @@
 #include "step_parser.h"
 
 #include <iostream>
+#include <fstream>
 
 
 void file_reader::extract_steps(const std::string& filename, 
