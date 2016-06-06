@@ -151,6 +151,10 @@ void ConstructionQueueFIFO::Cheat(CONSTRUCTION type_id) {
     return;
   }
 
+  if (!production::construction_is_unique(type_id)) {
+    return;
+  }
+
   ConstructionOrder* order = m_state.GetConstruction(type_id);
   order->ApplyProduction(9999.f);
 }
