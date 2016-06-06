@@ -4,7 +4,15 @@
 #include <iostream>
 #include <iterator>
 
-namespace city_production {
+namespace production {
+  CONSTRUCTION id(uint32_t type_id) {
+    if (type_id <= static_cast<uint32_t>(CONSTRUCTION::INVALID)) {
+      return static_cast<CONSTRUCTION>(type_id);
+    }
+   
+    return CONSTRUCTION::INVALID;
+  }
+
   float required(CONSTRUCTION ) {
     return 60.f;
   }
@@ -32,11 +40,11 @@ ConstructionOrder::ConstructionOrder(CONSTRUCTION type_id)
 }
 
 float ConstructionOrder::GetProductionForConstruction() {
-  return city_production::required(m_type_id) - m_production;
+  return production::required(m_type_id) - m_production;
 }
 
 float ConstructionOrder::ApplyProduction(float production) {
-  float required = city_production::required(m_type_id);
+  float required = production::required(m_type_id);
   
   float usedProduction = std::min(production, required - m_production);
   std::cout << "used production: " << usedProduction << std::endl;
@@ -47,15 +55,15 @@ float ConstructionOrder::ApplyProduction(float production) {
 }
 
 const char* ConstructionOrder::GetName() {
-  return city_production::name_of_construction(m_type_id);
+  return production::name_of_construction(m_type_id);
 }
 
 bool ConstructionOrder::IsUnique() {
-  return city_production::construction_is_unique(m_type_id);
+  return production::construction_is_unique(m_type_id);
 }
 
 bool ConstructionOrder::IsCompleted() {
-  return m_production >= city_production::required(m_type_id);
+  return m_production >= production::required(m_type_id);
 }
 
 
@@ -69,7 +77,7 @@ ConstructionState::~ConstructionState() {
 }
 
 ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION type_id) {
-  if (!city_production::construction_is_unique(type_id)) {
+  if (!production::construction_is_unique(type_id)) {
     return new ConstructionOrder(type_id);
   }
   
@@ -88,7 +96,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION type_id) {
 }
 
 bool ConstructionState::IsConstructed(CONSTRUCTION type_id) {
-  if (!city_production::construction_is_unique(type_id)) {
+  if (!production::construction_is_unique(type_id)) {
     return false;
   }
 
@@ -108,7 +116,7 @@ void ConstructionState::Print() {
 }
 
 ConstructionQueueFIFO::ConstructionQueueFIFO()
-: m_production(0.f)
+: m_stockpile(0.f)
 {
   
 }
@@ -127,6 +135,10 @@ bool ConstructionQueueFIFO::Has(CONSTRUCTION type_id) {
 }
 
 void ConstructionQueueFIFO::Add(CONSTRUCTION type_id) {
+  if (type_id == CONSTRUCTION::INVALID) {
+    return;
+  }
+
   ConstructionOrder* order = m_state.GetConstruction(type_id);
   m_queue.push_back(order);
 }
@@ -152,11 +164,11 @@ void ConstructionQueueFIFO::Move(size_t src, size_t dest) {
   m_queue.insert(itTo, order);
 }
 
-void ConstructionQueueFIFO::Simulation() {
-  m_production += GetProductionYield();
+void ConstructionQueueFIFO::Simulate() {
+  m_stockpile += GetProductionYield();
   while (m_queue.size() > 0) {
     ConstructionOrder* order = m_queue.front();
-    m_production = order->ApplyProduction(m_production);
+    m_stockpile = order->ApplyProduction(m_stockpile);
     if (order->IsCompleted()) {
       ConstructionOrder* completed = m_queue.front();
       std::cout << "Construction completed: " << completed->GetName() << std::endl;
@@ -165,19 +177,19 @@ void ConstructionQueueFIFO::Simulation() {
         delete completed;
       }
     }
-    if (m_production < 1.f) {
+    if (m_stockpile < 1.f) {
       return;
     }
   }
   
   // Limit the city's reserve when no construction orders are given
   //  The yield may have increased due to completed construction
-  m_production = std::min(m_production, GetProductionYield());
+  m_stockpile = std::min(m_stockpile, GetProductionYield());
 }
 
 void ConstructionQueueFIFO::PrintState() {
   std::cout << "--Construction State--" << std::endl;
-  std::cout << "Stockpiled: " << m_production << std::endl;
+  std::cout << "Stockpiled: " << m_stockpile << std::endl;
   m_state.Print();
 }
 

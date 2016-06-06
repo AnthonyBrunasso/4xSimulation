@@ -9,7 +9,7 @@ int main()
   cityFifo.Add(CONSTRUCTION::FORGE);
   cityFifo.Add(CONSTRUCTION::MELEE_UNIT);
 
-  cityFifo.Simulation();
+  cityFifo.Simulate();
 
   cityFifo.PrintQueue();
 
@@ -17,7 +17,7 @@ int main()
   getchar();
 
   for (int i = 0; i < 60; ++i) {
-    cityFifo.Simulation();
+    cityFifo.Simulate();
     if (i == 20) {
       cityFifo.Move(0, 1);
     }
@@ -27,7 +27,7 @@ int main()
   getchar();
 
   for (int i = 0; i < 60; ++i) {
-    cityFifo.Simulation();
+    cityFifo.Simulate();
   }
 
   std::cout << "(15) turns will pass, Press enter" << std::endl;
@@ -36,7 +36,7 @@ int main()
   cityFifo.Add(CONSTRUCTION::GRANARY);
 
   for (int i = 0; i < 15; ++i) {
-    cityFifo.Simulation();
+    cityFifo.Simulate();
   }
 
   cityFifo.PrintState();

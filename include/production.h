@@ -11,9 +11,11 @@ enum class CONSTRUCTION
   RANGE_UNIT,
   FORGE,
   MELEE_UNIT,
+  INVALID,
 };
 
 namespace production {
+  CONSTRUCTION id(uint32_t);
   float required(CONSTRUCTION type_id);
   const char* name_of_construction(CONSTRUCTION type_id);
   bool construction_is_unique(CONSTRUCTION type_id);
@@ -70,7 +72,7 @@ public:
 
   void Move(size_t src, size_t dest);
 
-  void Simulation();
+  void Simulate();
 
   void PrintState();
   void PrintQueue();
@@ -79,6 +81,6 @@ private:
   ConstructionList m_queue;
   ConstructionState m_state;
   // When nothing is queued, the city can store limited production for future work
-  float m_production;
+  float m_stockpile;
 };
 

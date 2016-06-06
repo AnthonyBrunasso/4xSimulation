@@ -190,8 +190,7 @@ namespace terminal  {
     std::cout << "  attack <unitId> <unitId>" << std::endl;
     std::cout << "  begin_turn" << std::endl;
     std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
-    std::cout << "  construct <cityId> <buildingId>" << std::endl;
-    std::cout << "  construct <cityId> <unitId>" << std::endl;
+    std::cout << "  construct <cityId> <productionId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn <player index>" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;

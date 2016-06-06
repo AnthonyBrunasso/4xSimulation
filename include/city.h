@@ -4,6 +4,9 @@
 
 #include <cstdint>
 #include <functional>
+#include <memory>
+
+class ConstructionQueueFIFO;
 
 class City {
 public:
@@ -14,10 +17,11 @@ public:
   float FoodForSustain() const;
   float FoodForGrowth() const;
   float GetTurnsForGrowth() const;
-
+  const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
 
   sf::Vector3i m_location;
   float m_food;
+  std::unique_ptr<ConstructionQueueFIFO> m_construction;
 };
 
 namespace city {

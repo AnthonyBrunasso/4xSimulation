@@ -8,6 +8,7 @@
 #include "hex.h"
 #include "util.h"
 #include "player.h"
+#include "production.h"
 
 #include <iostream>
 #include <vector>
@@ -178,6 +179,15 @@ namespace {
 
   }
 
+  void execute_construction() {
+    ConstructionStep* construction_step = static_cast<ConstructionStep*>(s_current_step);
+    City* city = city::get_city(construction_step->m_city_id);
+    if(!city) {
+      return;
+    }
+    city->GetConstruction()->Add(production::id(construction_step->m_production_id));
+  }
+
   void execute_colonize() {
     ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
     units::destroy(colonize_step->m_unit_id);
@@ -284,6 +294,7 @@ void simulation::process_step(Step* step) {
       execute_colonize();
       break;
     case COMMAND::CONSTRUCT:
+      execute_construction();
       break;
     case COMMAND::DISCOVER:
       break;

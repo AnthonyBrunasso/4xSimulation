@@ -53,6 +53,15 @@ struct ColonizeStep : public Step {
   uint32_t m_player;
 };
 
+struct ConstructionStep : public Step {
+  ConstructionStep(COMMAND command) : Step(command)
+    , m_city_id(0)
+    , m_production_id(0) {};
+
+  uint32_t m_city_id;
+  uint32_t m_production_id;
+};
+
 struct MoveStep : public Step {
   MoveStep(COMMAND command) : Step(command) {};
   uint32_t m_unit_id;

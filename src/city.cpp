@@ -1,4 +1,5 @@
 #include "city.h"
+#include "production.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -18,10 +19,12 @@ namespace city {
 
 City::City()
 : m_food(city::food_required_by_population(1)+1)
+, m_construction(new ConstructionQueueFIFO())
 { 
 }
 
 void City::Simulate() {
+  m_construction->Simulate();
   m_food += city::FOOD_PER_TURN;
   std::cout << "City is size |" << GetPopulation() << "| "
     << m_food << " food [" << FoodForSustain() << "-" << FoodForGrowth() << "] "
@@ -43,6 +46,10 @@ float City::FoodForGrowth() const {
 
 float City::GetTurnsForGrowth() const {
   return std::ceil((FoodForGrowth() - m_food) / city::FOOD_PER_TURN);
+}
+
+const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {
+  return m_construction; 
 }
 
 float city::food_required_by_population(float population) {

@@ -74,7 +74,11 @@ namespace {
     }
 
     else if (tokens[0] == "construct") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::CONSTRUCT);
+      CHECK(3, tokens);
+      ConstructionStep* construction_step = new ConstructionStep(COMMAND::CONSTRUCT);
+      construction_step->m_city_id = std::stoul(tokens[1]);
+      construction_step->m_production_id = std::stoul(tokens[2]);
+      step = construction_step;
     }
 
     else if (tokens[0] == "discover") {
