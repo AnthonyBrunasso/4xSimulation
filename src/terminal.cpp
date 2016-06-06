@@ -14,7 +14,7 @@
 #include <iostream>
 #include <unordered_map>
 
-namespace {
+namespace terminal  {
 
 // Return true because it was a valid query command but invalid arguments.
 // Returning true will enforce that the query will not attempt to be parsed as a step.
@@ -29,7 +29,6 @@ namespace {
   std::vector<std::string> s_help_list;
   CommandMap s_query_map;
 
-  void initialize();
   bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
   void bad_arguments(const std::vector<std::string>& tokens);
@@ -194,7 +193,7 @@ namespace {
     std::cout << "  construct <cityId> <buildingId>" << std::endl;
     std::cout << "  construct <cityId> <unitId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
-    std::cout << "  end_turn" << std::endl;
+    std::cout << "  end_turn <player index>" << std::endl;
     std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
     std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
@@ -204,7 +203,7 @@ namespace {
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
-    std::cout << "  spawn <unitId> <x> <y> <z> [<player>]" << std::endl;
+    std::cout << "  spawn <unitType> <x> <y> <z> [<player>]" << std::endl;
     // Modifies the stats of a unit
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl << std::endl;
 
@@ -279,8 +278,6 @@ void terminal::add_query(
 
 Step* terminal::parse_input() {
   Step* step = nullptr;
-  // Initialize queries
-  initialize();
 
   // Get input until we've created a valid step
   while (!step) {

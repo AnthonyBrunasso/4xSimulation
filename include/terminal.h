@@ -4,9 +4,12 @@
 #include <vector>
 #include <string>
 
+#include "terminal.h"
+
 struct Step;
 
 namespace terminal {
+  void initialize();
   void add_query(
     const std::string& command, 
     const std::string& help,

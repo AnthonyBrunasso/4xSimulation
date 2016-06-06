@@ -19,6 +19,9 @@ int main(int argc, char* argv[]) {
     }
   }
 
+  // Initialize queries
+  terminal::initialize();
+
   // Enter interactive mode
   while (Step* step = terminal::parse_input()) {
     simulation::process_step(step);
