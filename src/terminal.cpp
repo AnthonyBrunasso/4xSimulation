@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
 
 namespace terminal  {
@@ -28,6 +29,7 @@ namespace terminal  {
   typedef std::unordered_map<std::string, std::function<bool(const std::vector<std::string>&)> > CommandMap;
   std::vector<std::string> s_help_list;
   CommandMap s_query_map;
+  std::fstream s_target_file;
 
   bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
@@ -292,8 +294,17 @@ Step* terminal::parse_input() {
     // Therefore, no command can be both a query and a step
     if (execute_queries(tokens)) continue;
     // Generate any valid steps from the tokens
-    step = step_parser::parse(tokens); 
+    step = step_parser::parse(tokens);
+    // If a valid step and not a quit, save the command to file.
+    if (step && step->m_command != COMMAND::QUIT) {
+      s_target_file << value << std::endl; 
+    } 
   }
 
   return step;
 }
+
+void terminal::output_steps(const std::string& filename) {
+  s_target_file.open(filename, std::ios::out);
+}
+

@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
   // Initialize queries
   terminal::initialize();
-
+  terminal::output_steps("last_run");
   // Enter interactive mode
   while (Step* step = terminal::parse_input()) {
     simulation::process_step(step);
