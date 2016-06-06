@@ -3,6 +3,11 @@
 #include <cstdint>
 
 struct CombatStats {
+  CombatStats() :
+    m_health(1)
+    , m_attack(0)
+    , m_range(0) {};
+
   CombatStats(uint32_t health, uint32_t attack, uint32_t range) :
     m_health(health)
     , m_attack(attack)

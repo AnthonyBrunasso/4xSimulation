@@ -6,6 +6,7 @@
 #include "hex.h"
 #include "util.h"
 #include "combat.h"
+#include "unit_definitions.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -25,7 +26,13 @@ uint32_t units::create(ENTITY_TYPE entity_type, const sf::Vector3i& location) {
   Unit* unit = new Unit(id, entity_type);
   unit->m_location = location;
 
-  // Add the unit to storage and the world map
+  // Apply unit specific stats if they exist.
+  CombatStats* stats = unit_definitions::get(entity_type);
+  if (stats) {
+    unit->m_combat_stats = *stats;
+  }
+
+  // Add the unit to storage and the world map.
   s_units[id] = unit;
   std::cout << "Created unit id " << id << ", entity type: " << static_cast<uint32_t>(entity_type) << std::endl;
 

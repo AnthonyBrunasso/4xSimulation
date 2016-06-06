@@ -9,6 +9,7 @@
 #include "util.h"
 #include "player.h"
 #include "production.h"
+#include "unit_definitions.h"
 
 #include <iostream>
 #include <vector>
@@ -272,6 +273,8 @@ void simulation::start() {
   // Magic numbers
   sf::Vector3i start;
   world_map::build(start, 10);
+  // Setup unit definitions
+  unit_definitions::initialize();
 }
 
 void simulation::kill() {
