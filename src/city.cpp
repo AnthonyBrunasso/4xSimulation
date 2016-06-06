@@ -24,12 +24,18 @@ City::City()
 }
 
 void City::Simulate() {
+  float food = GetFoodYield();
   m_construction->Simulate();
-  m_food += city::FOOD_PER_TURN;
+  m_food += food;
   std::cout << "City is size |" << GetPopulation() << "| "
     << m_food << " food [" << FoodForSustain() << "-" << FoodForGrowth() << "] "
-    << "+" << city::FOOD_PER_TURN << " growth in " << GetTurnsForGrowth()
+    << "+" << food << " growth in " << GetTurnsForGrowth()
     << std::endl;
+}
+
+float City::GetFoodYield() const {
+  float bonusFood = m_construction->Has(CONSTRUCTION::GRANARY)?2.0:0.0;
+  return city::FOOD_PER_TURN + bonusFood;
 }
 
 float City::GetPopulation() const {
@@ -45,7 +51,7 @@ float City::FoodForGrowth() const {
 }
 
 float City::GetTurnsForGrowth() const {
-  return std::ceil((FoodForGrowth() - m_food) / city::FOOD_PER_TURN);
+  return std::ceil((FoodForGrowth() - m_food) / GetFoodYield());
 }
 
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {

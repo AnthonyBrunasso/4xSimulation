@@ -185,7 +185,13 @@ namespace {
     if(!city) {
       return;
     }
-    city->GetConstruction()->Add(production::id(construction_step->m_production_id));
+
+    if (!construction_step->m_cheat) {
+      city->GetConstruction()->Add(production::id(construction_step->m_production_id));
+      return;
+    }
+ 
+    city->GetConstruction()->Cheat(production::id(construction_step->m_production_id));
   }
 
   void execute_colonize() {

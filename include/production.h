@@ -11,6 +11,7 @@ enum class CONSTRUCTION
   RANGE_UNIT,
   FORGE,
   MELEE_UNIT,
+  UBER_FORGE,
   INVALID,
 };
 
@@ -69,6 +70,7 @@ public:
 
   bool Has(CONSTRUCTION type_id);
   void Add(CONSTRUCTION type_id);
+  void Cheat(CONSTRUCTION type_id);
 
   void Move(size_t src, size_t dest);
 

@@ -56,10 +56,12 @@ struct ColonizeStep : public Step {
 struct ConstructionStep : public Step {
   ConstructionStep(COMMAND command) : Step(command)
     , m_city_id(0)
-    , m_production_id(0) {};
+    , m_production_id(0)
+    , m_cheat(false) {};
 
   uint32_t m_city_id;
   uint32_t m_production_id;
+  bool m_cheat;
 };
 
 struct MoveStep : public Step {

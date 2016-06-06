@@ -79,6 +79,9 @@ namespace {
       construction_step->m_city_id = std::stoul(tokens[1]);
       construction_step->m_production_id = std::stoul(tokens[2]);
       step = construction_step;
+      if (tokens.size() > 3) {
+        construction_step->m_cheat = true;
+      }
     }
 
     else if (tokens[0] == "discover") {

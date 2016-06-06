@@ -126,6 +126,9 @@ float ConstructionQueueFIFO::GetProductionYield() {
   if (Has(CONSTRUCTION::FORGE)) {
     yield += 3.f;
   }
+  if (Has(CONSTRUCTION::UBER_FORGE)) {
+    yield += 10.0f;
+  }
 
   return yield;
 }
@@ -141,6 +144,15 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION type_id) {
 
   ConstructionOrder* order = m_state.GetConstruction(type_id);
   m_queue.push_back(order);
+}
+
+void ConstructionQueueFIFO::Cheat(CONSTRUCTION type_id) {
+  if (type_id == CONSTRUCTION::INVALID) {
+    return;
+  }
+
+  ConstructionOrder* order = m_state.GetConstruction(type_id);
+  order->ApplyProduction(9999.f);
 }
 
 void ConstructionQueueFIFO::Move(size_t src, size_t dest) { 

@@ -12,6 +12,8 @@ class City {
 public:
   City();
 
+  float GetFoodYield() const;
+
   void Simulate();
   float GetPopulation() const;
   float FoodForSustain() const;
