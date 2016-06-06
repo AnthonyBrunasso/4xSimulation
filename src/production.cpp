@@ -73,15 +73,16 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION type_id) {
     return new ConstructionOrder(type_id);
   }
   
-  ConstructionUMap::const_iterator findIt = m_constructions.find(type_id);
+  uint32_t type = static_cast<uint32_t>(type_id);
+  ConstructionUMap::const_iterator findIt = m_constructions.find(type);
   if (findIt != m_constructions.end()) {
     return findIt->second;
   }
 
-  std::cout << "New unique construction: " << static_cast<int>(type_id) << std::endl;
+  std::cout << "New unique construction: " << type << std::endl;
 
   ConstructionOrder* newOrder = new ConstructionOrder(type_id);
-  m_constructions.insert(findIt, ConstructionUMap::value_type(type_id, newOrder));
+  m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder));
   
   return newOrder;
 }
@@ -91,7 +92,8 @@ bool ConstructionState::IsConstructed(CONSTRUCTION type_id) {
     return false;
   }
 
-  ConstructionUMap::const_iterator itFind = m_constructions.find(type_id);
+  uint32_t type = static_cast<uint32_t>(type_id);
+  ConstructionUMap::const_iterator itFind = m_constructions.find(type);
   if (itFind == m_constructions.end()) {
     return false;
   }
@@ -181,7 +183,7 @@ void ConstructionQueueFIFO::PrintState() {
 
 void ConstructionQueueFIFO::PrintQueue() {
   auto it = m_queue.cbegin();
-  for (int i = 0; i < m_queue.size(); ++i, ++it) {
+  for (size_t i = 0; i < m_queue.size(); ++i, ++it) {
     std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() << std::endl;
   }
 }

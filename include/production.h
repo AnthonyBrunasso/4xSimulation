@@ -13,16 +13,6 @@ enum class CONSTRUCTION
   MELEE_UNIT,
 };
 
-namespace std {
-  template <>
-  struct hash<CONSTRUCTION> {
-    std::size_t operator()(const CONSTRUCTION& type_id) const {
-      return static_cast<size_t>(type_id);
-    }
-  };
-}
-
-
 namespace production {
   float required(CONSTRUCTION type_id);
   const char* name_of_construction(CONSTRUCTION type_id);
@@ -31,7 +21,7 @@ namespace production {
 
 class ConstructionOrder;
 
-typedef std::unordered_map<CONSTRUCTION, ConstructionOrder*> ConstructionUMap;
+typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
 typedef std::list<ConstructionOrder*> ConstructionList;
 
 class ConstructionOrder
