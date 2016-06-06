@@ -3,6 +3,9 @@
 
 #include <unordered_map>
 #include <list>
+#include <functional>
+
+class City;
 
 enum class CONSTRUCTION
 {
@@ -16,10 +19,14 @@ enum class CONSTRUCTION
 };
 
 namespace production {
+  typedef std::function<void (CONSTRUCTION)> UnitCreationCallback;
+
   CONSTRUCTION id(uint32_t);
   float required(CONSTRUCTION type_id);
   const char* name_of_construction(CONSTRUCTION type_id);
   bool construction_is_unique(CONSTRUCTION type_id);
+
+  void sub_create(const UnitCreationCallback&);
 }
 
 class ConstructionOrder;
@@ -38,6 +45,7 @@ public:
   const char* GetName();
   bool IsUnique();
   bool IsCompleted();
+  CONSTRUCTION GetType();
 
 private:
   ConstructionOrder();
@@ -74,7 +82,7 @@ public:
 
   void Move(size_t src, size_t dest);
 
-  void Simulate();
+  void Simulate(City* parent);
 
   void PrintState();
   void PrintQueue();

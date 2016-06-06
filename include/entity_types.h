@@ -5,6 +5,8 @@
 enum class ENTITY_TYPE {
   // Bros start at 0
   SCOUT = 0,
+  ARCHER,
+  PHALANX,
   // Buildings start at 1000
   TOWN = 1000,
 };

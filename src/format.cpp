@@ -85,11 +85,11 @@ std::string format::ascii_tile(Tile* tile) {
 std::string format::player(const Player& player) {
   std::stringstream ss;
 
-  ss << "name: " << player.m_name 
-     << " buildings: " << format::set(player.m_cities)
-     << " units: " << format::set(player.m_units)
-     << " turn_state: " << static_cast<size_t>(player.m_turn_state)
-     << " resources: " << format::resources(player.m_resources);
+  ss << "name: " << player.m_name;
+  ss << " buildings: " << format::set(player.m_cities);
+  ss << " units: " << format::set(player.m_units);
+  ss << " turn_state: " << static_cast<size_t>(player.m_turn_state);
+  ss << " resources: " << format::resources(player.m_resources);
 
   return std::move(ss.str());
 }

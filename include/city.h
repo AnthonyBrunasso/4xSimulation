@@ -10,7 +10,7 @@ class ConstructionQueueFIFO;
 
 class City {
 public:
-  City();
+  explicit City(uint32_t id);
 
   float GetFoodYield() const;
 
@@ -21,6 +21,7 @@ public:
   float GetTurnsForGrowth() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
 
+  uint32_t m_id;
   sf::Vector3i m_location;
   float m_food;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;

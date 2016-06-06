@@ -18,11 +18,12 @@ enum class TURN_STATE {
 
 class Player {
 public:
-  Player(const std::string& name);
+  Player(uint32_t id, const std::string& name);
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
 
+  uint32_t m_id;
   std::string m_name;
   // Unique ids of buildings and units that belong to this player.
   std::set<uint32_t> m_cities;

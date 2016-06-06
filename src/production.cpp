@@ -1,10 +1,22 @@
 
 #include "production.h"
+#include "city.h"
+#include "entity_types.h"
+#include "player.h"
+#include "units.h"
 
+#include <vector>
 #include <iostream>
 #include <iterator>
 
 namespace production {
+  typedef std::vector<UnitCreationCallback> CreationCallbackVector;
+  CreationCallbackVector s_creationCallbacks;
+
+  void sub_create(const UnitCreationCallback& cb) {
+    s_creationCallbacks.push_back(cb);
+  }
+
   CONSTRUCTION id(uint32_t type_id) {
     if (type_id <= static_cast<uint32_t>(CONSTRUCTION::INVALID)) {
       return static_cast<CONSTRUCTION>(type_id);
@@ -30,6 +42,28 @@ namespace production {
 
   bool construction_is_unique(CONSTRUCTION type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
+  }
+
+  void spawn_unit(Player& player, CONSTRUCTION type_id, City* city) {
+    if (!player.OwnsCity(city->m_id)) {
+      return;
+    }
+
+    uint32_t unitId;
+    switch (type_id) {
+    case CONSTRUCTION::SCOUT_UNIT:
+      unitId = units::create(ENTITY_TYPE::SCOUT, city->m_location);
+      break;
+    case CONSTRUCTION::RANGE_UNIT:
+      unitId = units::create(ENTITY_TYPE::ARCHER, city->m_location);
+      break;
+    case CONSTRUCTION::MELEE_UNIT:
+      unitId = units::create(ENTITY_TYPE::PHALANX, city->m_location);
+      break;
+    default:
+      return;
+    }
+    player::add_unit(player.m_id, unitId);
   }
 }
 
@@ -64,6 +98,10 @@ bool ConstructionOrder::IsUnique() {
 
 bool ConstructionOrder::IsCompleted() {
   return m_production >= production::required(m_type_id);
+}
+
+CONSTRUCTION ConstructionOrder::GetType() {
+  return m_type_id;
 }
 
 
@@ -180,7 +218,7 @@ void ConstructionQueueFIFO::Move(size_t src, size_t dest) {
   m_queue.insert(itTo, order);
 }
 
-void ConstructionQueueFIFO::Simulate() {
+void ConstructionQueueFIFO::Simulate(City* parent) {
   m_stockpile += GetProductionYield();
   while (m_queue.size() > 0) {
     ConstructionOrder* order = m_queue.front();
@@ -190,6 +228,11 @@ void ConstructionQueueFIFO::Simulate() {
       std::cout << "Construction completed: " << completed->GetName() << std::endl;
       m_queue.pop_front();
       if (!order->IsUnique()) {
+        // Unit spawn
+        player::for_each_player(std::bind(&production::spawn_unit, 
+          std::placeholders::_1,
+          completed->GetType(),
+          parent));
         delete completed;
       }
     }

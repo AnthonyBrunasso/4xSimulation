@@ -5,8 +5,9 @@
 #include <iostream>
 #include <vector>
 
-Player::Player(const std::string& name) 
-    : m_name(name)
+Player::Player(uint32_t id, const std::string& name) 
+    : m_id(id)
+    , m_name(name)
     , m_cities()
     , m_units() 
     , m_turn_state(TURN_STATE::PLAYING)
@@ -42,7 +43,8 @@ namespace {
 }
 
 void player::create(const std::string& name) {
-  s_players.push_back(new Player(name));
+  uint32_t playerId = static_cast<uint32_t>(s_players.size());
+  s_players.push_back(new Player(playerId, name));
 }
 
 Player* player::get_player(uint32_t i) {

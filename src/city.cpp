@@ -17,15 +17,16 @@ namespace city {
   const float FOOD_PER_TURN = 2.f;
 }
 
-City::City()
-: m_food(city::food_required_by_population(1)+1)
+City::City(uint32_t id)
+: m_id(id)
+,  m_food(city::food_required_by_population(1)+1)
 , m_construction(new ConstructionQueueFIFO())
 { 
 }
 
 void City::Simulate() {
   float food = GetFoodYield();
-  m_construction->Simulate();
+  m_construction->Simulate(this);
   m_food += food;
   std::cout << "City is size |" << GetPopulation() << "| "
     << m_food << " food [" << FoodForSustain() << "-" << FoodForGrowth() << "] "
@@ -69,7 +70,7 @@ float city::population_size_from_food(float food) {
 uint32_t city::create(sf::Vector3i location) {
   uint32_t id = unique_id::generate();
 
-  City* foundedCity = new City();
+  City* foundedCity = new City(id);
   s_cities[id] = foundedCity;
   foundedCity->m_location = location;
   
