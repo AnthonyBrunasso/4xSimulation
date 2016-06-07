@@ -24,7 +24,6 @@ Resource& Resource::operator+=(const Resource& rhs) {
 }
 
 const char* get_resource_name(RESOURCE_TYPE resource) {
-  std::cout << "TRYING: " << util::enum_to_uint(resource) << std::endl;
   if (resource < RESOURCE_TYPE::FIRST || resource > RESOURCE_TYPE::LAST) {
     return "Invalid resource type";
   }

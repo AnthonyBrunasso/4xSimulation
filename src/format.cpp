@@ -24,7 +24,7 @@ std::string format::axial_neighbors(const sf::Vector2i& start) {
 
   return std::move(ss.str());
 }
-#include <iostream>
+
 std::string format::tile(const Tile& tile) {
   std::stringstream ss;
   ss << "terrain: " << static_cast<uint32_t>(tile.m_terrain_type) << std::endl
@@ -80,6 +80,9 @@ std::string format::ascii_tile(Tile* tile) {
   if (tile->m_city_id != 0) {
     ascii = " ^ ";
   }
+  if (!tile->m_resources.empty()) {
+    ascii = " ! ";
+  }
 
   if (tile->m_unit_ids.size() && tile->m_city_id != 0) {
     ascii = "* ^";
@@ -91,10 +94,10 @@ std::string format::ascii_tile(Tile* tile) {
 std::string format::player(const Player& player) {
   std::stringstream ss;
 
-  ss << "name: " << player.m_name;
-  ss << " buildings: " << format::set(player.m_cities);
-  ss << " units: " << format::set(player.m_units);
-  ss << " turn_state: " << static_cast<size_t>(player.m_turn_state);
+  ss << "name: " << player.m_name << std::endl;
+  ss << " buildings: " << format::set(player.m_cities) << std::endl;
+  ss << " units: " << format::set(player.m_units) << std::endl;
+  ss << " turn_state: " << static_cast<size_t>(player.m_turn_state) << std::endl;
   ss << " resources: " << format::resources(player.m_resources);
 
   return std::move(ss.str());
