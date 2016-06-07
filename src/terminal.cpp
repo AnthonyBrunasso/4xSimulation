@@ -178,6 +178,18 @@ namespace terminal  {
       });
       return true;
     });
+
+    terminal::add_query("tile_resource", "tile_resource <x> <y> <z> <type> <quantity>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(6, tokens);
+      Tile* tile = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
+      if (!tile) {
+        std::cout << "Invalid tile." << std::endl;
+        return true;
+      }
+      tile->m_resources.push_back(
+        Resource(util::uint_to_enum<RESOURCE_TYPE>(std::stoul(tokens[4])), std::stoi(tokens[5])));
+      return true;
+    });
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {

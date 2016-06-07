@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3.hpp"
+#include "resources.h"
 
 #include <cstdint>
 #include <vector>
@@ -25,6 +26,8 @@ public:
   uint32_t m_city_id;
   // The cost to navigate over this tile
   uint32_t m_path_cost;
+  // Tiles can contain resources
+  std::vector<Resource> m_resources;
 };
 
 namespace std {
