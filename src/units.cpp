@@ -107,12 +107,12 @@ void units::replenish_actions() {
   }
 }
 
-void units::combat(uint32_t attacker_id, uint32_t defender_id) {
+bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
   Unit* attacker = get_unit(attacker_id);
   Unit* defender = get_unit(defender_id);
 
   if (!attacker || !defender) {
-    return;
+    return false;
   }
 
   std::cout << "Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
@@ -120,7 +120,7 @@ void units::combat(uint32_t attacker_id, uint32_t defender_id) {
   // Get distance between characters
   uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
-  combat::engage(attacker->m_combat_stats, defender->m_combat_stats, distance);
+  bool result = combat::engage(attacker->m_combat_stats, defender->m_combat_stats, distance);
 
   // If attacker or defender died, kill them
   if (defender->m_combat_stats.m_health == 0) {
@@ -132,6 +132,8 @@ void units::combat(uint32_t attacker_id, uint32_t defender_id) {
     std::cout << "attacking unit " << attacker_id << " (id) destroyed in combat." << std::endl;
     destroy(attacker_id);
   }
+
+  return result;
 }
 
 void units::clear() {

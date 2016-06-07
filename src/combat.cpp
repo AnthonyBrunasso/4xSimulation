@@ -6,7 +6,8 @@
 #include <algorithm>
 #include <iostream>
 
-void combat::engage(CombatStats& attack_stats, 
+// Engaging returns true if combat occurred, false otherwise
+bool combat::engage(CombatStats& attack_stats, 
   const Modifier& attack_modifier, 
   CombatStats& defend_stats, 
   const Modifier& defend_modifier,
@@ -22,7 +23,7 @@ void combat::engage(CombatStats& attack_stats,
 
   // If attacker can't reach defender exit
   if (attacker_range < static_cast<float>(distance)) {
-    return;
+    return false;
   }
 
   defender_health -= attacker_attack;
@@ -31,20 +32,22 @@ void combat::engage(CombatStats& attack_stats,
 
   // Only return fire if the defender can reach the attacker
   if (defender_range < static_cast<float>(distance)) {
-    return;
+    return true;
   }
 
   attacker_health -= defender_attack;
   attack_stats.m_health = static_cast<uint32_t>(std::max(0.0f, roundf(attacker_health)));
   std::cout << "Attacker received " << defender_attack << " damage! " << std::endl;
+
+  return true;
 }
 
-void combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance) {
+bool combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance) {
   Modifier modifier;
 
   modifier.m_health_modifier = 1.0f;
   modifier.m_attack_modifier = 1.0f;
   modifier.m_range_modifier = 1.0f;
 
-  engage(attack_stats, modifier, defend_stats, modifier, distance);
+  return engage(attack_stats, modifier, defend_stats, modifier, distance);
 }

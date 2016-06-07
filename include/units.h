@@ -47,7 +47,7 @@ namespace units {
   // Replenish action points to units
   void replenish_actions();
 
-  void combat(uint32_t attacker_id, uint32_t defender_id);
+  bool combat(uint32_t attacker_id, uint32_t defender_id);
 
   void clear();
 }

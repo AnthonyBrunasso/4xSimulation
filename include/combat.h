@@ -27,12 +27,12 @@ struct Modifier {
 class Unit;
 
 namespace combat {
-  void engage(CombatStats& attack_stats, 
+  bool engage(CombatStats& attack_stats, 
     const Modifier& attack_modifier, 
     CombatStats& defend_stats, 
     const Modifier& defend_modifer,
     uint32_t distance);
 
   // Calls above function with all modifers equal to 1.0
-  void engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance);
+  bool engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance);
 }
