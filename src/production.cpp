@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <iterator>
+#include <algorithm>
 
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;

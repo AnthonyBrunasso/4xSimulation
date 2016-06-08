@@ -7,7 +7,12 @@
 #include <vector>
 
 enum class TERRAIN_TYPE {
-  GRASS = 1,
+  DESERT = 'd' - 'a',
+  GRASSLAND = 'g' - 'a',
+  MOUNTAIN = 'm' - 'a',
+  PLAINS = 'p' - 'a',
+  WATER = 'w' - 'a',
+  VOID = -1,
 };
 
 // Tiles contain -

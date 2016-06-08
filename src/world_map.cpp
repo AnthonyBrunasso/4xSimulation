@@ -11,11 +11,12 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 
 namespace {
   static world_map::TileMap s_map;
   static std::vector<sf::Vector3i> s_coords;
-
+  
   void subscribe_to_events();
   void set_improvement_requirements();
 
@@ -91,6 +92,38 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
 
   subscribe_to_events();
   set_improvement_requirements();
+}
+
+bool world_map::load_file(const std::string& name) {
+  std::ifstream inputFile(name.c_str(), std::ios::binary | std::ios::in);
+  const size_t BLOCK_SIZE = 4;
+  char data[BLOCK_SIZE];
+
+  if (!inputFile.good()) {
+    std::cout << "file is not good " << name << std::endl;
+    return false;
+  }
+
+  for (auto& tile : s_map) {
+    if (!inputFile.good()) {
+      std::cout << "Bailed on map read, file data < map tile count" << std::endl;
+      return false;
+    }
+
+    memset(data, 0, sizeof(data));
+    inputFile.read(data, BLOCK_SIZE);
+    tile.second.m_terrain_type = static_cast<TERRAIN_TYPE>(*data);
+  }
+
+  // read eof
+  inputFile.read(data, 1);
+  // If we have data unread, the world is of a mismatched size
+  if (inputFile.good()) {
+    std::cout << "Bailed on map read, file data > map tile count" << std::endl;
+    return false;
+  }
+
+  return true;
 }
 
 void world_map::for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation) {

@@ -284,6 +284,7 @@ void simulation::start() {
   world_map::build(start, 10);
   // Setup unit definitions
   unit_definitions::initialize();
+  world_map::load_file("marin.dat");
 }
 
 void simulation::kill() {
