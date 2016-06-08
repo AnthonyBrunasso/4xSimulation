@@ -148,7 +148,7 @@ bool ConstructionState::IsConstructed(CONSTRUCTION type_id) {
   return itFind->second->IsCompleted();
 }
 
-void ConstructionState::Print() {
+void ConstructionState::Print() const {
   for (auto construction : m_constructions) {
     std::cout << " " << construction.second->GetName() << (construction.second->IsCompleted()? " is completed.":" is in progress.") << std::endl;
   }
@@ -247,13 +247,13 @@ void ConstructionQueueFIFO::Simulate(City* parent) {
   m_stockpile = std::min(m_stockpile, GetProductionYield());
 }
 
-void ConstructionQueueFIFO::PrintState() {
+void ConstructionQueueFIFO::PrintState() const {
   std::cout << "--Construction State--" << std::endl;
   std::cout << "Stockpiled: " << m_stockpile << std::endl;
   m_state.Print();
 }
 
-void ConstructionQueueFIFO::PrintQueue() {
+void ConstructionQueueFIFO::PrintQueue() const {
   auto it = m_queue.cbegin();
   for (size_t i = 0; i < m_queue.size(); ++i, ++it) {
     std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() << std::endl;

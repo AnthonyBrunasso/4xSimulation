@@ -1,4 +1,6 @@
 #include "format.h"
+#include "city.h"
+#include "production.h"
 
 #include "hex.h"
 #include "unique_id.h"

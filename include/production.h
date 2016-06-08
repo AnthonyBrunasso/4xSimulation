@@ -62,7 +62,7 @@ public:
 
   ConstructionOrder* GetConstruction(CONSTRUCTION type_id);
   bool IsConstructed(CONSTRUCTION type_id);
-  void Print();
+  void Print() const;
 
 private:
   ConstructionUMap m_constructions;
@@ -84,8 +84,8 @@ public:
 
   void Simulate(City* parent);
 
-  void PrintState();
-  void PrintQueue();
+  void PrintState() const;
+  void PrintQueue() const;
   
 private:
   ConstructionList m_queue;

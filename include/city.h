@@ -19,6 +19,7 @@ public:
   float FoodForSustain() const;
   float FoodForGrowth() const;
   float GetTurnsForGrowth() const;
+  const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
 
   uint32_t m_id;

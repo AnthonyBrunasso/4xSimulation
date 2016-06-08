@@ -1,6 +1,8 @@
 #include "city.h"
 #include "production.h"
 
+#include "format.h"
+
 #include <iostream>
 #include <unordered_map>
 #include <cmath>
@@ -28,10 +30,13 @@ void City::Simulate() {
   float food = GetFoodYield();
   m_construction->Simulate(this);
   m_food += food;
+  std::cout << format::city(*this) << std::endl;
   std::cout << "City is size |" << GetPopulation() << "| "
     << m_food << " food [" << FoodForSustain() << "-" << FoodForGrowth() << "] "
     << "+" << food << " growth in " << GetTurnsForGrowth()
     << std::endl;
+  m_construction->PrintState();
+  m_construction->PrintQueue();
 }
 
 float City::GetFoodYield() const {
@@ -53,6 +58,10 @@ float City::FoodForGrowth() const {
 
 float City::GetTurnsForGrowth() const {
   return std::ceil((FoodForGrowth() - m_food) / GetFoodYield());
+}
+
+const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {
+  return m_construction; 
 }
 
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {
