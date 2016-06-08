@@ -29,7 +29,12 @@ int main(int argc, char* argv[]) {
   // Initialize queries
   terminal::initialize();
   // Enter interactive mode
-  while (Step* step = terminal::parse_input()) {
+  while (std::cin.good()) {
+    Step* step = terminal::parse_input();
+    if (!step) {
+      break;
+    }
+    
     simulation::process_step(step);
 
     bool quitting = step->m_command == COMMAND::QUIT;

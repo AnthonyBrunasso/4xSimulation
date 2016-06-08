@@ -316,6 +316,10 @@ Step* terminal::parse_input() {
     std::string value;
     std::cout << "> ";
     std::getline(std::cin, value);
+    if (!std::cin.good()) {
+      return nullptr;
+    }
+    std::cout << "Executing: " << value << std::endl;
 
     std::vector<std::string> tokens;
     step_parser::split_to_tokens(value, tokens);
