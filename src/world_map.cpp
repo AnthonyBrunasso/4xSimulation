@@ -12,6 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <cstring>
 
 namespace {
   static world_map::TileMap s_map;
