@@ -190,6 +190,15 @@ namespace terminal  {
         Resource(util::uint_to_enum<RESOURCE_TYPE>(std::stoul(tokens[4])), std::stoi(tokens[5])));
       return true;
     });
+
+    terminal::add_query("improvements", "improvements", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      improvement::for_each_improvement([](const Improvement& improvement) {
+        std::cout << format::improvement(improvement) << std::endl;
+      });
+      return true;
+    });
+
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {
@@ -216,7 +225,7 @@ namespace terminal  {
     std::cout << "  construct <cityId> <productionId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn <player index>" << std::endl;
-    std::cout << "  improve <x> <y> <z> <improvement>" << std::endl;
+    std::cout << "  improve <improvementType> <x> <y> <z> [<player>]" << std::endl;
     std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;

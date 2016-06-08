@@ -28,6 +28,8 @@ public:
   uint32_t m_path_cost;
   // Tiles can contain resources
   std::vector<Resource> m_resources;
+  // Improvements contained on this tile
+  std::vector<uint32_t> m_improvement_ids;
 };
 
 namespace std {

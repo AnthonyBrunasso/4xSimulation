@@ -10,6 +10,7 @@
 #include "player.h"
 #include "production.h"
 #include "unit_definitions.h"
+#include "improvements.h"
 
 #include <iostream>
 #include <vector>
@@ -204,6 +205,12 @@ namespace {
     player::add_city(colonize_step->m_player, id);
   }
 
+  void execute_improve() {
+    ImproveStep* improve_step = static_cast<ImproveStep*>(s_current_step);
+    uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location);
+    player::add_improvement(improve_step->m_player, id);
+  }
+
   void execute_kill() {
     KillStep* kill_step = static_cast<KillStep*>(s_current_step);
     units::destroy(kill_step->m_unit_id);
@@ -310,6 +317,7 @@ void simulation::process_step(Step* step) {
     case COMMAND::DISCOVER:
       break;
     case COMMAND::IMPROVE:
+      execute_improve();
       break;
     case COMMAND::KILL:
       execute_kill();
@@ -347,6 +355,25 @@ void simulation::process_step(Step* step) {
   step_resource();
 }
 
+void grant_improvement_resources(const Improvement& improvement) {
+  Tile* tile = world_map::get_tile(improvement.m_location);
+  if (!tile) {
+    return;
+  }
+
+  Player* player = player::get_player(improvement.m_owner_id);
+  if (!player) {
+    return;
+  }
+
+  // This will need some more work. This will cause all resources on a tile to be granted
+  // to the player. Perhaps we will need to check the type of resource/improvement if there are 
+  // multiple resource on the tile for instance. 
+  for (auto resource : tile->m_resources) {
+    player->m_resources.add(resource); 
+  }
+}
+
 void simulation::process_begin_turn() {
 
   bool allPlayersReady = true;
@@ -375,6 +402,19 @@ void simulation::process_begin_turn() {
 
   // Increment turn counter
   ++s_current_turn;
+
+  // Run improvement specific work. Example: Grant players reources for their improved tiles.
+  improvement::for_each_improvement([](const Improvement& improvement) {
+    switch(improvement.m_type) {
+    case IMPROVEMENT_TYPE::UNKNOWN:
+      break;
+    case IMPROVEMENT_TYPE::RESOURCE:
+      grant_improvement_resources(improvement); 
+      break;
+    default:
+      break;
+    }
+  });
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {

@@ -89,7 +89,14 @@ namespace {
     }
 
     else if (tokens[0] == "improve") {
-      CREATE_GENERIC_STEP(5, tokens, step, COMMAND::IMPROVE);
+      CHECK(5, tokens);
+      ImproveStep* improve_step = new ImproveStep(COMMAND::IMPROVE);
+      improve_step->m_improvement_type = std::stoul(tokens[1]);
+      improve_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      if (tokens.size() > 5) {
+        improve_step->m_player = std::stoul(tokens[5]);
+      }
+      step = improve_step;
     }
 
     else if (tokens[0] == "join") {

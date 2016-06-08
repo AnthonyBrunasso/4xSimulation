@@ -39,6 +39,8 @@ std::string format::tile(const Tile& tile) {
 
   ss << "]" << std::endl;
 
+  ss << " improvements: " << format::vector(tile.m_improvement_ids) << std::endl;
+
   return std::move(ss.str());
 }
 
@@ -98,7 +100,8 @@ std::string format::player(const Player& player) {
   ss << " buildings: " << format::set(player.m_cities) << std::endl;
   ss << " units: " << format::set(player.m_units) << std::endl;
   ss << " turn_state: " << static_cast<size_t>(player.m_turn_state) << std::endl;
-  ss << " resources: " << format::resources(player.m_resources);
+  ss << " resources: " << format::resources(player.m_resources) << std::endl;
+  ss << " improvements: " << format::set(player.m_improvements) << std::endl;
 
   return std::move(ss.str());
 }
@@ -121,6 +124,17 @@ std::string format::resources(const Resources& resources) {
     ss << get_resource_name(type) << ": " << resource.m_quantity << " ";
   });
   ss << "]";
+
+  return std::move(ss.str());
+}
+
+std::string format::improvement(const Improvement& improvement) {
+  std::stringstream ss;
+
+  ss << "Unique id: " << improvement.m_unique_id << std::endl;
+  ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
+  ss << " player id: " << improvement.m_owner_id << std::endl;
+  ss << " location: " << format::vector3(improvement.m_location);
 
   return std::move(ss.str());
 }

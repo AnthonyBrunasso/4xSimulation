@@ -6,6 +6,7 @@
 #include "city.h"
 #include "unique_id.h"
 #include "format.h"
+#include "improvements.h"
 
 #include <iostream>
 #include <vector>
@@ -16,6 +17,7 @@ namespace {
   static std::vector<sf::Vector3i> s_coords;
 
   void subscribe_to_events();
+  void set_improvement_requirements();
 
   void subscribe_to_events() {
     units::sub_create([](const sf::Vector3i& location, uint32_t id) {
@@ -42,6 +44,42 @@ namespace {
       
       tile->m_city_id = unique_id::INVALID_ID;
     });
+
+    improvement::sub_create([](const sf::Vector3i& location, uint32_t id) {
+      Tile* tile = world_map::get_tile(location);
+      if (!tile) {
+        return;
+      }
+      tile->m_improvement_ids.push_back(id);
+    });
+
+    improvement::sub_destroy([](const sf::Vector3i& location, uint32_t id) {
+      Tile* tile = world_map::get_tile(location);
+      if (!tile) {
+        return;
+      }
+      auto findIt = std::find(tile->m_improvement_ids.begin(), tile->m_improvement_ids.end(), id);
+      if (findIt != tile->m_improvement_ids.end()) {
+        tile->m_improvement_ids.erase(findIt);
+      }     
+    });
+  }
+
+  void set_improvement_requirements() {
+    improvement::add_requirement(IMPROVEMENT_TYPE::RESOURCE, [](const sf::Vector3i& location) {
+      Tile* tile = world_map::get_tile(location);
+      if (!tile) {
+        std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+        return false;
+      }
+
+      if (tile->m_resources.empty()) {
+        std::cout << "No resources exist on tile: " << format::vector3(location) << std::endl;
+        return false;
+      }
+
+      return true;
+    });
   }
 }
 
@@ -51,7 +89,8 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
     s_map[tile] = Tile();
   }
 
-  subscribe_to_events();  
+  subscribe_to_events();
+  set_improvement_requirements();
 }
 
 void world_map::for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation) {

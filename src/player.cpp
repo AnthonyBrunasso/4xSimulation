@@ -1,6 +1,7 @@
 #include "player.h"
 #include "units.h"
 #include "city.h"
+#include "improvements.h"
 
 #include <iostream>
 #include <vector>
@@ -10,6 +11,7 @@ Player::Player(uint32_t id, const std::string& name)
     , m_name(name)
     , m_cities()
     , m_units() 
+    , m_improvements()
     , m_turn_state(TURN_STATE::PLAYING)
     , m_resources()
 {
@@ -27,6 +29,13 @@ Player::Player(uint32_t id, const std::string& name)
     }
     this->m_cities.erase(id);
   });
+
+  improvement::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
+    if (!this->OwnsImprovement(id)) {
+      return;
+    }
+    this->m_improvements.erase(id);
+  });
 }
 
 bool Player::OwnsCity(uint32_t id) const {
@@ -35,6 +44,10 @@ bool Player::OwnsCity(uint32_t id) const {
 
 bool Player::OwnsUnit(uint32_t id) const {
   return m_units.find(id) != m_units.end();
+}
+
+bool Player::OwnsImprovement(uint32_t id) const {
+  return m_improvements.find(id) != m_improvements.end();
 }
 
 namespace {
@@ -71,6 +84,15 @@ void player::add_unit(uint32_t player_id, uint32_t unit_id) {
   }
 
   player->m_units.insert(unit_id);
+}
+
+void player::add_improvement(uint32_t player_id, uint32_t improvement_id) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+
+  player->m_improvements.insert(improvement_id);
 }
 
 void player::for_each_player(std::function<void(Player& player)> operation) {

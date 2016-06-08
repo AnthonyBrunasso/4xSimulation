@@ -42,6 +42,17 @@ struct SpawnStep : public Step {
   uint32_t m_player;
 };
 
+struct ImproveStep : public Step {
+  ImproveStep(COMMAND command) : Step(command)
+    , m_improvement_type(0)
+    , m_location()
+    , m_player(0) {};
+
+  uint32_t m_improvement_type;
+  sf::Vector3i m_location;
+  uint32_t m_player;
+};
+
 struct ColonizeStep : public Step {
   ColonizeStep(COMMAND command) : Step(command)
     , m_unit_id(0)

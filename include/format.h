@@ -5,6 +5,7 @@
 #include "units.h"
 #include "player.h"
 #include "combat.h"
+#include "improvements.h"
 #include "resources.h"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
@@ -64,4 +65,5 @@ namespace format {
   std::string player(const Player& player);
   std::string combat_stats(const CombatStats& stats);
   std::string resources(const Resources& resources);
+  std::string improvement(const Improvement& improvement);
 }
