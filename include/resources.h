@@ -24,8 +24,8 @@ const char* get_resource_name(RESOURCE_TYPE resource);
 // Amount of sugar or stone, for example.
 struct Resource {
   Resource() : m_type(RESOURCE_TYPE::UNKNOWN), m_quantity(0) {};
-  Resource(RESOURCE_TYPE type) : m_type(type), m_quantity(0) {};
-  Resource(RESOURCE_TYPE type, uint32_t quantity) : m_type(type), m_quantity(quantity) {};
+  explicit Resource(RESOURCE_TYPE type) : m_type(type), m_quantity(0) {};
+  explicit Resource(RESOURCE_TYPE type, uint32_t quantity) : m_type(type), m_quantity(quantity) {};
 
   Resource& operator+=(const Resource& rhs);
 
