@@ -82,10 +82,10 @@ float ConstructionOrder::ApplyProduction(float production) {
   float required = production::required(m_type_id);
   
   float usedProduction = std::min(production, required - m_production);
-  std::cout << "used production: " << usedProduction << std::endl;
+  //std::cout << "used production: " << usedProduction << std::endl;
   
   m_production += usedProduction;
-  std::cout << "current production " << m_production << " / " << required << std::endl;
+  //std::cout << "current production " << m_production << " / " << required << std::endl;
   return production - usedProduction;
 }
 

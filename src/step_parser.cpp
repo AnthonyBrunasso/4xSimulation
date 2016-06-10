@@ -31,6 +31,7 @@ namespace {
   return; \
 }
 
+  uint32_t s_active_player = 0;
   void parse_tokens(const std::vector<std::string>& tokens, Step*& step);
   void bad_arguments(const std::vector<std::string>& tokens);
 
@@ -48,17 +49,22 @@ namespace {
     }
 
     else if (tokens[0] == "end_turn") {
-      CHECK_VALID(2, tokens);
+      CHECK_VALID(1, tokens);
       EndTurnStep* end_turn_step = new EndTurnStep(COMMAND::END_TURN);
-      end_turn_step->m_player = std::stoul(tokens[1]);
+      end_turn_step->m_player = s_active_player;
       step = end_turn_step;
     }
 
+    else if (tokens[0] == "active_player") {
+      CHECK_VALID(2, tokens);
+      s_active_player = std::stoul(tokens[1]);
+    }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);
       AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);
       attack_step->m_attacker_id = std::stoul(tokens[1]);
       attack_step->m_defender_id = std::stoul(tokens[2]);
+      attack_step->m_player = s_active_player;
       step = attack_step;
     }
 
@@ -68,9 +74,7 @@ namespace {
       colonize_step->m_unit_id = std::stoul(tokens[1]);
       colonize_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       step = colonize_step;
-      if (tokens.size() == 6) {
-        colonize_step->m_player = std::stoul(tokens[5]);
-      }
+      colonize_step->m_player = s_active_player;
     }
 
     else if (tokens[0] == "construct") {
@@ -78,6 +82,7 @@ namespace {
       ConstructionStep* construction_step = new ConstructionStep(COMMAND::CONSTRUCT);
       construction_step->m_city_id = std::stoul(tokens[1]);
       construction_step->m_production_id = std::stoul(tokens[2]);
+      construction_step->m_player = s_active_player;
       step = construction_step;
       if (tokens.size() > 3) {
         construction_step->m_cheat = true;
@@ -88,14 +93,29 @@ namespace {
       CREATE_GENERIC_STEP(4, tokens, step, COMMAND::DISCOVER);
     }
 
+    else if (tokens[0] == "tile_cost") {
+      CHECK(5, tokens);
+      TileMutatorStep* tile_mutator_step = new TileMutatorStep(COMMAND::TILE_MUTATOR);
+      tile_mutator_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      tile_mutator_step->m_movement_cost = std::stoul(tokens[4]);
+      step = tile_mutator_step;
+    }
+
+    else if (tokens[0] == "tile_resource") {
+      CHECK(6, tokens);
+      ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep(COMMAND::RESOURCE_MUTATOR);
+      resource_mutator_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      resource_mutator_step->m_type = std::stoul(tokens[4]);
+      resource_mutator_step->m_quantity = std::stoul(tokens[5]);
+      step = resource_mutator_step;
+    }
+
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
       ImproveStep* improve_step = new ImproveStep(COMMAND::IMPROVE);
       improve_step->m_improvement_type = std::stoul(tokens[1]);
       improve_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
-      if (tokens.size() > 5) {
-        improve_step->m_player = std::stoul(tokens[5]);
-      }
+      improve_step->m_player = s_active_player;
       step = improve_step;
     }
 
@@ -118,6 +138,7 @@ namespace {
       MoveStep* move_step = new MoveStep(COMMAND::MOVE);
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      move_step->m_player = s_active_player;
       step = move_step;
     }
     else if (tokens[0] == "queue_move") {
@@ -125,6 +146,7 @@ namespace {
       QueueMoveStep* move_step = new QueueMoveStep(COMMAND::QUEUE_MOVE);
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      move_step->m_player = s_active_player;
       step = move_step;
     }
 
@@ -143,9 +165,7 @@ namespace {
       spawn_step->m_entity_type = std::stoul(tokens[1]);
       spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       // Optional player param, defaults to 0, or the 'player one'
-      if (tokens.size() == 6) {
-        spawn_step->m_player = std::stoul(tokens[5]);
-      }
+      spawn_step->m_player = s_active_player;
     }
 
     else if (tokens[0] == "stats") {

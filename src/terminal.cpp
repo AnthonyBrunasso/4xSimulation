@@ -145,16 +145,6 @@ namespace terminal  {
       return true;
     });
     
-    terminal::add_query("tile_cost", "tile_cost <x> <y> <z> <cost>", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(5, tokens);
-      Tile* tile = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
-      if (!tile) {
-        return true;
-      }
-      tile->m_path_cost = std::stoul(tokens[4]);
-      return true;
-    });
-
     terminal::add_query("path_to", "path_to <x> <y> <z> <tox> <toy> <toz>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(7, tokens);
       std::vector<sf::Vector3i> path;
@@ -176,18 +166,6 @@ namespace terminal  {
       unit_definitions::for_each_definition([](ENTITY_TYPE type, const CombatStats& stats) {
         std::cout << get_entity_name(type) << ": " << format::combat_stats(stats) << std::endl;
       });
-      return true;
-    });
-
-    terminal::add_query("tile_resource", "tile_resource <x> <y> <z> <type> <quantity>", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(6, tokens);
-      Tile* tile = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
-      if (!tile) {
-        std::cout << "Invalid tile." << std::endl;
-        return true;
-      }
-      tile->m_resources.push_back(
-        Resource(util::uint_to_enum<RESOURCE_TYPE>(std::stoul(tokens[4])), std::stoi(tokens[5])));
       return true;
     });
 
@@ -217,20 +195,22 @@ namespace terminal  {
   void execute_help() {
     // Targets are represented by <x> <y> <z> cube coordinates
     std::cout << "Admin Commands: " << std::endl;
-    std::cout << "  help" << std::endl;
+    std::cout << "  active_player <playerId>" << std::endl;
     std::cout << "  begin_turn" << std::endl;
     std::cout << "  join <name>" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
-    std::cout << "  spawn <unitType> <x> <y> <z> [<player>]" << std::endl;
+    std::cout << "  spawn <unitType> <x> <y> <z>" << std::endl;
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
+    std::cout << "  tile_cost <x> <y> <z> <cost>" << std::endl;
+    std::cout << "  tile_resource <x> <y> <z> <type> <quantity>" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
-    std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
+    std::cout << "  colonize <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <productionId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
-    std::cout << "  end_turn <player index>" << std::endl;
-    std::cout << "  improve <improvementType> <x> <y> <z> [<player>]" << std::endl;
+    std::cout << "  end_turn" << std::endl;
+    std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;

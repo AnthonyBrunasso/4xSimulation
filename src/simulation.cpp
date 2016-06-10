@@ -51,8 +51,6 @@ namespace {
   void phase_notifications();
   void phase_science_done();
 
-  void process_spawn();         // Immediate spawn 
-
   bool step_move(UnitMovementVector& units_to_move) {
     bool movement = false;
 
@@ -185,8 +183,18 @@ namespace {
 
   void execute_construction() {
     ConstructionStep* construction_step = static_cast<ConstructionStep*>(s_current_step);
+    Player* player = player::get_player(construction_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player index" << std::endl;
+      return;
+    }
     City* city = city::get_city(construction_step->m_city_id);
     if(!city) {
+      std::cout << "City does not exist" << std::endl;
+      return;
+    }
+    if (!player->OwnsCity(construction_step->m_city_id)) {
+      std::cout << "Player does not own city" << std::endl;
       return;
     }
 
@@ -200,6 +208,10 @@ namespace {
 
   void execute_colonize() {
     ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
+    Player* player = player::get_player(colonize_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+    }
     units::destroy(colonize_step->m_unit_id);
     uint32_t id = city::create(colonize_step->m_location);
     player::add_city(colonize_step->m_player, id);
@@ -207,8 +219,33 @@ namespace {
 
   void execute_improve() {
     ImproveStep* improve_step = static_cast<ImproveStep*>(s_current_step);
+    Player* player = player::get_player(improve_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+    }
     uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location);
     player::add_improvement(improve_step->m_player, id);
+  }
+
+  void execute_tile_mutator() {
+    TileMutatorStep* tile_mutator_step = static_cast<TileMutatorStep*>(s_current_step);
+    Tile* tile = world_map::get_tile(tile_mutator_step->m_destination);
+    if (!tile) {
+      std::cout << "Invalid tile" << std::endl;
+      return;
+    }
+    tile->m_path_cost = tile_mutator_step->m_movement_cost;
+  }
+
+  void execute_resource_mutator() {
+    ResourceMutatorStep* resource_mutator_step = static_cast<ResourceMutatorStep*>(s_current_step);
+    Tile* tile = world_map::get_tile(resource_mutator_step->m_destination);
+    if (!tile) {
+      std::cout << "Invalid tile" << std::endl;
+      return;
+    }
+    Resource newResource(static_cast<RESOURCE_TYPE>(resource_mutator_step->m_type), resource_mutator_step->m_quantity);
+    tile->m_resources.push_back(newResource);
   }
 
   void execute_kill() {
@@ -219,6 +256,10 @@ namespace {
 
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
+    Player* player = player::get_player(spawn_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+    }
     uint32_t id = units::create(static_cast<ENTITY_TYPE>(spawn_step->m_entity_type), spawn_step->m_location);
     player::add_unit(spawn_step->m_player, id);
   }
@@ -227,7 +268,13 @@ namespace {
     std::cout << "Executing immediate movement " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
     MoveStep* move_step = static_cast<MoveStep*>(s_current_step);
-
+    Player* player = player::get_player(move_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+    }
+    if (!player->OwnsUnit(move_step->m_unit_id)) {
+      std::cout << "Player does not own unit" << std::endl;
+    }
     // Set path
     units::set_path(move_step->m_unit_id, move_step->m_destination);
 
@@ -245,6 +292,13 @@ namespace {
   void execute_queue_move() {
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
     QueueMoveStep* move_step = static_cast<QueueMoveStep*>(s_current_step);
+    Player* player = player::get_player(move_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+    }
+    if (!player->OwnsUnit(move_step->m_unit_id)) {
+      std::cout << "Player does not own unit" << std::endl;
+    }
     Unit* unit = units::get_unit(move_step->m_unit_id);
     if (!unit) {
       return;
@@ -261,6 +315,15 @@ namespace {
   void execute_attack() {
     // Add a fight to the list to be executed in the combat phase
     AttackStep* attack_step = static_cast<AttackStep*>(s_current_step);
+    Player* player = player::get_player(attack_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player for attack action" << std::endl;
+      return;
+    }
+    if (!player->OwnsUnit(attack_step->m_attacker_id)) {
+      std::cout << "Player does not own attacking unit" << std::endl;
+      return;
+    }
     s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step->m_attacker_id, attack_step->m_defender_id));
   }
 
@@ -319,6 +382,12 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::IMPROVE:
       execute_improve();
+      break;
+    case COMMAND::TILE_MUTATOR:
+      execute_tile_mutator();
+      break;
+    case COMMAND::RESOURCE_MUTATOR:
+      execute_resource_mutator();
       break;
     case COMMAND::KILL:
       execute_kill();
