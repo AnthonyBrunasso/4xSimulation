@@ -6,26 +6,10 @@
 #include "step.h"
 #include "file_reader.h"
 
-int main(int argc, char* argv[]) {
+int main(int , char* []) {
   std::vector<Step*> steps;
   simulation::start();
   
-  std::vector<std::string>* steps_strings = nullptr;
-  // Process steps from file
-  if (argc > 1) {
-    steps_strings = new std::vector<std::string>();
-    file_reader::extract_steps(argv[1], steps, steps_strings);
-    for (auto step : steps) {
-      simulation::process_step(step);
-      delete step;
-    }
-  }
-
-  terminal::output_steps("last_run", steps_strings);
-  if (steps_strings) {
-    delete steps_strings;
-  }
-
   // Initialize queries
   terminal::initialize();
   // Enter interactive mode

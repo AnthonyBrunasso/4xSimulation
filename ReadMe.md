@@ -24,5 +24,11 @@ Each listen socket is only valid for one connection. See the shell script for ho
 ### Replay
 ./4xsim < replay_file
 
-Each run of ./4xsim outputs a summary of the game to last_run. You can't use last_run as your input file, so copy it before playing it back.
+Each run of ./4xsim outputs a summary of the game to last_run.
 
+* You cannot use last_run as your input file, so copy it before playing it back.
+
+### Resume from replay
+If you prefer to remain in the terminal after loading a replay:
+
+cat replay_file - | ./4xsim
