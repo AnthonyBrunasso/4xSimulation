@@ -216,28 +216,29 @@ namespace terminal  {
 
   void execute_help() {
     // Targets are represented by <x> <y> <z> cube coordinates
-    std::cout << "Commands: " << std::endl;
+    std::cout << "Admin Commands: " << std::endl;
     std::cout << "  help" << std::endl;
-    std::cout << "  quit" << std::endl;
-    std::cout << "  attack <unitId> <unitId>" << std::endl;
     std::cout << "  begin_turn" << std::endl;
+    std::cout << "  join <name>" << std::endl;
+    std::cout << "  kill <unitId>" << std::endl;
+    std::cout << "  spawn <unitType> <x> <y> <z> [<player>]" << std::endl;
+    std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
+    std::cout << "  quit" << std::endl;
+    std::cout << "Player Commands: " << std::endl;
+    std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  colonize <unitId> <x> <y> <z> [<player>]" << std::endl;
     std::cout << "  construct <cityId> <productionId>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn <player index>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z> [<player>]" << std::endl;
-    std::cout << "  join <name>" << std::endl;
-    std::cout << "  kill <unitId>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  purchase <cityId> <buildingId>" << std::endl;
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
-    std::cout << "  spawn <unitType> <x> <y> <z> [<player>]" << std::endl;
     // Modifies the stats of a unit
-    std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl << std::endl;
-
+    std::cout << std::endl;
     std::cout << "Queries: " << std::endl;
     for (auto help : s_help_list) {
       std::cout << "  " << help << std::endl;
