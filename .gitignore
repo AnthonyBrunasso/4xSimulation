@@ -35,3 +35,7 @@ projects/
 
 # Auto generated game_types file
 include/game_types.h
+
+#python
+*.pyc
+__pycache__
