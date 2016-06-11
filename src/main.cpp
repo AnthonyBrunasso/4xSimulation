@@ -12,6 +12,7 @@ int main(int , char* []) {
   
   // Initialize queries
   terminal::initialize();
+  terminal::record_steps("last_run");
   // Enter interactive mode
   while (std::cin.good()) {
     Step* step = terminal::parse_input();

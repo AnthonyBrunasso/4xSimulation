@@ -319,13 +319,8 @@ Step* terminal::parse_input() {
   return step;
 }
 
-void terminal::output_steps(const std::string& filename, std::vector<std::string>* file_commands) {
+void terminal::record_steps(const std::string& filename) {
   s_target_file.open(filename, std::ios::out);
-  if (file_commands) {
-    for (auto command : *file_commands) {
-      s_target_file << command << std::endl;
-    }
-  }
 }
 
 void terminal::kill() {

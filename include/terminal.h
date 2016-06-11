@@ -17,5 +17,5 @@ namespace terminal {
     std::function<bool(const std::vector<std::string>&)> operation);
 
   Step* parse_input();
-  void output_steps(const std::string& filename, std::vector<std::string>* file_commands);
+  void record_steps(const std::string& filename);
 }
