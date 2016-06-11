@@ -27,8 +27,11 @@
 *.out
 *.app
 
-#Project folders
+# Project folders
 projects/
 
-#Vim swap files
+# Vim swap files
 *.swp
+
+# Auto generated game_types file
+include/game_types.h

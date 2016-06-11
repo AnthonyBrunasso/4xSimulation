@@ -3,6 +3,7 @@
 #include "step.h"
 #include "util.h"
 #include "format.h"
+#include "game_types.h"
 
 #include <iostream>
 #include <sstream>
@@ -162,7 +163,7 @@ namespace {
       CHECK(5, tokens);
       step = new SpawnStep(COMMAND::SPAWN);
       SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
-      spawn_step->m_entity_type = std::stoul(tokens[1]);
+      spawn_step->m_unit_type = std::stoul(tokens[1]);
       spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       // Optional player param, defaults to 0, or the 'player one'
       spawn_step->m_player = s_active_player;

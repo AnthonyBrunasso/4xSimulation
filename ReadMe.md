@@ -1,4 +1,9 @@
-# 4x Simulation
+# 4xSimulation
+
+Prebuild steps:
+
+cd tools
+python type_generator.py
 
 Build with:
 

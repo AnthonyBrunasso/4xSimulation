@@ -1,7 +1,7 @@
 
 #include "production.h"
 #include "city.h"
-#include "entity_types.h"
+#include "game_types.h"
 #include "player.h"
 #include "units.h"
 
@@ -53,13 +53,13 @@ namespace production {
     uint32_t unitId;
     switch (type_id) {
     case CONSTRUCTION::SCOUT_UNIT:
-      unitId = units::create(ENTITY_TYPE::SCOUT, city->m_location);
+      unitId = units::create(UNIT_TYPE::SCOUT, city->m_location);
       break;
     case CONSTRUCTION::RANGE_UNIT:
-      unitId = units::create(ENTITY_TYPE::ARCHER, city->m_location);
+      unitId = units::create(UNIT_TYPE::ARCHER, city->m_location);
       break;
     case CONSTRUCTION::MELEE_UNIT:
-      unitId = units::create(ENTITY_TYPE::PHALANX, city->m_location);
+      unitId = units::create(UNIT_TYPE::PHALANX, city->m_location);
       break;
     default:
       return;

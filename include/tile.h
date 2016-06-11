@@ -2,18 +2,10 @@
 
 #include "Vector3.hpp"
 #include "resources.h"
+#include "game_types.h"
 
 #include <cstdint>
 #include <vector>
-
-enum class TERRAIN_TYPE {
-  DESERT = 'd' - 'a',
-  GRASSLAND = 'g' - 'a',
-  MOUNTAIN = 'm' - 'a',
-  PLAINS = 'p' - 'a',
-  WATER = 'w' - 'a',
-  VOID = -1,
-};
 
 // Tiles contain -
 // * unique id : to identify any improvements on the tile

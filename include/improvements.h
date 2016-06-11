@@ -1,16 +1,10 @@
 #pragma once
 
+#include "game_types.h"
+
 #include <Vector3.hpp>
 #include <cstdint>
 #include <functional>
-
-enum class IMPROVEMENT_TYPE {
-  UNKNOWN = 0,
-  RESOURCE, // A resource improvement will grant the player that owns it resources per turn
-
-  FIRST = RESOURCE,
-  LAST = RESOURCE,
-};
 
 struct Improvement {
   Improvement(uint32_t unique_id, IMPROVEMENT_TYPE type);
@@ -21,8 +15,6 @@ struct Improvement {
   uint32_t m_owner_id;
   sf::Vector3i m_location;
 };
-
-const char* get_improvement_name(IMPROVEMENT_TYPE improvement);
 
 namespace improvement {
   // Improvements will often have requirements. For example, improving a resource

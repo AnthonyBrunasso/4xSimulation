@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "util.h"
+#include "game_types.h"
 
 namespace {
   typedef std::unordered_map<uint32_t, CombatStats> DefinitionMap;
@@ -12,19 +13,19 @@ namespace {
 
 void unit_definitions::initialize() {
   // Scout
-  s_definitions[util::enum_to_uint(ENTITY_TYPE::SCOUT)] =
+  s_definitions[util::enum_to_uint(UNIT_TYPE::SCOUT)] =
     CombatStats(5, 1, 1); // 5 health, 1 attack, 1 range.
 
   // Archer
-  s_definitions[util::enum_to_uint(ENTITY_TYPE::ARCHER)] =
+  s_definitions[util::enum_to_uint(UNIT_TYPE::ARCHER)] =
     CombatStats(10, 3, 2); // 10 health, 3 attack, 2 range.
 
   // Phalanx
-  s_definitions[util::enum_to_uint(ENTITY_TYPE::PHALANX)] =
+  s_definitions[util::enum_to_uint(UNIT_TYPE::PHALANX)] =
     CombatStats(13, 3, 1); // 13 health, 3 attack, 1 range.
 }
 
-CombatStats* unit_definitions::get(ENTITY_TYPE id) {
+CombatStats* unit_definitions::get(UNIT_TYPE id) {
   uint32_t uint_id = util::enum_to_uint(id);
   if (s_definitions.find(uint_id) == s_definitions.end()) {
     return nullptr;
@@ -32,13 +33,13 @@ CombatStats* unit_definitions::get(ENTITY_TYPE id) {
   return &s_definitions[uint_id];
 }
 
-void unit_definitions::add(ENTITY_TYPE id, const CombatStats& stats) {
+void unit_definitions::add(UNIT_TYPE id, const CombatStats& stats) {
   s_definitions[util::enum_to_uint(id)] = stats;
 }
 
 void unit_definitions::for_each_definition(
-    std::function<void(ENTITY_TYPE id, const CombatStats& stats)> operation) {
+    std::function<void(UNIT_TYPE id, const CombatStats& stats)> operation) {
   for (auto definition : s_definitions) {
-    operation(util::uint_to_enum<ENTITY_TYPE>(definition.first), definition.second);
+    operation(util::uint_to_enum<UNIT_TYPE>(definition.first), definition.second);
   }
 }

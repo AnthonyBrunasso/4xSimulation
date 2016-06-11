@@ -4,16 +4,6 @@
 
 #include "util.h"
 
-namespace {
-  const char* resource_type_names[] = {
-    "Unknown",
-    "Gold",
-    "Happiness",
-    "Sugar",
-    "Stone",
-  };
-}
-
 Resource& Resource::operator+=(const Resource& rhs) {
   // Addition with non matching types do nothing.
   if (rhs.m_type != m_type) {
@@ -23,18 +13,10 @@ Resource& Resource::operator+=(const Resource& rhs) {
   return *this;
 }
 
-const char* get_resource_name(RESOURCE_TYPE resource) {
-  if (resource < RESOURCE_TYPE::FIRST || resource > RESOURCE_TYPE::LAST) {
-    return "Invalid resource type";
-  }
-  return resource_type_names[util::enum_to_uint(resource)];
-}
-
 Resources::Resources() {
-  int i = util::enum_to_uint(RESOURCE_TYPE::FIRST), e = util::enum_to_uint(RESOURCE_TYPE::LAST);
-  do { 
-    m_resource_map[i] = Resource(util::uint_to_enum<RESOURCE_TYPE>(i));
-  } while(i++ != e);
+  for_each_resource_type([this](RESOURCE_TYPE type){
+    this->m_resource_map[util::enum_to_uint(type)] = Resource(type);
+  });
 }
 
 void Resources::add(RESOURCE_TYPE type, int32_t quantity) {

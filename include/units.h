@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity_types.h"
+#include "game_types.h"
 #include "Vector3.hpp"
 #include "combat.h"
 
@@ -10,8 +10,8 @@
 
 class Unit {
 public:
-  Unit(uint32_t unique_id, ENTITY_TYPE entity_type) 
-    : m_entity_type(entity_type)
+  Unit(uint32_t unique_id, UNIT_TYPE UNIT_TYPE) 
+    : m_unit_type(UNIT_TYPE)
     , m_unique_id(unique_id)
     , m_location()
     , m_path()
@@ -20,7 +20,7 @@ public:
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1) {};
 
-  ENTITY_TYPE m_entity_type;
+  UNIT_TYPE m_unit_type;
   uint32_t m_unique_id;
   sf::Vector3i m_location;
   // Current path the unit is on, size is 0 if the unit is not moving
@@ -33,7 +33,7 @@ public:
 };
 
 namespace units {
-  uint32_t create(ENTITY_TYPE entity_type, const sf::Vector3i& location);
+  uint32_t create(UNIT_TYPE UNIT_TYPE, const sf::Vector3i& location);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void destroy(uint32_t entity_id);

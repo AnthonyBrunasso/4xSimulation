@@ -4,19 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
-// NOTE: Add new resource types to resource_type_names in resources.cpp
-enum class RESOURCE_TYPE {
-  UNKNOWN,
-  GOLD,
-  HAPPINESS,
-  SUGAR,
-  STONE,
-
-  FIRST = GOLD,
-  LAST = STONE,
-};
-
-const char* get_resource_name(RESOURCE_TYPE resource);
+#include "game_types.h"
 
 // These resources will represent civilization level resources. 
 // Examples: Amount of gold in a civilization, amount of happiness.

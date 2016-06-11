@@ -10,7 +10,7 @@
 #include "step_parser.h"
 #include "hex.h"
 #include "unit_definitions.h"
-#include "entity_types.h"
+#include "game_types.h"
 
 #include <algorithm>
 #include <iostream>
@@ -163,8 +163,8 @@ namespace terminal  {
 
     terminal::add_query("definitions", "definitions", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      unit_definitions::for_each_definition([](ENTITY_TYPE type, const CombatStats& stats) {
-        std::cout << get_entity_name(type) << ": " << format::combat_stats(stats) << std::endl;
+      unit_definitions::for_each_definition([](UNIT_TYPE type, const CombatStats& stats) {
+        std::cout << get_unit_name(type) << ": " << format::combat_stats(stats) << std::endl;
       });
       return true;
     });

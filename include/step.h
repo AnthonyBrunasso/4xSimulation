@@ -35,11 +35,11 @@ struct Step {
 
 struct SpawnStep : public Step {
   SpawnStep(COMMAND command) : Step(command)
-    , m_entity_type(0)
+    , m_unit_type(0)
     , m_location()
     , m_player(0) {};
 
-  uint32_t m_entity_type;
+  uint32_t m_unit_type;
   sf::Vector3i m_location;
   uint32_t m_player;
 };

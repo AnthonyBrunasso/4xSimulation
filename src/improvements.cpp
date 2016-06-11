@@ -8,11 +8,6 @@
 #include <iostream>
 
 namespace {
-  const char* s_improvement_type_name[] = {
-    "UNKOWN",
-    "RESOURCE",
-  };
-
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
   typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
   typedef std::vector<std::function<bool(const sf::Vector3i&)> > Requirements;
@@ -28,13 +23,6 @@ Improvement::Improvement(uint32_t unique_id, IMPROVEMENT_TYPE type) :
   , m_type(type)
   , m_owner_id(unique_id::INVALID_ID)
 {
-}
-
-const char* get_improvement_name(IMPROVEMENT_TYPE improvement) {
-  if (improvement > IMPROVEMENT_TYPE::LAST) {
-    return "Unkown resource.";
-  }
-  return s_improvement_type_name[util::enum_to_uint(improvement)];
 }
 
 void improvement::add_requirement(IMPROVEMENT_TYPE type, 

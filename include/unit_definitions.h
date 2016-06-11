@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity_types.h"
+#include "game_types.h"
 #include "combat.h"
 
 #include <functional>
@@ -9,9 +9,9 @@
 namespace unit_definitions {
   // This function will contain prebuilt unit definitions.
   void initialize();
-  CombatStats* get(ENTITY_TYPE id);
-  void add(ENTITY_TYPE id, const CombatStats& stats);
+  CombatStats* get(UNIT_TYPE id);
+  void add(UNIT_TYPE id, const CombatStats& stats);
 
   void for_each_definition(
-      std::function<void(ENTITY_TYPE type, const CombatStats& stats)> operation);
+      std::function<void(UNIT_TYPE type, const CombatStats& stats)> operation);
 }
