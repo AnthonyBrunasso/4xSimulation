@@ -21,7 +21,7 @@ namespace improvement {
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
   void add_requirement(IMPROVEMENT_TYPE type, std::function<bool(const sf::Vector3i&)> requirement);
-  uint32_t create(IMPROVEMENT_TYPE type, const sf::Vector3i& location);
+  uint32_t create(IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);

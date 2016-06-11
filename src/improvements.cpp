@@ -30,7 +30,7 @@ void improvement::add_requirement(IMPROVEMENT_TYPE type,
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-uint32_t improvement::create(IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+uint32_t improvement::create(IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
   Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
@@ -43,6 +43,7 @@ uint32_t improvement::create(IMPROVEMENT_TYPE type, const sf::Vector3i& location
   uint32_t id = unique_id::generate();
   Improvement* improvement = new Improvement(id, type);
   improvement->m_location = location;
+  improvement->m_owner_id = owner;
 
   s_improvements[id] = improvement;
   std::cout << "Created improvement id " << id << ", improvement type: " << get_improvement_name(type) << std::endl;

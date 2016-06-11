@@ -225,7 +225,8 @@ namespace {
     if (!player) {
       std::cout << "Invalid player" << std::endl;
     }
-    uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location);
+    uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
+    std::cout << "adding improvement to: " << improve_step->m_player << std::endl;
     player::add_improvement(improve_step->m_player, id);
   }
 
