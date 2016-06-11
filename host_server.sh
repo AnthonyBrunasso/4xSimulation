@@ -10,6 +10,6 @@ COUNTER=1200
 COUNTER=4000
  while [  $COUNTER -lt 4004 ]; do
      echo "Client game_state available on port " $COUNTER
-     tail -n +1 -f game_state | nc -l $COUNTER &
+     tail -n +1 -f game_state | nc -vl $COUNTER &
      let COUNTER=COUNTER+1 
  done
