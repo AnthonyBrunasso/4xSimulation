@@ -4,27 +4,18 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include <string>
+
+#include "game_types.h"
 
 class City;
 
-enum class CONSTRUCTION
-{
-  SCOUT_UNIT = 0,
-  GRANARY,
-  RANGE_UNIT,
-  FORGE,
-  MELEE_UNIT,
-  UBER_FORGE,
-  INVALID,
-};
-
 namespace production {
-  typedef std::function<void (CONSTRUCTION)> UnitCreationCallback;
+  typedef std::function<void (CONSTRUCTION_TYPE)> UnitCreationCallback;
 
-  CONSTRUCTION id(uint32_t);
-  float required(CONSTRUCTION type_id);
-  const char* name_of_construction(CONSTRUCTION type_id);
-  bool construction_is_unique(CONSTRUCTION type_id);
+  CONSTRUCTION_TYPE id(uint32_t);
+  float required(CONSTRUCTION_TYPE type_id);
+  bool construction_is_unique(CONSTRUCTION_TYPE type_id);
 
   void sub_create(const UnitCreationCallback&);
 }
@@ -37,20 +28,20 @@ typedef std::list<ConstructionOrder*> ConstructionList;
 class ConstructionOrder
 {
 public:
-  ConstructionOrder(CONSTRUCTION type_id);
+  ConstructionOrder(CONSTRUCTION_TYPE type_id);
 
   float GetProductionForConstruction();
   float ApplyProduction(float production);
 
-  const char* GetName();
+  std::string GetName();
   bool IsUnique();
   bool IsCompleted();
-  CONSTRUCTION GetType();
+  CONSTRUCTION_TYPE GetType();
 
 private:
   ConstructionOrder();
 
-  CONSTRUCTION m_type_id;
+  CONSTRUCTION_TYPE m_type_id;
   float m_production;
 };
 
@@ -60,8 +51,8 @@ public:
   ConstructionState();
   ~ConstructionState();
 
-  ConstructionOrder* GetConstruction(CONSTRUCTION type_id);
-  bool IsConstructed(CONSTRUCTION type_id);
+  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
+  bool IsConstructed(CONSTRUCTION_TYPE type_id);
   void Print() const;
 
 private:
@@ -76,9 +67,9 @@ public:
 
   float GetProductionYield();
 
-  bool Has(CONSTRUCTION type_id);
-  void Add(CONSTRUCTION type_id);
-  void Cheat(CONSTRUCTION type_id);
+  bool Has(CONSTRUCTION_TYPE type_id);
+  void Add(CONSTRUCTION_TYPE type_id);
+  void Cheat(CONSTRUCTION_TYPE type_id);
 
   void Move(size_t src, size_t dest);
 

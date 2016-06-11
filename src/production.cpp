@@ -1,7 +1,6 @@
 
 #include "production.h"
 #include "city.h"
-#include "game_types.h"
 #include "player.h"
 #include "units.h"
 
@@ -18,47 +17,36 @@ namespace production {
     s_creationCallbacks.push_back(cb);
   }
 
-  CONSTRUCTION id(uint32_t type_id) {
-    if (type_id <= static_cast<uint32_t>(CONSTRUCTION::INVALID)) {
-      return static_cast<CONSTRUCTION>(type_id);
+  CONSTRUCTION_TYPE id(uint32_t type_id) {
+    if (type_id <= static_cast<uint32_t>(CONSTRUCTION_TYPE::INVALID)) {
+      return static_cast<CONSTRUCTION_TYPE>(type_id);
     }
    
-    return CONSTRUCTION::INVALID;
+    return CONSTRUCTION_TYPE::INVALID;
   }
 
-  float required(CONSTRUCTION ) {
+  float required(CONSTRUCTION_TYPE ) {
     return 60.f;
   }
 
-  const char* name_of_construction(CONSTRUCTION id) {
-    const char *names[] = {
-     "Scout",
-     "Granary",
-     "Archer",
-     "Forge",
-     "Phalanx" };
-    
-    return names[static_cast<int>(id)];
-  }
-
-  bool construction_is_unique(CONSTRUCTION type_id) {
+  bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
 
-  void spawn_unit(Player& player, CONSTRUCTION type_id, City* city) {
+  void spawn_unit(Player& player, CONSTRUCTION_TYPE type_id, City* city) {
     if (!player.OwnsCity(city->m_id)) {
       return;
     }
 
     uint32_t unitId;
     switch (type_id) {
-    case CONSTRUCTION::SCOUT_UNIT:
+    case CONSTRUCTION_TYPE::SCOUT_UNIT:
       unitId = units::create(UNIT_TYPE::SCOUT, city->m_location);
       break;
-    case CONSTRUCTION::RANGE_UNIT:
+    case CONSTRUCTION_TYPE::RANGE_UNIT:
       unitId = units::create(UNIT_TYPE::ARCHER, city->m_location);
       break;
-    case CONSTRUCTION::MELEE_UNIT:
+    case CONSTRUCTION_TYPE::MELEE_UNIT:
       unitId = units::create(UNIT_TYPE::PHALANX, city->m_location);
       break;
     default:
@@ -68,7 +56,7 @@ namespace production {
   }
 }
 
-ConstructionOrder::ConstructionOrder(CONSTRUCTION type_id)
+ConstructionOrder::ConstructionOrder(CONSTRUCTION_TYPE type_id)
 : m_type_id(type_id)
 , m_production(0.f)
 {
@@ -89,8 +77,8 @@ float ConstructionOrder::ApplyProduction(float production) {
   return production - usedProduction;
 }
 
-const char* ConstructionOrder::GetName() {
-  return production::name_of_construction(m_type_id);
+std::string ConstructionOrder::GetName() {
+  return std::move(get_construction_name(m_type_id));
 }
 
 bool ConstructionOrder::IsUnique() {
@@ -101,7 +89,7 @@ bool ConstructionOrder::IsCompleted() {
   return m_production >= production::required(m_type_id);
 }
 
-CONSTRUCTION ConstructionOrder::GetType() {
+CONSTRUCTION_TYPE ConstructionOrder::GetType() {
   return m_type_id;
 }
 
@@ -115,7 +103,7 @@ ConstructionState::~ConstructionState() {
   }
 }
 
-ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION type_id) {
+ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id) {
   if (!production::construction_is_unique(type_id)) {
     return new ConstructionOrder(type_id);
   }
@@ -134,7 +122,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION type_id) {
   return newOrder;
 }
 
-bool ConstructionState::IsConstructed(CONSTRUCTION type_id) {
+bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) {
   if (!production::construction_is_unique(type_id)) {
     return false;
   }
@@ -162,22 +150,22 @@ ConstructionQueueFIFO::ConstructionQueueFIFO()
 
 float ConstructionQueueFIFO::GetProductionYield() {
   float yield = 1.f;
-  if (Has(CONSTRUCTION::FORGE)) {
+  if (Has(CONSTRUCTION_TYPE::FORGE)) {
     yield += 3.f;
   }
-  if (Has(CONSTRUCTION::UBER_FORGE)) {
+  if (Has(CONSTRUCTION_TYPE::UBER_FORGE)) {
     yield += 10.0f;
   }
 
   return yield;
 }
   
-bool ConstructionQueueFIFO::Has(CONSTRUCTION type_id) {
+bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) {
   return m_state.IsConstructed(type_id);
 }
 
-void ConstructionQueueFIFO::Add(CONSTRUCTION type_id) {
-  if (type_id == CONSTRUCTION::INVALID) {
+void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
+  if (type_id == CONSTRUCTION_TYPE::INVALID) {
     return;
   }
 
@@ -185,8 +173,8 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION type_id) {
   m_queue.push_back(order);
 }
 
-void ConstructionQueueFIFO::Cheat(CONSTRUCTION type_id) {
-  if (type_id == CONSTRUCTION::INVALID) {
+void ConstructionQueueFIFO::Cheat(CONSTRUCTION_TYPE type_id) {
+  if (type_id == CONSTRUCTION_TYPE::INVALID) {
     return;
   }
 

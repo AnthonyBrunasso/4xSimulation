@@ -40,7 +40,7 @@ void City::Simulate() {
 }
 
 float City::GetFoodYield() const {
-  float bonusFood = m_construction->Has(CONSTRUCTION::GRANARY)?2.0:0.0;
+  float bonusFood = m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0;
   return city::FOOD_PER_TURN + bonusFood;
 }
 
