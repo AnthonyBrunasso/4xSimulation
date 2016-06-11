@@ -1,5 +1,6 @@
 #include "simulation.h"
 
+#include "search.h"
 #include "step.h"
 #include "units.h"
 #include "city.h"
@@ -265,47 +266,56 @@ namespace {
     player::add_unit(spawn_step->m_player, id);
   }
 
-  void execute_move() {
-    std::cout << "Executing immediate movement " << std::endl;
-    // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
+  Unit* generate_path() {
     MoveStep* move_step = static_cast<MoveStep*>(s_current_step);
     Player* player = player::get_player(move_step->m_player);
+    Unit* unit = units::get_unit(move_step->m_unit_id);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
     }
-    if (!player->OwnsUnit(move_step->m_unit_id)) {
+    if (!unit) {
+      std::cout << "Unit: " << move_step->m_unit_id << " does not exist." << std::endl;
+      return nullptr;
+    }
+    if (player && !player->OwnsUnit(move_step->m_unit_id)) {
       std::cout << "Player does not own unit" << std::endl;
     }
-    // Set path
-    units::set_path(move_step->m_unit_id, move_step->m_destination);
+    if (world_map::get_tile(move_step->m_destination) == nullptr) {
+      std::cout << "Invalid destination: " << format::vector3(move_step->m_destination) << std::endl;
+      return nullptr;
+    }
 
+    std::vector<sf::Vector3i> path; 
+    // Run pathfinding to location
+    search::path_to(unit->m_location, move_step->m_destination, world_map::get_map(), path);
+    if (!path.empty()) {
+      path.erase(path.begin());
+    }
+    // Set path
+    units::set_path(unit->m_unique_id, path);
+    return unit;
+  }
+
+  void execute_move() {
+    std::cout << "Executing immediate movement " << std::endl;
+    // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
+
+    Unit* unit = generate_path();
+    if (!unit) return;
     // Execute on path
     UnitMovementVector units_to_move;
-    units_to_move.push_back(move_step->m_unit_id);
+    units_to_move.push_back(unit->m_unique_id);
     while (step_move(units_to_move)) {
 
     }
 
     // Queue it for continued movement, unit will remove itself if it is done moving
-    s_units_to_move.push_back(move_step->m_unit_id);
+    s_units_to_move.push_back(unit->m_unique_id);
   }
 
   void execute_queue_move() {
-    // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
-    QueueMoveStep* move_step = static_cast<QueueMoveStep*>(s_current_step);
-    Player* player = player::get_player(move_step->m_player);
-    if (!player) {
-      std::cout << "Invalid player" << std::endl;
-    }
-    if (!player->OwnsUnit(move_step->m_unit_id)) {
-      std::cout << "Player does not own unit" << std::endl;
-    }
-    Unit* unit = units::get_unit(move_step->m_unit_id);
-    if (!unit) {
-      return;
-    }
-    units::set_path(move_step->m_unit_id, move_step->m_destination);
-    s_units_to_move.push_back(move_step->m_unit_id);
+    Unit* unit = generate_path();
+    s_units_to_move.push_back(unit->m_unique_id);
   }
 
   void execute_add_player() {

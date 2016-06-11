@@ -80,24 +80,14 @@ void units::for_each_unit(std::function<void(const Unit& unit)> operation) {
   }
 }
 
-void units::set_path(uint32_t id, const sf::Vector3i& destination) {
+void units::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
   Unit* unit = get_unit(id);
   if (!unit) {
     return;
   }
 
-  // Set the destination of the unit and queue it to move
-  // TODO: Change this to a search algorithm like A* that weights tiles, for now, assume all tiles can be pathed
-  hex::cubes_on_line(util::to_vector3f(unit->m_location), 
-    util::to_vector3f(destination), 
-    unit->m_path);
-
+  unit->m_path = path;
   std::cout << "Path size: " << unit->m_path.size() << std::endl;
-
-  // TODO: When pathing algorithm built deal with not removing the first element on each move
-  if (unit->m_path.size()) {
-    unit->m_path.erase(unit->m_path.begin());
-  }
 }
 
 void units::replenish_actions() {

@@ -43,7 +43,7 @@ namespace units {
   void for_each_unit(std::function<void(const Unit& unit)> operation);
 
   // Set the units current path to the path to get them to destination
-  void set_path(uint32_t id, const sf::Vector3i& destination);
+  void set_path(uint32_t id, const std::vector<sf::Vector3i>& path);
   // Replenish action points to units
   void replenish_actions();
 

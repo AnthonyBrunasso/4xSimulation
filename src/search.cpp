@@ -4,7 +4,6 @@
 #include "tile.h"
 #include "format.h"
 
-#include <iostream>
 #include <algorithm>
 #include <vector>
 #include <queue>
@@ -63,8 +62,6 @@ namespace {
           PathNode(node, 
             record.m_cost.m_value + tile_map[node].m_path_cost,                                    // Cost of current record to this node
             record.m_cost.m_value + tile_map[node].m_path_cost + heuristic_estimate(node, goal))); // Heuristic cost
-
-      std::cout << "found neighbors: " << format::vector3(node) << " cost: " << neighbors.back().m_cost.m_value << " heuristic: " << neighbors.back().m_heuristic.m_value << std::endl;
     }
   }
 
@@ -75,7 +72,6 @@ namespace {
       current = came_from[current];
       path.push_back(current);
     }
-    std::cout << "build_path: " << path.size() << std::endl;
     // Path in reverse order so reverse it.
     std::reverse(path.begin(), path.end());
   } 
@@ -115,9 +111,7 @@ void search::path_to(const sf::Vector3i& start,
   while (!open.empty()) {
     // Back will return path node with least path cost.
     PathNode current = open.top();
-    std::cout << "min: " << format::vector3(current.m_location) << std::endl;
     if (current.m_location == end) {
-      std::cout << "Found end!" << std::endl;
       build_path(current.m_location, came_from, coords);
       return;
     }
