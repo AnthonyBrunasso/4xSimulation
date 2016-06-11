@@ -62,12 +62,13 @@ std::string format::unit(const Unit& unit) {
 std::string format::city(const City& city) {
   std::stringstream ss;
 
-  ss << "food: " << city.m_food
-     << " population: " << city.GetPopulation()
-     << " sustain: " << city.FoodForSustain()
-     << " growth: " << city.FoodForGrowth()
-     << " turns for growth: " << city.GetTurnsForGrowth()
-     << " location: " << format::vector3(city.m_location);
+  ss << "City Id: " << city.m_id << " Location: " << format::vector3(city.m_location) << std::endl;
+  ss << city.GetPopulation() << " population " << std::endl;
+  ss << "    Food: (" << city.FoodForSustain() << " sustain) "
+    << "(" << city.m_food << " current) "
+     << "(" << city.FoodForGrowth() << " growth) "
+     << "(" << city.GetTurnsForGrowth() << " turns until growth) "
+     << "(+" << city.GetFoodYield() << " food/turn)";
 
   return std::move(ss.str());
 }

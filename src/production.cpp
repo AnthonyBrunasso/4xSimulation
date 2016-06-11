@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <cmath>
 
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;
@@ -114,7 +115,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
     return findIt->second;
   }
 
-  std::cout << "New unique construction: " << type << std::endl;
+  std::cout << "New unique construction: " << get_construction_name(type_id) << std::endl;
 
   ConstructionOrder* newOrder = new ConstructionOrder(type_id);
   m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder));
@@ -122,7 +123,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
   return newOrder;
 }
 
-bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) {
+bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   if (!production::construction_is_unique(type_id)) {
     return false;
   }
@@ -137,8 +138,12 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) {
 }
 
 void ConstructionState::Print() const {
+  std::cout << "    --Construction Queue--" << std::endl;
   for (auto construction : m_constructions) {
-    std::cout << " " << construction.second->GetName() << (construction.second->IsCompleted()? " is completed.":" is in progress.") << std::endl;
+    if (!construction.second->IsCompleted()) {
+      continue;
+    }
+    std::cout << "      " << construction.second->GetName() << " is completed." << std::endl;
   }
 }
 
@@ -148,7 +153,7 @@ ConstructionQueueFIFO::ConstructionQueueFIFO()
   
 }
 
-float ConstructionQueueFIFO::GetProductionYield() {
+float ConstructionQueueFIFO::GetProductionYield() const {
   float yield = 1.f;
   if (Has(CONSTRUCTION_TYPE::FORGE)) {
     yield += 3.f;
@@ -160,7 +165,7 @@ float ConstructionQueueFIFO::GetProductionYield() {
   return yield;
 }
   
-bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) {
+bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
   return m_state.IsConstructed(type_id);
 }
 
@@ -236,15 +241,19 @@ void ConstructionQueueFIFO::Simulate(City* parent) {
 }
 
 void ConstructionQueueFIFO::PrintState() const {
-  std::cout << "--Construction State--" << std::endl;
-  std::cout << "Stockpiled: " << m_stockpile << std::endl;
+  std::cout << "    Production: (stockpile " << m_stockpile << ") (" << GetProductionYield() << " prod/turn)" << std::endl;
   m_state.Print();
 }
 
 void ConstructionQueueFIFO::PrintQueue() const {
   auto it = m_queue.cbegin();
   for (size_t i = 0; i < m_queue.size(); ++i, ++it) {
-    std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() << std::endl;
+    std::cout << "        ";
+    std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction();
+    if (i == 0) {
+      std::cout << " (" << ceil((*it)->GetProductionForConstruction()/GetProductionYield()) << " turns)";
+    }
+    std::cout << std::endl;
   }
 }
 

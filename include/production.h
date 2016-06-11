@@ -52,7 +52,7 @@ public:
   ~ConstructionState();
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
-  bool IsConstructed(CONSTRUCTION_TYPE type_id);
+  bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
   void Print() const;
 
 private:
@@ -65,9 +65,9 @@ class ConstructionQueueFIFO
 public:
   ConstructionQueueFIFO();
 
-  float GetProductionYield();
+  float GetProductionYield() const;
 
-  bool Has(CONSTRUCTION_TYPE type_id);
+  bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
   void Cheat(CONSTRUCTION_TYPE type_id);
 

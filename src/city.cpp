@@ -31,10 +31,6 @@ void City::Simulate() {
   m_construction->Simulate(this);
   m_food += food;
   std::cout << format::city(*this) << std::endl;
-  std::cout << "City is size |" << GetPopulation() << "| "
-    << m_food << " food [" << FoodForSustain() << "-" << FoodForGrowth() << "] "
-    << "+" << food << " growth in " << GetTurnsForGrowth()
-    << std::endl;
   m_construction->PrintState();
   m_construction->PrintQueue();
 }
