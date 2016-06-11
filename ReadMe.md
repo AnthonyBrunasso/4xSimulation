@@ -2,13 +2,15 @@
 
 Prebuild steps:
 
+```sh
 cd tools
 python type_generator.py
+```
 
 Build with:
-
+```sh
 Make
-
+```
 ### Multiplayer
 source host_server.sh
 
