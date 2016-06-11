@@ -213,6 +213,7 @@ namespace {
     Player* player = player::get_player(colonize_step->m_player);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
+      return;
     }
     units::destroy(colonize_step->m_unit_id);
     uint32_t id = city::create(colonize_step->m_location);
@@ -224,6 +225,7 @@ namespace {
     Player* player = player::get_player(improve_step->m_player);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
+      return;
     }
     uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
     std::cout << "adding improvement to: " << improve_step->m_player << std::endl;
@@ -262,6 +264,7 @@ namespace {
     Player* player = player::get_player(spawn_step->m_player);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
+      return;
     }
     uint32_t id = units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location);
     player::add_unit(spawn_step->m_player, id);
@@ -273,6 +276,7 @@ namespace {
     Unit* unit = units::get_unit(move_step->m_unit_id);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
+      return nullptr;
     }
     if (!unit) {
       std::cout << "Unit: " << move_step->m_unit_id << " does not exist." << std::endl;
