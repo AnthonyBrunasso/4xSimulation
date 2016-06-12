@@ -19,11 +19,7 @@ namespace production {
   }
 
   CONSTRUCTION_TYPE id(uint32_t type_id) {
-    if (type_id <= static_cast<uint32_t>(CONSTRUCTION_TYPE::UNKNOWN)) {
-      return static_cast<CONSTRUCTION_TYPE>(type_id);
-    }
-   
-    return CONSTRUCTION_TYPE::UNKNOWN;
+    return static_cast<CONSTRUCTION_TYPE>(type_id);
   }
 
   float required(CONSTRUCTION_TYPE ) {
@@ -210,6 +206,10 @@ void ConstructionQueueFIFO::Move(size_t src, size_t dest) {
   auto itTo = m_queue.begin();
   std::advance(itTo, dest);
   m_queue.insert(itTo, order);
+}
+
+size_t ConstructionQueueFIFO::Count() const {
+  return m_queue.size();
 }
 
 void ConstructionQueueFIFO::Simulate(City* parent) {
