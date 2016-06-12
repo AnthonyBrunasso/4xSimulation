@@ -111,8 +111,13 @@ namespace {
     else if (tokens[0] == "tile_resource") {
       CHECK(6, tokens);
       ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep(COMMAND::RESOURCE_MUTATOR);
-      resource_mutator_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
-      resource_mutator_step->m_type = std::stoul(tokens[4]);
+      if (std::isdigit(tokens[1][0])) {
+        resource_mutator_step->m_type = std::stoul(tokens[1]);
+      }
+      else {
+        resource_mutator_step->m_type = util::enum_to_uint(get_resource_type(tokens[1]));
+      }
+      resource_mutator_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       resource_mutator_step->m_quantity = std::stoul(tokens[5]);
       step = resource_mutator_step;
     }
@@ -120,7 +125,12 @@ namespace {
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
       ImproveStep* improve_step = new ImproveStep(COMMAND::IMPROVE);
-      improve_step->m_improvement_type = std::stoul(tokens[1]);
+      if (std::isdigit(tokens[1][0])) {
+        improve_step->m_improvement_type = std::stoul(tokens[1]);
+      }
+      else {
+        improve_step->m_improvement_type = util::enum_to_uint(get_improvement_type(tokens[1]));
+      }
       improve_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       improve_step->m_player = s_active_player;
       step = improve_step;

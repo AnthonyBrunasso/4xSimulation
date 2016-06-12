@@ -81,6 +81,16 @@ namespace {
         return false;
       }
 
+      // Check if this tile already contains a resource improvement.
+      for (auto id : tile->m_improvement_ids) {
+        Improvement* improvement = improvement::get_improvement(id);
+        if (!improvement) continue;
+        if (improvement->m_type == IMPROVEMENT_TYPE::RESOURCE) {
+          std::cout << "Resource improvement already exists on this tile" << std::endl;
+          return false;
+        }
+      }
+
       return true;
     });
   }

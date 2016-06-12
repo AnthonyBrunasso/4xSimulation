@@ -202,12 +202,12 @@ namespace terminal  {
     std::cout << "  spawn <unitType> <x> <y> <z>" << std::endl;
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
     std::cout << "  tile_cost <x> <y> <z> <cost>" << std::endl;
-    std::cout << "  tile_resource <x> <y> <z> <type> <quantity>" << std::endl;
+    std::cout << "  tile_resource <resourceType> <x> <y> <z> <quantity>" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  colonize <unitId> <x> <y> <z>" << std::endl;
-    std::cout << "  construct <cityId> <productionId>" << std::endl;
+    std::cout << "  construct <cityId> <productionType>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
