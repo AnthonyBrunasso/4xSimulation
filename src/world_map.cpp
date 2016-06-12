@@ -7,6 +7,7 @@
 #include "unique_id.h"
 #include "format.h"
 #include "improvements.h"
+#include "tile_costs.h"
 
 #include <iostream>
 #include <vector>
@@ -91,6 +92,7 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
     s_map[tile] = Tile();
   }
 
+  tile_costs::initialize();
   subscribe_to_events();
   set_improvement_requirements();
 }
@@ -113,7 +115,9 @@ bool world_map::load_file(const std::string& name) {
 
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
-    tile.second.m_terrain_type = static_cast<TERRAIN_TYPE>(*data);
+    TERRAIN_TYPE terrain_type = static_cast<TERRAIN_TYPE>(*data);
+    tile.second.m_terrain_type = terrain_type;
+    tile.second.m_path_cost = tile_costs::get(terrain_type);
   }
 
   // read eof
