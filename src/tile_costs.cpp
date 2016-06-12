@@ -16,7 +16,7 @@ void tile_costs::initialize() {
   });
 
   tile_costs::set(TERRAIN_TYPE::MOUNTAIN, 2);
-  tile_costs::set(TERRAIN_TYPE::WATER, 3);
+  tile_costs::set(TERRAIN_TYPE::WATER, 4);
 }
 
 uint32_t tile_costs::get(TERRAIN_TYPE id) {
