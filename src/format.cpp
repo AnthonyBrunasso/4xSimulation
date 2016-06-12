@@ -67,9 +67,8 @@ std::string format::city(const City& city) {
   ss << city.GetPopulation() << " population " << std::endl;
   ss << "    Food: (" << city.FoodForSustain() << " sustain) "
     << "(" << city.m_food << " current) "
-     << "(" << city.FoodForGrowth() << " growth) "
-     << "(" << city.GetTurnsForGrowth() << " turns until growth) "
-     << "(+" << city.GetFoodYield() << " food/turn)";
+     << "(" << city.FoodForGrowth() << " growth) " << std::endl;
+  ss << "    Growth: (" << city.FoodForGrowth()-city.m_food << " required) (" << city.GetTurnsForGrowth() << " turns)" << std::endl;
 
   return std::move(ss.str());
 }

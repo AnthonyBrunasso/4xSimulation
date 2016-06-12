@@ -3,7 +3,7 @@
 #include "unique_id.h"
 
 Tile::Tile() : 
-  m_terrain_type(TERRAIN_TYPE::VOID)
+  m_terrain_type(TERRAIN_TYPE::UNKNOWN)
   , m_unit_ids()
   , m_city_id(unique_id::INVALID_ID)
   // Costs one to walk over the tile by default

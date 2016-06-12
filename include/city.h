@@ -8,6 +8,7 @@
 #include <vector>
 
 class ConstructionQueueFIFO;
+struct TerrainYield;
 
 class City {
 public:
@@ -15,8 +16,11 @@ public:
 
   float GetFoodYield() const;
 
-  void Simulate();
+  void Simulate(TerrainYield&);
   void BeginTurn() const;
+
+  TerrainYield DumpYields(bool log=false) const;
+  void MutateYield(TerrainYield&) const;
 
   size_t GetHarvestCount() const;
   bool AddHarvest(sf::Vector3i& );

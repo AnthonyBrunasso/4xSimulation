@@ -9,6 +9,7 @@
 #include "game_types.h"
 
 class City;
+struct TerrainYield;
 
 namespace production {
   typedef std::function<void (CONSTRUCTION_TYPE)> UnitCreationCallback;
@@ -65,8 +66,6 @@ class ConstructionQueueFIFO
 public:
   ConstructionQueueFIFO();
 
-  float GetProductionYield() const;
-
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
   void Cheat(CONSTRUCTION_TYPE type_id);
@@ -74,10 +73,11 @@ public:
   void Move(size_t src, size_t dest);
   size_t Count() const;
 
-  void Simulate(City* parent);
+  void MutateYield(TerrainYield&) const;
+  void Simulate(City* parent, TerrainYield&);
 
   void PrintState() const;
-  void PrintQueue() const;
+  void PrintQueue(TerrainYield&) const;
   
 private:
   ConstructionList m_queue;

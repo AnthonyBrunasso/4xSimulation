@@ -143,7 +143,8 @@ namespace {
 
   void phase_city_growth() {
     city::for_each_city([](City& cityInstance) { 
-      cityInstance.Simulate();
+      TerrainYield t = cityInstance.DumpYields(true);
+      cityInstance.Simulate(t);
     });
   }
 
@@ -260,8 +261,10 @@ namespace {
       std::cout << "Terrain is not owned by this player" << std::endl;
       return;
     }
-    terrain_yield::add_harvest(harvest_step->m_destination, city);
-    std::cout << "City (" << city->m_id << ") is now harvesting from " << format::tile(*tile) << std::endl;
+    if (terrain_yield::add_harvest(harvest_step->m_destination, city)) {
+      std::cout << "City (" << city->m_id << ") is now harvesting from " << format::tile(*tile) << std::endl;
+      return;
+    }
 }
 
   void execute_tile_mutator() {
@@ -514,7 +517,6 @@ void simulation::process_begin_turn() {
   phase_diplomatic_progression();
   phase_spawn_units();
   phase_spawn_buildings();
-  phase_restore_actions();
 
   // Provide turn feedback
   phase_global_events();
@@ -540,8 +542,9 @@ void simulation::process_begin_turn() {
   player::for_each_player([](Player& player) {
     player.m_turn_state = TURN_STATE::PLAYING;
   });
-  std::cout << "Beginning turn #" << s_current_turn << std::endl;
+  std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
+  phase_restore_actions();
   phase_notifications();
 }
 

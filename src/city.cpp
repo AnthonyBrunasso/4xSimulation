@@ -3,6 +3,7 @@
 
 #include "format.h"
 #include "hex.h"
+#include "terrain_yield.h"
 
 #include <algorithm>
 #include <iostream>
@@ -18,7 +19,6 @@ namespace city {
   CityMap s_cities;
   SubMap s_raze_subs;
   SubMap s_create_subs;
-  const float FOOD_PER_TURN = 2.f;
 }
 
 City::City(uint32_t id)
@@ -28,22 +28,46 @@ City::City(uint32_t id)
 { 
 }
 
-void City::Simulate() {
-  float food = GetFoodYield();
-  m_construction->Simulate(this);
-  m_food += food;
-  std::cout << format::city(*this) << std::endl;
+void City::Simulate(TerrainYield& t) {
+  m_construction->Simulate(this, t);
+  m_food += t.m_food;
+  std::cout << format::city(*this);
   m_construction->PrintState();
-  m_construction->PrintQueue();
+  m_construction->PrintQueue(t);
+}
+
+TerrainYield City::DumpYields(bool log) const {
+  TerrainYield sum;
+  for (const auto& it : m_yield_tiles) {
+    TerrainYield yieldVal = terrain_yield::get_yield(it); 
+    if (log) {
+      std::cout << "    " << yieldVal << std::endl;
+    }
+    sum += yieldVal;
+  }
+  if (log) {
+    std::cout << "  Sum yield: " << sum << std::endl;
+  }
+  MutateYield(sum);
+  if (log) {
+    std::cout << "Total yield (city " << m_id << " ): " << sum << std::endl;
+  }
+  return sum;
+}
+
+void City::MutateYield(TerrainYield& yields) const {
+  float bonusFood = m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0;
+  yields.m_food += bonusFood;
+  m_construction->MutateYield(yields);
 }
 
 void City::BeginTurn() const {
-  float food = GetFoodYield();
-  if (food < 0.0) {
+  TerrainYield t = DumpYields();
+  if (t.m_food < 0.0) {
     std::cout << "City is starving, id: " << m_id << std::endl;
   }
   if (m_construction->Count() == 0) {
-    std::cout << "City has no constrution orders, id: " << m_id << std::endl;
+    std::cout << "City has no construction orders, id: " << m_id << std::endl;
   }
   float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
   if (idleCount) {
@@ -73,11 +97,6 @@ bool City::RemoveHarvest(sf::Vector3i& loc) {
   return true;
 }
 
-float City::GetFoodYield() const {
-  float bonusFood = m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0;
-  return city::FOOD_PER_TURN + bonusFood;
-}
-
 float City::GetPopulation() const {
   return city::population_size_from_food(m_food);
 }
@@ -91,7 +110,8 @@ float City::FoodForGrowth() const {
 }
 
 float City::GetTurnsForGrowth() const {
-  return std::ceil((FoodForGrowth() - m_food) / GetFoodYield());
+  TerrainYield t = DumpYields();
+  return std::ceil((FoodForGrowth() - m_food) / t.m_food);
 }
 
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {

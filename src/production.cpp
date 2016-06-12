@@ -3,6 +3,7 @@
 #include "city.h"
 #include "player.h"
 #include "units.h"
+#include "terrain_yield.h"
 
 #include <vector>
 #include <iostream>
@@ -149,18 +150,6 @@ ConstructionQueueFIFO::ConstructionQueueFIFO()
   
 }
 
-float ConstructionQueueFIFO::GetProductionYield() const {
-  float yield = 1.f;
-  if (Has(CONSTRUCTION_TYPE::FORGE)) {
-    yield += 3.f;
-  }
-  if (Has(CONSTRUCTION_TYPE::FACTORY)) {
-    yield += 10.0f;
-  }
-
-  return yield;
-}
-  
 bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
   return m_state.IsConstructed(type_id);
 }
@@ -212,8 +201,19 @@ size_t ConstructionQueueFIFO::Count() const {
   return m_queue.size();
 }
 
-void ConstructionQueueFIFO::Simulate(City* parent) {
-  m_stockpile += GetProductionYield();
+void ConstructionQueueFIFO::MutateYield(TerrainYield& t) const {
+ float yield = 1.f;
+  if (Has(CONSTRUCTION_TYPE::FORGE)) {
+    yield += 3.f;
+  }
+  if (Has(CONSTRUCTION_TYPE::FACTORY)) {
+    yield += 10.0f;
+  }
+  t.m_production += yield;
+}
+
+void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
+  m_stockpile += t.m_production;
   while (m_queue.size() > 0) {
     ConstructionOrder* order = m_queue.front();
     m_stockpile = order->ApplyProduction(m_stockpile);
@@ -237,21 +237,21 @@ void ConstructionQueueFIFO::Simulate(City* parent) {
   
   // Limit the city's reserve when no construction orders are given
   //  The yield may have increased due to completed construction
-  m_stockpile = std::min(m_stockpile, GetProductionYield());
+  m_stockpile = std::min(m_stockpile, t.m_production);
 }
 
 void ConstructionQueueFIFO::PrintState() const {
-  std::cout << "    Production: (stockpile " << m_stockpile << ") (" << GetProductionYield() << " prod/turn)" << std::endl;
+  std::cout << "    Production: (stockpile " << m_stockpile << ")" << std::endl;
   m_state.Print();
 }
 
-void ConstructionQueueFIFO::PrintQueue() const {
+void ConstructionQueueFIFO::PrintQueue(TerrainYield& t) const {
   auto it = m_queue.cbegin();
   for (size_t i = 0; i < m_queue.size(); ++i, ++it) {
     std::cout << "        ";
     std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction();
     if (i == 0) {
-      std::cout << " (" << ceil((*it)->GetProductionForConstruction()/GetProductionYield()) << " turns)";
+      std::cout << " (" << ceil((*it)->GetProductionForConstruction()/t.m_production) << " turns)";
     }
     std::cout << std::endl;
   }

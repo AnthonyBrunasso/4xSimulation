@@ -23,7 +23,6 @@ add_gametype(TERRAIN, 'Grassland', ord('g') - ord('a'))
 add_gametype(TERRAIN, 'Mountain' , ord('m') - ord('a'))
 add_gametype(TERRAIN, 'Plains'   , ord('p') - ord('a'))
 add_gametype(TERRAIN, 'Water'    , ord('w') - ord('a'))
-add_gametype(TERRAIN, 'Void'     , -1)
 
 add_gametype(UNIT, 'Scout'  , 1)
 add_gametype(UNIT, 'Archer' , 2)
