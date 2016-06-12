@@ -20,6 +20,7 @@ public:
 
   size_t GetHarvestCount() const;
   bool AddHarvest(sf::Vector3i& );
+  bool RemoveHarvest(sf::Vector3i& );
 
   float GetPopulation() const;
   float FoodForSustain() const;

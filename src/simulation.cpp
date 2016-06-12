@@ -13,6 +13,7 @@
 #include "unit_definitions.h"
 #include "improvements.h"
 #include "game_types.h"
+#include "terrain_yield.h"
 
 #include <iostream>
 #include <vector>
@@ -246,6 +247,10 @@ namespace {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
+    if (terrain_yield::is_harvested(harvest_step->m_destination)) {
+      terrain_yield::remove_harvest(harvest_step->m_destination);
+      return;
+    }
     City* city = city::nearest_city(harvest_step->m_destination);
     if (!city) {
       std::cout << "No valid city found" << std::endl;
@@ -255,11 +260,8 @@ namespace {
       std::cout << "Terrain is not owned by this player" << std::endl;
       return;
     }
-    if (!city->AddHarvest(harvest_step->m_destination)) {
-      std::cout << "City refused harvest (no idle workers, too far away, etc" << std::endl;
-      return;
-    }
-    std::cout << "City is now harvesting from " << format::tile(*tile) << std::endl;
+    terrain_yield::add_harvest(harvest_step->m_destination, city);
+    std::cout << "City (" << city->m_id << ") is now harvesting from " << format::tile(*tile) << std::endl;
 }
 
   void execute_tile_mutator() {

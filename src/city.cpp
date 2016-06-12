@@ -4,6 +4,7 @@
 #include "format.h"
 #include "hex.h"
 
+#include <algorithm>
 #include <iostream>
 #include <unordered_map>
 #include <cmath>
@@ -60,6 +61,15 @@ bool City::AddHarvest(sf::Vector3i &loc) {
     return false;
   }
   m_yield_tiles.push_back(loc);
+  return true;
+}
+
+bool City::RemoveHarvest(sf::Vector3i& loc) {
+  const auto& findIt = std::find(m_yield_tiles.begin(), m_yield_tiles.end(), loc);
+  if (findIt == m_yield_tiles.end()) {
+    return false;
+  }
+  m_yield_tiles.erase(findIt);
   return true;
 }
 
