@@ -19,11 +19,11 @@ namespace production {
   }
 
   CONSTRUCTION_TYPE id(uint32_t type_id) {
-    if (type_id <= static_cast<uint32_t>(CONSTRUCTION_TYPE::INVALID)) {
+    if (type_id <= static_cast<uint32_t>(CONSTRUCTION_TYPE::UNKNOWN)) {
       return static_cast<CONSTRUCTION_TYPE>(type_id);
     }
    
-    return CONSTRUCTION_TYPE::INVALID;
+    return CONSTRUCTION_TYPE::UNKNOWN;
   }
 
   float required(CONSTRUCTION_TYPE ) {
@@ -41,13 +41,13 @@ namespace production {
 
     uint32_t unitId;
     switch (type_id) {
-    case CONSTRUCTION_TYPE::SCOUT_UNIT:
+    case CONSTRUCTION_TYPE::SCOUT:
       unitId = units::create(UNIT_TYPE::SCOUT, city->m_location);
       break;
-    case CONSTRUCTION_TYPE::RANGE_UNIT:
+    case CONSTRUCTION_TYPE::RANGE:
       unitId = units::create(UNIT_TYPE::ARCHER, city->m_location);
       break;
-    case CONSTRUCTION_TYPE::MELEE_UNIT:
+    case CONSTRUCTION_TYPE::MELEE:
       unitId = units::create(UNIT_TYPE::PHALANX, city->m_location);
       break;
     default:
@@ -158,7 +158,7 @@ float ConstructionQueueFIFO::GetProductionYield() const {
   if (Has(CONSTRUCTION_TYPE::FORGE)) {
     yield += 3.f;
   }
-  if (Has(CONSTRUCTION_TYPE::UBER_FORGE)) {
+  if (Has(CONSTRUCTION_TYPE::FACTORY)) {
     yield += 10.0f;
   }
 
@@ -170,7 +170,7 @@ bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
 }
 
 void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
-  if (type_id == CONSTRUCTION_TYPE::INVALID) {
+  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
     return;
   }
 
@@ -179,7 +179,7 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
 }
 
 void ConstructionQueueFIFO::Cheat(CONSTRUCTION_TYPE type_id) {
-  if (type_id == CONSTRUCTION_TYPE::INVALID) {
+  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
     return;
   }
 
