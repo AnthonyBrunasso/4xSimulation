@@ -122,6 +122,13 @@ namespace {
       step = resource_mutator_step;
     }
 
+    else if (tokens[0] == "harvest") {
+      CHECK(4, tokens);
+      HarvestStep* harvest_step = new HarvestStep(COMMAND::HARVEST);
+      harvest_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      harvest_step->m_player = s_active_player;
+      step = harvest_step;
+    }
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
       ImproveStep* improve_step = new ImproveStep(COMMAND::IMPROVE);

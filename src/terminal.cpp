@@ -259,6 +259,7 @@ namespace terminal  {
     std::cout << "  construct <cityId> <productionType>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn" << std::endl;
+    std::cout << "  harvest <x> <y> <z>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;

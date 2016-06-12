@@ -2,6 +2,7 @@
 #include "production.h"
 
 #include "format.h"
+#include "hex.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -43,14 +44,23 @@ void City::BeginTurn() const {
   if (m_construction->Count() == 0) {
     std::cout << "City has no constrution orders, id: " << m_id << std::endl;
   }
-  float idleCount = static_cast<float>(GetPopulation()-GetYieldCount());
+  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
   if (idleCount) {
     std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
   }
 }
 
-size_t City::GetYieldCount() const {
+size_t City::GetHarvestCount() const {
   return m_yield_tiles.size();
+}
+
+bool City::AddHarvest(sf::Vector3i &loc) {
+  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
+  if (idleCount < .001) {
+    return false;
+  }
+  m_yield_tiles.push_back(loc);
+  return true;
 }
 
 float City::GetFoodYield() const {
@@ -125,6 +135,20 @@ void city::raze(uint32_t id) {
 
 void city::sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
   s_raze_subs.push_back(sub);
+}
+
+City* city::nearest_city(sf::Vector3i &loc) {
+  uint32_t minDistance = 0xffffffff;
+  City* bestFit = nullptr;
+  for (auto& cityIt : s_cities) {
+     uint32_t distance = hex::cube_distance(loc, cityIt.second->m_location);
+     if (distance < minDistance) {
+       minDistance = distance;
+       bestFit = cityIt.second;
+     }
+  }
+
+  return bestFit;
 }
 
 City* city::get_city(uint32_t id) {

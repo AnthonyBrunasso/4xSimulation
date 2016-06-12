@@ -18,7 +18,8 @@ public:
   void Simulate();
   void BeginTurn() const;
 
-  size_t GetYieldCount() const;
+  size_t GetHarvestCount() const;
+  bool AddHarvest(sf::Vector3i& );
 
   float GetPopulation() const;
   float FoodForSustain() const;
@@ -45,6 +46,7 @@ namespace city {
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
   void sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  City* nearest_city(sf::Vector3i&);
   City* get_city(uint32_t id);
   void for_each_city(std::function<void(City& )> operation);
 

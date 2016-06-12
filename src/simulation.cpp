@@ -234,6 +234,34 @@ namespace {
     player::add_improvement(improve_step->m_player, id);
   }
 
+  void execute_harvest() {
+    HarvestStep* harvest_step = static_cast<HarvestStep*>(s_current_step);
+    Player* player = player::get_player(harvest_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+      return;
+    }
+    Tile* tile = world_map::get_tile(harvest_step->m_destination);
+    if (!tile) {
+      std::cout << "Invalid tile" << std::endl;
+      return;
+    }
+    City* city = city::nearest_city(harvest_step->m_destination);
+    if (!city) {
+      std::cout << "No valid city found" << std::endl;
+      return; 
+    }
+    if (!player->OwnsCity(city->m_id)) {
+      std::cout << "Terrain is not owned by this player" << std::endl;
+      return;
+    }
+    if (!city->AddHarvest(harvest_step->m_destination)) {
+      std::cout << "City refused harvest (no idle workers, too far away, etc" << std::endl;
+      return;
+    }
+    std::cout << "City is now harvesting from " << format::tile(*tile) << std::endl;
+}
+
   void execute_tile_mutator() {
     TileMutatorStep* tile_mutator_step = static_cast<TileMutatorStep*>(s_current_step);
     Tile* tile = world_map::get_tile(tile_mutator_step->m_destination);
@@ -397,6 +425,9 @@ void simulation::process_step(Step* step) {
       execute_construction();
       break;
     case COMMAND::DISCOVER:
+      break;
+    case COMMAND::HARVEST:
+      execute_harvest();
       break;
     case COMMAND::IMPROVE:
       execute_improve();

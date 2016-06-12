@@ -24,6 +24,7 @@ enum class COMMAND {
   SPAWN,
   ADD_PLAYER,
   MODIFY_UNIT_STATS,
+  HARVEST,
 };
 
 struct Step {
@@ -137,3 +138,11 @@ struct EndTurnStep : public Step {
 
   uint32_t m_player;
 };
+
+struct HarvestStep : public Step {
+  HarvestStep(COMMAND command) : Step(command) {};
+
+  uint32_t m_player;
+  sf::Vector3i m_destination;
+};
+
