@@ -29,7 +29,7 @@ typedef std::list<ConstructionOrder*> ConstructionList;
 class ConstructionOrder
 {
 public:
-  ConstructionOrder(CONSTRUCTION_TYPE type_id);
+  explicit ConstructionOrder(CONSTRUCTION_TYPE type_id);
 
   float GetProductionForConstruction();
   float ApplyProduction(float production);
@@ -65,7 +65,7 @@ private:
 class ConstructionQueueFIFO
 {
 public:
-  ConstructionQueueFIFO();
+  explicit ConstructionQueueFIFO(uint32_t cityId);
 
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
@@ -74,12 +74,14 @@ public:
   void Move(size_t src, size_t dest);
   size_t Count() const;
 
+  TerrainYield DumpYields() const;
   void MutateYield(TerrainYield&) const;
   void Simulate(City* parent, TerrainYield&);
 
 private:
   friend std::ostream& operator<<(std::ostream&, const ConstructionQueueFIFO&);
 
+  uint32_t m_cityId;
   ConstructionList m_queue;
   ConstructionState m_state;
   // When nothing is queued, the city can store limited production for future work

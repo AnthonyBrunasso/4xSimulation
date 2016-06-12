@@ -24,7 +24,7 @@ namespace city {
 City::City(uint32_t id)
 : m_id(id)
 ,  m_food(city::food_required_by_population(1)+1)
-, m_construction(new ConstructionQueueFIFO())
+, m_construction(new ConstructionQueueFIFO(id))
 { 
 }
 

@@ -134,8 +134,9 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   return itFind->second->IsCompleted();
 }
 
-ConstructionQueueFIFO::ConstructionQueueFIFO()
-: m_stockpile(0.f)
+ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
+: m_cityId(cityId)
+, m_stockpile(0.f)
 {
   
 }
@@ -191,6 +192,11 @@ size_t ConstructionQueueFIFO::Count() const {
   return m_queue.size();
 }
 
+TerrainYield ConstructionQueueFIFO::DumpYields() const {
+  City* city = city::get_city(m_cityId);
+  return city->DumpYields();
+}
+
 void ConstructionQueueFIFO::MutateYield(TerrainYield& t) const {
  float yield = 1.f;
   if (Has(CONSTRUCTION_TYPE::FORGE)) {
@@ -236,11 +242,13 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   if (fifo.m_queue.empty()) {
     return out;
   }
+  TerrainYield t = fifo.DumpYields();
   out << "    --Queued--" << std::endl;
   auto it = fifo.m_queue.cbegin();
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
     out << "        ";
-    out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction();
+    out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() 
+        << " (" << ceil((*it)->GetProductionForConstruction()/t.m_production) << " turns)";
     out << std::endl;
   }
   return out;
