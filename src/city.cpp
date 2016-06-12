@@ -54,7 +54,7 @@ TerrainYield City::DumpYields(bool log) const {
 }
 
 void City::MutateYield(TerrainYield& yields) const {
-  float bonusFood = m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0;
+  float bonusFood = 2.f + (m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0);
   yields.m_food += bonusFood;
   m_construction->MutateYield(yields);
 }
