@@ -134,16 +134,6 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   return itFind->second->IsCompleted();
 }
 
-void ConstructionState::Print() const {
-  std::cout << "    --Construction Queue--" << std::endl;
-  for (auto construction : m_constructions) {
-    if (!construction.second->IsCompleted()) {
-      continue;
-    }
-    std::cout << "      " << construction.second->GetName() << " is completed." << std::endl;
-  }
-}
-
 ConstructionQueueFIFO::ConstructionQueueFIFO()
 : m_stockpile(0.f)
 {
@@ -240,20 +230,34 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
   m_stockpile = std::min(m_stockpile, t.m_production);
 }
 
-void ConstructionQueueFIFO::PrintState() const {
-  std::cout << "    Production: (stockpile " << m_stockpile << ")" << std::endl;
-  m_state.Print();
+std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
+  out << "    Production: (stockpile " << fifo.m_stockpile << ")" << std::endl;
+  out << fifo.m_state;
+  if (fifo.m_queue.empty()) {
+    return out;
+  }
+  out << "    --Queued--" << std::endl;
+  auto it = fifo.m_queue.cbegin();
+  for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
+    out << "        ";
+    out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction();
+    out << std::endl;
+  }
+  return out;
 }
 
-void ConstructionQueueFIFO::PrintQueue(TerrainYield& t) const {
-  auto it = m_queue.cbegin();
-  for (size_t i = 0; i < m_queue.size(); ++i, ++it) {
-    std::cout << "        ";
-    std::cout << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction();
-    if (i == 0) {
-      std::cout << " (" << ceil((*it)->GetProductionForConstruction()/t.m_production) << " turns)";
-    }
-    std::cout << std::endl;
+std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
+  if (state.m_constructions.empty()) {
+    return out;
   }
+  out << "    --Buildings--" << std::endl;
+  for (auto construction : state.m_constructions) {
+    if (!construction.second->IsCompleted()) {
+      continue;
+    }
+    out << "      " << construction.second->GetName() << " is completed." << std::endl;
+  }
+  return out;
 }
+
 

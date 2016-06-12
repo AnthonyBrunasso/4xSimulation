@@ -69,6 +69,7 @@ std::string format::city(const City& city) {
     << "(" << city.m_food << " current) "
      << "(" << city.FoodForGrowth() << " growth) " << std::endl;
   ss << "    Growth: (" << city.FoodForGrowth()-city.m_food << " required) (" << city.GetTurnsForGrowth() << " turns)" << std::endl;
+  ss << *city.GetConstruction() << std::endl;
 
   return std::move(ss.str());
 }

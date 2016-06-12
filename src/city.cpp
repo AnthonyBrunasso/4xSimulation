@@ -32,8 +32,6 @@ void City::Simulate(TerrainYield& t) {
   m_construction->Simulate(this, t);
   m_food += t.m_food;
   std::cout << format::city(*this);
-  m_construction->PrintState();
-  m_construction->PrintQueue(t);
 }
 
 TerrainYield City::DumpYields(bool log) const {

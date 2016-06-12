@@ -54,9 +54,10 @@ public:
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
   bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
-  void Print() const;
 
 private:
+  friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
+
   ConstructionUMap m_constructions;
 };
 
@@ -76,13 +77,15 @@ public:
   void MutateYield(TerrainYield&) const;
   void Simulate(City* parent, TerrainYield&);
 
-  void PrintState() const;
-  void PrintQueue(TerrainYield&) const;
-  
 private:
+  friend std::ostream& operator<<(std::ostream&, const ConstructionQueueFIFO&);
+
   ConstructionList m_queue;
   ConstructionState m_state;
   // When nothing is queued, the city can store limited production for future work
   float m_stockpile;
 };
+
+std::ostream& operator<<(std::ostream&, const ConstructionQueueFIFO&);
+std::ostream& operator<<(std::ostream&, const ConstructionState&);
 
