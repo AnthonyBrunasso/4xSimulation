@@ -5,6 +5,7 @@
 #include "format.h"
 #include "game_types.h"
 
+#include <cctype>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -82,7 +83,12 @@ namespace {
       CHECK(3, tokens);
       ConstructionStep* construction_step = new ConstructionStep(COMMAND::CONSTRUCT);
       construction_step->m_city_id = std::stoul(tokens[1]);
-      construction_step->m_production_id = std::stoul(tokens[2]);
+      if (std::isdigit(tokens[2][0])) {
+        construction_step->m_production_id = std::stoul(tokens[2]);
+      }
+      else {
+        construction_step->m_production_id = util::enum_to_uint(get_construction_type(tokens[2]));
+      }
       construction_step->m_player = s_active_player;
       step = construction_step;
       if (tokens.size() > 3) {
@@ -163,7 +169,14 @@ namespace {
       CHECK(5, tokens);
       step = new SpawnStep(COMMAND::SPAWN);
       SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
-      spawn_step->m_unit_type = std::stoul(tokens[1]);
+      // If first character in string is a number treat it as an id.
+      if (std::isdigit(tokens[1][0])) {
+        spawn_step->m_unit_type = std::stoul(tokens[1]);
+      }
+      // Else treat it as a the name of what needs to be spawned.
+      else {
+        spawn_step->m_unit_type = util::enum_to_uint(get_unit_type(tokens[1]));
+      }
       spawn_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       // Optional player param, defaults to 0, or the 'player one'
       spawn_step->m_player = s_active_player;
