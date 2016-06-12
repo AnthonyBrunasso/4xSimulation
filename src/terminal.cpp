@@ -177,6 +177,55 @@ namespace terminal  {
       return true;
     });
 
+    terminal::add_query("terrain_types", "terrain_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_terrain_type([](TERRAIN_TYPE terrain) {
+        std::cout << static_cast<int32_t>(terrain) << ": " << get_terrain_name(terrain) << std::endl;
+      });
+      return true;
+    });
+
+    terminal::add_query("resource_types", "resource_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_resource_type([](RESOURCE_TYPE resource) {
+        std::cout << static_cast<int32_t>(resource) << ": " << get_resource_name(resource) << std::endl;
+      });
+      return true;
+    });   
+    
+    terminal::add_query("improvement_types", "improvement_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_improvement_type([](IMPROVEMENT_TYPE improvement) {
+        std::cout << static_cast<int32_t>(improvement) << ": " << get_improvement_name(improvement) << std::endl;
+      });
+      return true;
+    });   
+    
+    terminal::add_query("unit_types", "unit_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_unit_type([](UNIT_TYPE unit) {
+        std::cout << static_cast<int32_t>(unit) << ": " << get_unit_name(unit) << std::endl;
+      });
+      return true;
+    });   
+    
+    terminal::add_query("building_types", "building_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_building_type([](BUILDING_TYPE building) {
+        std::cout << static_cast<int32_t>(building) << ": " << get_building_name(building) << std::endl;
+      });
+      return true;
+    });   
+    
+    terminal::add_query("construction_types", "construction_types", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      for_each_construction_type([](CONSTRUCTION_TYPE construction) {
+        std::cout << static_cast<int32_t>(construction) << ": " << get_construction_name(construction) << std::endl;
+      });
+      return true;
+    });
+
+
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {
