@@ -72,6 +72,7 @@ public:
   void Cheat(CONSTRUCTION_TYPE type_id);
 
   void Move(size_t src, size_t dest);
+  size_t Count() const;
 
   void Simulate(City* parent);
 

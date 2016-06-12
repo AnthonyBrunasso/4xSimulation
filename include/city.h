@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <vector>
 
 class ConstructionQueueFIFO;
 
@@ -15,10 +16,15 @@ public:
   float GetFoodYield() const;
 
   void Simulate();
+  void BeginTurn() const;
+
+  size_t GetYieldCount() const;
+
   float GetPopulation() const;
   float FoodForSustain() const;
   float FoodForGrowth() const;
   float GetTurnsForGrowth() const;
+
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
 
@@ -26,6 +32,7 @@ public:
   sf::Vector3i m_location;
   float m_food;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
+  std::vector<sf::Vector3i> m_yield_tiles;
 };
 
 namespace city {

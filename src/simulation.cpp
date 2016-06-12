@@ -176,7 +176,9 @@ namespace {
     }
   }
   void phase_notifications() {
-
+    city::for_each_city([] (City& city) {
+      city.BeginTurn();
+    });
   }
 
   void phase_science_done() {
@@ -484,7 +486,6 @@ void simulation::process_begin_turn() {
   // Provide turn feedback
   phase_global_events();
   phase_science_done();
-  phase_notifications();
 
   // Increment turn counter
   ++s_current_turn;
@@ -507,6 +508,8 @@ void simulation::process_begin_turn() {
     player.m_turn_state = TURN_STATE::PLAYING;
   });
   std::cout << "Beginning turn #" << s_current_turn << std::endl;
+
+  phase_notifications();
 }
 
 void simulation::process_end_turn() {

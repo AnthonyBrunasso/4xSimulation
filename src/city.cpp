@@ -35,6 +35,24 @@ void City::Simulate() {
   m_construction->PrintQueue();
 }
 
+void City::BeginTurn() const {
+  float food = GetFoodYield();
+  if (food < 0.0) {
+    std::cout << "City is starving, id: " << m_id << std::endl;
+  }
+  if (m_construction->Count() == 0) {
+    std::cout << "City has no constrution orders, id: " << m_id << std::endl;
+  }
+  float idleCount = static_cast<float>(GetPopulation()-GetYieldCount());
+  if (idleCount) {
+    std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
+  }
+}
+
+size_t City::GetYieldCount() const {
+  return m_yield_tiles.size();
+}
+
 float City::GetFoodYield() const {
   float bonusFood = m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0;
   return city::FOOD_PER_TURN + bonusFood;
