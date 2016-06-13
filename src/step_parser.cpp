@@ -70,6 +70,12 @@ namespace {
       step = attack_step;
     }
 
+    else if (tokens[0] == "barbarians") {
+      CHECK_VALID(1, tokens);
+      BarbarianStep* barbarian_step = new BarbarianStep(COMMAND::BARBARIAN_TURN);
+      step = barbarian_step;
+    }
+
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
       ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
@@ -143,9 +149,17 @@ namespace {
     }
 
     else if (tokens[0] == "join") {
-      CHECK_VALID(2, tokens);
+      CHECK(2, tokens);
       AddPlayerStep* player_step = new AddPlayerStep(COMMAND::ADD_PLAYER);
       player_step->m_name = tokens[1];
+      if (tokens.size() == 3) {
+        if (std::isdigit(tokens[2][0])) {
+          player_step->ai_type = util::uint_to_enum<AI_TYPE>(std::stoul(tokens[2]));
+        }
+        else {
+          player_step->ai_type = get_ai_type(tokens[2]);
+        }
+      }
       step = player_step;
     }
 

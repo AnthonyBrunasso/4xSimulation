@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 
+#include "game_types.h"
 #include "Vector3.hpp"
 
 enum class COMMAND {
@@ -26,6 +27,7 @@ enum class COMMAND {
   MODIFY_UNIT_STATS,
   HARVEST,
   SPECIALIZE,
+  BARBARIAN_TURN,
 };
 
 struct Step {
@@ -88,8 +90,9 @@ struct MoveStep : public Step {
 };
 
 struct AddPlayerStep : public Step {
-  AddPlayerStep(COMMAND command) : Step(command) {};
+  AddPlayerStep(COMMAND command) : Step(command), m_name(), ai_type(AI_TYPE::UNKNOWN) {};
   std::string m_name;
+  AI_TYPE ai_type; 
 };
 
 struct AttackStep : public Step {
@@ -144,5 +147,9 @@ struct SpecializeStep : public Step {
   uint32_t m_city_id;
   uint32_t m_terrain_type;
   uint32_t m_player;
+};
+
+struct BarbarianStep : public Step {
+  BarbarianStep(COMMAND command) : Step(command) {};
 };
 

@@ -5,6 +5,7 @@
 #include "terminal.h"
 #include "step.h"
 #include "file_reader.h"
+#include "ai_barbarians.h"
 
 int main(int , char* []) {
   std::vector<Step*> steps;
@@ -33,6 +34,7 @@ int main(int , char* []) {
 
   terminal::kill();
   simulation::kill();
+  barbarians::destroy();
 
   return 0;
 }

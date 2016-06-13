@@ -9,6 +9,7 @@
 #include "improvements.h"
 #include "tile_costs.h"
 #include "player.h"
+#include "ai_barbarians.h"
 
 #include <iostream>
 #include <vector>
@@ -137,6 +138,8 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   }
 
   tile_costs::initialize();
+  barbarians::initialize();
+
   subscribe_to_events();
   set_improvement_requirements();
   set_city_requirements();

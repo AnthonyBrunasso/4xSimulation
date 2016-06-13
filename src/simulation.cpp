@@ -14,6 +14,7 @@
 #include "improvements.h"
 #include "game_types.h"
 #include "terrain_yield.h"
+#include "ai_barbarians.h"
 
 #include <iostream>
 #include <vector>
@@ -225,6 +226,7 @@ namespace {
       return;
     }
     player::add_city(colonize_step->m_player, id);
+    std::cout << "player " << player->m_name << " colonized at: " << format::vector3(colonize_step->m_location) << std::endl;
   }
 
   void execute_improve() {
@@ -387,7 +389,17 @@ namespace {
 
   void execute_add_player() {
     AddPlayerStep* player_step = static_cast<AddPlayerStep*>(s_current_step);
-    player::create(player_step->m_name);
+    uint32_t player_id = player::create(player_step->m_name);
+    if (player_step->ai_type != AI_TYPE::UNKNOWN) {
+      switch (player_step->ai_type) {
+        case AI_TYPE::BARBARIAN:
+          barbarians::set_player_id(player_id);
+          break;
+        case AI_TYPE::UNKNOWN:
+        default:
+          break;
+      }
+    }
   }
 
   void execute_attack() {
@@ -495,6 +507,10 @@ void simulation::process_step(Step* step) {
     case COMMAND::MODIFY_UNIT_STATS:
       execute_modify_stats();
       return; // Modifying stats also does not have output
+    case COMMAND::BARBARIAN_TURN:
+      // Process the barbarian turn.
+      barbarians::pillage_and_plunder();
+      return;
     default:
       break;
   }
@@ -507,6 +523,12 @@ void simulation::process_step(Step* step) {
   step_raze();
   step_verterancy();
   step_resource();
+}
+
+// Same as regular step, just deletes step on behalf of ai when finished.
+void simulation::process_step_from_ai(Step* step) {
+  simulation::process_step(step);
+  delete step;
 }
 
 void grant_improvement_resources(const Improvement& improvement) {

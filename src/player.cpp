@@ -55,9 +55,10 @@ namespace {
   std::vector<Player*> s_players;
 }
 
-void player::create(const std::string& name) {
+uint32_t player::create(const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   s_players.push_back(new Player(playerId, name));
+  return playerId;
 }
 
 Player* player::get_player(uint32_t i) {

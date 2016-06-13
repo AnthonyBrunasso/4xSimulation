@@ -245,8 +245,9 @@ namespace terminal  {
     // Targets are represented by <x> <y> <z> cube coordinates
     std::cout << "Admin Commands: " << std::endl;
     std::cout << "  active_player <playerId>" << std::endl;
+    std::cout << "  barbarians" << std::endl;
     std::cout << "  begin_turn" << std::endl;
-    std::cout << "  join <name>" << std::endl;
+    std::cout << "  join <name> [<aiType>]" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
     std::cout << "  spawn <unitType> <x> <y> <z>" << std::endl;
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
