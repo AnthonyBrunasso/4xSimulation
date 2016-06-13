@@ -445,6 +445,10 @@ void simulation::kill() {
   city::clear();
 }
 
+uint32_t simulation::get_turn() {
+  return s_current_turn;
+}
+
 void simulation::process_step(Step* step) {
   // Save a pointer to the current step
   s_current_step = step;

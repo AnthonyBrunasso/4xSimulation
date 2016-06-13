@@ -39,6 +39,7 @@ public:
 namespace player {
   uint32_t create(const std::string& name);
   Player* get_player(uint32_t i);
+  size_t get_count();
 
   void add_city(uint32_t player_id, uint32_t city_id);
   void add_unit(uint32_t player_id, uint32_t unit_id);

@@ -69,6 +69,10 @@ Player* player::get_player(uint32_t i) {
   return s_players[i];
 }
 
+size_t player::get_count() {
+  return s_players.size();
+}
+
 void player::add_city(uint32_t player_id, uint32_t city_id) {
   Player* player = get_player(player_id);
   if (!player) {

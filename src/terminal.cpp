@@ -7,6 +7,7 @@
 #include "util.h"
 #include "world_map.h"
 #include "search.h"
+#include "simulation.h"
 #include "step_parser.h"
 #include "hex.h"
 #include "unit_definitions.h"
@@ -347,7 +348,7 @@ Step* terminal::parse_input() {
   while (!step) {
     std::cout << std::endl;
     std::string value;
-    std::cout << "> ";
+    std::cout << step_parser::get_active_player() << " (turn " << simulation::get_turn() << ")> ";
     std::getline(std::cin, value);
     if (!std::cin.good()) {
       return nullptr;

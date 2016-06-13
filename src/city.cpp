@@ -23,7 +23,6 @@ namespace city {
   SubMap s_raze_subs;
   SubMap s_create_subs;
   RequirementMap s_creation_requirements;
-  const float FOOD_PER_TURN = 2.f;
 }
 
 City::City(uint32_t id)

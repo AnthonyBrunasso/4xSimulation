@@ -55,6 +55,10 @@ namespace {
       EndTurnStep* end_turn_step = new EndTurnStep(COMMAND::END_TURN);
       end_turn_step->m_player = s_active_player;
       step = end_turn_step;
+      if (player::get_count()) {
+        ++s_active_player;
+        s_active_player = s_active_player % player::get_count();
+      }
     }
 
     else if (tokens[0] == "active_player") {
@@ -257,3 +261,12 @@ Step* step_parser::parse(const std::vector<std::string>& tokens) {
   parse_tokens(tokens, step);
   return step;
 }
+
+std::string step_parser::get_active_player() {
+  Player* player = player::get_player(s_active_player);
+  if (!player) {
+    return std::string();
+  }
+  return player->m_name;
+}
+
