@@ -71,10 +71,9 @@ namespace {
     }
 
     else if (tokens[0] == "colonize") {
-      CHECK(5, tokens);
+      CHECK(4, tokens);
       ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
-      colonize_step->m_unit_id = std::stoul(tokens[1]);
-      colonize_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      colonize_step->m_location = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       step = colonize_step;
       colonize_step->m_player = s_active_player;
     }
@@ -167,7 +166,7 @@ namespace {
     }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
-      QueueMoveStep* move_step = new QueueMoveStep(COMMAND::QUEUE_MOVE);
+      MoveStep* move_step = new MoveStep(COMMAND::QUEUE_MOVE);
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       move_step->m_player = s_active_player;

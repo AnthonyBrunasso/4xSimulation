@@ -219,8 +219,11 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    units::destroy(colonize_step->m_unit_id);
-    uint32_t id = city::create(colonize_step->m_location);
+    uint32_t id = city::create(BUILDING_TYPE::TOWN, colonize_step->m_location, colonize_step->m_player);
+    if (!id) {
+      // Colonization failed.
+      return;
+    }
     player::add_city(colonize_step->m_player, id);
   }
 

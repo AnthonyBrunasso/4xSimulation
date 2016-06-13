@@ -36,21 +36,24 @@ namespace production {
       return;
     }
 
-    uint32_t unitId;
+    uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
-      unitId = units::create(UNIT_TYPE::SCOUT, city->m_location);
+      unit_id = units::create(UNIT_TYPE::SCOUT, city->m_location);
       break;
     case CONSTRUCTION_TYPE::RANGE:
-      unitId = units::create(UNIT_TYPE::ARCHER, city->m_location);
+      unit_id = units::create(UNIT_TYPE::ARCHER, city->m_location);
       break;
     case CONSTRUCTION_TYPE::MELEE:
-      unitId = units::create(UNIT_TYPE::PHALANX, city->m_location);
+      unit_id = units::create(UNIT_TYPE::PHALANX, city->m_location);
+      break;
+    case CONSTRUCTION_TYPE::WORKER:
+      unit_id = units::create(UNIT_TYPE::WORKER, city->m_location);
       break;
     default:
       return;
     }
-    player::add_unit(player.m_id, unitId);
+    player::add_unit(player.m_id, unit_id);
   }
 }
 

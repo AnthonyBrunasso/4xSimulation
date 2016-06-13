@@ -43,6 +43,7 @@ public:
   TERRAIN_TYPE m_specialization;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
   std::vector<sf::Vector3i> m_yield_tiles;
+  uint32_t m_owner_id;
 };
 
 namespace city {
@@ -51,7 +52,9 @@ namespace city {
   float population_size_from_food(float food);
 
   // Access
-  uint32_t create(sf::Vector3i);
+  void add_requirement(BUILDING_TYPE type, 
+    std::function<bool(const sf::Vector3i&, uint32_t)> requirement);
+  uint32_t create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
   void sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub);

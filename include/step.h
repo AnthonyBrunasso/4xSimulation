@@ -59,11 +59,9 @@ struct ImproveStep : public Step {
 
 struct ColonizeStep : public Step {
   ColonizeStep(COMMAND command) : Step(command)
-    , m_unit_id(0)
     , m_location()
     , m_player(0) {};
     
-  uint32_t m_unit_id;
   sf::Vector3i m_location;
   uint32_t m_player;
 };
@@ -84,13 +82,6 @@ struct ConstructionStep : public Step {
 
 struct MoveStep : public Step {
   MoveStep(COMMAND command) : Step(command) {};
-  uint32_t m_unit_id;
-  sf::Vector3i m_destination;
-  uint32_t m_player;
-};
-
-struct QueueMoveStep : public Step {
-  QueueMoveStep(COMMAND command) : Step(command) {};
   uint32_t m_unit_id;
   sf::Vector3i m_destination;
   uint32_t m_player;

@@ -255,7 +255,7 @@ namespace terminal  {
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
-    std::cout << "  colonize <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  colonize <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <productionType>" << std::endl;
     std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn" << std::endl;

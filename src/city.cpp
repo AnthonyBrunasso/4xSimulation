@@ -12,13 +12,18 @@
 
 #include "unique_id.h"
 #include "tile.h"
+#include "util.h"
 
 namespace city {
   typedef std::unordered_map<uint32_t, City*> CityMap;
   typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
+  typedef std::vector<std::function<bool(const sf::Vector3i&, uint32_t)> > Requirements;
+  typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   CityMap s_cities;
   SubMap s_raze_subs;
   SubMap s_create_subs;
+  RequirementMap s_creation_requirements;
+  const float FOOD_PER_TURN = 2.f;
 }
 
 City::City(uint32_t id)
@@ -148,12 +153,27 @@ float city::population_size_from_food(float food) {
   return std::floor(std::pow(food/5.f, (1.f/2.75f)));
 }
 
-uint32_t city::create(sf::Vector3i location) {
+void city::add_requirement(BUILDING_TYPE type, 
+    std::function<bool(const sf::Vector3i&, uint32_t)> requirement) {
+  s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
+}
+
+uint32_t city::create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id) {
+  Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
+  // Verify all requirements are satisfied for this improvement.
+  for (auto requirement : requirements) {
+    if (!requirement(location, player_id)) {
+      std::cout << "Could not satisfy city create requirements." << std::endl;
+      return unique_id::INVALID_ID;
+    }
+  }
+
   uint32_t id = unique_id::generate();
 
   City* foundedCity = new City(id);
   s_cities[id] = foundedCity;
   foundedCity->m_location = location;
+  foundedCity->m_owner_id = player_id;
   
   for (auto sub : s_create_subs) {
     sub(location, id);

@@ -8,6 +8,7 @@
 #include "format.h"
 #include "improvements.h"
 #include "tile_costs.h"
+#include "player.h"
 
 #include <iostream>
 #include <vector>
@@ -21,6 +22,7 @@ namespace {
   
   void subscribe_to_events();
   void set_improvement_requirements();
+  void set_city_requirements();
 
   void subscribe_to_events() {
     units::sub_create([](const sf::Vector3i& location, uint32_t id) {
@@ -94,6 +96,38 @@ namespace {
       return true;
     });
   }
+
+  void set_city_requirements() {
+    city::add_requirement(BUILDING_TYPE::TOWN, [](const sf::Vector3i& location, uint32_t player_id) {
+      Tile* tile = world_map::get_tile(location);
+      if (!tile) {
+        std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+        return false;
+      }
+
+      Player* player = player::get_player(player_id);
+      if (!player) {
+        std::cout << "Invalid player id: " << player_id << std::endl;
+        return false;
+      }
+
+      // Check if this tile already contains a resource improvement.
+      for (auto id : tile->m_unit_ids) {
+        Unit* unit = units::get_unit(id);
+        if (!unit) continue;
+        if (unit->m_unit_type == UNIT_TYPE::WORKER) {
+          // Get the player and check that the player owns this unit.
+          if (player->OwnsUnit(unit->m_unique_id)) {
+            return true;
+          }
+        }
+      }
+      
+      // No worker is contained on the tile.
+      std::cout << player->m_name << " does not own a worker at " << format::vector3(location) << std::endl;
+      return false;
+    });
+  }
 }
 
 void world_map::build(sf::Vector3i start, uint32_t size) {
@@ -105,6 +139,7 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   tile_costs::initialize();
   subscribe_to_events();
   set_improvement_requirements();
+  set_city_requirements();
 }
 
 bool world_map::load_file(const std::string& name) {

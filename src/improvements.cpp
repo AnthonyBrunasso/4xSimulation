@@ -35,8 +35,8 @@ uint32_t improvement::create(IMPROVEMENT_TYPE type, const sf::Vector3i& location
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
     if (!requirement(location)) {
-      std::cout << "Could not satisfy improvement requirements." << std::endl;
-      return false;
+      std::cout << "Could not satisfy improvement create requirements." << std::endl;
+      return unique_id::INVALID_ID;
     }
   }
 
