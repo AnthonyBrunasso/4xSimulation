@@ -42,5 +42,5 @@ float NeedsProduce::operator()(uint32_t player_id, float threshold) {
   }
 
   // Player doesn't have an available city for production.
-  return threshold - 0.0f;
+  return threshold - 1.0f;
 }
