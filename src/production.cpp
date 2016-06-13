@@ -150,6 +150,7 @@ bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
 
 void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
   if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+    std::cout << "Construction Add on unknown type" << std::endl;
     return;
   }
 
@@ -159,6 +160,7 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
 
 void ConstructionQueueFIFO::Cheat(CONSTRUCTION_TYPE type_id) {
   if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+    std::cout << "Construction Cheat on unknown type" << std::endl;
     return;
   }
 
