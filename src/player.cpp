@@ -12,7 +12,7 @@ Player::Player(uint32_t id, const std::string& name)
     , m_cities()
     , m_units() 
     , m_improvements()
-    , m_turn_state(TURN_STATE::PLAYING)
+    , m_turn_state(TURN_TYPE::TURNACTIVE)
     , m_resources()
 {
   // Remove unit when notified

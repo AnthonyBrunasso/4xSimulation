@@ -6,11 +6,7 @@
 #include <string>
 #include <cstdint>
 #include <functional>
-
-enum class TURN_STATE {
-  PLAYING,
-  COMPLETE,
-};
+#include "game_types.h"
 
 //
 // Player is a generic class that ties units and buildings to some entity.
@@ -30,7 +26,7 @@ public:
   std::set<uint32_t> m_cities;
   std::set<uint32_t> m_units;
   std::set<uint32_t> m_improvements;
-  TURN_STATE m_turn_state;
+  TURN_TYPE m_turn_state;
 
   // Resources owned by this player.
   Resources m_resources;

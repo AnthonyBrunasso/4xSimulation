@@ -10,6 +10,7 @@ UNIT         = "UNIT"
 BUILDING     = "BUILDING"
 CONSTRUCTION = "CONSTRUCTION"
 AI           = "AI"
+TURN         = "TURN"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Gold'     , 1)
@@ -41,3 +42,6 @@ add_gametype(CONSTRUCTION, 'Scout'  , 6)
 add_gametype(CONSTRUCTION, 'Worker' , 8)
 
 add_gametype(AI, "Barbarian", 1)
+
+add_gametype(TURN, 'TurnActive'     , 1)
+add_gametype(TURN, 'TurnCompleted'     , 2)

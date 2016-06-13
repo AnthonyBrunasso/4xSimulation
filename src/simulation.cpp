@@ -558,7 +558,7 @@ void simulation::process_begin_turn() {
 
   bool allPlayersReady = true;
   player::for_each_player([&allPlayersReady](Player& player) {
-    allPlayersReady &= player.m_turn_state == TURN_STATE::COMPLETE;
+    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
   });
 
   if (!allPlayersReady) {
@@ -596,7 +596,7 @@ void simulation::process_begin_turn() {
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {
-    player.m_turn_state = TURN_STATE::PLAYING;
+    player.m_turn_state = TURN_TYPE::TURNACTIVE;
   });
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
@@ -613,5 +613,5 @@ void simulation::process_end_turn() {
     return;
   }
 
-  player->m_turn_state = TURN_STATE::COMPLETE;
+  player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
 }
