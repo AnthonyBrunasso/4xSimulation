@@ -25,6 +25,7 @@ enum class COMMAND {
   ADD_PLAYER,
   MODIFY_UNIT_STATS,
   HARVEST,
+  SPECIALIZE,
 };
 
 struct Step {
@@ -144,5 +145,13 @@ struct HarvestStep : public Step {
 
   uint32_t m_player;
   sf::Vector3i m_destination;
+};
+
+struct SpecializeStep : public Step {
+  SpecializeStep(COMMAND command) : Step(command) {};
+
+  uint32_t m_city_id;
+  uint32_t m_terrain_type;
+  uint32_t m_player;
 };
 

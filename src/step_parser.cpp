@@ -182,6 +182,15 @@ namespace {
       CREATE_GENERIC_STEP(2, tokens, step, COMMAND::SELL);
     }
 
+    else if (tokens[0] == "specialize") {
+      CHECK(3, tokens);
+      SpecializeStep* specialize_step = new SpecializeStep(COMMAND::SPECIALIZE);
+      specialize_step->m_city_id = std::stoul(tokens[1]);
+      specialize_step->m_terrain_type = std::stoul(tokens[2]);
+      specialize_step->m_player = s_active_player;
+      step = specialize_step;
+    }
+
     else if (tokens[0] == "spawn") {
       CHECK(5, tokens);
       step = new SpawnStep(COMMAND::SPAWN);

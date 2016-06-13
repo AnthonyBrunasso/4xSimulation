@@ -277,6 +277,30 @@ namespace {
     tile->m_path_cost = tile_mutator_step->m_movement_cost;
   }
 
+  void execute_specialize() {
+    SpecializeStep* specialize_step = static_cast<SpecializeStep*>(s_current_step);
+    City* city = city::get_city(specialize_step->m_city_id);
+    if (!city) {
+      std::cout << "Invalid city" << std::endl;
+      return;
+    }
+    Player* player = player::get_player(specialize_step->m_player);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+      return;
+    }
+    if (!player->OwnsCity(city->m_id)) {
+      std::cout << "Player does not own city" << std::endl;
+      return;
+    }
+    if (!city->CanSpecialize()) {
+      std::cout << "City is not ready for specialization." << std::endl;
+    }
+    if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type))) {
+      std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type)) << std::endl;
+    }
+  }
+
   void execute_resource_mutator() {
     ResourceMutatorStep* resource_mutator_step = static_cast<ResourceMutatorStep*>(s_current_step);
     Tile* tile = world_map::get_tile(resource_mutator_step->m_destination);
@@ -453,6 +477,9 @@ void simulation::process_step(Step* step) {
       execute_queue_move();
       break;
     case COMMAND::PURCHASE:
+      break;
+    case COMMAND::SPECIALIZE:
+      execute_specialize();
       break;
     case COMMAND::SELL:
       break;

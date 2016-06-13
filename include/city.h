@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vector3.hpp"
+#include "game_types.h"
 
 #include <cstdint>
 #include <functional>
@@ -14,7 +15,8 @@ class City {
 public:
   explicit City(uint32_t id);
 
-  float GetFoodYield() const;
+  bool CanSpecialize() const;
+  bool SetSpecialization(TERRAIN_TYPE type);
 
   void Simulate(TerrainYield&);
   void BeginTurn() const;
@@ -37,6 +39,8 @@ public:
   uint32_t m_id;
   sf::Vector3i m_location;
   float m_food;
+  float m_experience;
+  TERRAIN_TYPE m_specialization;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
   std::vector<sf::Vector3i> m_yield_tiles;
 };

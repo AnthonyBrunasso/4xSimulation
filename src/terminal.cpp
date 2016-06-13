@@ -267,6 +267,7 @@ namespace terminal  {
     std::cout << "  purchase <cityId> <unitId>" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
+    std::cout << "  specialize <cityId> <terrain_type>" << std::endl;
     // Modifies the stats of a unit
     std::cout << std::endl;
     std::cout << "Queries: " << std::endl;

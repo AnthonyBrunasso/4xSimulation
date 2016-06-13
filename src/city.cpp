@@ -23,21 +23,37 @@ namespace city {
 
 City::City(uint32_t id)
 : m_id(id)
-,  m_food(city::food_required_by_population(1)+1)
+, m_food(city::food_required_by_population(1)+1)
+, m_experience(0.f)
+, m_specialization(TERRAIN_TYPE::UNKNOWN)
 , m_construction(new ConstructionQueueFIFO(id))
 { 
+}
+
+bool City::CanSpecialize() const {
+  return (m_experience > 4.0f);
+}
+
+bool City::SetSpecialization(TERRAIN_TYPE type) {
+  // May only be set once
+  if (m_specialization != TERRAIN_TYPE::UNKNOWN) {
+    return false;
+  }
+  m_specialization = type;
+  return true;
 }
 
 void City::Simulate(TerrainYield& t) {
   m_construction->Simulate(this, t);
   m_food += t.m_food;
+  m_experience += t.m_experience;
   std::cout << format::city(*this);
 }
 
 TerrainYield City::DumpYields(bool log) const {
   TerrainYield sum;
   for (const auto& it : m_yield_tiles) {
-    TerrainYield yieldVal = terrain_yield::get_yield(it); 
+    TerrainYield yieldVal = terrain_yield::get_yield(it, m_specialization); 
     if (log) {
       std::cout << "    " << yieldVal << std::endl;
     }
@@ -56,6 +72,7 @@ TerrainYield City::DumpYields(bool log) const {
 void City::MutateYield(TerrainYield& yields) const {
   float bonusFood = 2.f + (m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0);
   yields.m_food += bonusFood;
+  yields.m_experience += 1.f;
   m_construction->MutateYield(yields);
 }
 
@@ -70,6 +87,9 @@ void City::BeginTurn() const {
   float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
   if (idleCount) {
     std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
+  }
+  if (CanSpecialize()) {
+    std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;
   }
 }
 
