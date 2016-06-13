@@ -107,6 +107,30 @@ namespace terrain_yield {
     t.m_food += 1;
     t.m_gold += 1;
   }
+
+  void DesertSpecialization(TerrainYield& t) {
+    t.m_experience += 2;
+  }
+
+  void GrasslandSpecialization(TerrainYield& t) {
+    t.m_food += 1;
+    t.m_experience += 1;
+  }
+
+  void PlainsSpecialization(TerrainYield& t) {
+    t.m_science += 1;
+    t.m_experience += 1;
+  }
+
+  void MountainSpecialization(TerrainYield& t) {
+    t.m_production += 1;
+    t.m_experience += 1;
+  }
+
+  void WaterSpecialization(TerrainYield& t) {
+    t.m_gold += 1;
+    t.m_experience += 1;
+  }
   
   typedef std::unordered_map<int32_t, std::function<void (TerrainYield&)> > YieldFunctions;
   static YieldFunctions s_defaultYieldFn{
@@ -116,7 +140,13 @@ namespace terrain_yield {
     {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsYield},
     {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterYield},
   };
-  static YieldFunctions s_specializeYieldFn;
+  static YieldFunctions s_specializeYieldFn{
+    {static_cast<int32_t>(TERRAIN_TYPE::DESERT), &DesertSpecialization},
+    {static_cast<int32_t>(TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
+    {static_cast<int32_t>(TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
+    {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
+    {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterSpecialization},
+  };
 
   TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();

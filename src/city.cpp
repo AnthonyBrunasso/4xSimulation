@@ -31,7 +31,7 @@ City::City(uint32_t id)
 }
 
 bool City::CanSpecialize() const {
-  return (m_experience > 4.0f);
+  return (m_experience > 3.0f);
 }
 
 bool City::SetSpecialization(TERRAIN_TYPE type) {
@@ -88,7 +88,7 @@ void City::BeginTurn() const {
   if (idleCount) {
     std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
   }
-  if (CanSpecialize()) {
+  if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
     std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;
   }
 }
