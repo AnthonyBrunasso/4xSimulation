@@ -13,6 +13,10 @@
 #include "format.h"
 #include "game_types.h"
 #include "util.h"
+#include "random.h"
+#include "world_map.h"
+#include "city.h"
+#include "production.h"
 
 void Settle::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
@@ -28,21 +32,14 @@ void Settle::operator()(uint32_t player_id) {
       invalid_homes[city->m_location] = true;
     }
   });
- 
-  int start = 7; 
-  int random_coord = std::rand() % start--; 
-  sf::Vector3i new_home;
-  // Really crappy random coords for now.
-  new_home.x = random_coord;
-  new_home.y = -random_coord;
-  new_home.z = 0;
+
+  int start = 7;
   // Find a home.
-  while (invalid_homes.find(new_home) != invalid_homes.end()) {
-    // Really crappy random coords for now.
-    random_coord = std::rand() % start--;
-    new_home.x = -random_coord;
-    new_home.y = 0;
-    new_home.z = random_coord;
+  sf::Vector3i new_home = random::cube_coord(start);
+  Tile* tile = world_map::get_tile(new_home);
+  while (invalid_homes.find(new_home) != invalid_homes.end() || !tile) {
+    new_home = random::cube_coord(start);
+    tile = world_map::get_tile(new_home); 
   }
 
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
@@ -60,7 +57,21 @@ void Settle::operator()(uint32_t player_id) {
 }
 
 void Construct::operator()(uint32_t player_id) {
-  std::cout << "Construct: " << player_id << std::endl;
+  Player* current = player::get_player(player_id);
+  if (!current) {
+    std::cout << "Unable to find player to construct." << std::endl;
+  }
+
+  for (auto id : current->m_cities) {
+    City* city = city::get_city(id);
+    if (!city) continue;
+    // Begin construction of the production type in all available cities.
+    if (!city->IsConstructing()) {
+      std::cout << current->m_name << " beginning construction of: " << get_construction_name(m_production_type) <<
+        " in city: " << city->m_id << std::endl;
+      city->GetConstruction()->Add(m_production_type);
+    }
+  }
 }
 
 void Explore::operator()(uint32_t player_id) {

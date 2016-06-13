@@ -136,6 +136,10 @@ float City::GetTurnsForGrowth() const {
   return std::ceil((FoodForGrowth() - m_food) / t.m_food);
 }
 
+bool City::IsConstructing() const {
+  return m_construction->Count() != 0;
+}
+
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {
   return m_construction; 
 }

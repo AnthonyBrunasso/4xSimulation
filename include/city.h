@@ -33,6 +33,8 @@ public:
   float FoodForGrowth() const;
   float GetTurnsForGrowth() const;
 
+  bool IsConstructing() const;
+
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
 
