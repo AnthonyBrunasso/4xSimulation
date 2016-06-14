@@ -57,7 +57,7 @@ TerrainYield::TerrainYield()
 {
 }
 
-void TerrainYield::operator+=(TerrainYield& rhs) {
+void TerrainYield::operator+=(const TerrainYield& rhs) {
   m_food += rhs.m_food;
   m_production += rhs.m_production;
   m_science += rhs.m_science;
@@ -154,37 +154,35 @@ namespace terrain_yield {
     if (!tile) {
       return base;
     }
-    if (tile->m_terrain_type == TERRAIN_TYPE::UNKNOWN) {
-      return base;
-    }
     // Calculate the default yields
-    {
-      const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(tile->m_terrain_type));
-      if (findIt == s_defaultYieldFn.end()) {
-        return base;
-      }
-      findIt->second(base);
-    }
-
+    base = terrain_yield::get_base_yield(tile->m_terrain_type);
+    
     if (tile->m_terrain_type == spec) {
-      const auto& findIt = s_specializeYieldFn.find(static_cast<int32_t>(tile->m_terrain_type));
-      if (findIt == s_specializeYieldFn.end()) {
-        return base;
-      }
-      findIt->second(base);
+      base += terrain_yield::get_specialization_yield(spec);
     }
     return base;
   }
 }
 
-void TestFunc()
-{
-  TerrainYield a;
-  TerrainYield b;
-  a.m_food = 2;
-  b.m_food = 1;
-  b.m_production = 1;
-  TerrainYield c = a+b;
-  std::cout << c << std::endl;
+TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
+  TerrainYield base;
+  const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(type));
+  if (findIt == s_defaultYieldFn.end()) {
+    return base;
+  }
+
+  findIt->second(base);
+  return base;
+}
+
+TerrainYield terrain_yield::get_specialization_yield(TERRAIN_TYPE type) {
+  TerrainYield base;
+  const auto& findIt = s_specializeYieldFn.find(static_cast<int32_t>(type));
+  if (findIt == s_specializeYieldFn.end()) {
+    return base;
+  }
+  
+  findIt->second(base);
+  return base;
 }
 

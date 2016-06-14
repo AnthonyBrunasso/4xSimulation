@@ -8,7 +8,7 @@ struct TerrainYield
 {
   TerrainYield();
 
-  void operator+=(TerrainYield& rhs);
+  void operator+=(const TerrainYield& rhs);
 
   TERRAIN_TYPE m_type;
   float m_food;
@@ -27,4 +27,6 @@ namespace terrain_yield {
   void remove_harvest(sf::Vector3i& loc);
 
   TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE specialization);
+  TerrainYield get_base_yield(TERRAIN_TYPE type);
+  TerrainYield get_specialization_yield(TERRAIN_TYPE type);
 }
