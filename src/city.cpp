@@ -80,7 +80,7 @@ void City::MutateYield(TerrainYield& yields) const {
   m_construction->MutateYield(yields);
 }
 
-void City::BeginTurn() const {
+void City::DoNotifications() const {
   TerrainYield t = DumpYields();
   if (t.m_food < 0.0) {
     std::cout << "City is starving, id: " << m_id << std::endl;

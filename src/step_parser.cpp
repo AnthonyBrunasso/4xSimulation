@@ -47,7 +47,10 @@ namespace {
     }
 
     else if (tokens[0] == "begin_turn") {
-      CREATE_GENERIC_STEP(1, tokens, step, COMMAND::BEGIN_TURN);
+      CHECK_VALID(1, tokens);
+      BeginStep* begin_step = new BeginStep(COMMAND::BEGIN_TURN);
+      begin_step->m_active_player = s_active_player;
+      step = begin_step;
     }
 
     else if (tokens[0] == "end_turn") {

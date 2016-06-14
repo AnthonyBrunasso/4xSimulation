@@ -52,7 +52,6 @@ namespace {
   // Order of operations when a turn begins
   void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
   void phase_spawn_buildings();
-  void phase_notifications();
   void phase_science_done();
 
   bool step_move(UnitMovementVector& units_to_move) {
@@ -177,11 +176,6 @@ namespace {
     while (step_move(s_units_to_move)) {
 
     }
-  }
-  void phase_notifications() {
-    city::for_each_city([] (City& city) {
-      city.BeginTurn();
-    });
   }
 
   void phase_science_done() {
@@ -449,6 +443,26 @@ uint32_t simulation::get_turn() {
   return s_current_turn;
 }
 
+void player_notifications(uint32_t player_id) {
+  Player* player = player::get_player(player_id);
+  if (!player) {
+    return;
+  }
+  if (player->m_turn_state == TURN_TYPE::TURNCOMPLETED) {
+    return;
+  }
+  std::cout << std::endl << "Active player is " << player_id << std::endl;
+  player::for_each_player_city(player_id, [] (City& c) {
+    c.DoNotifications();
+  });
+  player::for_each_player_unit(player_id, [] (Unit& u) {
+    if (u.m_path.empty()) {
+      std::cout << "  " << u.m_unique_id;
+    }
+  });
+  std::cout << "  <--- Idle units" << std::endl;
+}
+
 void simulation::process_step(Step* step) {
   // Save a pointer to the current step
   s_current_step = step;
@@ -555,6 +569,7 @@ void grant_improvement_resources(const Improvement& improvement) {
 }
 
 void simulation::process_begin_turn() {
+  BeginStep* begin_step = static_cast<BeginStep*>(s_current_step);
 
   bool allPlayersReady = true;
   player::for_each_player([&allPlayersReady](Player& player) {
@@ -601,7 +616,7 @@ void simulation::process_begin_turn() {
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
   phase_restore_actions();
-  phase_notifications();
+  player_notifications(begin_step->m_active_player);
 }
 
 void simulation::process_end_turn() {
@@ -614,4 +629,5 @@ void simulation::process_end_turn() {
   }
 
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
+  player_notifications(player->m_id);
 }

@@ -8,6 +8,9 @@
 #include <functional>
 #include "game_types.h"
 
+class Unit;
+class City;
+
 //
 // Player is a generic class that ties units and buildings to some entity.
 //
@@ -42,4 +45,6 @@ namespace player {
   void add_improvement(uint32_t player_id, uint32_t improvement_id);
 
   void for_each_player(std::function<void(Player& player)> operation);
+  void for_each_player_unit(uint32_t player_id, std::function<void(Unit& unit)> operation);
+  void for_each_player_city(uint32_t player_id, std::function<void(City& city)> operation);
 }

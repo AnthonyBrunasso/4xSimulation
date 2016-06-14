@@ -105,3 +105,32 @@ void player::for_each_player(std::function<void(Player& player)> operation) {
     operation(*p);
   }
 }
+
+void player::for_each_player_unit(uint32_t player_id, std::function<void(Unit& unit)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto u : player->m_units) {
+    Unit* unit = units::get_unit(u);
+    if (!unit) {
+      continue;
+    }
+    operation(*unit);
+  }
+}
+
+void player::for_each_player_city(uint32_t player_id, std::function<void(City& city)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto c : player->m_cities) {
+    City* city = city::get_city(c);
+    if (!city) {
+      continue;
+    }
+    operation(*city);
+  }
+}
+

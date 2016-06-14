@@ -153,3 +153,9 @@ struct BarbarianStep : public Step {
   BarbarianStep(COMMAND command) : Step(command) {};
 };
 
+struct BeginStep : public Step {
+  BeginStep(COMMAND command) : Step(command) {};
+  uint32_t m_active_player;
+};
+
+

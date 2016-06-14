@@ -19,7 +19,7 @@ public:
   bool SetSpecialization(TERRAIN_TYPE type);
 
   void Simulate(TerrainYield&);
-  void BeginTurn() const;
+  void DoNotifications() const;
 
   TerrainYield DumpYields(bool log=false) const;
   void MutateYield(TerrainYield&) const;
