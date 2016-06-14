@@ -17,7 +17,7 @@ class City;
 
 class Player {
 public:
-  Player(uint32_t id, const std::string& name);
+  Player(uint32_t id, const std::string& name, AI_TYPE ai_type);
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
@@ -33,10 +33,11 @@ public:
 
   // Resources owned by this player.
   Resources m_resources;
+  AI_TYPE m_ai_type;
 };
 
 namespace player {
-  uint32_t create(const std::string& name);
+  uint32_t create(AI_TYPE ai_type, const std::string& name);
   Player* get_player(uint32_t i);
   size_t get_count();
 

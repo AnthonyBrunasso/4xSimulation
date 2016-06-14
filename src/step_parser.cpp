@@ -167,6 +167,9 @@ namespace {
           player_step->ai_type = get_ai_type(tokens[2]);
         }
       }
+      else {
+        player_step->ai_type = AI_TYPE::HUMAN;
+      }
       step = player_step;
     }
 

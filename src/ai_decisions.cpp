@@ -75,6 +75,26 @@ void Construct::operator()(uint32_t player_id) {
 }
 
 void Explore::operator()(uint32_t player_id) {
-  std::cout << "Explore: " << player_id << std::endl;
+  Player* current = player::get_player(player_id);
+  if (!current) {
+    std::cout << "Unable to find player to explore." << std::endl;
+  }
+
+  std::cout << current->m_name << " exploring." << std::endl;
+  player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
+    sf::Vector3i coord = game_random::cube_coord(6);
+    std::cout << format::vector3(coord) << std::endl;
+    Tile* tile = world_map::get_tile(coord);
+    while (!tile) {
+      coord = game_random::cube_coord(6);
+      tile = world_map::get_tile(coord); 
+    }
+    std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
+    MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+    move_step->m_unit_id = unit.m_unique_id;
+    move_step->m_destination = coord;
+    move_step->m_player = player_id; 
+    simulation::process_step_from_ai(move_step);
+  });
 }
 

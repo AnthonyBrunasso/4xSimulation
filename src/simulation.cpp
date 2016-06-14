@@ -383,7 +383,7 @@ namespace {
 
   void execute_add_player() {
     AddPlayerStep* player_step = static_cast<AddPlayerStep*>(s_current_step);
-    uint32_t player_id = player::create(player_step->m_name);
+    uint32_t player_id = player::create(player_step->ai_type, player_step->m_name);
     if (player_step->ai_type != AI_TYPE::UNKNOWN) {
       switch (player_step->ai_type) {
         case AI_TYPE::BARBARIAN:

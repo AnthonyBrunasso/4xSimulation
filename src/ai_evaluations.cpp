@@ -2,6 +2,7 @@
 
 #include "player.h"
 #include "city.h"
+#include "ai_barbarians.h"
 
 #include <iostream>
 
@@ -43,4 +44,47 @@ float NeedsProduce::operator()(uint32_t player_id, float threshold) {
 
   // Player doesn't have an available city for production.
   return threshold - 1.0f;
+}
+
+float HasUnits::operator()(uint32_t player_id, float threshold) {
+  Player* player = player::get_player(player_id);
+  if (!player) {
+    std::cout << "Has units evaluation found no player." << std::endl;
+    return NOOP_EVALUATION;
+  }
+
+  std::cout << player->m_name << " evaluating its unit state." << std::endl;
+  if (!player->m_units.empty()) {
+    return threshold + 1.0f;
+  }
+
+  std::cout << player->m_name << " has no units." << std::endl;
+  return threshold - 1.0f;
+}
+
+float evaluate_barbarian(Player* player, float threshold) {
+  std::cout << player->m_name << " evaluating nearby cities." << std::endl;
+  if (!barbarians::discovered_city()) {
+    return threshold - 1.0f;
+  }
+  return threshold + 1.0f;
+}
+
+float DiscoveredCities::operator()(uint32_t player_id, float threshold) {
+  Player* player = player::get_player(player_id);
+  if (!player) {
+    std::cout << "Discovered city evaluation found no player." << std::endl;
+    return NOOP_EVALUATION;
+  }
+
+  switch (player->m_ai_type) {
+    case AI_TYPE::BARBARIAN:
+      return ::evaluate_barbarian(player, threshold);
+    case AI_TYPE::HUMAN:
+    default:
+      std::cout << "DiscoveredCities evaluation not evaluated for: " << get_ai_name(player->m_ai_type) << std::endl;
+      return NOOP_EVALUATION;
+  }
+
+  return NOOP_EVALUATION;
 }

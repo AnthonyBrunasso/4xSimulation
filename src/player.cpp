@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-Player::Player(uint32_t id, const std::string& name) 
+Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     : m_id(id)
     , m_name(name)
     , m_cities()
@@ -14,6 +14,7 @@ Player::Player(uint32_t id, const std::string& name)
     , m_improvements()
     , m_turn_state(TURN_TYPE::TURNACTIVE)
     , m_resources()
+    , m_ai_type(ai_type)
 {
   // Remove unit when notified
   units::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
@@ -55,9 +56,9 @@ namespace {
   std::vector<Player*> s_players;
 }
 
-uint32_t player::create(const std::string& name) {
+uint32_t player::create(AI_TYPE ai_type, const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
-  s_players.push_back(new Player(playerId, name));
+  s_players.push_back(new Player(playerId, name, ai_type));
   return playerId;
 }
 
