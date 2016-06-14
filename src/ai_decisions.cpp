@@ -35,10 +35,10 @@ void Settle::operator()(uint32_t player_id) {
 
   int start = 7;
   // Find a home.
-  sf::Vector3i new_home = random::cube_coord(start);
+  sf::Vector3i new_home = game_random::cube_coord(start);
   Tile* tile = world_map::get_tile(new_home);
   while (invalid_homes.find(new_home) != invalid_homes.end() || !tile) {
-    new_home = random::cube_coord(start);
+    new_home = game_random::cube_coord(start);
     tile = world_map::get_tile(new_home); 
   }
 
