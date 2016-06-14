@@ -145,6 +145,10 @@ namespace {
     city::for_each_city([](City& cityInstance) { 
       TerrainYield t = cityInstance.DumpYields(true);
       cityInstance.Simulate(t);
+      Player* player = player::get_player(cityInstance.m_owner_id);
+      if (!player) return;
+      player->m_gold += t.m_gold;
+      player->m_science += t.m_science;
     });
   }
 

@@ -30,6 +30,8 @@ public:
   std::set<uint32_t> m_units;
   std::set<uint32_t> m_improvements;
   TURN_TYPE m_turn_state;
+  float m_gold;
+  float m_science;
 
   // Resources owned by this player.
   Resources m_resources;

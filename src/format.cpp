@@ -106,6 +106,8 @@ std::string format::player(const Player& player) {
   ss << " buildings: " << format::set(player.m_cities) << std::endl;
   ss << " units: " << format::set(player.m_units) << std::endl;
   ss << " turn_state: " << get_turn_name(player.m_turn_state) << std::endl;
+  ss << " gold: " << player.m_gold << std::endl;
+  ss << " science: " << player.m_science << std::endl;
   ss << " resources: " << format::resources(player.m_resources) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
   ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
