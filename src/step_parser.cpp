@@ -209,7 +209,12 @@ namespace {
       CHECK(3, tokens);
       SpecializeStep* specialize_step = new SpecializeStep(COMMAND::SPECIALIZE);
       specialize_step->m_city_id = std::stoul(tokens[1]);
-      specialize_step->m_terrain_type = std::stoul(tokens[2]);
+      if (std::isdigit(tokens[2][0])) {
+        specialize_step->m_terrain_type = std::stoul(tokens[2]);
+      }
+      else {
+        specialize_step->m_terrain_type = util::enum_to_uint(get_terrain_type(tokens[2]));
+      }
       specialize_step->m_player = s_active_player;
       step = specialize_step;
     }
