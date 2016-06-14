@@ -76,7 +76,7 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {
-  out << "TerrainYield "
+  out << "TerrainYield for " << get_terrain_name(ty.m_type)
       << "(" << ty.m_food << " Food) "
       << "(" << ty.m_production << " Prod) "
       << "(" << ty.m_science << " Sci) "
@@ -166,6 +166,7 @@ namespace terrain_yield {
 
 TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
   TerrainYield base;
+  base.m_type = type;
   const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(type));
   if (findIt == s_defaultYieldFn.end()) {
     return base;
