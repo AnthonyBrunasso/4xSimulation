@@ -117,7 +117,7 @@ namespace {
     }
 
     else if (tokens[0] == "tile_resource") {
-      CHECK(6, tokens);
+      CHECK(5, tokens);
       ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep(COMMAND::RESOURCE_MUTATOR);
       if (std::isdigit(tokens[1][0])) {
         resource_mutator_step->m_type = std::stoul(tokens[1]);
@@ -126,7 +126,12 @@ namespace {
         resource_mutator_step->m_type = util::enum_to_uint(get_resource_type(tokens[1]));
       }
       resource_mutator_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
-      resource_mutator_step->m_quantity = std::stoul(tokens[5]);
+      if (tokens.size() == 6) {
+        resource_mutator_step->m_quantity = std::stoul(tokens[5]);
+      }
+      else {
+        resource_mutator_step->m_quantity = 1;
+      }
       step = resource_mutator_step;
     }
 

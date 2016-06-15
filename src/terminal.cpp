@@ -276,7 +276,7 @@ namespace terminal  {
     std::cout << "  spawn <unitType> <x> <y> <z>" << std::endl;
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
     std::cout << "  tile_cost <x> <y> <z> <cost>" << std::endl;
-    std::cout << "  tile_resource <resourceType> <x> <y> <z> <quantity>" << std::endl;
+    std::cout << "  tile_resource <resourceType> <x> <y> <z> [1<quantity>]" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
