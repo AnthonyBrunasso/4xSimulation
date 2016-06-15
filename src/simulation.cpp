@@ -328,8 +328,7 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    uint32_t id = units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location);
-    player::add_unit(spawn_step->m_player, id);
+    units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location, spawn_step->m_player);
   }
 
   Unit* generate_path() {

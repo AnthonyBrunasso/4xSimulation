@@ -17,6 +17,7 @@ public:
     , m_path()
     , m_max_actions(3)
     , m_action_points(m_max_actions)
+    , m_owner_id(0xffffffff)
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1) {};
 
@@ -28,12 +29,13 @@ public:
   // Number of actions available for the unit, simulation will dictate this value
   uint32_t m_max_actions;
   uint32_t m_action_points;
+  uint32_t m_owner_id;
 
   CombatStats m_combat_stats;
 };
 
 namespace units {
-  uint32_t create(UNIT_TYPE UNIT_TYPE, const sf::Vector3i& location);
+  uint32_t create(UNIT_TYPE UNIT_TYPE, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void destroy(uint32_t entity_id);

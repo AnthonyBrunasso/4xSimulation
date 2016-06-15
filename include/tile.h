@@ -23,6 +23,8 @@ public:
   uint32_t m_city_id;
   // The cost to navigate over this tile
   uint32_t m_path_cost;
+  // magical "hut" that yields bonus rewards when walked upon
+  bool m_discover_bonus;
   // Tiles can contain resources
   std::vector<Resource> m_resources;
   // Improvements contained on this tile

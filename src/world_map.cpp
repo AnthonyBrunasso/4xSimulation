@@ -10,6 +10,7 @@
 #include "tile_costs.h"
 #include "player.h"
 #include "ai_barbarians.h"
+#include "random.h"
 
 #include <iostream>
 #include <vector>
@@ -131,11 +132,26 @@ namespace {
   }
 }
 
+void init_discoverable_tiles(uint32_t size) {
+  uint32_t tiles = size / 2;
+  for (uint32_t i = 0; i < tiles; ++i) {
+    sf::Vector3i cube = game_random::cube_coord(size);
+    Tile* tile = world_map::get_tile(cube);
+    if (!tile) {
+      std::cout << "Failed to look-up tile " << format::vector3(cube) << std::endl;
+      continue;
+    }
+    tile->m_discover_bonus = true;
+    std::cout << "Discoverable tile on " << format::vector3(cube) << std::endl;
+  }
+}
+
 void world_map::build(sf::Vector3i start, uint32_t size) {
   search::range(start, size, s_coords);
   for (auto tile : s_coords) {
     s_map[tile] = Tile();
   }
+  init_discoverable_tiles(size);
 
   tile_costs::initialize();
   barbarians::initialize();
@@ -225,6 +241,14 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
     // Move it to new tile
     std::cout << "Unit " << unit->m_unique_id << " (id) moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
     unit->m_location = unit->m_path[0];
+    if (next->m_discover_bonus) {
+      next->m_discover_bonus = false;
+      std::cout << " Unit " << unit->m_unique_id << " discovered a magical relic! Your civilization gains 50 gold." << std::endl;
+      Player* player = player::get_player(unit->m_owner_id);
+      if (player) {
+        player->m_gold += 50.f;
+      }
+    }
     next->m_unit_ids.push_back(unit->m_unique_id);
     // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
     unit->m_path.erase(unit->m_path.begin());

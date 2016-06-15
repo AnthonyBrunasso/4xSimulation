@@ -21,11 +21,17 @@ namespace {
   SubMap s_create_subs;
 }
 
-uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location) {
+uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
+  Player* player = player::get_player(player_id);
+  if (!player) {
+    return 0;
+  }
+
   uint32_t id = unique_id::generate();
   Unit* unit = new Unit(id, unit_type);
   unit->m_location = location;
-
+  unit->m_owner_id = player_id;
+  
   // Apply unit specific stats if they exist.
   CombatStats* stats = unit_definitions::get(unit_type);
   if (stats) {
@@ -34,6 +40,7 @@ uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location) {
 
   // Add the unit to storage and the world map.
   s_units[id] = unit;
+  player::add_unit(player_id, id);
   std::cout << "Created unit id " << id << ", entity type: " << get_unit_name(unit_type) << std::endl;
 
   for (auto sub : s_create_subs) {

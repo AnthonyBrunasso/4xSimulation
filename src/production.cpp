@@ -39,16 +39,16 @@ namespace production {
     uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
-      unit_id = units::create(UNIT_TYPE::SCOUT, city->m_location);
+      unit_id = units::create(UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::RANGE:
-      unit_id = units::create(UNIT_TYPE::ARCHER, city->m_location);
+      unit_id = units::create(UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::MELEE:
-      unit_id = units::create(UNIT_TYPE::PHALANX, city->m_location);
+      unit_id = units::create(UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::WORKER:
-      unit_id = units::create(UNIT_TYPE::WORKER, city->m_location);
+      unit_id = units::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
       break;
     default:
       return;
