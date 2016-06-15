@@ -256,7 +256,13 @@ namespace terminal  {
       return false;
     }
 
-    return operation->second(tokens);
+    try {
+      return operation->second(tokens);
+    }
+    catch(const std::exception& e) {
+      std::cout << "Query failed with exception " << e.what() << std::endl;
+    }
+    return false;
   }
 
   void execute_help() {

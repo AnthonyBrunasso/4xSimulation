@@ -269,7 +269,14 @@ void step_parser::split_to_tokens(const std::string& line, std::vector<std::stri
 
 Step* step_parser::parse(const std::vector<std::string>& tokens) {
   Step* step = nullptr;
-  parse_tokens(tokens, step);
+  try
+  {
+    parse_tokens(tokens, step);
+  }
+  catch(const std::exception&e ) 
+  {
+    std::cout << "Exception thrown: " << e.what() << std::endl;
+  }
   return step;
 }
 
