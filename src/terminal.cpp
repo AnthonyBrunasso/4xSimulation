@@ -282,7 +282,6 @@ namespace terminal  {
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  colonize <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <productionType>" << std::endl;
-    std::cout << "  discover <x> <y> <z>" << std::endl;
     std::cout << "  end_turn" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;

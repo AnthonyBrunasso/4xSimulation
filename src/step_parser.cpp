@@ -108,10 +108,6 @@ namespace {
       }
     }
 
-    else if (tokens[0] == "discover") {
-      CREATE_GENERIC_STEP(4, tokens, step, COMMAND::DISCOVER);
-    }
-
     else if (tokens[0] == "tile_cost") {
       CHECK(5, tokens);
       TileMutatorStep* tile_mutator_step = new TileMutatorStep(COMMAND::TILE_MUTATOR);
