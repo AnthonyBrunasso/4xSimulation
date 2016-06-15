@@ -401,6 +401,9 @@ namespace {
 
   void execute_queue_move() {
     Unit* unit = generate_path();
+    if (!unit) {
+      return;
+    }
     s_units_to_move.push_back(unit->m_unique_id);
   }
 

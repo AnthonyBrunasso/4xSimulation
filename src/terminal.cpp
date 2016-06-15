@@ -97,8 +97,16 @@ namespace terminal  {
 
     terminal::add_query("range", "range <x> <y> <z> <n>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(5, tokens);
+      Tile* tile = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
+      if (!tile) return false;
+      
       sf::Vector3i start = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       int32_t distance = std::stoi(tokens[4]);
+      // 500 is already 751k tiles
+      if (distance > 500) {
+        std::cout << "distance limit of 500 applies to range" << std::endl;
+        return false;
+      }
       std::vector<sf::Vector3i> coords;
       search::range(start, distance, coords);
       for (uint32_t i = 0; i < coords.size(); ++i) {
@@ -111,6 +119,11 @@ namespace terminal  {
 
     terminal::add_query("route", "route <xs> <ys> <zs> <xt> <yt> <zt>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(7, tokens);
+      // Verify they are valid world coordinates first
+      Tile* tileA = world_map::get_tile(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
+      if (!tileA) return false;
+      Tile* tileB = world_map::get_tile(util::str_to_vector3(tokens[4], tokens[5], tokens[6]));
+      if (!tileB) return false;
       // Shows the route from start to end, inclusive
       sf::Vector3f start = util::str_to_vector3f(tokens[1], tokens[2], tokens[3]);
       sf::Vector3f end = util::str_to_vector3f(tokens[4], tokens[5], tokens[6]);
