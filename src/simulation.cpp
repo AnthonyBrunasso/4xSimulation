@@ -335,8 +335,18 @@ namespace {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    Resource newResource(static_cast<RESOURCE_TYPE>(resource_mutator_step->m_type), resource_mutator_step->m_quantity);
-    tile->m_resources.push_back(newResource);
+    Resource new_resource(static_cast<RESOURCE_TYPE>(resource_mutator_step->m_type), resource_mutator_step->m_quantity);
+    bool found = false;
+    // If resource already on the tile increment its quantity.
+    for (auto& r : tile->m_resources) {
+      if (r.m_type == new_resource.m_type) {
+        r.m_quantity += new_resource.m_quantity;
+        found = true;
+      }
+    }
+    if (!found) {
+      tile->m_resources.push_back(new_resource);
+    }
   }
 
   void execute_kill() {
@@ -405,9 +415,6 @@ namespace {
 
   void execute_queue_move() {
     Unit* unit = generate_path();
-    if (!unit) {
-      return;
-    }
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
