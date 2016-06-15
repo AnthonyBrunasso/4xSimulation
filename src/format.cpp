@@ -125,7 +125,7 @@ std::string format::combat_stats(const CombatStats& stats) {
   return std::move(ss.str());
 }
 
-std::string format::resources(const Resources& resources) {
+std::string format::resources(const ResourceUMap& resources) {
   std::stringstream ss;
 
   ss << "[ ";

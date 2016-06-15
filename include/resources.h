@@ -23,9 +23,9 @@ struct Resource {
   int32_t m_quantity;
 };
 
-class Resources {
+class ResourceUMap {
 public:
-  Resources();
+  ResourceUMap();
  
   // Provide a negative quantity to deduct resources. 
   void add(RESOURCE_TYPE type, int32_t quantity);

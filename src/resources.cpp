@@ -13,21 +13,21 @@ Resource& Resource::operator+=(const Resource& rhs) {
   return *this;
 }
 
-Resources::Resources() {
+ResourceUMap::ResourceUMap() {
   for_each_resource_type([this](RESOURCE_TYPE type){
     this->m_resource_map[util::enum_to_uint(type)] = Resource(type);
   });
 }
 
-void Resources::add(RESOURCE_TYPE type, int32_t quantity) {
+void ResourceUMap::add(RESOURCE_TYPE type, int32_t quantity) {
   m_resource_map[util::enum_to_uint(type)].m_quantity += quantity;
 }
 
-void Resources::add(Resource resource) {
+void ResourceUMap::add(Resource resource) {
   m_resource_map[util::enum_to_uint(resource.m_type)] += resource;
 }
 
-void Resources::for_each_resource(std::function<void(RESOURCE_TYPE type, const Resource& resource)> operation) const {
+void ResourceUMap::for_each_resource(std::function<void(RESOURCE_TYPE type, const Resource& resource)> operation) const {
   for (auto resource : m_resource_map) {
     operation(util::uint_to_enum<RESOURCE_TYPE>(resource.first), resource.second);
   }

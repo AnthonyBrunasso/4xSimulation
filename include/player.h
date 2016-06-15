@@ -34,7 +34,7 @@ public:
   float m_science;
 
   // Resources owned by this player.
-  Resources m_resources;
+  ResourceUMap m_resources;
   AI_TYPE m_ai_type;
 };
 

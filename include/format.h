@@ -64,6 +64,6 @@ namespace format {
   std::string ascii_tile(Tile* tile);
   std::string player(const Player& player);
   std::string combat_stats(const CombatStats& stats);
-  std::string resources(const Resources& resources);
+  std::string resources(const ResourceUMap& resources);
   std::string improvement(const Improvement& improvement);
 }
