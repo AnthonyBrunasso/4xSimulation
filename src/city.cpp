@@ -126,6 +126,12 @@ bool City::RemoveHarvest(sf::Vector3i& loc) {
   return true;
 }
 
+void City::RemoveAllHarvest() {
+  for (size_t i = 0; i < m_yield_tiles.size(); ++i) {
+    terrain_yield::remove_harvest(m_yield_tiles[i]);
+  }
+}
+
 float City::GetPopulation() const {
   return city::population_size_from_food(m_food);
 }
@@ -207,6 +213,7 @@ void city::raze(uint32_t id) {
     sub(findIt->second->m_location, id);
   }
 
+  findIt->second->RemoveAllHarvest();
   delete findIt->second;
   s_cities.erase(findIt);
 }
