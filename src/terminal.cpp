@@ -12,6 +12,7 @@
 #include "hex.h"
 #include "unit_definitions.h"
 #include "game_types.h"
+#include "search.h"
 
 #include <algorithm>
 #include <iostream>
@@ -226,6 +227,22 @@ namespace terminal  {
       return true;
     });
 
+    terminal::add_query("search", "search <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(5, tokens);
+      sf::Vector3i start = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
+      uint32_t depth = std::stoul(tokens[4]);
+      // Just bfs for a unit in range.
+      auto contains_unit = [](const Tile& tile) {
+        return !tile.m_unit_ids.empty();
+      };
+      if (search::bfs(start, depth, world_map::get_map(), contains_unit)) {
+        std::cout << "Unit found in depth: " << depth << " from: " << format::vector3(start) << std::endl;
+      }
+      else {
+        std::cout << "Unit not found." << std::endl;
+      }
+      return true; 
+    });
 
   }
 

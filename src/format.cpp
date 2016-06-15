@@ -111,6 +111,7 @@ std::string format::player(const Player& player) {
   ss << " resources: " << format::resources(player.m_resources) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
   ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
+  ss << " discovered: " << format::set(player.m_discovered_players) << std::endl;
 
   return std::move(ss.str());
 }

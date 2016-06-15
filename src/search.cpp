@@ -145,3 +145,33 @@ void search::path_to(const sf::Vector3i& start,
   }
 }
 
+// Bfs until the comparator returns true.
+bool search::bfs(const sf::Vector3i& start,
+    uint32_t depth,
+    world_map::TileMap& tile_map,
+    std::function<bool(const Tile& tile)> comparator) {
+  std::queue<sf::Vector3i> to_explore;
+  // Used to avoid expanding nodes already explored.
+  std::unordered_map<sf::Vector3i, uint32_t> discovered;
+  to_explore.push(start);
+  // Start node is at depth 1.
+  discovered[start] = 1;
+  while (!to_explore.empty()) {
+    sf::Vector3i expand = to_explore.front();
+    std::vector<sf::Vector3i> cube_neighbors;
+    hex::cube_neighbors(expand, cube_neighbors); 
+    if (comparator(tile_map[expand])) return true;
+    to_explore.pop();
+    for (auto n : cube_neighbors) {
+      if (discovered.find(n) != discovered.end()) continue;
+      if (tile_map.find(n) == tile_map.end()) continue;
+      // Early out if the condition is meet.
+      uint32_t current_depth = discovered[expand];
+      if (current_depth <= depth) {
+        to_explore.push(n);
+        discovered[n] = current_depth + 1;
+      }
+    }
+  }
+  return false;
+}

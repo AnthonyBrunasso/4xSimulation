@@ -12,7 +12,10 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_cities()
     , m_units() 
     , m_improvements()
+    , m_discovered_players()
     , m_turn_state(TURN_TYPE::TURNACTIVE)
+    , m_gold(0.0f)
+    , m_science(0.0f)
     , m_resources()
     , m_ai_type(ai_type)
 {
@@ -101,6 +104,15 @@ void player::add_improvement(uint32_t player_id, uint32_t improvement_id) {
   player->m_improvements.insert(improvement_id);
 }
 
+void player::add_discovered(uint32_t player_id, uint32_t other_player_id) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+
+  player->m_discovered_players.insert(other_player_id);
+}
+
 void player::for_each_player(std::function<void(Player& player)> operation) {
   for (auto p : s_players) {
     operation(*p);
@@ -135,3 +147,16 @@ void player::for_each_player_city(uint32_t player_id, std::function<void(City& c
   }
 }
 
+void player::for_each_player_meet(uint32_t player_id, std::function<void(Player& player)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto c : player->m_discovered_players) {
+    Player* other = get_player(c);
+    if (!other) {
+      continue;
+    }
+    operation(*other);
+  } 
+}

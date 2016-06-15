@@ -81,6 +81,24 @@ namespace {
       // Advance unit forward by a single action point
       uint32_t moved = world_map::move_unit(unit_id, 1);
       if (moved) {
+        // Check if the units owner has discovered another unit.
+        auto found_other = [&unit](const Tile& tile) {
+          Player* current = player::get_player(unit->m_owner_id);
+          if (!current) return false;
+          for (auto id : tile.m_unit_ids) {
+            // If this player doesn't own the unit return true.
+            bool found = false;
+            if (!current->OwnsUnit(id)) {
+              // Get that unit
+              Unit* other = units::get_unit(id);
+              current->m_discovered_players.insert(other->m_owner_id); 
+              // Don't early out, more than one unit *can* be on the tile.
+              found = true;
+            }
+          }
+          return false;
+        };
+        search::bfs(unit->m_location, 3, world_map::get_map(), found_other);
         movement = true;
         unit->m_action_points -= moved;
 
