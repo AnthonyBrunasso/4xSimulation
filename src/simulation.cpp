@@ -253,8 +253,10 @@ namespace {
       return;
     }
     uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
-    std::cout << "adding improvement to player: " << player->m_name << std::endl;
-    player::add_improvement(improve_step->m_player, id);
+    if (id) {
+      std::cout << "adding improvement to player: " << player->m_name << std::endl;
+      player::add_improvement(improve_step->m_player, id);
+    } 
   }
 
   void execute_harvest() {
