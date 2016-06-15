@@ -12,7 +12,7 @@ class Unit;
 class City;
 
 //
-// Player is a generic class that ties units and buildings to some entity.
+// Player is a generic class that ties units and buildings to some ai type.
 //
 
 class Player {

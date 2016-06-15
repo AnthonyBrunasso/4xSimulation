@@ -87,15 +87,19 @@ namespace {
           if (!current) return false;
           for (auto id : tile.m_unit_ids) {
             // If this player doesn't own the unit return true.
-            bool found = false;
             if (!current->OwnsUnit(id)) {
               // Get that unit
               Unit* other = units::get_unit(id);
-              current->m_discovered_players.insert(other->m_owner_id); 
-              // Don't early out, more than one unit *can* be on the tile.
-              found = true;
+              // Already discovered the player.
+              if (current->DiscoveredPlayer(other->m_owner_id)) return false;
+              Player* found_player = player::get_player(other->m_owner_id);
+              if (!found_player) return false;
+              std::cout << current->m_name << " discovered " << found_player->m_name << std::endl;
+              current->m_discovered_players.insert(found_player->m_id); 
+              found_player->m_discovered_players.insert(current->m_id);
             }
           }
+          // Search every tile.
           return false;
         };
         search::bfs(unit->m_location, 3, world_map::get_map(), found_other);

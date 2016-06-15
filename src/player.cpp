@@ -54,6 +54,10 @@ bool Player::OwnsImprovement(uint32_t id) const {
   return m_improvements.find(id) != m_improvements.end();
 }
 
+bool Player::DiscoveredPlayer(uint32_t id) const {
+  return m_discovered_players.find(id) != m_discovered_players.end();
+}
+
 namespace {
   // List of players, player at index 0 will be player 1 ... index N player N - 1
   std::vector<Player*> s_players;

@@ -11,6 +11,7 @@
 namespace {
   DTree* s_macro_dtree = nullptr;
   DTree* s_micro_dtree = nullptr;
+  // TODO: Move all these into its own modules
   NeedsColonize s_colonize_evaluator;
   // Barbarians only produce melee units for now.
   NeedsProduce s_produce_evaluator;
@@ -19,6 +20,8 @@ namespace {
   Construct s_construct_decision(CONSTRUCTION_TYPE::MELEE);
   HasUnits s_has_units_evaluator;
   DiscoveredCities s_discovered_cities_evaluator;
+  DiscoverCities s_discover_cities_evaluator;
+  // TODO end here
   std::vector<uint32_t> s_discovered_cities;
   uint32_t s_player_id;
 }
@@ -38,7 +41,7 @@ void barbarians::initialize() {
   
   mnode->m_right = new DNode(nullptr, &s_discovered_cities_evaluator);
   DNode*& discovered_eval = mnode->m_right;
-  discovered_eval->m_left = new DNode(&s_explore_decision, nullptr);
+  discovered_eval->m_left = new DNode(&s_explore_decision, &s_discover_cities_evaluator);
 
   // Construct the barbarians decision tree.
   s_macro_dtree = new DTree(node);
