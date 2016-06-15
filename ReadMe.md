@@ -12,7 +12,9 @@ Build with:
 Make
 ```
 ### Multiplayer
+```sh
 source host_server.sh
+```
 
 Clients can use netcat to connect to the with with any of the following to input commands:
 * nc 127.0.0.1 1200
@@ -29,13 +31,22 @@ Netcat to the game history port, and pipe the data to the ./4xsim executable:
 Each listen socket is only valid for one connection. See the shell script for how to restart a new listen socket.
 
 ### Replay
+```sh
 ./4xsim < replay_file
+```
 
 Each run of ./4xsim outputs a summary of the game to last_run.
 
-* You cannot use last_run as your input file, so copy it before playing it back.
+* You cannot use last_run as your input file; copy last_run before playing it back.
 
 ### Resume from replay
 If you prefer to remain in the terminal after loading a replay:
 
+```sh
 cat replay_file - | ./4xsim
+```
+
+### Fuzz testing
+```sh
+python tools/fuzz.py | ./4xsim
+```
