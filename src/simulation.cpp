@@ -253,7 +253,7 @@ namespace {
       return;
     }
     uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
-    std::cout << "adding improvement to: " << improve_step->m_player << std::endl;
+    std::cout << "adding improvement to player id: " << improve_step->m_player << std::endl;
     player::add_improvement(improve_step->m_player, id);
   }
 
@@ -603,7 +603,6 @@ void simulation::process_begin_turn() {
   }
 
   // Apply changes
-  phase_queued_movement();
   phase_city_growth();
   phase_science_progression();
   phase_diplomatic_progression();
@@ -649,6 +648,7 @@ void simulation::process_end_turn() {
     return;
   }
 
+  phase_queued_movement();
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
   player_notifications(player->m_id);
 }
