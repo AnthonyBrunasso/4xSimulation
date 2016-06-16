@@ -1,8 +1,11 @@
 #include "random.h"
 
 #include <iostream>
-#include <cstdlib>
-#include <cstdlib>
+#include <random>
+
+namespace game_random {
+  std::mt19937 s_mt;
+}
 
 sf::Vector3i game_random::cube_coord(int max_coord) { 
   int x = (rand() % (2 * max_coord)) - max_coord;
@@ -16,5 +19,5 @@ sf::Vector3i game_random::cube_coord(int max_coord) {
 }
 
 void game_random::set_seed(unsigned seed) {
-  srand(seed);
+  s_mt.seed(seed);
 }

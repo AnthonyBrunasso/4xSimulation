@@ -7,16 +7,9 @@
 #include "file_reader.h"
 #include "ai_barbarians.h"
 #include "random.h"
-#include <random>
 
 int main(int , char* []) {
-  std::mt19937 foo;
-  foo.seed(3);
-  
-  game_random::set_seed(0);
-  for (int i = 0; i < 5; ++i) {
-    std::cout << foo() << std::endl;
-  }
+  game_random::set_seed(3);
   std::vector<Step*> steps;
   simulation::start();
   
