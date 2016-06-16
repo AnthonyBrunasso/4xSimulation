@@ -6,8 +6,10 @@
 #include "step.h"
 #include "file_reader.h"
 #include "ai_barbarians.h"
+#include "random.h"
 
 int main(int , char* []) {
+  game_random::set_seed(3);
   std::vector<Step*> steps;
   simulation::start();
   
