@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cstdlib>
 
 sf::Vector3i game_random::cube_coord(int max_coord) { 
   int x = (rand() % (2 * max_coord)) - max_coord;
@@ -12,4 +13,8 @@ sf::Vector3i game_random::cube_coord(int max_coord) {
   }
   int z = -x - y;
   return sf::Vector3i(x, y, z);
+}
+
+void game_random::set_seed(unsigned seed) {
+  srand(seed);
 }
