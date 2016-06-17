@@ -11,6 +11,7 @@
 #include "player.h"
 #include "production.h"
 #include "unit_definitions.h"
+#include "unique_id.h"
 #include "improvements.h"
 #include "game_types.h"
 #include "terrain_yield.h"
@@ -240,13 +241,25 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
+    bool too_close = false;
+    search::bfs(colonize_step->m_location, 3, world_map::get_map(), 
+      [&too_close](const Tile& tile) {
+      if (tile.m_city_id != unique_id::INVALID_ID) {
+        std::cout << "Colonization failed: City (" << tile.m_city_id << ") is too close." << std::endl;
+        too_close = true;
+        return true;
+      }
+      return false;
+    });
+    if (too_close) return;
+
     uint32_t id = city::create(BUILDING_TYPE::TOWN, colonize_step->m_location, colonize_step->m_player);
     if (!id) {
       // Colonization failed.
       return;
     }
     player::add_city(colonize_step->m_player, id);
-    std::cout << "player " << player->m_name << " colonized at: " << format::vector3(colonize_step->m_location) << std::endl;
+    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(colonize_step->m_location) << std::endl;
   }
 
   void execute_improve() {
