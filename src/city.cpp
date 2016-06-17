@@ -28,7 +28,7 @@ namespace city {
 
 City::City(uint32_t id)
 : m_id(id)
-, m_food(city::food_required_by_population(1)+1)
+, m_food(city::food_required_by_population(1)-1)
 , m_experience(0.f)
 , m_specialization(TERRAIN_TYPE::UNKNOWN)
 , m_construction(new ConstructionQueueFIFO(id))
@@ -89,7 +89,7 @@ void City::DoNotifications() const {
   if (m_construction->Count() == 0) {
     std::cout << "City (" << m_id << ") construction has idle_queue." << std::endl;
   }
-  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
+  float idleCount = IdleWorkers();
   if (idleCount) {
     std::cout << "City (" << m_id << ") population has " << idleCount << " idle_worker." << std::endl;
   }
@@ -103,7 +103,7 @@ size_t City::GetHarvestCount() const {
 }
 
 bool City::AddHarvest(sf::Vector3i &loc) {
-  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
+  float idleCount = IdleWorkers();
   if (idleCount < .001) {
     return false;
   }
@@ -124,6 +124,10 @@ void City::RemoveAllHarvest() {
   for (size_t i = 0; i < m_yield_tiles.size(); ++i) {
     terrain_yield::remove_harvest(m_yield_tiles[i]);
   }
+}
+
+float City::IdleWorkers() const {
+  return static_cast<float>(GetPopulation()-GetHarvestCount());
 }
 
 float City::GetPopulation() const {

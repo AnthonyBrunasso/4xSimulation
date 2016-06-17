@@ -116,6 +116,7 @@ namespace terminal  {
       city::for_each_city([p, distance, &stop](const City& city) {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
+        if (city.IdleWorkers() == 0) return;
         std::cout << "City (" << city.m_id << ") harvest <x> <y> <z>" << std::endl;
         std::vector<sf::Vector3i> coords;
         std::set<uint32_t> terrainTypes;
