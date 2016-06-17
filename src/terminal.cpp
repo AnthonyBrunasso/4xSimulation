@@ -13,6 +13,7 @@
 #include "unit_definitions.h"
 #include "game_types.h"
 #include "search.h"
+#include "terrain_yield.h"
 
 #include <algorithm>
 #include <iostream>
@@ -75,6 +76,33 @@ namespace terminal  {
       return true;
     });
     
+    terminal::add_query("idle_workers", "idle_workers <distance>", [](const std::vector<std::string>& tokens) {
+      CHECK_VALID(1, tokens);
+      uint32_t distance = 1;
+      if (tokens.size() > 1) {
+        distance =  std::stoul(tokens[1]);
+      }
+
+      if (distance > 3) return false;
+ 
+      Player* p = player::get_player(step_parser::get_active_player_id());
+      if (!p) return false;
+
+      bool stop = false;
+      city::for_each_city([p, distance, &stop](const City& city) {
+        if (stop) return;
+        if (p->m_id != city.m_owner_id) return;
+        std::cout << "City (" << city.m_id << ") harvest:" << std::endl;
+        std::vector<sf::Vector3i> coords;
+        std::set<uint32_t> terrainTypes;
+        search::range(city.m_location, distance, coords);
+        for (size_t i = 0; i < coords.size(); ++i) {
+          std::cout << "  coord: " << format::vector3(coords[i]) << "  " << terrain_yield::get_yield(coords[i], city.m_specialization) << std::endl;
+        }
+        stop = true;
+      });
+      return true;
+    });
     terminal::add_query("tiles", "tiles", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {

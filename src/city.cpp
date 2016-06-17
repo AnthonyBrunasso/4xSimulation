@@ -92,12 +92,6 @@ void City::DoNotifications() const {
   float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
   if (idleCount) {
     std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
-    std::vector<sf::Vector3i> coords;
-    std::set<uint32_t> terrainTypes;
-    search::range(m_location, 1, coords);
-    for (size_t i = 0; i < coords.size(); ++i) {
-      std::cout << "  coord: " << format::vector3(coords[i]) << "  " << terrain_yield::get_yield(coords[i], m_specialization) << std::endl;
-    }
   }
   if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
     std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;

@@ -289,3 +289,7 @@ std::string step_parser::get_active_player() {
   return player->m_name;
 }
 
+uint32_t step_parser::get_active_player_id() {
+  return s_active_player;
+}
+

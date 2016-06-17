@@ -166,7 +166,7 @@ namespace {
 
   void phase_city_growth() {
     city::for_each_city([](City& cityInstance) { 
-      TerrainYield t = cityInstance.DumpYields(true);
+      TerrainYield t = cityInstance.DumpYields();
       cityInstance.Simulate(t);
       Player* player = player::get_player(cityInstance.m_owner_id);
       if (!player) return;
