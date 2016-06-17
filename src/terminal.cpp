@@ -127,6 +127,20 @@ namespace terminal  {
       });
       return true;
     });
+ 
+    terminal::add_query("idle_unit", "idle_unit", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      bool stop = false;
+      player::for_each_player_unit(step_parser::get_active_player_id(), [&stop](Unit& unit) {
+        if(stop) return;
+        if (unit.m_path.empty()) {
+          std::cout << format::unit(unit) << std::endl;
+          stop = true;
+        }
+      });
+      return true;
+    });
+
     terminal::add_query("tiles", "tiles", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
