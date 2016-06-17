@@ -89,7 +89,7 @@ namespace terminal  {
         if (p->m_id != city.m_owner_id) return;
         if (city.IsConstructing()) return;
         std::vector<CONSTRUCTION_TYPE> incomplete = city.GetConstruction()->Incomplete();
-        std::cout << "City (" << city.m_id << ") construct " << city.m_id << std::endl;
+        std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
         for (size_t i = 0; i < incomplete.size(); ++i) {
           CONSTRUCTION_TYPE t = incomplete[i];
           std::cout <<  static_cast<uint32_t>(t) << " " << get_construction_name(t) << std::endl;
@@ -116,7 +116,7 @@ namespace terminal  {
       city::for_each_city([p, distance, &stop](const City& city) {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
-        std::cout << "City (" << city.m_id << ") harvest " << city.m_id << std::endl;
+        std::cout << "City (" << city.m_id << ") harvest <x> <y> <z>" << std::endl;
         std::vector<sf::Vector3i> coords;
         std::set<uint32_t> terrainTypes;
         search::range(city.m_location, distance, coords);
@@ -413,14 +413,13 @@ namespace terminal  {
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  colonize <x> <y> <z>" << std::endl;
-    std::cout << "  construct <cityId> <productionType>" << std::endl;
+    std::cout << "  construct <cityId> <constructionType>" << std::endl;
     std::cout << "  end_turn" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
-    std::cout << "  purchase <cityId> <buildingId>" << std::endl;
-    std::cout << "  purchase <cityId> <unitId>" << std::endl;
+    std::cout << "  purchase <cityId> [constructionType]" << std::endl;
     std::cout << "  sell <buildingId>" << std::endl;
     std::cout << "  sell <unitId>" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;

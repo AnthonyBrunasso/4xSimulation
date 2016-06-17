@@ -232,7 +232,7 @@ namespace {
       return;
     }
  
-    city->GetConstruction()->Cheat(production::id(construction_step->m_production_id));
+    city->GetConstruction()->Purchase(production::id(construction_step->m_production_id));
   }
 
   void execute_colonize() {
@@ -427,6 +427,34 @@ namespace {
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
+  std::string execute_purchase() {
+    PurchaseStep* purchase_step = static_cast<PurchaseStep*>(s_current_step);
+    Player* player = player::get_player(purchase_step->m_player);
+    std::stringstream ss;
+    if(!player) return "Invalid Player";
+    City* city = city::get_city(purchase_step->m_city);
+    if(!city) return "Invalid City";
+    if (purchase_step->m_production_id != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(purchase_step->m_production_id));
+      float cost = production::required_to_purchase(t);
+      if (player->m_gold < cost) {
+        ss << "Player has " << player->m_gold << " and needs " << cost << " gold. Purchase failed.";
+        return ss.str();
+      }
+      player->m_gold -= cost;
+      city->GetConstruction()->Purchase(t);
+      return "Purchase made.";
+    }
+
+    std::vector<CONSTRUCTION_TYPE> available = city->GetConstruction()->Incomplete();
+    ss << "City (" << city->m_id << ") available purchases: " << std::endl;
+    for (size_t i = 0; i < available.size(); ++i) {
+      CONSTRUCTION_TYPE t(available[i]);
+      ss << production::required_to_purchase(t) << " Gold: " << get_construction_name(t) << std::endl;
+    }
+    return ss.str();
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
     s_units_to_move.push_back(unit->m_unique_id);
@@ -564,6 +592,7 @@ void simulation::process_step(Step* step) {
       execute_queue_move();
       break;
     case COMMAND::PURCHASE:
+      std::cout << execute_purchase() << std::endl;
       break;
     case COMMAND::SPECIALIZE:
       execute_specialize();

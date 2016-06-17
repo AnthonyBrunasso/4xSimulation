@@ -45,6 +45,10 @@ namespace production {
     }
   }
 
+  float required_to_purchase(CONSTRUCTION_TYPE type) {
+    return required(type) * 3.f;
+  }
+
   bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
@@ -189,9 +193,9 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
   m_queue.push_back(order);
 }
 
-void ConstructionQueueFIFO::Cheat(CONSTRUCTION_TYPE type_id) {
+void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id) {
   if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
-    std::cout << "Construction Cheat on unknown type" << std::endl;
+    std::cout << "Construction purchase on unknown type" << std::endl;
     return;
   }
 

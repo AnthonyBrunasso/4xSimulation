@@ -200,7 +200,19 @@ namespace {
     }
 
     else if (tokens[0] == "purchase") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::PURCHASE);
+      CHECK(2, tokens);
+      PurchaseStep* purchase_step = new PurchaseStep(COMMAND::PURCHASE);
+      purchase_step->m_player = s_active_player;
+      purchase_step->m_city = std::stoul(tokens[1]);
+      if (tokens.size() > 2) {
+        if (std::isdigit(tokens[2][0])) {
+          purchase_step->m_production_id = std::stoul(tokens[2]);
+        }
+        else {
+          purchase_step->m_production_id = util::enum_to_uint(get_construction_type(tokens[2]));
+        }
+      }
+      step = purchase_step;
     }
 
     else if (tokens[0] == "sell") {
