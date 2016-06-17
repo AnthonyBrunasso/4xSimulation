@@ -333,6 +333,49 @@ namespace terminal  {
       return true; 
     });
 
+    terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
+      CHECK_VALID(6, tokens);
+      SEARCH_TYPE type = get_search_type(tokens[1]);
+      sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      uint32_t depth = std::stoul(tokens[5]);
+      switch (type) {
+      case SEARCH_TYPE::UNITS:
+        static auto s_units = [](const Unit& u) -> bool {
+          std::cout << format::unit(u) << std::endl;
+          return false;
+        };
+        search::bfs_units(start, depth, world_map::get_map(), s_units);
+        return true;
+      case SEARCH_TYPE::CITIES:
+        static auto s_cities = [](const City& c) -> bool {
+          std::cout << format::city(c) << std::endl;
+          return false;
+        };
+        search::bfs_cities(start, depth, world_map::get_map(), s_cities);
+        return true;
+      case SEARCH_TYPE::IMPROVEMENTS:
+        static auto s_improvements = [](const Improvement& i) -> bool {
+          std::cout << format::improvement(i) << std::endl;
+          return false;
+        };
+        search::bfs_improvements(start, depth, world_map::get_map(), s_improvements);
+        return true;
+      case SEARCH_TYPE::RESOURCES:
+        static auto s_resources = [](const Resource& r) -> bool {
+          std::cout << format::resource(r) << std::endl;
+          return false;
+        };
+        search::bfs_resources(start, depth, world_map::get_map(), s_resources);
+        return true;
+
+      case SEARCH_TYPE::UNKNOWN:
+      default:
+        std::cout << "Unknown search type." << std::endl;
+        return true;
+      }
+      return true;
+    });
+
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {

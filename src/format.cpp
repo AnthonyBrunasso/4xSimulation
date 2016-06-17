@@ -138,6 +138,12 @@ std::string format::resources(const ResourceUMap& resources) {
   return std::move(ss.str());
 }
 
+std::string format::resource(const Resource& resource) {
+  std::stringstream ss;
+  ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
+  return std::move(ss.str());
+}
+
 std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 

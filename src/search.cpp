@@ -3,6 +3,10 @@
 #include "hex.h"
 #include "tile.h"
 #include "format.h"
+#include "units.h"
+#include "city.h"
+#include "improvements.h"
+#include "resources.h"
 
 #include <algorithm>
 #include <vector>
@@ -175,3 +179,70 @@ bool search::bfs(const sf::Vector3i& start,
   }
   return false;
 }
+#include <iostream>
+bool search::bfs_units(const sf::Vector3i& start,
+    uint32_t depth,
+    world_map::TileMap& tile_map,
+    std::function<bool(const Unit& unit)> comparator)
+{
+  auto find_units = [&comparator](const Tile& tile) {
+    if (tile.m_unit_ids.empty()) return false;
+    bool result = false;
+    for (auto id : tile.m_unit_ids) {
+      Unit* unit = units::get_unit(id);
+      if (!unit) continue;
+      result &= comparator(*unit); 
+    }
+    return result;
+  };
+  return bfs(start, depth, tile_map, find_units);
+}
+
+bool search::bfs_cities(const sf::Vector3i& start,
+    uint32_t depth,
+    world_map::TileMap& tile_map,
+    std::function<bool(const City& unit)> comparator) {
+  auto find_cities = [&comparator](const Tile& tile) {
+    if (!tile.m_city_id) return false;
+    City* c = city::get_city(tile.m_city_id);
+    if (!c) return false;
+    return comparator(*c);
+  };
+  return bfs(start, depth, tile_map, find_cities);
+}
+
+// Run bfs for each improvement to depth.
+bool search::bfs_improvements(const sf::Vector3i& start,
+    uint32_t depth,
+    world_map::TileMap& tile_map,
+    std::function<bool(const Improvement& unit)> comparator) {
+  auto find_improvements = [&comparator](const Tile& tile) {
+    if (tile.m_improvement_ids.empty()) return false;
+    bool result = false;
+    for (auto id : tile.m_improvement_ids) {
+      Improvement* i = improvement::get_improvement(id);
+      if (!i) continue;
+      result &= comparator(*i); 
+    }
+    return result;
+  };
+  return bfs(start, depth, tile_map, find_improvements);
+}
+
+// Run bfs for each resource to depth.
+bool search::bfs_resources(const sf::Vector3i& start,
+    uint32_t depth,
+    world_map::TileMap& tile_map,
+    std::function<bool(const Resource& unit)> comparator) {
+  auto find_resources = [&comparator](const Tile& tile) {
+    if (tile.m_resources.empty()) return false;
+    bool result = false;
+    for (auto& resource : tile.m_resources) {
+      result &= comparator(resource); 
+    }
+    return result;
+  };
+  return bfs(start, depth, tile_map, find_resources);
+}
+
+
