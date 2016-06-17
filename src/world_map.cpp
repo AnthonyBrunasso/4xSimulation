@@ -20,6 +20,7 @@
 
 namespace {
   static world_map::TileMap s_map;
+  static uint32_t s_map_size;
   static std::vector<sf::Vector3i> s_coords;
   
   void subscribe_to_events();
@@ -150,6 +151,7 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   for (auto tile : s_coords) {
     s_map[tile] = Tile();
   }
+  s_map_size = size;
   init_discoverable_tiles(size);
 
   tile_costs::initialize();
@@ -170,7 +172,10 @@ bool world_map::load_file(const std::string& name) {
     return false;
   }
 
-  for (auto& tile : s_map) {
+  std::vector<sf::Vector3i> coords;
+  search::range(sf::Vector3i(0, 0, 0), s_map_size, coords);
+  for (const auto& coord : coords) {
+    auto& tile = s_map[coord];
     if (!inputFile.good()) {
       std::cout << "Bailed on map read, file data < map tile count" << std::endl;
       return false;
@@ -179,8 +184,8 @@ bool world_map::load_file(const std::string& name) {
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
     TERRAIN_TYPE terrain_type = static_cast<TERRAIN_TYPE>(*data);
-    tile.second.m_terrain_type = terrain_type;
-    tile.second.m_path_cost = tile_costs::get(terrain_type);
+    tile.m_terrain_type = terrain_type;
+    tile.m_path_cost = tile_costs::get(terrain_type);
   }
 
   // read eof
@@ -259,6 +264,10 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
 
 world_map::TileMap& world_map::get_map() {
   return s_map;
+}
+
+uint32_t world_map::get_map_size() {
+  return s_map_size;
 }
 
 Tile* world_map::get_tile(sf::Vector3i location) {
