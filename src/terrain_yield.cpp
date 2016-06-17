@@ -76,7 +76,8 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
 }
 
 std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {
-  out << "TerrainYield for " << get_terrain_name(ty.m_type)
+  out << "TerrainYield "
+      << ((ty.m_type != TERRAIN_TYPE::UNKNOWN)?get_terrain_name(ty.m_type):"")
       << "(" << ty.m_food << " Food) "
       << "(" << ty.m_production << " Prod) "
       << "(" << ty.m_science << " Sci) "
