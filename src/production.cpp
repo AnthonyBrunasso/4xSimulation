@@ -23,8 +23,26 @@ namespace production {
     return static_cast<CONSTRUCTION_TYPE>(type_id);
   }
 
-  float required(CONSTRUCTION_TYPE ) {
-    return 60.f;
+  float required(CONSTRUCTION_TYPE type) {
+    switch (type) {
+    case CONSTRUCTION_TYPE::GRANARY:
+      return 40.f;
+    case CONSTRUCTION_TYPE::RANGE :
+      return 30.f;
+    case CONSTRUCTION_TYPE::FORGE :
+      return 12.f;
+    case CONSTRUCTION_TYPE::MELEE :
+      return 30.f;
+    case CONSTRUCTION_TYPE::FACTORY :
+      return 60.f;
+    case CONSTRUCTION_TYPE::SCOUT :
+      return 10.f;
+    case CONSTRUCTION_TYPE::WORKER :
+      return 20.f;
+    case CONSTRUCTION_TYPE::UNKNOWN :
+    default:
+      return 1000.f;
+    }
   }
 
   bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
@@ -250,10 +268,12 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   TerrainYield t = fifo.DumpYields();
   out << "    --Queued--" << std::endl;
   auto it = fifo.m_queue.cbegin();
+  uint32_t turns = 0;
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
+    turns += ceil((*it)->GetProductionForConstruction()/t.m_production);
     out << "        ";
     out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() 
-        << " (" << ceil((*it)->GetProductionForConstruction()/t.m_production) << " turns)";
+        << " (" << turns << " turns)";
     out << std::endl;
   }
   return out;
