@@ -132,6 +132,7 @@ struct EndTurnStep : public Step {
   EndTurnStep(COMMAND command) : Step(command) {};
 
   uint32_t m_player;
+  uint32_t m_next_player;
 };
 
 struct HarvestStep : public Step {

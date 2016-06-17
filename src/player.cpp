@@ -117,6 +117,14 @@ void player::add_discovered(uint32_t player_id, uint32_t other_player_id) {
   player->m_discovered_players.insert(other_player_id);
 }
 
+bool player::all_players_turn_ended() {
+  bool allPlayersReady = true;
+  player::for_each_player([&allPlayersReady](Player& player) {
+    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
+  });
+  return allPlayersReady;
+}
+
 void player::for_each_player(std::function<void(Player& player)> operation) {
   for (auto p : s_players) {
     operation(*p);

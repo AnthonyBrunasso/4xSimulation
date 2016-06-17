@@ -62,6 +62,7 @@ namespace {
         ++s_active_player;
         s_active_player = s_active_player % player::get_count();
       }
+      end_turn_step->m_next_player = s_active_player;
     }
 
     else if (tokens[0] == "active_player") {

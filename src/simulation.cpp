@@ -506,12 +506,15 @@ void player_notifications(uint32_t player_id) {
   player::for_each_player_city(player_id, [] (City& c) {
     c.DoNotifications();
   });
-  player::for_each_player_unit(player_id, [] (Unit& u) {
+  size_t unit_count = 0;
+  player::for_each_player_unit(player_id, [&unit_count] (Unit& u) {
     if (u.m_path.empty()) {
-      std::cout << "  " << u.m_unique_id;
+      ++unit_count;
     }
   });
-  std::cout << "  <--- Idle units" << std::endl;
+  if (unit_count) {
+    std::cout << "Player has " << unit_count << " idle units." << std::endl;
+  }
 }
 
 void simulation::process_step(Step* step) {
@@ -620,14 +623,8 @@ void grant_improvement_resources(const Improvement& improvement) {
 }
 
 void simulation::process_begin_turn() {
-  BeginStep* begin_step = static_cast<BeginStep*>(s_current_step);
 
-  bool allPlayersReady = true;
-  player::for_each_player([&allPlayersReady](Player& player) {
-    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
-  });
-
-  if (!allPlayersReady) {
+  if (!player::all_players_turn_ended()) {
     std::cout << "Not all players ready for next turn. " << std::endl;
     return;
   }
@@ -666,19 +663,19 @@ void simulation::process_begin_turn() {
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
   phase_restore_actions();
-  player_notifications(begin_step->m_active_player);
 }
 
 void simulation::process_end_turn() {
   EndTurnStep* end_step = static_cast<EndTurnStep*>(s_current_step);
 
   Player* player = player::get_player(end_step->m_player);
+  if (!player) return;
 
-  if (!player) {
-    return;
+  player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
+  phase_queued_movement(); //TODO: pass player filter to movement
+  if (player::all_players_turn_ended()) {
+    process_begin_turn(); 
   }
 
-  phase_queued_movement();
-  player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
-  player_notifications(player->m_id);
+  player_notifications(end_step->m_next_player);
 }
