@@ -39,6 +39,7 @@ public:
 
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
+  void Purchase(CONSTRUCTION_TYPE t);
 
   uint32_t m_id;
   sf::Vector3i m_location;

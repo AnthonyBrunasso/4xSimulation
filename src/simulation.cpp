@@ -232,7 +232,7 @@ namespace {
       return;
     }
  
-    city->GetConstruction()->Purchase(production::id(construction_step->m_production_id));
+    city->Purchase(production::id(construction_step->m_production_id));
   }
 
   void execute_colonize() {
@@ -442,7 +442,7 @@ namespace {
         return ss.str();
       }
       player->m_gold -= cost;
-      city->GetConstruction()->Purchase(t);
+      city->Purchase(t);
       return "Purchase made.";
     }
 

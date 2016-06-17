@@ -77,7 +77,7 @@ public:
   std::vector<CONSTRUCTION_TYPE> Incomplete() const;
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
-  void Purchase(CONSTRUCTION_TYPE type_id);
+  void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
   void Sell(CONSTRUCTION_TYPE type_id);
 
   void Move(size_t src, size_t dest);

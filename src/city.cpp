@@ -94,7 +94,7 @@ void City::DoNotifications() const {
     std::cout << "City (" << m_id << ") population has " << idleCount << " idle_worker." << std::endl;
   }
   if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
-    std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;
+    std::cout << "City (" << m_id << ") has knowledge of the local terrain, specialize <cityId> <terrainType>." << std::endl;
   }
 }
 
@@ -153,6 +153,10 @@ const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {
 
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {
   return m_construction; 
+}
+
+void City::Purchase(CONSTRUCTION_TYPE t) {
+  m_construction->Purchase(t, this);
 }
 
 float city::food_required_by_population(float population) {

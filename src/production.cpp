@@ -57,11 +57,7 @@ namespace production {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
 
-  void spawn_unit(Player& player, CONSTRUCTION_TYPE type_id, City* city) {
-    if (!player.OwnsCity(city->m_id)) {
-      return;
-    }
-
+  void spawn_unit(CONSTRUCTION_TYPE type_id, City* city) {
     uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
@@ -79,7 +75,7 @@ namespace production {
     default:
       return;
     }
-    player::add_unit(player.m_id, unit_id);
+    player::add_unit(city->m_owner_id, unit_id);
   }
 }
 
@@ -214,13 +210,14 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
   m_queue.push_back(order);
 }
 
-void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id) {
+void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id, City* parent) {
   if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
     std::cout << "Construction purchase on unknown type" << std::endl;
     return;
   }
 
   if (!production::construction_is_unique(type_id)) {
+    production::spawn_unit(type_id, parent);
     return;
   }
 
@@ -293,10 +290,7 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
       m_queue.pop_front();
       if (!order->IsUnique()) {
         // Unit spawn
-        player::for_each_player(std::bind(&production::spawn_unit, 
-          std::placeholders::_1,
-          completed->GetType(),
-          parent));
+        production::spawn_unit(completed->GetType(), parent);
         delete completed;
       }
     }
