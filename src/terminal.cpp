@@ -65,6 +65,16 @@ namespace terminal  {
       return true;
     });
 
+    terminal::add_query("undiscovered", "undiscovered", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
+        if (tile.m_discover_bonus) {
+          std::cout << "Tile at " << format::vector3(coord) << " is undiscovered" << std::endl;
+        }
+      });
+      return true;
+    });
+    
     terminal::add_query("tiles", "tiles", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {

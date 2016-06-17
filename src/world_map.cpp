@@ -138,11 +138,10 @@ void init_discoverable_tiles(uint32_t size) {
     sf::Vector3i cube = game_random::cube_coord(size);
     Tile* tile = world_map::get_tile(cube);
     if (!tile) {
-      std::cout << "Failed to look-up tile " << format::vector3(cube) << std::endl;
+      std::cout << "Failed to place discoverable bonus " << format::vector3(cube) << std::endl;
       continue;
     }
     tile->m_discover_bonus = true;
-    std::cout << "Discoverable tile on " << format::vector3(cube) << std::endl;
   }
 }
 
