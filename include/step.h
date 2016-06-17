@@ -102,6 +102,20 @@ struct PurchaseStep : public Step {
   uint32_t m_production_id;
 };
 
+struct SellStep : public Step {
+  SellStep(COMMAND command)
+  : Step(command)
+  , m_player(0)
+  , m_city(0)
+  , m_production_id(0)
+  {};
+
+  uint32_t m_player;
+  uint32_t m_city;
+  uint32_t m_production_id;
+};
+
+
 struct AddPlayerStep : public Step {
   AddPlayerStep(COMMAND command) : Step(command), m_name(), ai_type(AI_TYPE::UNKNOWN) {};
   std::string m_name;

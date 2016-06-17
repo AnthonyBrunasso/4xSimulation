@@ -216,7 +216,19 @@ namespace {
     }
 
     else if (tokens[0] == "sell") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::SELL);
+      CHECK(2, tokens);
+      SellStep* sell_step = new SellStep(COMMAND::SELL);
+      sell_step->m_player = s_active_player;
+      sell_step->m_city = std::stoul(tokens[1]);
+      if (tokens.size() > 2) {
+        if (std::isdigit(tokens[2][0])) {
+          sell_step->m_production_id = std::stoul(tokens[2]);
+        }
+        else {
+          sell_step->m_production_id = util::enum_to_uint(get_construction_type(tokens[2]));
+        }
+      }
+      step = sell_step;
     }
 
     else if (tokens[0] == "specialize") {

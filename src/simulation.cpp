@@ -455,6 +455,34 @@ namespace {
     return ss.str();
   }
 
+  std::string execute_sell() {
+    SellStep* sell_step = static_cast<SellStep*>(s_current_step);
+    Player* player = player::get_player(sell_step->m_player);
+    std::stringstream ss;
+    if(!player) return "Invalid Player";
+    City* city = city::get_city(sell_step->m_city);
+    if(!city) return "Invalid City";
+    std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Constructed();
+    if (sell_step->m_production_id != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step->m_production_id));
+      for (size_t i = 0; i < completed.size(); ++i) {
+        if (completed[i] == t) {
+          player->m_gold += production::yield_from_sale(completed[i]);
+          city->GetConstruction()->Sell(t);
+          return "Sale made.";
+        }
+      }
+      ss << "Type not found." << std::endl;
+    }
+
+    ss << "City (" << city->m_id << ") available buildings for sale: " << std::endl;
+    for (size_t i = 0; i < completed.size(); ++i) {
+      CONSTRUCTION_TYPE t(completed[i]);
+      ss << "+" << production::yield_from_sale(t) << " Gold: " << get_construction_name(t) << std::endl;
+    }
+    return ss.str();
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
     s_units_to_move.push_back(unit->m_unique_id);
@@ -598,6 +626,7 @@ void simulation::process_step(Step* step) {
       execute_specialize();
       break;
     case COMMAND::SELL:
+      std::cout << execute_sell() << std::endl;
       break;
     case COMMAND::SPAWN:
       execute_spawn();

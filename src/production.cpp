@@ -48,6 +48,10 @@ namespace production {
   float required_to_purchase(CONSTRUCTION_TYPE type) {
     return required(type) * 3.f;
   }
+  
+  float yield_from_sale(CONSTRUCTION_TYPE type) {
+    return required_to_purchase(type) * .25f;
+  }
 
   bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
@@ -145,6 +149,10 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
   return newOrder;
 }
 
+bool ConstructionState::EraseConstruction(CONSTRUCTION_TYPE type_id) {
+  return m_constructions.erase(static_cast<uint32_t>(type_id)) != 0;
+}
+
 bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   if (!production::construction_is_unique(type_id)) {
     return false;
@@ -157,6 +165,15 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   }
 
   return itFind->second->IsCompleted();
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionState::GetConstructed() const {
+  std::vector<CONSTRUCTION_TYPE> constructed;
+  for_each_construction_type([this, &constructed] (CONSTRUCTION_TYPE t) {
+    if (!IsConstructed(t)) return;
+    constructed.push_back(t);
+  });
+  return std::move(constructed);
 }
 
 std::vector<CONSTRUCTION_TYPE> ConstructionState::GetIncomplete() const {
@@ -173,6 +190,10 @@ ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
 , m_stockpile(0.f)
 {
   
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Constructed() const {
+  return std::move(m_state.GetConstructed());
 }
 
 std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
@@ -205,6 +226,19 @@ void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id) {
 
   ConstructionOrder* order = m_state.GetConstruction(type_id);
   order->ApplyProduction(9999.f);
+}
+
+void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
+  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) { 
+    std::cout << "Construction sale on unknown type" << std::endl;
+    return;
+  }
+  
+  if (!production::construction_is_unique(type_id)) {
+    return;
+  }
+
+  m_state.EraseConstruction(type_id);
 }
 
 void ConstructionQueueFIFO::Move(size_t src, size_t dest) { 
