@@ -155,11 +155,24 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   return itFind->second->IsCompleted();
 }
 
+std::vector<CONSTRUCTION_TYPE> ConstructionState::GetIncomplete() const {
+  std::vector<CONSTRUCTION_TYPE> incomplete;
+  for_each_construction_type([this, &incomplete] (CONSTRUCTION_TYPE t) {
+    if (IsConstructed(t)) return;
+    incomplete.push_back(t);
+  });
+  return std::move(incomplete);
+}
+
 ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
 : m_cityId(cityId)
 , m_stockpile(0.f)
 {
   
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
+  return std::move(m_state.GetIncomplete());
 }
 
 bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {

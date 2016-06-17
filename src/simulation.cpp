@@ -302,7 +302,7 @@ namespace {
       return;
     }
     if (terrain_yield::add_harvest(harvest_step->m_destination, city)) {
-      std::cout << "City (" << city->m_id << ") is now harvesting from " << format::tile(*tile) << std::endl;
+      std::cout << "City (" << city->m_id << ") is now harvesting from " << get_terrain_name(tile->m_terrain_type) << "." << std::endl;
       return;
     }
 }

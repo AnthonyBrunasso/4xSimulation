@@ -1,6 +1,7 @@
 #include "terminal.h"
 
 #include "city.h"
+#include "production.h"
 #include "format.h"
 #include "step.h"
 #include "tile.h"
@@ -75,9 +76,32 @@ namespace terminal  {
       });
       return true;
     });
-    
-    terminal::add_query("idle_workers", "idle_workers <distance>", [](const std::vector<std::string>& tokens) {
+
+    terminal::add_query("idle_queue", "idle_queue", [](const std::vector<std::string>& tokens) {
       CHECK_VALID(1, tokens);
+  
+      Player* p = player::get_player(step_parser::get_active_player_id());
+      if (!p) return false;
+      
+      bool stop = false;
+      city::for_each_city([&stop, p] (City& city) {
+        if (stop) return;
+        if (p->m_id != city.m_owner_id) return;
+        if (city.IsConstructing()) return;
+        std::vector<CONSTRUCTION_TYPE> incomplete = city.GetConstruction()->Incomplete();
+        std::cout << "City (" << city.m_id << ") construct " << city.m_id << std::endl;
+        for (size_t i = 0; i < incomplete.size(); ++i) {
+          CONSTRUCTION_TYPE t = incomplete[i];
+          std::cout <<  static_cast<uint32_t>(t) << " " << get_construction_name(t) << std::endl;
+        }
+        stop = true;
+      });
+      return true;
+    });
+    
+    terminal::add_query("idle_worker", "idle_worker <distance>", [](const std::vector<std::string>& tokens) {
+      CHECK_VALID(1, tokens);
+      
       uint32_t distance = 1;
       if (tokens.size() > 1) {
         distance =  std::stoul(tokens[1]);
@@ -92,7 +116,7 @@ namespace terminal  {
       city::for_each_city([p, distance, &stop](const City& city) {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
-        std::cout << "City (" << city.m_id << ") harvest:" << std::endl;
+        std::cout << "City (" << city.m_id << ") harvest " << city.m_id << std::endl;
         std::vector<sf::Vector3i> coords;
         std::set<uint32_t> terrainTypes;
         search::range(city.m_location, distance, coords);

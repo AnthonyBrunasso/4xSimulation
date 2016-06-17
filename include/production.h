@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include <vector>
 #include <string>
 
 #include "game_types.h"
@@ -54,6 +55,7 @@ public:
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
   bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
+  std::vector<CONSTRUCTION_TYPE> GetIncomplete() const;
 
 private:
   friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
@@ -67,6 +69,7 @@ class ConstructionQueueFIFO
 public:
   explicit ConstructionQueueFIFO(uint32_t cityId);
 
+  std::vector<CONSTRUCTION_TYPE> Incomplete() const;
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
   void Cheat(CONSTRUCTION_TYPE type_id);

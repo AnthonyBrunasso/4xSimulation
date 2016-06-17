@@ -87,11 +87,11 @@ void City::DoNotifications() const {
     std::cout << "City is starving, id: " << m_id << std::endl;
   }
   if (m_construction->Count() == 0) {
-    std::cout << "City has no construction orders, id: " << m_id << std::endl;
+    std::cout << "City construction has idle_queue, id: " << m_id << std::endl;
   }
   float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
   if (idleCount) {
-    std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
+    std::cout << "City population has " << idleCount << " idle_worker, id: " << m_id << std::endl;
   }
   if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
     std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;
