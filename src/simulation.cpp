@@ -729,6 +729,10 @@ void simulation::process_end_turn() {
   Player* player = player::get_player(end_step->m_player);
   if (!player) return;
 
+  if (player->m_ai_type == AI_TYPE::BARBARIAN) {
+    barbarians::pillage_and_plunder();
+  }
+
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
   phase_queued_movement(); //TODO: pass player filter to movement
   if (player::all_players_turn_ended()) {
