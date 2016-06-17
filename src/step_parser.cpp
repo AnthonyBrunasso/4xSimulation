@@ -311,7 +311,9 @@ std::string step_parser::get_active_player() {
   if (!player) {
     return std::string();
   }
-  return player->m_name;
+  std::stringstream ss;
+  ss << player->m_name << " (gold " << player->m_gold << ") (science " << player->m_science << ")";
+  return ss.str();
 }
 
 uint32_t step_parser::get_active_player_id() {
