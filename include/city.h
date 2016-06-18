@@ -45,6 +45,7 @@ public:
   sf::Vector3i m_location;
   float m_food;
   float m_experience;
+  bool m_attacked;
   TERRAIN_TYPE m_specialization;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
   std::vector<sf::Vector3i> m_yield_tiles;

@@ -133,6 +133,18 @@ bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
   return result;
 }
 
+void units::damage(uint32_t receiver_id, uint32_t amount) {
+  Unit* receiver = get_unit(receiver_id);
+  if(!receiver) return;
+
+  uint32_t damage_delt = std::min(amount, receiver->m_combat_stats.m_health);
+  receiver->m_combat_stats.m_health -= damage_delt;
+  if (receiver->m_combat_stats.m_health == 0) {
+    std::cout << "Unit " << receiver_id << " received lethal damage." << std::endl;
+    destroy(receiver_id);
+  }
+}
+
 void units::clear() {
   for (auto unit : s_units) {
     delete unit.second;

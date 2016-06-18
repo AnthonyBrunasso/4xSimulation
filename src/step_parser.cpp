@@ -84,6 +84,13 @@ namespace {
       step = barbarian_step;
     }
 
+    else if (tokens[0] == "city_defense") {
+      CHECK_VALID(2, tokens);
+      CityDefenseStep* city_defense_step = new CityDefenseStep(COMMAND::CITY_DEFENSE);
+      city_defense_step->m_player = s_active_player;
+      city_defense_step->m_unit = std::stoul(tokens[1]);
+      step = city_defense_step;
+    }
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
       ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);

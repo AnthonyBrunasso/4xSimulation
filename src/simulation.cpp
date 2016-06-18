@@ -190,6 +190,10 @@ namespace {
 
   void phase_restore_actions() {
     units::replenish_actions();
+    auto replentish_cities = [](City& c) {
+      c.m_attacked = false;
+    };
+    city::for_each_city(replentish_cities);
   }
 
   void phase_spawn_units() {
@@ -530,6 +534,30 @@ namespace {
 
     std::cout << format::combat_stats(unit->m_combat_stats) << std::endl;
   }
+
+  std::string execute_city_defense() {
+    CityDefenseStep* city_defense_step = static_cast<CityDefenseStep*>(s_current_step);
+    Player* player = player::get_player(city_defense_step->m_player);
+    if(!player) return "Invalid Player";
+    Unit* unit = units::get_unit(city_defense_step->m_unit);
+    if(!unit) return "Invalid Unit";
+    uint32_t cityId = 0;
+    auto find_defending_city = [player, &cityId](const City& city) {
+      if (!player->OwnsCity(city.m_id)) return false;
+      if (city.m_attacked) return false;
+      cityId = city.m_id;
+      return true;
+    };
+    search::bfs_cities(unit->m_location, 2, world_map::get_map(), find_defending_city);
+
+    City* city = city::get_city(cityId);
+    if(!city) return "No valid city found";
+    city->m_attacked = true;
+    std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_unique_id << std::endl;
+    units::damage(unit->m_unique_id, 4);
+    
+    return "";
+  }
 }
 
 void simulation::start() {
@@ -640,6 +668,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::BARBARIAN_TURN:
       // Process the barbarian turn.
       barbarians::pillage_and_plunder();
+      return;
+    case COMMAND::CITY_DEFENSE:
+      std::cout << execute_city_defense() << std::endl;
       return;
     default:
       break;

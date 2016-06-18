@@ -28,6 +28,7 @@ enum class COMMAND {
   HARVEST,
   SPECIALIZE,
   BARBARIAN_TURN,
+  CITY_DEFENSE,
 };
 
 struct Step {
@@ -186,4 +187,9 @@ struct BeginStep : public Step {
   uint32_t m_active_player;
 };
 
+struct CityDefenseStep : public Step {
+  CityDefenseStep(COMMAND command) : Step(command) {}
+  uint32_t m_player;
+  uint32_t m_unit;
+};
 
