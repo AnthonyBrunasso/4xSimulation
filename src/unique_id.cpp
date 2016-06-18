@@ -8,3 +8,7 @@ namespace {
 uint32_t unique_id::generate() {
   return s_unique_id++;
 }
+
+uint32_t unique_id::get_next() {
+  return s_unique_id;
+}

@@ -17,6 +17,7 @@
 #include "world_map.h"
 #include "city.h"
 #include "production.h"
+#include "unique_id.h"
 
 void Settle::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
@@ -50,10 +51,22 @@ void Settle::operator()(uint32_t player_id) {
   spawn_step->m_player = player_id;
   simulation::process_step_from_ai(spawn_step);
 
+  // Preemptively get the id of the city that will be created in the colonize step.
+  uint32_t city_id = unique_id::get_next();
+
   ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
   colonize_step->m_location = new_home;
   colonize_step->m_player = player_id;
   simulation::process_step_from_ai(colonize_step);
+
+  // TEMPORARY: Construct the barbarian and uber forge.
+  ConstructionStep* forge = new ConstructionStep(COMMAND::CONSTRUCT);
+  forge->m_city_id = city_id;
+  forge->m_production_id = util::enum_to_uint(CONSTRUCTION_TYPE::FORGE);
+  forge->m_player = player_id;
+  // Give it to them immediately.
+  forge->m_cheat = true;
+  simulation::process_step_from_ai(forge);
 }
 
 void Construct::operator()(uint32_t player_id) {
