@@ -96,6 +96,16 @@ void City::DoNotifications() const {
   if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
     std::cout << "City (" << m_id << ") has knowledge of the local terrain, specialize <cityId> <terrainType>." << std::endl;
   }
+  search::bfs_units(m_location,
+    2,
+    world_map::get_map(),
+    [this](const Unit& u) {
+      if (u.m_owner_id != m_owner_id) {
+        std::cout << "City (" << m_id << ") is vulnerable to attack by unit " << u.m_unique_id << std::endl;
+        return true;
+      }
+      return false;
+    });
 }
 
 size_t City::GetHarvestCount() const {
