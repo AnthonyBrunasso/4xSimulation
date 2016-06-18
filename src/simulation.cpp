@@ -373,6 +373,26 @@ namespace {
     std::cout << kill_step->m_unit_id << " (id) has been slain." << std::endl;
   }
 
+  std::string execute_pillage() {
+    PillageStep* pillage_step = static_cast<PillageStep*>(s_current_step);
+    Player* player = player::get_player(pillage_step->m_player);
+    if (!player) return "Invalid player";
+    Unit* unit = units::get_unit(pillage_step->m_unit);
+    if (!unit) return "Invalid unit";
+    Tile* tile = world_map::get_tile(unit->m_location);
+    for (size_t i = 0; i < tile->m_improvement_ids.size(); ++i) {
+      uint32_t impId = tile->m_improvement_ids[i];
+      Improvement* improvement = improvement::get_improvement(impId);
+      if (!improvement) continue;
+      if (improvement->m_owner_id == unit->m_owner_id) continue;
+      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_unique_id << "!" << std::endl;
+      improvement::destroy(improvement->m_unique_id);
+      units::heal(unit->m_unique_id, 6);
+      unit->m_action_points = 0;
+    }
+    return "";
+  }
+
   void execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
     Player* player = player::get_player(spawn_step->m_player);
@@ -643,6 +663,9 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::MOVE:
       execute_move();
+      break;
+    case COMMAND::PILLAGE:
+      std::cout << execute_pillage() << std::endl;;
       break;
     case COMMAND::QUEUE_MOVE:
       execute_queue_move();

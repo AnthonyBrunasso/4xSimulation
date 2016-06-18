@@ -197,6 +197,13 @@ namespace {
       move_step->m_player = s_active_player;
       step = move_step;
     }
+    else if (tokens[0] == "pillage") {
+      CHECK_VALID(2, tokens);
+      PillageStep* pillage_step = new PillageStep(COMMAND::PILLAGE);
+      pillage_step->m_player = s_active_player;
+      pillage_step->m_unit = std::stoul(tokens[1]);
+      step = pillage_step;
+    }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
       MoveStep* move_step = new MoveStep(COMMAND::QUEUE_MOVE);

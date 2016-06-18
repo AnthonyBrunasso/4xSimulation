@@ -50,7 +50,8 @@ namespace units {
   void replenish_actions();
 
   bool combat(uint32_t attacker_id, uint32_t defender_id);
-  void damage(uint32_t received_id, uint32_t amount);
+  void damage(uint32_t receiver_id, uint32_t amount);
+  void heal(uint32_t receiver_id, uint32_t amount);
 
   void clear();
 }
