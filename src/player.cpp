@@ -58,6 +58,10 @@ bool Player::DiscoveredPlayer(uint32_t id) const {
   return m_discovered_players.find(id) != m_discovered_players.end();
 }
 
+bool Player::DiscoveredCity(uint32_t id) const {
+  return m_discovered_cities.find(id) != m_discovered_cities.end();
+}
+
 namespace {
   // List of players, player at index 0 will be player 1 ... index N player N - 1
   std::vector<Player*> s_players;
@@ -108,13 +112,22 @@ void player::add_improvement(uint32_t player_id, uint32_t improvement_id) {
   player->m_improvements.insert(improvement_id);
 }
 
-void player::add_discovered(uint32_t player_id, uint32_t other_player_id) {
+void player::add_discovered_player(uint32_t player_id, uint32_t other_player_id) {
   Player* player = get_player(player_id);
   if (!player) {
     return;
   }
 
   player->m_discovered_players.insert(other_player_id);
+}
+
+void player::add_discovered_city(uint32_t player_id, uint32_t city_id) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+
+  player->m_discovered_cities.insert(city_id);
 }
 
 bool player::all_players_turn_ended() {

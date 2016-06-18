@@ -86,6 +86,14 @@ namespace {
         auto found_other = [&unit](const Tile& tile) {
           Player* current = player::get_player(unit->m_owner_id);
           if (!current) return false;
+          if (tile.m_city_id) {
+            City* c = city::get_city(tile.m_city_id);
+            // If the player doesn't own the city and has not already discovered it.
+            if (c && c->m_owner_id != current->m_id && !current->DiscoveredCity(tile.m_city_id)) {
+              std::cout << current->m_name << " discoverd city: " << c->m_id << std::endl;
+              current->m_discovered_cities.insert(c->m_id);
+            }
+          }
           for (auto id : tile.m_unit_ids) {
             // If this player doesn't own the unit return true.
             if (!current->OwnsUnit(id)) {
