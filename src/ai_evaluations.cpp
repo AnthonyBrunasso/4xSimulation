@@ -68,7 +68,7 @@ float HasUnits::operator()(uint32_t player_id, float threshold) {
 
 float discovered_cities_barbarian(Player* player, float threshold) {
   std::cout << player->m_name << " evaluating nearby cities." << std::endl;
-  if (!barbarians::discovered_city()) {
+  if (player->m_discovered_cities.empty()) {
     return threshold - 1.0f;
   }
   return threshold + 1.0f;
@@ -88,53 +88,6 @@ float DiscoveredCities::operator()(uint32_t player_id, float threshold) {
     default:
       std::cout << "DiscoveredCities evaluation not evaluated for: " << get_ai_name(player->m_ai_type) << std::endl;
       return NOOP_EVALUATION;
-  }
-
-  return NOOP_EVALUATION;
-}
-
-float discover_cities_barbarian(Player* player, float threshold) {
-  std::cout << player->m_name << " looking for enemy cities." << std::endl;
-  auto find_enemy_cities = [player](const Tile& tile) -> bool {
-    if (!tile.m_city_id) {
-      return false;
-    }
-    // Determine if this player owns the city.
-    City* c = city::get_city(tile.m_city_id);
-    if (!c) return false;
-    if (c->m_owner_id == player->m_id) return false;
-    std::cout << player->m_name << " found city: " << c->m_id << std::endl;
-    return true;
-  };
- 
-  float result = threshold - 1.0f;
-  for (auto u : player->m_units) {
-    Unit* unit = units::get_unit(u);
-    if (!unit) continue;
-    // Search for enemy cities around all units.
-    if (search::bfs(unit->m_location, 3, world_map::get_map(), find_enemy_cities)) {
-      result = threshold + 1.0f;
-    }
-  }
-
-  return result;
-}
-
-
-float DiscoverCities::operator()(uint32_t player_id, float threshold) {
-  Player* player = player::get_player(player_id);
-  if (!player) {
-    std::cout << "DiscoverCities evaluation found no player." << std::endl;
-    return NOOP_EVALUATION;
-  }
-
-  switch (player->m_ai_type) {
-  case AI_TYPE::BARBARIAN:
-    return ::discover_cities_barbarian(player, threshold);
-  case AI_TYPE::HUMAN:
-  default:
-    std::cout << "DiscoverCities evaluation not evaluated for: " << get_ai_name(player->m_ai_type) << std::endl;
-    return NOOP_EVALUATION;
   }
 
   return NOOP_EVALUATION;

@@ -20,9 +20,7 @@ namespace {
   Construct s_construct_decision(CONSTRUCTION_TYPE::MELEE);
   HasUnits s_has_units_evaluator;
   DiscoveredCities s_discovered_cities_evaluator;
-  DiscoverCities s_discover_cities_evaluator;
   // TODO end here
-  std::vector<uint32_t> s_discovered_cities;
   uint32_t s_player_id;
 }
 
@@ -41,7 +39,7 @@ void barbarians::initialize() {
   
   mnode->m_right = new DNode(nullptr, &s_discovered_cities_evaluator);
   DNode*& discovered_eval = mnode->m_right;
-  discovered_eval->m_left = new DNode(&s_explore_decision, &s_discover_cities_evaluator);
+  discovered_eval->m_left = new DNode(&s_explore_decision, nullptr);
 
   // Construct the barbarians decision tree.
   s_macro_dtree = new DTree(node);
@@ -66,14 +64,3 @@ void barbarians::set_player_id(uint32_t player_id) {
   s_player_id = player_id;
 }
 
-void barbarians::discover_city(uint32_t city_id) {
-  s_discovered_cities.push_back(city_id);
-}
-
-bool barbarians::discovered_city() {
-  return !s_discovered_cities.empty();
-}
-
-const std::vector<uint32_t> barbarians::get_discovered_cities() {
-  return s_discovered_cities;
-}
