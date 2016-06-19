@@ -145,12 +145,13 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
       }
 
       // We need to move to an improvement before being able to pillage it.
-      AI_ORDER_TYPE order = AI_ORDER_TYPE::MOVE;
+      AI_ORDER_TYPE order = AI_ORDER_TYPE::APPROACH_IMPROVEMENT;
       if (hex::cube_distance(owned_unit.m_location, i.m_location) == 0) {
         order = AI_ORDER_TYPE::PILLAGE_IMPROVEMENT;
       }
 
       state->add_order(owned_unit.m_unique_id, i.m_unique_id, order);
+      return true;
     };
    
     auto city_check = [&range, &owned_unit, &player_id, &state](const City& c) {

@@ -88,6 +88,17 @@ void Construct::operator()(uint32_t player_id) {
   }
 }
 
+sf::Vector3i get_random_coord() {
+    sf::Vector3i coord = game_random::cube_coord(6);
+    std::cout << format::vector3(coord) << std::endl;
+    Tile* tile = world_map::get_tile(coord);
+    while (!tile) {
+      coord = game_random::cube_coord(6);
+      tile = world_map::get_tile(coord); 
+    }
+    return coord;
+}
+
 void Explore::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
   if (!current) {
@@ -97,13 +108,7 @@ void Explore::operator()(uint32_t player_id) {
 
   std::cout << current->m_name << " exploring." << std::endl;
   player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
-    sf::Vector3i coord = game_random::cube_coord(6);
-    std::cout << format::vector3(coord) << std::endl;
-    Tile* tile = world_map::get_tile(coord);
-    while (!tile) {
-      coord = game_random::cube_coord(6);
-      tile = world_map::get_tile(coord); 
-    }
+    sf::Vector3i coord = get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
     MoveStep* move_step = new MoveStep(COMMAND::MOVE);
     move_step->m_unit_id = unit.m_unique_id;
@@ -119,6 +124,12 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   if (!su || !tu) {
     if (!tu) std::cout << "Target is gone id: " << target_id << std::endl;
     return false; 
+  }
+
+  // Don't attempt an attack if out of action points.
+  if (!su->m_action_points) {
+    // Return true, decision is a success, just out of action points.
+    return true;
   }
   
   AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);
@@ -138,7 +149,7 @@ bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   }
 
   sf::Vector3i location;
-  auto find_tiles = [&location, &target_id](const Tile& tile) {
+  auto find_tiles = [&location, &target_id](const Tile& tile) -> bool{
     if (!tile.m_unit_ids.empty()) {
       return false;
     }
@@ -158,6 +169,9 @@ bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   move_step->m_destination = location;
   move_step->m_player = player_id;
   simulation::process_step_from_ai(move_step);
+
+  // Try to attack the unit.
+  attack_unit(unit_id, target_id, player_id);
   return true;
 }
 
@@ -201,6 +215,12 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
     return false; 
   }
 
+  // Don't attempt an attack if out of action points.
+  if (!su->m_action_points) {
+    // Return true, decision is a success, just out of action points.
+    return true;
+  }
+ 
   PillageStep* pillage_step = new PillageStep(COMMAND::PILLAGE);
   pillage_step->m_player = player_id;
   pillage_step->m_unit = unit_id;
@@ -209,12 +229,23 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
 }
 
 bool wander(uint32_t unit_id, uint32_t player_id) {
+  Unit* su = units::get_unit(unit_id);
+  if (!su) {
+    return false;
+  }
+
+  // Move to the improvement.
+  MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+  move_step->m_unit_id = unit_id;
+  move_step->m_destination = get_random_coord();
+  move_step->m_player = player_id;
+  simulation::process_step_from_ai(move_step);
+
   return true;
 }
 
-bool move(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
+bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   Unit* su = units::get_unit(unit_id);
-  // TEMP: Right now improvement orders are the only that can cause a move.
   Improvement* ti = improvement::get_improvement(target_id);
   if (!su || !ti) {
     if (!ti) std::cout << "Target improvement is gone id: " << target_id << std::endl;
@@ -256,6 +287,7 @@ void execute_order(const UnitOrder& decision, uint32_t player_id) {
     break;
   case AI_ORDER_TYPE::APPROACH_UNIT:
     if (!approach_unit(uid, tid, player_id)) {
+      execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
   case AI_ORDER_TYPE::ATTACK_CITY:
@@ -276,8 +308,8 @@ void execute_order(const UnitOrder& decision, uint32_t player_id) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::MOVE: // ASSUMPTION: Only improve can cause this.
-    if (!move(uid, player_id, player_id)) {
+  case AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
+    if (!approach_improvement(uid, player_id, player_id)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
   case AI_ORDER_TYPE::UNKNOWN:

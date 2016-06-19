@@ -222,7 +222,7 @@ bool search::bfs_improvements(const sf::Vector3i& start,
     for (auto id : tile.m_improvement_ids) {
       Improvement* i = improvement::get_improvement(id);
       if (!i) continue;
-      result &= comparator(*i); 
+      result |= comparator(*i); 
     }
     return result;
   };
