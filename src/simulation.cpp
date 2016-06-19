@@ -278,8 +278,18 @@ namespace {
       // Colonization failed.
       return;
     }
+    // If colonization succeeded there is a worker on the tile, destroy it.
     player::add_city(colonize_step->m_player, id);
     std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(colonize_step->m_location) << std::endl;
+    Tile* t = world_map::get_tile(colonize_step->m_location);
+    for (auto uid : t->m_unit_ids) {
+      Unit* u = units::get_unit(uid);
+      if (!u) continue;
+      // Consume the unit that built the city.
+      if (u->m_unit_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
+        units::destroy(u->m_unique_id);
+      }
+    }
   }
 
   void execute_improve() {
