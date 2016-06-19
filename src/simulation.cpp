@@ -34,7 +34,7 @@ namespace {
   uint32_t s_current_turn = 0;
 
   // Order of operations that should be checked after a step
-  bool step_move(UnitMovementVector& units_to_move);
+  bool step_move(UnitMovementVector& units_to_move, uint32_t player_id);
   void step_negotiate();
   void step_discoever();
   void step_combat();
@@ -55,7 +55,7 @@ namespace {
   void phase_spawn_buildings();
   void phase_science_done();
 
-  bool step_move(UnitMovementVector& units_to_move) {
+  bool step_move(UnitMovementVector& units_to_move, uint32_t player_id) {
     bool movement = false;
 
     UnitMovementVector still_moving;
@@ -64,6 +64,12 @@ namespace {
       Unit* unit = units::get_unit(unit_id);
       if (!unit) {
         std::cout << "Dropping dead unit " << unit_id << " (id) from movement. " << std::endl;
+        continue;
+      }
+
+      // Only move units for the given player.
+      if (unit->m_owner_id != player_id) {
+        still_moving.push_back(unit_id);
         continue;
       }
 
@@ -212,8 +218,8 @@ namespace {
 
   }
 
-  void phase_queued_movement() {
-    while (step_move(s_units_to_move)) {
+  void phase_queued_movement(uint32_t player_id) {
+    while (step_move(s_units_to_move, player_id)) {
 
     }
   }
@@ -454,7 +460,7 @@ namespace {
     // Execute on path
     UnitMovementVector units_to_move;
     units_to_move.push_back(unit->m_unique_id);
-    while (step_move(units_to_move)) {
+    while (step_move(units_to_move, unit->m_owner_id)) {
 
     }
 
@@ -800,7 +806,7 @@ void simulation::process_end_turn() {
   }
 
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
-  phase_queued_movement(); //TODO: pass player filter to movement
+  phase_queued_movement(end_step->m_next_player); //TODO: pass player filter to movement
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }
