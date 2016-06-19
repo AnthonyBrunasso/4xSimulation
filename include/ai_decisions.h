@@ -23,3 +23,8 @@ public:
   virtual void operator()(uint32_t player_id) override;
 };
 
+class UnitDecision : public Decision {
+public:
+  virtual void operator()(uint32_t player_id) override;
+};
+

@@ -90,7 +90,8 @@ void Construct::operator()(uint32_t player_id) {
 void Explore::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
   if (!current) {
-    std::cout << "Unable to find player to explore." << std::endl;
+    std::cout << "Invalid player id. Explore decision." << std::endl;
+    return;
   }
 
   std::cout << current->m_name << " exploring." << std::endl;
@@ -111,3 +112,12 @@ void Explore::operator()(uint32_t player_id) {
   });
 }
 
+void UnitDecision::operator()(uint32_t player_id) {
+  Player* p = player::get_player(player_id);
+  if (!p) {
+    std::cout << "Invalid player id. Unit decision." << std::endl;
+    return;
+  }
+
+
+}

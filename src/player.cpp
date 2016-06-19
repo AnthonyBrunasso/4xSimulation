@@ -18,6 +18,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_science(0.0f)
     , m_resources()
     , m_ai_type(ai_type)
+    , m_ai_state(nullptr)
 {
   // Remove unit when notified
   units::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
@@ -40,6 +41,12 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     }
     this->m_improvements.erase(id);
   });
+}
+
+Player::~Player() {
+  if (m_ai_state) {
+    delete m_ai_state;
+  }
 }
 
 bool Player::OwnsCity(uint32_t id) const {
@@ -184,4 +191,16 @@ void player::for_each_player_meet(uint32_t player_id, std::function<void(Player&
     }
     operation(*other);
   } 
+}
+
+void player::for_each_city_found(uint32_t player_id, std::function<void(City& city)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto id : player->m_discovered_cities) {
+    City* c = city::get_city(id);
+    if (c) continue;
+    operation(*c);
+  }
 }

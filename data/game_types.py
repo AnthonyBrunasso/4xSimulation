@@ -10,6 +10,7 @@ UNIT         = "UNIT"
 BUILDING     = "BUILDING"
 CONSTRUCTION = "CONSTRUCTION"
 AI           = "AI"
+AI_ORDER     = "AI_ORDER"
 TURN         = "TURN"
 SEARCH       = "SEARCH"
 
@@ -45,10 +46,17 @@ add_gametype(CONSTRUCTION, 'Worker' , 8)
 add_gametype(AI, "Barbarian", 1)
 add_gametype(AI, "Human"    , 2)
 
-add_gametype(TURN, 'TurnActive'     , 1)
-add_gametype(TURN, 'TurnCompleted'     , 2)
+add_gametype(TURN, 'TurnActive'    , 1)
+add_gametype(TURN, 'TurnCompleted' , 2)
 
 add_gametype(SEARCH, 'Units'       , 1)
 add_gametype(SEARCH, 'Cities'      , 2)
 add_gametype(SEARCH, 'Improvements', 3)
 add_gametype(SEARCH, 'Resources'   , 4)
+
+add_gametype(AI_ORDER, 'Attack_Unit'        , 1)
+add_gametype(AI_ORDER, 'Approach_Unit'      , 2)
+add_gametype(AI_ORDER, 'Attack_City'        , 3)
+add_gametype(AI_ORDER, 'Approach_City'      , 4)
+add_gametype(AI_ORDER, 'Pillage_Improvement', 5)
+add_gametype(AI_ORDER, 'Wander'             , 6)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resources.h"
+#include "ai_state.h"
 
 #include <set>
 #include <string>
@@ -18,6 +19,7 @@ class City;
 class Player {
 public:
   Player(uint32_t id, const std::string& name, AI_TYPE ai_type);
+  ~Player();
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
@@ -40,6 +42,8 @@ public:
   // Resources owned by this player.
   ResourceUMap m_resources;
   AI_TYPE m_ai_type;
+  // AI state built when needed, could be nullptr for human players.
+  AIState* m_ai_state;
 };
 
 namespace player {
@@ -59,4 +63,5 @@ namespace player {
   void for_each_player_unit(uint32_t player_id, std::function<void(Unit& unit)> operation);
   void for_each_player_city(uint32_t player_id, std::function<void(City& city)> operation);
   void for_each_player_meet(uint32_t player_id, std::function<void(Player& player)> operation);
+  void for_each_city_found(uint32_t player_id, std::function<void(City& city)> operation);
 }

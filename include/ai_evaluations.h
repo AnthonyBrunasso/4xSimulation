@@ -19,3 +19,6 @@ class DiscoveredCities : public Evaluation {
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 
+class UnitEvaluation : public Evaluation {
+  virtual float operator()(uint32_t player_id, float threshold) override;
+};

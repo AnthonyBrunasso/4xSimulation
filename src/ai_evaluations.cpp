@@ -7,6 +7,7 @@
 #include "search.h"
 #include "world_map.h"
 #include "units.h"
+#include "hex.h"
 
 #include <iostream>
 
@@ -91,4 +92,78 @@ float DiscoveredCities::operator()(uint32_t player_id, float threshold) {
   }
 
   return NOOP_EVALUATION;
+}
+
+float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
+  Player* p = player::get_player(player_id);
+  if (!p) {
+    std::cout << "Invalid player id. Attack evaluation. " << std::endl;
+    return NOOP_EVALUATION;
+  }
+
+  AIState* state = p->m_ai_state;
+  if (!state) {
+    std::cout << p->m_name << " has no ai state. This is probably a bug." << std::endl;
+    return NOOP_EVALUATION;
+  }
+
+  std::cout << p->m_name << " issuing unit orders." << std::endl;
+
+  // Loop over all the players units, check if if an enemy unit or city is in range.
+  bool result = false;
+  // Find the closest city or unit and create an order for it. 
+  // If none are found in proximity create a wander order.
+  auto check_proximity = [&result, &player_id, &state](Unit& owned_unit) {
+    uint32_t range = owned_unit.m_combat_stats.m_range;
+    uint32_t attack = owned_unit.m_combat_stats.m_attack;
+    auto unit_check = [&result, &range, &owned_unit, &player_id, &state](const Unit& unit) {
+      // Existence of a unit means this evaluation was successful.
+      result = true;
+
+      // Don't attack owned units.
+      if (unit.m_owner_id == player_id) {
+        return false;
+      }
+     
+      AI_ORDER_TYPE order = AI_ORDER_TYPE::APPROACH_UNIT;
+      // If the unit can be attacked attack it.
+      if (hex::cube_distance(unit.m_location, owned_unit.m_location) <= range) {
+        order = AI_ORDER_TYPE::ATTACK_UNIT;
+      }
+     
+      // Otherwise just go towards it.
+      state->add_order(owned_unit.m_unique_id, unit.m_unique_id, order);
+      return true;
+    };
+   
+    auto city_check = [&range, &owned_unit, &player_id, &state](const City& c) {
+      // Don't care about owned cities.
+      if (c.m_owner_id == player_id) {
+        return false;
+      }
+
+      // Attacking cities not implemented yet. Approach it.
+      state->add_order(owned_unit.m_unique_id, c.m_id, AI_ORDER_TYPE::APPROACH_CITY);
+      return true;
+    };
+    // Approach or attack the found unit up to 4 range.
+    if (attack && search::bfs_units(owned_unit.m_location, 4, world_map::get_map(), unit_check)) {
+      return;
+    }
+
+    // Approch or attack a city up to 5 range if it has been discovered.
+    if (attack && search::bfs_cities(owned_unit.m_location, 5, world_map::get_map(), city_check)) {
+      return;
+    }
+
+    // Otherwise wander.
+    state->add_order(owned_unit.m_unique_id, 0, AI_ORDER_TYPE::WANDER);
+  };
+
+  player::for_each_player_unit(player_id, check_proximity);
+  if (result) {
+    return threshold + 1.0f;
+  }
+
+  return threshold - 1.0f;
 }

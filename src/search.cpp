@@ -191,7 +191,7 @@ bool search::bfs_units(const sf::Vector3i& start,
     for (auto id : tile.m_unit_ids) {
       Unit* unit = units::get_unit(id);
       if (!unit) continue;
-      result &= comparator(*unit); 
+      result |= comparator(*unit); 
     }
     return result;
   };
@@ -238,7 +238,7 @@ bool search::bfs_resources(const sf::Vector3i& start,
     if (tile.m_resources.empty()) return false;
     bool result = false;
     for (auto& resource : tile.m_resources) {
-      result &= comparator(resource); 
+      result |= comparator(resource); 
     }
     return result;
   };
