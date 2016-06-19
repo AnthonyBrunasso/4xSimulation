@@ -23,19 +23,41 @@ namespace production {
     return static_cast<CONSTRUCTION_TYPE>(type_id);
   }
 
-  float required(CONSTRUCTION_TYPE ) {
-    return 60.f;
+  float required(CONSTRUCTION_TYPE type) {
+    switch (type) {
+    case CONSTRUCTION_TYPE::GRANARY:
+      return 40.f;
+    case CONSTRUCTION_TYPE::RANGE :
+      return 30.f;
+    case CONSTRUCTION_TYPE::FORGE :
+      return 12.f;
+    case CONSTRUCTION_TYPE::MELEE :
+      return 30.f;
+    case CONSTRUCTION_TYPE::FACTORY :
+      return 60.f;
+    case CONSTRUCTION_TYPE::SCOUT :
+      return 10.f;
+    case CONSTRUCTION_TYPE::WORKER :
+      return 20.f;
+    case CONSTRUCTION_TYPE::UNKNOWN :
+    default:
+      return 1000.f;
+    }
+  }
+
+  float required_to_purchase(CONSTRUCTION_TYPE type) {
+    return required(type) * 3.f;
+  }
+  
+  float yield_from_sale(CONSTRUCTION_TYPE type) {
+    return required_to_purchase(type) * .25f;
   }
 
   bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
 
-  void spawn_unit(Player& player, CONSTRUCTION_TYPE type_id, City* city) {
-    if (!player.OwnsCity(city->m_id)) {
-      return;
-    }
-
+  void spawn_unit(CONSTRUCTION_TYPE type_id, City* city) {
     uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
@@ -53,7 +75,7 @@ namespace production {
     default:
       return;
     }
-    player::add_unit(player.m_id, unit_id);
+    player::add_unit(city->m_owner_id, unit_id);
   }
 }
 
@@ -123,6 +145,10 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
   return newOrder;
 }
 
+bool ConstructionState::EraseConstruction(CONSTRUCTION_TYPE type_id) {
+  return m_constructions.erase(static_cast<uint32_t>(type_id)) != 0;
+}
+
 bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   if (!production::construction_is_unique(type_id)) {
     return false;
@@ -137,11 +163,37 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   return itFind->second->IsCompleted();
 }
 
+std::vector<CONSTRUCTION_TYPE> ConstructionState::GetConstructed() const {
+  std::vector<CONSTRUCTION_TYPE> constructed;
+  for_each_construction_type([this, &constructed] (CONSTRUCTION_TYPE t) {
+    if (!IsConstructed(t)) return;
+    constructed.push_back(t);
+  });
+  return std::move(constructed);
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionState::GetIncomplete() const {
+  std::vector<CONSTRUCTION_TYPE> incomplete;
+  for_each_construction_type([this, &incomplete] (CONSTRUCTION_TYPE t) {
+    if (IsConstructed(t)) return;
+    incomplete.push_back(t);
+  });
+  return std::move(incomplete);
+}
+
 ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
 : m_cityId(cityId)
 , m_stockpile(0.f)
 {
   
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Constructed() const {
+  return std::move(m_state.GetConstructed());
+}
+
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
+  return std::move(m_state.GetIncomplete());
 }
 
 bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
@@ -158,18 +210,32 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
   m_queue.push_back(order);
 }
 
-void ConstructionQueueFIFO::Cheat(CONSTRUCTION_TYPE type_id) {
+void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id, City* parent) {
   if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
-    std::cout << "Construction Cheat on unknown type" << std::endl;
+    std::cout << "Construction purchase on unknown type" << std::endl;
     return;
   }
 
   if (!production::construction_is_unique(type_id)) {
+    production::spawn_unit(type_id, parent);
     return;
   }
 
   ConstructionOrder* order = m_state.GetConstruction(type_id);
   order->ApplyProduction(9999.f);
+}
+
+void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
+  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) { 
+    std::cout << "Construction sale on unknown type" << std::endl;
+    return;
+  }
+  
+  if (!production::construction_is_unique(type_id)) {
+    return;
+  }
+
+  m_state.EraseConstruction(type_id);
 }
 
 void ConstructionQueueFIFO::Move(size_t src, size_t dest) { 
@@ -224,10 +290,7 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
       m_queue.pop_front();
       if (!order->IsUnique()) {
         // Unit spawn
-        player::for_each_player(std::bind(&production::spawn_unit, 
-          std::placeholders::_1,
-          completed->GetType(),
-          parent));
+        production::spawn_unit(completed->GetType(), parent);
         delete completed;
       }
     }
@@ -250,10 +313,12 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   TerrainYield t = fifo.DumpYields();
   out << "    --Queued--" << std::endl;
   auto it = fifo.m_queue.cbegin();
+  uint32_t turns = 0;
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
+    turns += ceil((*it)->GetProductionForConstruction()/t.m_production);
     out << "        ";
     out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() 
-        << " (" << ceil((*it)->GetProductionForConstruction()/t.m_production) << " turns)";
+        << " (" << turns << " turns)";
     out << std::endl;
   }
   return out;

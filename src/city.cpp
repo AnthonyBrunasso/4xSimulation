@@ -28,8 +28,9 @@ namespace city {
 
 City::City(uint32_t id)
 : m_id(id)
-, m_food(city::food_required_by_population(1)+1)
+, m_food(city::food_required_by_population(1)-1)
 , m_experience(0.f)
+, m_attacked(false)
 , m_specialization(TERRAIN_TYPE::UNKNOWN)
 , m_construction(new ConstructionQueueFIFO(id))
 { 
@@ -84,24 +85,28 @@ void City::MutateYield(TerrainYield& yields) const {
 void City::DoNotifications() const {
   TerrainYield t = DumpYields();
   if (t.m_food < 0.0) {
-    std::cout << "City is starving, id: " << m_id << std::endl;
+    std::cout << "City (" << m_id << ") is starving." << std::endl;
   }
   if (m_construction->Count() == 0) {
-    std::cout << "City has no construction orders, id: " << m_id << std::endl;
+    std::cout << "City (" << m_id << ") construction has idle_queue." << std::endl;
   }
-  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
+  float idleCount = IdleWorkers();
   if (idleCount) {
-    std::cout << "City has " << idleCount << " idle workers, id: " << m_id << std::endl;
-    std::vector<sf::Vector3i> coords;
-    std::set<uint32_t> terrainTypes;
-    search::range(m_location, 1, coords);
-    for (size_t i = 0; i < coords.size(); ++i) {
-      std::cout << "  coord: " << format::vector3(coords[i]) << "  " << terrain_yield::get_yield(coords[i], m_specialization) << std::endl;
-    }
+    std::cout << "City (" << m_id << ") population has " << idleCount << " idle_worker." << std::endl;
   }
   if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
-    std::cout << "City (" << m_id << ") has a new understanding of the local terrain, you may chose a specialization now. " << std::endl;
+    std::cout << "City (" << m_id << ") has knowledge of the local terrain, specialize <cityId> <terrainType>." << std::endl;
   }
+  search::bfs_units(m_location,
+    2,
+    world_map::get_map(),
+    [this](const Unit& u) {
+      if (u.m_owner_id != m_owner_id) {
+        std::cout << "City (" << m_id << ") is vulnerable to attack by unit " << u.m_unique_id << std::endl;
+        return true;
+      }
+      return false;
+    });
 }
 
 size_t City::GetHarvestCount() const {
@@ -109,7 +114,7 @@ size_t City::GetHarvestCount() const {
 }
 
 bool City::AddHarvest(sf::Vector3i &loc) {
-  float idleCount = static_cast<float>(GetPopulation()-GetHarvestCount());
+  float idleCount = IdleWorkers();
   if (idleCount < .001) {
     return false;
   }
@@ -130,6 +135,10 @@ void City::RemoveAllHarvest() {
   for (size_t i = 0; i < m_yield_tiles.size(); ++i) {
     terrain_yield::remove_harvest(m_yield_tiles[i]);
   }
+}
+
+float City::IdleWorkers() const {
+  return static_cast<float>(GetPopulation()-GetHarvestCount());
 }
 
 float City::GetPopulation() const {
@@ -159,6 +168,10 @@ const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {
 
 const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {
   return m_construction; 
+}
+
+void City::Purchase(CONSTRUCTION_TYPE t) {
+  m_construction->Purchase(t, this);
 }
 
 float city::food_required_by_population(float population) {

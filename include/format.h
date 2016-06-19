@@ -66,4 +66,5 @@ namespace format {
   std::string combat_stats(const CombatStats& stats);
   std::string resources(const ResourceUMap& resources);
   std::string improvement(const Improvement& improvement);
+  std::string resource(const Resource& resource);
 }

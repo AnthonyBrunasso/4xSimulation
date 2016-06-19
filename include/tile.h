@@ -14,6 +14,7 @@
 class Tile {
 public:
   Tile();
+  Tile(sf::Vector3i location);
 
   TERRAIN_TYPE m_terrain_type;
 
@@ -29,6 +30,7 @@ public:
   std::vector<Resource> m_resources;
   // Improvements contained on this tile
   std::vector<uint32_t> m_improvement_ids;
+  sf::Vector3i m_location;
 };
 
 namespace std {

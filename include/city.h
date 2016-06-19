@@ -29,7 +29,7 @@ public:
   bool RemoveHarvest(sf::Vector3i& );
   void RemoveAllHarvest();
 
-
+  float IdleWorkers() const;
   float GetPopulation() const;
   float FoodForSustain() const;
   float FoodForGrowth() const;
@@ -39,11 +39,13 @@ public:
 
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
   const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
+  void Purchase(CONSTRUCTION_TYPE t);
 
   uint32_t m_id;
   sf::Vector3i m_location;
   float m_food;
   float m_experience;
+  bool m_attacked;
   TERRAIN_TYPE m_specialization;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
   std::vector<sf::Vector3i> m_yield_tiles;

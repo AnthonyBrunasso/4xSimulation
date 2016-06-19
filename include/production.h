@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include <vector>
 #include <string>
 
 #include "game_types.h"
@@ -16,6 +17,8 @@ namespace production {
 
   CONSTRUCTION_TYPE id(uint32_t);
   float required(CONSTRUCTION_TYPE type_id);
+  float required_to_purchase(CONSTRUCTION_TYPE type_id);
+  float yield_from_sale(CONSTRUCTION_TYPE type_id);
   bool construction_is_unique(CONSTRUCTION_TYPE type_id);
 
   void sub_create(const UnitCreationCallback&);
@@ -53,7 +56,10 @@ public:
   ~ConstructionState();
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
+  bool EraseConstruction(CONSTRUCTION_TYPE type_id);
   bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
+  std::vector<CONSTRUCTION_TYPE> GetConstructed() const;
+  std::vector<CONSTRUCTION_TYPE> GetIncomplete() const;
 
 private:
   friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
@@ -67,9 +73,12 @@ class ConstructionQueueFIFO
 public:
   explicit ConstructionQueueFIFO(uint32_t cityId);
 
+  std::vector<CONSTRUCTION_TYPE> Constructed() const;
+  std::vector<CONSTRUCTION_TYPE> Incomplete() const;
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
-  void Cheat(CONSTRUCTION_TYPE type_id);
+  void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
+  void Sell(CONSTRUCTION_TYPE type_id);
 
   void Move(size_t src, size_t dest);
   size_t Count() const;

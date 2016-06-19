@@ -11,6 +11,7 @@
 #include "player.h"
 #include "production.h"
 #include "unit_definitions.h"
+#include "unique_id.h"
 #include "improvements.h"
 #include "game_types.h"
 #include "terrain_yield.h"
@@ -85,6 +86,14 @@ namespace {
         auto found_other = [&unit](const Tile& tile) {
           Player* current = player::get_player(unit->m_owner_id);
           if (!current) return false;
+          if (tile.m_city_id) {
+            City* c = city::get_city(tile.m_city_id);
+            // If the player doesn't own the city and has not already discovered it.
+            if (c && c->m_owner_id != current->m_id && !current->DiscoveredCity(tile.m_city_id)) {
+              std::cout << current->m_name << " discoverd city: " << c->m_id << std::endl;
+              current->m_discovered_cities.insert(c->m_id);
+            }
+          }
           for (auto id : tile.m_unit_ids) {
             // If this player doesn't own the unit return true.
             if (!current->OwnsUnit(id)) {
@@ -165,7 +174,8 @@ namespace {
 
   void phase_city_growth() {
     city::for_each_city([](City& cityInstance) { 
-      TerrainYield t = cityInstance.DumpYields(true);
+      TerrainYield t = cityInstance.DumpYields();
+      std::cout << t << std::endl;
       cityInstance.Simulate(t);
       Player* player = player::get_player(cityInstance.m_owner_id);
       if (!player) return;
@@ -188,6 +198,10 @@ namespace {
 
   void phase_restore_actions() {
     units::replenish_actions();
+    auto replentish_cities = [](City& c) {
+      c.m_attacked = false;
+    };
+    city::for_each_city(replentish_cities);
   }
 
   void phase_spawn_units() {
@@ -224,13 +238,14 @@ namespace {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
+    CONSTRUCTION_TYPE t(production::id(construction_step->m_production_id));
 
     if (!construction_step->m_cheat) {
-      city->GetConstruction()->Add(production::id(construction_step->m_production_id));
+      city->GetConstruction()->Add(t);
       return;
     }
  
-    city->GetConstruction()->Cheat(production::id(construction_step->m_production_id));
+    city->Purchase(production::id(construction_step->m_production_id));
   }
 
   void execute_colonize() {
@@ -240,13 +255,25 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
+    bool too_close = false;
+    search::bfs(colonize_step->m_location, 3, world_map::get_map(), 
+      [&too_close](const Tile& tile) {
+      if (tile.m_city_id != unique_id::INVALID_ID) {
+        std::cout << "Colonization failed: City (" << tile.m_city_id << ") is too close." << std::endl;
+        too_close = true;
+        return true;
+      }
+      return false;
+    });
+    if (too_close) return;
+
     uint32_t id = city::create(BUILDING_TYPE::TOWN, colonize_step->m_location, colonize_step->m_player);
     if (!id) {
       // Colonization failed.
       return;
     }
     player::add_city(colonize_step->m_player, id);
-    std::cout << "player " << player->m_name << " colonized at: " << format::vector3(colonize_step->m_location) << std::endl;
+    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(colonize_step->m_location) << std::endl;
   }
 
   void execute_improve() {
@@ -256,7 +283,8 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
+    auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
+    uint32_t id = improvement::create(impv, improve_step->m_location, improve_step->m_player);
     if (id) {
       std::cout << "adding improvement to player: " << player->m_name << std::endl;
       player::add_improvement(improve_step->m_player, id);
@@ -289,7 +317,7 @@ namespace {
       return;
     }
     if (terrain_yield::add_harvest(harvest_step->m_destination, city)) {
-      std::cout << "City (" << city->m_id << ") is now harvesting from " << format::tile(*tile) << std::endl;
+      std::cout << "City (" << city->m_id << ") is now harvesting from " << get_terrain_name(tile->m_terrain_type) << "." << std::endl;
       return;
     }
 }
@@ -355,14 +383,35 @@ namespace {
     std::cout << kill_step->m_unit_id << " (id) has been slain." << std::endl;
   }
 
-  void execute_spawn() {
+  std::string execute_pillage() {
+    PillageStep* pillage_step = static_cast<PillageStep*>(s_current_step);
+    Player* player = player::get_player(pillage_step->m_player);
+    if (!player) return "Invalid player";
+    Unit* unit = units::get_unit(pillage_step->m_unit);
+    if (!unit) return "Invalid unit";
+    Tile* tile = world_map::get_tile(unit->m_location);
+    if (!tile) return "Invalid tile";
+    for (size_t i = 0; i < tile->m_improvement_ids.size(); ++i) {
+      uint32_t impId = tile->m_improvement_ids[i];
+      Improvement* improvement = improvement::get_improvement(impId);
+      if (!improvement) continue;
+      if (improvement->m_owner_id == unit->m_owner_id) continue;
+      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_unique_id << "!" << std::endl;
+      improvement::destroy(improvement->m_unique_id);
+      units::heal(unit->m_unique_id, 6);
+      unit->m_action_points = 0;
+    }
+    return "";
+  }
+
+  std::string execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
     Player* player = player::get_player(spawn_step->m_player);
-    if (!player) {
-      std::cout << "Invalid player" << std::endl;
-      return;
-    }
+    if (!player) return "Invalid player";
+    Tile* tile = world_map::get_tile(spawn_step->m_location);
+    if (!tile) return "Invalid location";
     units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location, spawn_step->m_player);
+    return "Unit created";
   }
 
   Unit* generate_path() {
@@ -413,8 +462,65 @@ namespace {
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
+  std::string execute_purchase() {
+    PurchaseStep* purchase_step = static_cast<PurchaseStep*>(s_current_step);
+    Player* player = player::get_player(purchase_step->m_player);
+    std::stringstream ss;
+    if(!player) return "Invalid Player";
+    City* city = city::get_city(purchase_step->m_city);
+    if(!city) return "Invalid City";
+    if (purchase_step->m_production_id != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(purchase_step->m_production_id));
+      float cost = production::required_to_purchase(t);
+      if (player->m_gold < cost) {
+        ss << "Player has " << player->m_gold << " and needs " << cost << " gold. Purchase failed.";
+        return ss.str();
+      }
+      player->m_gold -= cost;
+      city->Purchase(t);
+      return "Purchase made.";
+    }
+
+    std::vector<CONSTRUCTION_TYPE> available = city->GetConstruction()->Incomplete();
+    ss << "City (" << city->m_id << ") available purchases: " << std::endl;
+    for (size_t i = 0; i < available.size(); ++i) {
+      CONSTRUCTION_TYPE t(available[i]);
+      ss << production::required_to_purchase(t) << " Gold: " << get_construction_name(t) << std::endl;
+    }
+    return ss.str();
+  }
+
+  std::string execute_sell() {
+    SellStep* sell_step = static_cast<SellStep*>(s_current_step);
+    Player* player = player::get_player(sell_step->m_player);
+    std::stringstream ss;
+    if(!player) return "Invalid Player";
+    City* city = city::get_city(sell_step->m_city);
+    if(!city) return "Invalid City";
+    std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Constructed();
+    if (sell_step->m_production_id != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step->m_production_id));
+      for (size_t i = 0; i < completed.size(); ++i) {
+        if (completed[i] == t) {
+          player->m_gold += production::yield_from_sale(completed[i]);
+          city->GetConstruction()->Sell(t);
+          return "Sale made.";
+        }
+      }
+      ss << "Type not found." << std::endl;
+    }
+
+    ss << "City (" << city->m_id << ") available buildings for sale: " << std::endl;
+    for (size_t i = 0; i < completed.size(); ++i) {
+      CONSTRUCTION_TYPE t(completed[i]);
+      ss << "+" << production::yield_from_sale(t) << " Gold: " << get_construction_name(t) << std::endl;
+    }
+    return ss.str();
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
+    if(!unit) return;
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
@@ -460,6 +566,30 @@ namespace {
 
     std::cout << format::combat_stats(unit->m_combat_stats) << std::endl;
   }
+
+  std::string execute_city_defense() {
+    CityDefenseStep* city_defense_step = static_cast<CityDefenseStep*>(s_current_step);
+    Player* player = player::get_player(city_defense_step->m_player);
+    if(!player) return "Invalid Player";
+    Unit* unit = units::get_unit(city_defense_step->m_unit);
+    if(!unit) return "Invalid Unit";
+    uint32_t cityId = 0;
+    auto find_defending_city = [player, &cityId](const City& city) {
+      if (!player->OwnsCity(city.m_id)) return false;
+      if (city.m_attacked) return false;
+      cityId = city.m_id;
+      return true;
+    };
+    search::bfs_cities(unit->m_location, 2, world_map::get_map(), find_defending_city);
+
+    City* city = city::get_city(cityId);
+    if(!city) return "No valid city found";
+    city->m_attacked = true;
+    std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_unique_id << std::endl;
+    units::damage(unit->m_unique_id, 4);
+    
+    return "";
+  }
 }
 
 void simulation::start() {
@@ -492,12 +622,15 @@ void player_notifications(uint32_t player_id) {
   player::for_each_player_city(player_id, [] (City& c) {
     c.DoNotifications();
   });
-  player::for_each_player_unit(player_id, [] (Unit& u) {
+  size_t unit_count = 0;
+  player::for_each_player_unit(player_id, [&unit_count] (Unit& u) {
     if (u.m_path.empty()) {
-      std::cout << "  " << u.m_unique_id;
+      ++unit_count;
     }
   });
-  std::cout << "  <--- Idle units" << std::endl;
+  if (unit_count) {
+    std::cout << "Player has " << unit_count << " idle units." << std::endl;
+  }
 }
 
 void simulation::process_step(Step* step) {
@@ -543,18 +676,23 @@ void simulation::process_step(Step* step) {
     case COMMAND::MOVE:
       execute_move();
       break;
+    case COMMAND::PILLAGE:
+      std::cout << execute_pillage() << std::endl;;
+      break;
     case COMMAND::QUEUE_MOVE:
       execute_queue_move();
       break;
     case COMMAND::PURCHASE:
+      std::cout << execute_purchase() << std::endl;
       break;
     case COMMAND::SPECIALIZE:
       execute_specialize();
       break;
     case COMMAND::SELL:
+      std::cout << execute_sell() << std::endl;
       break;
     case COMMAND::SPAWN:
-      execute_spawn();
+      std::cout << execute_spawn() << std::endl;
       break;
     case COMMAND::ADD_PLAYER:
       execute_add_player();
@@ -565,6 +703,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::BARBARIAN_TURN:
       // Process the barbarian turn.
       barbarians::pillage_and_plunder();
+      return;
+    case COMMAND::CITY_DEFENSE:
+      std::cout << execute_city_defense() << std::endl;
       return;
     default:
       break;
@@ -606,14 +747,8 @@ void grant_improvement_resources(const Improvement& improvement) {
 }
 
 void simulation::process_begin_turn() {
-  BeginStep* begin_step = static_cast<BeginStep*>(s_current_step);
 
-  bool allPlayersReady = true;
-  player::for_each_player([&allPlayersReady](Player& player) {
-    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
-  });
-
-  if (!allPlayersReady) {
+  if (!player::all_players_turn_ended()) {
     std::cout << "Not all players ready for next turn. " << std::endl;
     return;
   }
@@ -652,19 +787,23 @@ void simulation::process_begin_turn() {
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
   phase_restore_actions();
-  player_notifications(begin_step->m_active_player);
 }
 
 void simulation::process_end_turn() {
   EndTurnStep* end_step = static_cast<EndTurnStep*>(s_current_step);
 
   Player* player = player::get_player(end_step->m_player);
+  if (!player) return;
 
-  if (!player) {
-    return;
+  if (player->m_ai_type == AI_TYPE::BARBARIAN) {
+    barbarians::pillage_and_plunder();
   }
 
-  phase_queued_movement();
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
-  player_notifications(player->m_id);
+  phase_queued_movement(); //TODO: pass player filter to movement
+  if (player::all_players_turn_ended()) {
+    process_begin_turn(); 
+  }
+
+  player_notifications(end_step->m_next_player);
 }

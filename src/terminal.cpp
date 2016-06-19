@@ -1,6 +1,7 @@
 #include "terminal.h"
 
 #include "city.h"
+#include "production.h"
 #include "format.h"
 #include "step.h"
 #include "tile.h"
@@ -13,6 +14,7 @@
 #include "unit_definitions.h"
 #include "game_types.h"
 #include "search.h"
+#include "terrain_yield.h"
 
 #include <algorithm>
 #include <iostream>
@@ -62,6 +64,81 @@ namespace terminal  {
         return true;
       }
       std::cout << format::city(*city);
+      return true;
+    });
+
+    terminal::add_query("undiscovered", "undiscovered", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      world_map::for_each_tile([](const sf::Vector3i& coord, const Tile& tile) {
+        if (tile.m_discover_bonus) {
+          std::cout << "Tile at " << format::vector3(coord) << " is undiscovered" << std::endl;
+        }
+      });
+      return true;
+    });
+
+    terminal::add_query("idle_queue", "idle_queue", [](const std::vector<std::string>& tokens) {
+      CHECK_VALID(1, tokens);
+  
+      Player* p = player::get_player(step_parser::get_active_player_id());
+      if (!p) return false;
+      
+      bool stop = false;
+      city::for_each_city([&stop, p] (City& city) {
+        if (stop) return;
+        if (p->m_id != city.m_owner_id) return;
+        if (city.IsConstructing()) return;
+        std::vector<CONSTRUCTION_TYPE> incomplete = city.GetConstruction()->Incomplete();
+        std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
+        for (size_t i = 0; i < incomplete.size(); ++i) {
+          CONSTRUCTION_TYPE t = incomplete[i];
+          std::cout <<  static_cast<uint32_t>(t) << " " << get_construction_name(t) << std::endl;
+        }
+        stop = true;
+      });
+      return true;
+    });
+    
+    terminal::add_query("idle_worker", "idle_worker <distance>", [](const std::vector<std::string>& tokens) {
+      CHECK_VALID(1, tokens);
+      
+      uint32_t distance = 1;
+      if (tokens.size() > 1) {
+        distance =  std::stoul(tokens[1]);
+      }
+
+      if (distance > 3) return false;
+ 
+      Player* p = player::get_player(step_parser::get_active_player_id());
+      if (!p) return false;
+
+      bool stop = false;
+      city::for_each_city([p, distance, &stop](const City& city) {
+        if (stop) return;
+        if (p->m_id != city.m_owner_id) return;
+        if (city.IdleWorkers() == 0) return;
+        std::cout << "City (" << city.m_id << ") harvest <x> <y> <z>" << std::endl;
+        std::vector<sf::Vector3i> coords;
+        std::set<uint32_t> terrainTypes;
+        search::range(city.m_location, distance, coords);
+        for (size_t i = 0; i < coords.size(); ++i) {
+          std::cout << "  coord: " << format::vector3(coords[i]) << "  " << terrain_yield::get_yield(coords[i], city.m_specialization) << std::endl;
+        }
+        stop = true;
+      });
+      return true;
+    });
+ 
+    terminal::add_query("idle_unit", "idle_unit", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      bool stop = false;
+      player::for_each_player_unit(step_parser::get_active_player_id(), [&stop](Unit& unit) {
+        if(stop) return;
+        if (unit.m_path.empty()) {
+          std::cout << format::unit(unit) << std::endl;
+          stop = true;
+        }
+      });
       return true;
     });
 
@@ -257,6 +334,49 @@ namespace terminal  {
       return true; 
     });
 
+    terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
+      CHECK_VALID(6, tokens);
+      SEARCH_TYPE type = get_search_type(tokens[1]);
+      sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      uint32_t depth = std::stoul(tokens[5]);
+      switch (type) {
+      case SEARCH_TYPE::UNITS:
+        static auto s_units = [](const Unit& u) -> bool {
+          std::cout << format::unit(u) << std::endl;
+          return false;
+        };
+        search::bfs_units(start, depth, world_map::get_map(), s_units);
+        return true;
+      case SEARCH_TYPE::CITIES:
+        static auto s_cities = [](const City& c) -> bool {
+          std::cout << format::city(c) << std::endl;
+          return false;
+        };
+        search::bfs_cities(start, depth, world_map::get_map(), s_cities);
+        return true;
+      case SEARCH_TYPE::IMPROVEMENTS:
+        static auto s_improvements = [](const Improvement& i) -> bool {
+          std::cout << format::improvement(i) << std::endl;
+          return false;
+        };
+        search::bfs_improvements(start, depth, world_map::get_map(), s_improvements);
+        return true;
+      case SEARCH_TYPE::RESOURCES:
+        static auto s_resources = [](const Resource& r) -> bool {
+          std::cout << format::resource(r) << std::endl;
+          return false;
+        };
+        search::bfs_resources(start, depth, world_map::get_map(), s_resources);
+        return true;
+
+      case SEARCH_TYPE::UNKNOWN:
+      default:
+        std::cout << "Unknown search type." << std::endl;
+        return true;
+      }
+      return true;
+    });
+
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {
@@ -293,17 +413,17 @@ namespace terminal  {
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
+    std::cout << "  city_defense <unitId>" << std::endl;
     std::cout << "  colonize <x> <y> <z>" << std::endl;
-    std::cout << "  construct <cityId> <productionType>" << std::endl;
+    std::cout << "  construct <cityId> <constructionType>" << std::endl;
     std::cout << "  end_turn" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  pillage <uintId>" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
-    std::cout << "  purchase <cityId> <buildingId>" << std::endl;
-    std::cout << "  purchase <cityId> <unitId>" << std::endl;
-    std::cout << "  sell <buildingId>" << std::endl;
-    std::cout << "  sell <unitId>" << std::endl;
+    std::cout << "  purchase <cityId> [constructionType]" << std::endl;
+    std::cout << "  sell <cityId> [constructionType]" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;
     // Modifies the stats of a unit
     std::cout << std::endl;

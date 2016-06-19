@@ -18,6 +18,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_science(0.0f)
     , m_resources()
     , m_ai_type(ai_type)
+    , m_ai_state(nullptr)
 {
   // Remove unit when notified
   units::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
@@ -42,6 +43,12 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
   });
 }
 
+Player::~Player() {
+  if (m_ai_state) {
+    delete m_ai_state;
+  }
+}
+
 bool Player::OwnsCity(uint32_t id) const {
   return m_cities.find(id) != m_cities.end();
 }
@@ -56,6 +63,10 @@ bool Player::OwnsImprovement(uint32_t id) const {
 
 bool Player::DiscoveredPlayer(uint32_t id) const {
   return m_discovered_players.find(id) != m_discovered_players.end();
+}
+
+bool Player::DiscoveredCity(uint32_t id) const {
+  return m_discovered_cities.find(id) != m_discovered_cities.end();
 }
 
 namespace {
@@ -108,13 +119,30 @@ void player::add_improvement(uint32_t player_id, uint32_t improvement_id) {
   player->m_improvements.insert(improvement_id);
 }
 
-void player::add_discovered(uint32_t player_id, uint32_t other_player_id) {
+void player::add_discovered_player(uint32_t player_id, uint32_t other_player_id) {
   Player* player = get_player(player_id);
   if (!player) {
     return;
   }
 
   player->m_discovered_players.insert(other_player_id);
+}
+
+void player::add_discovered_city(uint32_t player_id, uint32_t city_id) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+
+  player->m_discovered_cities.insert(city_id);
+}
+
+bool player::all_players_turn_ended() {
+  bool allPlayersReady = true;
+  player::for_each_player([&allPlayersReady](Player& player) {
+    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
+  });
+  return allPlayersReady;
 }
 
 void player::for_each_player(std::function<void(Player& player)> operation) {
@@ -163,4 +191,16 @@ void player::for_each_player_meet(uint32_t player_id, std::function<void(Player&
     }
     operation(*other);
   } 
+}
+
+void player::for_each_city_found(uint32_t player_id, std::function<void(City& city)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto id : player->m_discovered_cities) {
+    City* c = city::get_city(id);
+    if (c) continue;
+    operation(*c);
+  }
 }

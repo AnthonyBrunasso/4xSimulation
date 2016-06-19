@@ -28,6 +28,8 @@ enum class COMMAND {
   HARVEST,
   SPECIALIZE,
   BARBARIAN_TURN,
+  CITY_DEFENSE,
+  PILLAGE,
 };
 
 struct Step {
@@ -89,6 +91,33 @@ struct MoveStep : public Step {
   uint32_t m_player;
 };
 
+struct PurchaseStep : public Step {
+  PurchaseStep(COMMAND command) 
+  : Step(command) 
+  , m_player(0)
+  , m_city(0)
+  , m_production_id(0)
+  {};
+
+  uint32_t m_player;
+  uint32_t m_city;
+  uint32_t m_production_id;
+};
+
+struct SellStep : public Step {
+  SellStep(COMMAND command)
+  : Step(command)
+  , m_player(0)
+  , m_city(0)
+  , m_production_id(0)
+  {};
+
+  uint32_t m_player;
+  uint32_t m_city;
+  uint32_t m_production_id;
+};
+
+
 struct AddPlayerStep : public Step {
   AddPlayerStep(COMMAND command) : Step(command), m_name(), ai_type(AI_TYPE::UNKNOWN) {};
   std::string m_name;
@@ -132,6 +161,7 @@ struct EndTurnStep : public Step {
   EndTurnStep(COMMAND command) : Step(command) {};
 
   uint32_t m_player;
+  uint32_t m_next_player;
 };
 
 struct HarvestStep : public Step {
@@ -158,4 +188,16 @@ struct BeginStep : public Step {
   uint32_t m_active_player;
 };
 
+struct CityDefenseStep : public Step {
+  CityDefenseStep(COMMAND command) : Step(command) {}
+  uint32_t m_player;
+  uint32_t m_unit;
+};
+
+struct PillageStep : public Step {
+  PillageStep(COMMAND command) : Step(command) {}
+
+  uint32_t m_player;
+  uint32_t m_unit;
+};
 

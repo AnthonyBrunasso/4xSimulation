@@ -21,6 +21,7 @@ namespace world_map {
   uint32_t move_unit(uint32_t unit_id, uint32_t distance);
 
   TileMap& get_map();
+  uint32_t get_map_size();
 
   Tile* get_tile(sf::Vector3i location);
 }

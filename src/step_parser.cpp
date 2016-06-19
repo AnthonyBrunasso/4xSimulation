@@ -62,6 +62,7 @@ namespace {
         ++s_active_player;
         s_active_player = s_active_player % player::get_count();
       }
+      end_turn_step->m_next_player = s_active_player;
     }
 
     else if (tokens[0] == "active_player") {
@@ -83,6 +84,13 @@ namespace {
       step = barbarian_step;
     }
 
+    else if (tokens[0] == "city_defense") {
+      CHECK_VALID(2, tokens);
+      CityDefenseStep* city_defense_step = new CityDefenseStep(COMMAND::CITY_DEFENSE);
+      city_defense_step->m_player = s_active_player;
+      city_defense_step->m_unit = std::stoul(tokens[1]);
+      step = city_defense_step;
+    }
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
       ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
@@ -189,6 +197,13 @@ namespace {
       move_step->m_player = s_active_player;
       step = move_step;
     }
+    else if (tokens[0] == "pillage") {
+      CHECK_VALID(2, tokens);
+      PillageStep* pillage_step = new PillageStep(COMMAND::PILLAGE);
+      pillage_step->m_player = s_active_player;
+      pillage_step->m_unit = std::stoul(tokens[1]);
+      step = pillage_step;
+    }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
       MoveStep* move_step = new MoveStep(COMMAND::QUEUE_MOVE);
@@ -199,11 +214,35 @@ namespace {
     }
 
     else if (tokens[0] == "purchase") {
-      CREATE_GENERIC_STEP(3, tokens, step, COMMAND::PURCHASE);
+      CHECK(2, tokens);
+      PurchaseStep* purchase_step = new PurchaseStep(COMMAND::PURCHASE);
+      purchase_step->m_player = s_active_player;
+      purchase_step->m_city = std::stoul(tokens[1]);
+      if (tokens.size() > 2) {
+        if (std::isdigit(tokens[2][0])) {
+          purchase_step->m_production_id = std::stoul(tokens[2]);
+        }
+        else {
+          purchase_step->m_production_id = util::enum_to_uint(get_construction_type(tokens[2]));
+        }
+      }
+      step = purchase_step;
     }
 
     else if (tokens[0] == "sell") {
-      CREATE_GENERIC_STEP(2, tokens, step, COMMAND::SELL);
+      CHECK(2, tokens);
+      SellStep* sell_step = new SellStep(COMMAND::SELL);
+      sell_step->m_player = s_active_player;
+      sell_step->m_city = std::stoul(tokens[1]);
+      if (tokens.size() > 2) {
+        if (std::isdigit(tokens[2][0])) {
+          sell_step->m_production_id = std::stoul(tokens[2]);
+        }
+        else {
+          sell_step->m_production_id = util::enum_to_uint(get_construction_type(tokens[2]));
+        }
+      }
+      step = sell_step;
     }
 
     else if (tokens[0] == "specialize") {
@@ -286,6 +325,12 @@ std::string step_parser::get_active_player() {
   if (!player) {
     return std::string();
   }
-  return player->m_name;
+  std::stringstream ss;
+  ss << player->m_name << " (gold " << player->m_gold << ") (science " << player->m_science << ")";
+  return ss.str();
+}
+
+uint32_t step_parser::get_active_player_id() {
+  return s_active_player;
 }
 

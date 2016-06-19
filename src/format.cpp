@@ -111,7 +111,8 @@ std::string format::player(const Player& player) {
   ss << " resources: " << format::resources(player.m_resources) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
   ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
-  ss << " discovered: " << format::set(player.m_discovered_players) << std::endl;
+  ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
+  ss << " discovered cities: " << format::set(player.m_discovered_cities) << std::endl;
 
   return std::move(ss.str());
 }
@@ -135,6 +136,12 @@ std::string format::resources(const ResourceUMap& resources) {
   });
   ss << "]";
 
+  return std::move(ss.str());
+}
+
+std::string format::resource(const Resource& resource) {
+  std::stringstream ss;
+  ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
   return std::move(ss.str());
 }
 

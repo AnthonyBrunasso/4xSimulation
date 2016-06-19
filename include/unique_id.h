@@ -7,4 +7,6 @@ namespace unique_id {
   static const uint32_t INVALID_ID = 0;
   // Returns a unique id on each call
   uint32_t generate();
+  // Gets the next valid id that will be used when generate is called.
+  uint32_t get_next();
 }
