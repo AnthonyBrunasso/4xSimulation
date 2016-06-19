@@ -15,6 +15,7 @@
 #include "game_types.h"
 #include "search.h"
 #include "terrain_yield.h"
+#include "random.h"
 
 #include <algorithm>
 #include <iostream>
@@ -377,6 +378,11 @@ namespace terminal  {
       return true;
     });
 
+    terminal::add_query("seed", "seed <value>", [](const std::vector<std::string>& tokens) -> bool{
+      CHECK_VALID(2, tokens);
+      game_random::set_seed(std::stoul(tokens[1]));
+      return true;
+    });
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {
