@@ -8,6 +8,7 @@
 #include "world_map.h"
 #include "units.h"
 #include "hex.h"
+#include "improvements.h"
 
 #include <iostream>
 
@@ -135,6 +136,22 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
       state->add_order(owned_unit.m_unique_id, unit.m_unique_id, order);
       return true;
     };
+
+    auto improvement_check = [&result, &range, &owned_unit, &player_id, &state](const Improvement& i) {
+      result = true;
+
+      if (i.m_owner_id == player_id) {
+        return false;
+      }
+
+      // We need to move to an improvement before being able to pillage it.
+      AI_ORDER_TYPE order = AI_ORDER_TYPE::MOVE;
+      if (hex::cube_distance(owned_unit.m_location, i.m_location) == 0) {
+        order = AI_ORDER_TYPE::PILLAGE_IMPROVEMENT;
+      }
+
+      state->add_order(owned_unit.m_unique_id, i.m_unique_id, order);
+    };
    
     auto city_check = [&range, &owned_unit, &player_id, &state](const City& c) {
       // Don't care about owned cities.
@@ -148,6 +165,10 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
     };
     // Approach or attack the found unit up to 4 range.
     if (attack && search::bfs_units(owned_unit.m_location, 4, world_map::get_map(), unit_check)) {
+      return;
+    }
+
+    if (attack && search::bfs_improvements(owned_unit.m_location, 4, world_map::get_map(), improvement_check)) {
       return;
     }
 

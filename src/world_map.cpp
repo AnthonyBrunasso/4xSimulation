@@ -149,7 +149,7 @@ void init_discoverable_tiles(uint32_t size) {
 void world_map::build(sf::Vector3i start, uint32_t size) {
   search::range(start, size, s_coords);
   for (auto tile : s_coords) {
-    s_map[tile] = Tile();
+    s_map[tile] = Tile(tile);
   }
   s_map_size = size;
   init_discoverable_tiles(size);
