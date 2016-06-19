@@ -238,9 +238,10 @@ namespace {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
+    CONSTRUCTION_TYPE t(production::id(construction_step->m_production_id));
 
     if (!construction_step->m_cheat) {
-      city->GetConstruction()->Add(production::id(construction_step->m_production_id));
+      city->GetConstruction()->Add(t);
       return;
     }
  
@@ -282,7 +283,8 @@ namespace {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    uint32_t id = improvement::create(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type), improve_step->m_location, improve_step->m_player);
+    auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
+    uint32_t id = improvement::create(impv, improve_step->m_location, improve_step->m_player);
     if (id) {
       std::cout << "adding improvement to player: " << player->m_name << std::endl;
       player::add_improvement(improve_step->m_player, id);
@@ -388,6 +390,7 @@ namespace {
     Unit* unit = units::get_unit(pillage_step->m_unit);
     if (!unit) return "Invalid unit";
     Tile* tile = world_map::get_tile(unit->m_location);
+    if (!tile) return "Invalid tile";
     for (size_t i = 0; i < tile->m_improvement_ids.size(); ++i) {
       uint32_t impId = tile->m_improvement_ids[i];
       Improvement* improvement = improvement::get_improvement(impId);
@@ -401,14 +404,14 @@ namespace {
     return "";
   }
 
-  void execute_spawn() {
+  std::string execute_spawn() {
     SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
     Player* player = player::get_player(spawn_step->m_player);
-    if (!player) {
-      std::cout << "Invalid player" << std::endl;
-      return;
-    }
+    if (!player) return "Invalid player";
+    Tile* tile = world_map::get_tile(spawn_step->m_location);
+    if (!tile) return "Invalid location";
     units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location, spawn_step->m_player);
+    return "Unit created";
   }
 
   Unit* generate_path() {
@@ -517,6 +520,7 @@ namespace {
 
   void execute_queue_move() {
     Unit* unit = generate_path();
+    if(!unit) return;
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
@@ -688,7 +692,7 @@ void simulation::process_step(Step* step) {
       std::cout << execute_sell() << std::endl;
       break;
     case COMMAND::SPAWN:
-      execute_spawn();
+      std::cout << execute_spawn() << std::endl;
       break;
     case COMMAND::ADD_PLAYER:
       execute_add_player();
