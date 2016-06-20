@@ -718,7 +718,7 @@ void simulation::process_step(Step* step) {
       return; // Modifying stats also does not have output
     case COMMAND::BARBARIAN_TURN:
       // Process the barbarian turn.
-      barbarians::pillage_and_plunder();
+      // FIXME
       return;
     case COMMAND::CITY_DEFENSE:
       std::cout << execute_city_defense() << std::endl;
@@ -812,11 +812,11 @@ void simulation::process_end_turn() {
   if (!player) return;
 
   if (player->m_ai_type == AI_TYPE::BARBARIAN) {
-    barbarians::pillage_and_plunder();
+    barbarians::pillage_and_plunder(end_step->m_player);
   }
 
+  phase_queued_movement(end_step->m_player); //TODO: pass player filter to movement
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
-  phase_queued_movement(end_step->m_next_player); //TODO: pass player filter to movement
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }

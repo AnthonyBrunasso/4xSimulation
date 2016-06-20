@@ -181,6 +181,8 @@ struct SpecializeStep : public Step {
 
 struct BarbarianStep : public Step {
   BarbarianStep(COMMAND command) : Step(command) {};
+
+  uint32_t m_player;
 };
 
 struct BeginStep : public Step {

@@ -68,10 +68,12 @@ void barbarians::destroy() {
 }
 
 // Lets the barbarians execute their turn. 
-void barbarians::pillage_and_plunder() {
+void barbarians::pillage_and_plunder(uint32_t player_id) {
   for (auto id : s_player_ids) {
-    s_macro_dtree->make_decision(id);
-    s_micro_dtree->make_decision(id);
+    if (id == player_id) {
+      s_macro_dtree->make_decision(id);
+      s_micro_dtree->make_decision(id);
+    }
   }
 }
 

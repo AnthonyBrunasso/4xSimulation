@@ -81,6 +81,7 @@ namespace {
     else if (tokens[0] == "barbarians") {
       CHECK_VALID(1, tokens);
       BarbarianStep* barbarian_step = new BarbarianStep(COMMAND::BARBARIAN_TURN);
+      barbarian_step->m_player = s_active_player;
       step = barbarian_step;
     }
 
