@@ -123,6 +123,9 @@ namespace terminal  {
         std::set<uint32_t> terrainTypes;
         search::range(city.m_location, distance, coords);
         for (size_t i = 0; i < coords.size(); ++i) {
+          Tile* t = world_map::get_tile(coords[i]);
+          if(!t) continue;
+          if(terrain_yield::is_harvested(coords[i])) continue;
           std::cout << "  coord: " << format::vector3(coords[i]) << "  " << terrain_yield::get_yield(coords[i], city.m_specialization) << std::endl;
         }
         stop = true;
