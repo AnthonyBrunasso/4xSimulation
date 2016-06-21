@@ -667,7 +667,7 @@ void player_notifications(uint32_t player_id) {
     }
   });
   if (unit_count) {
-    std::cout << "Player has " << unit_count << " idle units." << std::endl;
+    std::cout << "Player has " << unit_count << " idle_unit." << std::endl;
   }
 }
 
