@@ -327,7 +327,7 @@ std::string step_parser::get_active_player() {
     return std::string();
   }
   std::stringstream ss;
-  ss << player->m_name << " (gold " << player->m_gold << ") (science " << player->m_science << ")";
+  ss << player->m_name << " (gold " << player->m_gold << ") (science " << player->m_science << ") (magic " << player->m_magic << ")";
   return ss.str();
 }
 

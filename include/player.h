@@ -36,8 +36,10 @@ public:
   std::set<uint32_t> m_discovered_players;
   std::set<uint32_t> m_discovered_cities;
   TURN_TYPE m_turn_state;
+
   float m_gold;
   float m_science;
+  float m_magic;
 
   // Resources owned by this player.
   ResourceUMap m_resources;

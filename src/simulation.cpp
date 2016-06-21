@@ -187,6 +187,7 @@ namespace {
       if (!player) return;
       player->m_gold += t.m_gold;
       player->m_science += t.m_science;
+      player->m_magic += t.m_magic;
     });
   }
 

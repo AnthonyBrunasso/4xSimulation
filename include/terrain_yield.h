@@ -16,6 +16,7 @@ struct TerrainYield
   float m_science;
   float m_gold;
   float m_experience;
+  float m_magic;
 };
 
 const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs);

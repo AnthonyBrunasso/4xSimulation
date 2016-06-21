@@ -54,6 +54,7 @@ TerrainYield::TerrainYield()
 , m_science(0.f)
 , m_gold(0.f)
 , m_experience(0.f)
+, m_magic(0.f)
 {
 }
 
@@ -63,6 +64,7 @@ void TerrainYield::operator+=(const TerrainYield& rhs) {
   m_science += rhs.m_science;
   m_gold += rhs.m_gold;
   m_experience += rhs.m_experience;
+  m_magic += rhs.m_magic;
 }
 
 const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
@@ -72,6 +74,7 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
   base.m_science = lhs.m_science + rhs.m_science;
   base.m_gold = lhs.m_gold + rhs.m_gold;
   base.m_experience = lhs.m_experience + rhs.m_experience;
+  base.m_magic = lhs.m_magic + rhs.m_magic;
   return std::move(base);
 }
 
@@ -82,7 +85,8 @@ std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {
       << "(" << ty.m_production << " Prod) "
       << "(" << ty.m_science << " Sci) "
       << "(" << ty.m_gold << " Gold) "
-      << "(" << ty.m_experience << " Xp)";
+      << "(" << ty.m_experience << " Xp) "
+      << "(" << ty.m_magic << " Mag)";
   return out;
 }
 
@@ -102,6 +106,7 @@ namespace terrain_yield {
   
   void MountainYield(TerrainYield& t) {
     t.m_production += 1;
+    t.m_magic += 1;
   }
   
   void WaterYield(TerrainYield& t) {
