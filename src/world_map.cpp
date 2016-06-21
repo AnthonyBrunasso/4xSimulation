@@ -45,7 +45,7 @@ namespace {
       world_map::remove_unit(location, id);
     });
 
-    city::sub_raze([](const sf::Vector3i& location, uint32_t /*id*/) {
+    city::sub_raze_complete([](const sf::Vector3i& location, uint32_t /*id*/) {
       Tile* tile = world_map::get_tile(location);
       if (!tile) {
         return;

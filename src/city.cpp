@@ -21,15 +21,21 @@ namespace city {
   typedef std::vector<std::function<bool(const sf::Vector3i&, uint32_t)> > Requirements;
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   CityMap s_cities;
-  SubMap s_raze_subs;
+  SubMap s_raze_init_subs;
+  SubMap s_raze_complete_subs;
   SubMap s_create_subs;
   RequirementMap s_creation_requirements;
+
+  void notify_raze_init(City& c);
+  void notify_raze_complete(City& c);
 }
 
 City::City(uint32_t id)
 : m_id(id)
 , m_food(city::food_required_by_population(1)-1)
 , m_experience(0.f)
+, m_damage(0.f)
+, m_razing(false)
 , m_defenses_used(false)
 , m_specialization(TERRAIN_TYPE::UNKNOWN)
 , m_construction(new ConstructionQueueFIFO(id))
@@ -49,7 +55,41 @@ bool City::SetSpecialization(TERRAIN_TYPE type) {
   return true;
 }
 
+void City::Siege(float damage) {
+  m_damage += damage;
+  std::cout << "This city (" << m_id << ") has taken " << m_damage << " damage." << std::endl;
+  if (m_damage > GetPopulation()*10.f) {
+    std::cout << "This city (" << m_id << ") has begun to burn to the ground." << std::endl;
+    m_razing = true;
+    city::notify_raze_init(*this);
+  }
+}
+
+bool City::Capture() {
+  // City may be captured only when it has begun razing
+  return m_razing;
+}
+
 void City::Simulate(TerrainYield& t) {
+  if (m_razing) {
+    // Construction is not processed
+    if (GetPopulation() > 0.f) {
+      // City shrinks in size
+      m_food = city::food_required_by_population(GetPopulation()-1);
+      std::cout << "City shrinks, food: " << m_food << std::endl;
+    }
+    else {
+      std::cout << "Raze called" << std::endl;
+      city::raze(m_id);
+    }
+    // City may be deleted above
+    return;
+  }
+  
+  // Auto-repair
+  m_damage = std::max(0.f, m_damage-3.f);
+
+  // Normal city functions
   m_construction->Simulate(this, t);
   m_food += t.m_food;
   m_experience += t.m_experience;
@@ -221,18 +261,33 @@ void city::raze(uint32_t id) {
     return;
   }
 
-  // Notify subscribers of razed city
-  for (auto sub : s_raze_subs) {
-    sub(findIt->second->m_location, id);
-  }
-
   findIt->second->RemoveAllHarvest();
+
+  // Notify subscribers of razed city
+  city::notify_raze_complete(*findIt->second);
+
   delete findIt->second;
   s_cities.erase(findIt);
 }
 
-void city::sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_raze_subs.push_back(sub);
+void city::notify_raze_init(City& c) {
+  for (auto sub: s_raze_init_subs) {
+    sub(c.m_location, c.m_id);
+  }
+}
+
+void city::sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+  s_raze_init_subs.push_back(sub);
+}
+
+void city::notify_raze_complete(City& c) {
+  for (auto sub: s_raze_complete_subs) {
+    sub(c.m_location, c.m_id);
+  }
+}
+
+void city::sub_raze_complete(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+  s_raze_complete_subs.push_back(sub);
 }
 
 City* city::nearest_city(sf::Vector3i &loc) {

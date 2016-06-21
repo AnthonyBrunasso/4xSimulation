@@ -253,6 +253,14 @@ namespace {
       step = sell_step;
     }
 
+    else if (tokens[0] == "siege") {
+      CHECK_VALID(3, tokens);
+      SiegeStep* siege_step = new SiegeStep();
+      siege_step->m_player = s_active_player;
+      siege_step->m_city = std::stoul(tokens[1]);
+      siege_step->m_unit = std::stoul(tokens[2]);
+      step = siege_step;
+    }
     else if (tokens[0] == "specialize") {
       CHECK(3, tokens);
       SpecializeStep* specialize_step = new SpecializeStep(COMMAND::SPECIALIZE);

@@ -16,6 +16,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_turn_state(TURN_TYPE::TURNACTIVE)
     , m_gold(0.0f)
     , m_science(0.0f)
+    , m_magic(0.f)
     , m_resources()
     , m_ai_type(ai_type)
     , m_ai_state(nullptr)
@@ -28,7 +29,8 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     this->m_units.erase(id);
   });
 
-  city::sub_raze([this](const sf::Vector3i /*location*/, uint32_t id) {
+  city::sub_raze_complete([this](const sf::Vector3i /*location*/, uint32_t id) {
+
     if (!this->OwnsCity(id)) {
       return;
     }

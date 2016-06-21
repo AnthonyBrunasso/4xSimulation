@@ -18,6 +18,9 @@ public:
   bool CanSpecialize() const;
   bool SetSpecialization(TERRAIN_TYPE type);
 
+  void Siege(float damage);
+  bool Capture();
+  
   void Simulate(TerrainYield&);
   void DoNotifications() const;
 
@@ -45,6 +48,8 @@ public:
   sf::Vector3i m_location;
   float m_food;
   float m_experience;
+  float m_damage;
+  bool m_razing;
   bool m_defenses_used;
   TERRAIN_TYPE m_specialization;
   std::unique_ptr<ConstructionQueueFIFO> m_construction;
@@ -63,7 +68,8 @@ namespace city {
   uint32_t create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
-  void sub_raze(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_raze_complete(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   City* nearest_city(sf::Vector3i&);
   City* get_city(uint32_t id);
   void for_each_city(std::function<void(City& )> operation);

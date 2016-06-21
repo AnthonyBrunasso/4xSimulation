@@ -31,6 +31,7 @@ enum class COMMAND {
   CITY_DEFENSE,
   PILLAGE,
   ABORT,
+  SIEGE,
 };
 
 struct Step {
@@ -209,5 +210,12 @@ struct AbortStep : public Step {
   uint32_t m_player;
   uint32_t m_city;
   uint32_t m_index;
+};
+
+struct SiegeStep : public Step {
+  SiegeStep() : Step(COMMAND::SIEGE) {}
+  uint32_t m_player;
+  uint32_t m_city;
+  uint32_t m_unit;
 };
 

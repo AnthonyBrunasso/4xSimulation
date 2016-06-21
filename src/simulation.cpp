@@ -556,6 +556,23 @@ namespace simulation {
     return ss.str();
   }
 
+  std::string execute_siege() {
+    SiegeStep* siege_step = static_cast<SiegeStep*>(s_current_step);
+    Player* player = player::get_player(siege_step->m_player);
+    if(!player) return "Invalid Player";
+    City* city = city::get_city(siege_step->m_city);
+    if(!city) return "Invalid City";
+    Unit* unit = units::get_unit(siege_step->m_unit);
+    if (!unit) return "Invalid Unit";
+    if (!player->OwnsUnit(unit->m_unique_id)) return "Player doesn't own unit";
+    Tile* tile = world_map::get_tile(city->m_location);
+    if (!tile) return "Invalid City Location";
+    if (tile->m_unit_ids.size()) return "City may not be sieged while units defend";
+    // TODO: Should units have siege damage?
+    city->Siege(unit->m_combat_stats.m_attack);
+    return "Siege Occured";
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
     if(!unit) return;
@@ -742,6 +759,9 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::SELL:
       std::cout << execute_sell() << std::endl;
+      break;
+    case COMMAND::SIEGE:
+      std::cout << execute_siege() << std::endl;
       break;
     case COMMAND::SPAWN:
       std::cout << execute_spawn() << std::endl;
