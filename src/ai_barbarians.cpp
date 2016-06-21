@@ -1,6 +1,7 @@
 #include "ai_barbarians.h"
 
 #include "ai_evaluations.h"
+#include "ai_evaluator_store.h"
 #include "ai_decisions.h"
 #include "ai_state.h"
 #include "player.h"
@@ -13,18 +14,11 @@
 namespace {
   DTree* s_macro_dtree = nullptr;
   DTree* s_micro_dtree = nullptr;
-  // TODO: Move all these into its own modules
-  NeedsColonize s_colonize_evaluator;
-  // Barbarians only produce melee units for now.
-  NeedsProduce s_produce_evaluator;
   Settle s_settle_decision;
   Explore s_explore_decision;
   // Barbarians only construct melee units.
   Construct s_construct_decision(CONSTRUCTION_TYPE::MELEE);
-  HasUnits s_has_units_evaluator;
-  DiscoveredCities s_discovered_cities_evaluator;
   UnitDecision s_unit_decision;
-  UnitEvaluation s_unit_evaluation;
   // TODO end here
   std::vector<uint32_t> s_player_ids;
 }
@@ -32,25 +26,25 @@ namespace {
 // Create the barbarian behavior.
 void barbarians::initialize() { 
   // Create macro tree. Check if the player needs to colonize.
-  DNode* node = new DNode(nullptr, &s_colonize_evaluator);
+  DNode* node = new DNode(nullptr, &evaluations::get_colonize());
 
   // If they do create a city.
   node->m_right = new DNode(&s_settle_decision, nullptr);
   // Otherwise evaluate the production needs of the city.
-  node->m_left = new DNode(nullptr, &s_produce_evaluator);
+  node->m_left = new DNode(nullptr, &evaluations::get_produce());
   DNode*& produce_eval = node->m_left;
   // Construct something in the city.
   produce_eval->m_right = new DNode(&s_construct_decision, nullptr);
 
   // Create micro tree.
-  DNode* mnode = new DNode(nullptr, &s_has_units_evaluator);
+  DNode* mnode = new DNode(nullptr, &evaluations::get_has_units());
   
-  mnode->m_right = new DNode(nullptr, &s_discovered_cities_evaluator);
+  mnode->m_right = new DNode(nullptr, &evaluations::get_discovered_cities());
   DNode*& discovered_eval = mnode->m_right;
   // If there are no discovered cities send all units to explore.
   discovered_eval->m_left = new DNode(&s_explore_decision, nullptr);
   // Otherwise evaluate each units order.
-  discovered_eval->m_right = new DNode(nullptr, &s_unit_evaluation);
+  discovered_eval->m_right = new DNode(nullptr, &evaluations::get_unit_order());
   DNode*& attack_eval = discovered_eval->m_right;
   // Execute all unit orders.
   attack_eval->m_right = new DNode(&s_unit_decision, nullptr);
