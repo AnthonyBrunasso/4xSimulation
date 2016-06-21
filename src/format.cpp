@@ -58,7 +58,8 @@ std::string format::unit(const Unit& unit) {
      << " actions: " << unit.m_action_points << std::endl
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl
      << " path: " << unit.m_path.size() << std::endl
-     << " owner: " << unit.m_owner_id;
+     << " owner: " << unit.m_owner_id << std::endl
+     << " direction: " << get_direction_name(unit.m_direction);
 
   return std::move(ss.str());
 }

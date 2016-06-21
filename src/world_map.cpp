@@ -11,6 +11,7 @@
 #include "player.h"
 #include "ai_barbarians.h"
 #include "random.h"
+#include "util.h"
 
 #include <iostream>
 #include <vector>
@@ -244,6 +245,8 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
     remove_unit(unit->m_location, unit->m_unique_id);
     // Move it to new tile
     std::cout << "Unit " << unit->m_unique_id << " (id) moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
+    sf::Vector3i difference = unit->m_path[0] - unit->m_location;
+    unit->m_direction = util::get_direction(difference);
     unit->m_location = unit->m_path[0];
     if (next->m_discover_bonus) {
       next->m_discover_bonus = false;

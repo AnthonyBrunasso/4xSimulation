@@ -13,6 +13,7 @@ AI           = "AI"
 AI_ORDER     = "AI_ORDER"
 TURN         = "TURN"
 SEARCH       = "SEARCH"
+DIRECTION    = "DIRECTION"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Gold'     , 1)
@@ -61,3 +62,10 @@ add_gametype(AI_ORDER, 'Approach_City'       , 4)
 add_gametype(AI_ORDER, 'Pillage_Improvement' , 5)
 add_gametype(AI_ORDER, 'Approach_Improvement', 6)
 add_gametype(AI_ORDER, 'Wander'              , 7)
+
+add_gametype(DIRECTION, "North_East", 1);
+add_gametype(DIRECTION, "East"      , 2);
+add_gametype(DIRECTION, "South_East", 3);
+add_gametype(DIRECTION, "South_West", 4);
+add_gametype(DIRECTION, "West"      , 5);
+add_gametype(DIRECTION, "North_West", 6);

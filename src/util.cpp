@@ -22,3 +22,26 @@ sf::Vector3f util::to_vector3f(const sf::Vector3i& vector) {
   const float zi = static_cast<float>(vector.z);
   return sf::Vector3f(xi, yi, zi);
 }
+
+DIRECTION_TYPE util::get_direction(const sf::Vector3i& diff) {
+  if (diff == sf::Vector3i(1, -1, 0)) {
+    return DIRECTION_TYPE::NORTH_EAST;
+  }
+  else if (diff == sf::Vector3i(1, 0, -1)) {
+    return DIRECTION_TYPE::EAST;
+  }
+  else if (diff == sf::Vector3i(0, 1, -1)) {
+    return DIRECTION_TYPE::SOUTH_EAST;
+  }
+  else if (diff == sf::Vector3i(-1, 1, 0)) {
+    return DIRECTION_TYPE::SOUTH_WEST;
+  }
+  else if (diff == sf::Vector3i(-1, 0, 1)) {
+    return DIRECTION_TYPE::WEST;
+  }
+  else if (diff == sf::Vector3i(0, -1, 1)) {
+    return DIRECTION_TYPE::NORTH_WEST;
+  }
+  return DIRECTION_TYPE::UNKNOWN;
+}
+

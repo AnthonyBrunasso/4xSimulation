@@ -51,7 +51,10 @@ namespace {
     return hex::cube_distance(from, goal);
   }
 
-  void find_neighbors(const PathNode& record, const sf::Vector3i& goal, std::vector<PathNode>& neighbors, world_map::TileMap& tile_map) {
+  void find_neighbors(const PathNode& record, 
+      const sf::Vector3i& goal, 
+      std::vector<PathNode>& neighbors, 
+      world_map::TileMap& tile_map) {
     // This is a little inefficient since this will need to be copied into neighbors.
     std::vector<sf::Vector3i> cube_neighbors;
     hex::cube_neighbors(record.m_location, cube_neighbors); 
@@ -69,7 +72,9 @@ namespace {
     }
   }
 
-  void build_path(const sf::Vector3i& target, std::unordered_map<sf::Vector3i, sf::Vector3i>& came_from, std::vector<sf::Vector3i>& path) {
+  void build_path(const sf::Vector3i& target, 
+      std::unordered_map<sf::Vector3i, sf::Vector3i>& came_from, 
+      std::vector<sf::Vector3i>& path) {
     sf::Vector3i current = target;
     path.push_back(current);
     while (came_from.find(current) != came_from.end()) {
@@ -179,7 +184,7 @@ bool search::bfs(const sf::Vector3i& start,
   }
   return false;
 }
-#include <iostream>
+
 bool search::bfs_units(const sf::Vector3i& start,
     uint32_t depth,
     world_map::TileMap& tile_map,

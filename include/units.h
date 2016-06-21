@@ -19,7 +19,9 @@ public:
     , m_action_points(m_max_actions)
     , m_owner_id(0xffffffff)
     // 1 health, 1 attack, 1 range by default
-    , m_combat_stats(1, 1, 1) {};
+    , m_combat_stats(1, 1, 1)
+    // Random start direction? 
+    , m_direction(DIRECTION_TYPE::NORTH_EAST){};
 
   UNIT_TYPE m_unit_type;
   uint32_t m_unique_id;
@@ -32,6 +34,8 @@ public:
   uint32_t m_owner_id;
 
   CombatStats m_combat_stats;
+  // Direction the unit is currently facing.
+  DIRECTION_TYPE m_direction;
 };
 
 namespace units {
