@@ -592,6 +592,17 @@ namespace simulation {
     s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step->m_attacker_id, attack_step->m_defender_id));
   }
 
+  std::string execute_abort() {
+    AbortStep* abort_step = static_cast<AbortStep*>(s_current_step);
+    Player* player = player::get_player(abort_step->m_player);
+    if (!player) return "Invalid Player";
+    City* city = city::get_city(abort_step->m_city);
+    if (!city) return "Invalid City";
+    if (!player->OwnsCity(city->m_id)) return "Player doesn't own city.";
+    city->GetConstruction()->Abort(abort_step->m_index);
+    return "Removing...";
+  }
+
   void execute_modify_stats() {
     UnitStatsStep* stats_step = static_cast<UnitStatsStep*>(s_current_step);
     Unit* unit = units::get_unit(stats_step->m_unit_id);
@@ -687,6 +698,9 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::ATTACK:
       execute_attack();
+      break;
+    case COMMAND::ABORT:
+      std::cout << execute_abort() << std::endl;
       break;
     case COMMAND::COLONIZE:
       execute_colonize();

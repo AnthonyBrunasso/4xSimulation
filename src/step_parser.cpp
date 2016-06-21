@@ -69,6 +69,13 @@ namespace {
       CHECK_VALID(2, tokens);
       s_active_player = std::stoul(tokens[1]);
     }
+    else if (tokens[0] == "abort") {
+      AbortStep* abort_step = new AbortStep();
+      abort_step->m_player = s_active_player;
+      abort_step->m_city = std::stoul(tokens[1]);
+      abort_step->m_index = std::stoul(tokens[2]);
+      step = abort_step;
+    }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);
       AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);

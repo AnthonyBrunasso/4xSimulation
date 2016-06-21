@@ -30,6 +30,7 @@ enum class COMMAND {
   BARBARIAN_TURN,
   CITY_DEFENSE,
   PILLAGE,
+  ABORT,
 };
 
 struct Step {
@@ -201,5 +202,12 @@ struct PillageStep : public Step {
 
   uint32_t m_player;
   uint32_t m_unit;
+};
+
+struct AbortStep : public Step {
+  AbortStep() : Step(COMMAND::ABORT) {}
+  uint32_t m_player;
+  uint32_t m_city;
+  uint32_t m_index;
 };
 

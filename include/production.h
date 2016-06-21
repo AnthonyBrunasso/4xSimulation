@@ -80,6 +80,7 @@ public:
   void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
   void Sell(CONSTRUCTION_TYPE type_id);
 
+  void Abort(size_t offset);
   void Move(size_t src, size_t dest);
   size_t Count() const;
 

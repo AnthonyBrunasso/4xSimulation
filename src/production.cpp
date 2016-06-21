@@ -134,6 +134,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
   uint32_t type = static_cast<uint32_t>(type_id);
   ConstructionUMap::const_iterator findIt = m_constructions.find(type);
   if (findIt != m_constructions.end()) {
+    std::cout << "Resuming unique construction: " << get_construction_name(type_id) << std::endl;
     return findIt->second;
   }
 
@@ -238,6 +239,13 @@ void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
   m_state.EraseConstruction(type_id);
 }
 
+void ConstructionQueueFIFO::Abort(size_t offset) {
+  if (offset >= m_queue.size()) return;
+  std::list<ConstructionOrder*>::iterator itr = m_queue.begin();
+  std::advance(itr, offset);
+  m_queue.erase(itr);
+}
+
 void ConstructionQueueFIFO::Move(size_t src, size_t dest) { 
   if (src >= m_queue.size()) {
     std::cout << "Invalid source index, list swap aborted" << std::endl;
@@ -249,12 +257,12 @@ void ConstructionQueueFIFO::Move(size_t src, size_t dest) {
     return;
   }
 
-  auto itFrom = m_queue.begin();
+  std::list<ConstructionOrder*>::iterator itFrom = m_queue.begin();
   std::advance(itFrom, src);
   ConstructionOrder* order = *itFrom;
   m_queue.erase(itFrom);
 
-  auto itTo = m_queue.begin();
+  std::list<ConstructionOrder*>::iterator itTo = m_queue.begin();
   std::advance(itTo, dest);
   m_queue.insert(itTo, order);
 }

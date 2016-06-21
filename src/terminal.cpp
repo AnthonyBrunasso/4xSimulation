@@ -421,6 +421,7 @@ namespace terminal  {
     std::cout << "  tile_resource <resourceType> <x> <y> <z> [1<quantity>]" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
+    std::cout << "  abort <cityId> <constructionIndex>" << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  city_defense <unitId>" << std::endl;
     std::cout << "  colonize <x> <y> <z>" << std::endl;
