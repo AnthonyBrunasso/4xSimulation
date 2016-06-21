@@ -227,7 +227,7 @@ namespace simulation {
   void phase_restore_actions() {
     units::replenish_actions();
     auto replentish_cities = [](City& c) {
-      c.m_attacked = false;
+      c.m_defenses_used = false;
     };
     city::for_each_city(replentish_cities);
   }
@@ -625,7 +625,7 @@ namespace simulation {
     uint32_t cityId = 0;
     auto find_defending_city = [player, &cityId](const City& city) {
       if (!player->OwnsCity(city.m_id)) return false;
-      if (city.m_attacked) return false;
+      if (city.m_defenses_used) return false;
       cityId = city.m_id;
       return true;
     };
@@ -633,7 +633,7 @@ namespace simulation {
 
     City* city = city::get_city(cityId);
     if(!city) return "No valid city found";
-    city->m_attacked = true;
+    city->m_defenses_used = true;
     std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_unique_id << std::endl;
     units::damage(unit->m_unique_id, 4.f);
     

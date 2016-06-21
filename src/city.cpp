@@ -30,7 +30,7 @@ City::City(uint32_t id)
 : m_id(id)
 , m_food(city::food_required_by_population(1)-1)
 , m_experience(0.f)
-, m_attacked(false)
+, m_defenses_used(false)
 , m_specialization(TERRAIN_TYPE::UNKNOWN)
 , m_construction(new ConstructionQueueFIFO(id))
 { 
