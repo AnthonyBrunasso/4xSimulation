@@ -27,8 +27,9 @@ bool combat::engage(CombatStats& attack_stats,
   }
 
   defender_health -= attacker_attack;
-  defend_stats.m_health = static_cast<uint32_t>(std::max(0.0f, roundf(defender_health)));
+  defend_stats.m_health = (std::max(0.0f, roundf(defender_health)));
   std::cout << "Defender is delt " << attacker_attack << " damage! " << std::endl;
+  std::cout << "Defender health is " << defend_stats.m_health << std::endl;
 
   // Only return fire if the defender can reach the attacker
   if (defender_range < static_cast<float>(distance)) {
@@ -36,8 +37,9 @@ bool combat::engage(CombatStats& attack_stats,
   }
 
   attacker_health -= defender_attack;
-  attack_stats.m_health = static_cast<uint32_t>(std::max(0.0f, roundf(attacker_health)));
+  attack_stats.m_health = (std::max(0.0f, roundf(attacker_health)));
   std::cout << "Attacker received " << defender_attack << " damage! " << std::endl;
+  std::cout << "Attacker health is " << attack_stats.m_health << std::endl;
 
   return true;
 }

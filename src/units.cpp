@@ -133,11 +133,11 @@ bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
   return result;
 }
 
-void units::damage(uint32_t receiver_id, uint32_t amount) {
+void units::damage(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return;
 
-  uint32_t damage_delt = std::min(amount, receiver->m_combat_stats.m_health);
+  float damage_delt = std::min(amount, receiver->m_combat_stats.m_health);
   receiver->m_combat_stats.m_health -= damage_delt;
   if (receiver->m_combat_stats.m_health == 0) {
     std::cout << "Unit " << receiver_id << " received lethal damage." << std::endl;
@@ -145,12 +145,12 @@ void units::damage(uint32_t receiver_id, uint32_t amount) {
   }
 }
 
-void units::heal(uint32_t receiver_id, uint32_t amount) {
+void units::heal(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return;
   CombatStats* stats = unit_definitions::get(receiver->m_unit_type);
   if (!stats) return;
-  uint32_t new_health = std::min(receiver->m_combat_stats.m_health+amount, stats->m_health);
+  float new_health = std::min(receiver->m_combat_stats.m_health+amount, stats->m_health);
   receiver->m_combat_stats.m_health = new_health;
 }
 

@@ -4,18 +4,18 @@
 
 struct CombatStats {
   CombatStats() :
-    m_health(1)
-    , m_attack(0)
-    , m_range(0) {};
+    m_health(1.f)
+    , m_attack(0.f)
+    , m_range(0.f) {};
 
-  CombatStats(uint32_t health, uint32_t attack, uint32_t range) :
+  CombatStats(float health, float attack, float range) :
     m_health(health)
     , m_attack(attack)
     , m_range(range) {};
 
-  uint32_t m_health;
-  uint32_t m_attack;
-  uint32_t m_range;
+  float m_health;
+  float m_attack;
+  float m_range;
 };
 
 struct Modifier {

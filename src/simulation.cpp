@@ -436,7 +436,7 @@ namespace simulation {
       if (improvement->m_owner_id == unit->m_owner_id) continue;
       std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_unique_id << "!" << std::endl;
       improvement::destroy(improvement->m_unique_id);
-      units::heal(unit->m_unique_id, 6);
+      units::heal(unit->m_unique_id, 6.f);
       unit->m_action_points = 0;
     }
     return "";
@@ -624,7 +624,7 @@ namespace simulation {
     if(!city) return "No valid city found";
     city->m_attacked = true;
     std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_unique_id << std::endl;
-    units::damage(unit->m_unique_id, 4);
+    units::damage(unit->m_unique_id, 4.f);
     
     return "";
   }
