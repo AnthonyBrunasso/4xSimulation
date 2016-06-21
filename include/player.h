@@ -11,6 +11,7 @@
 
 class Unit;
 class City;
+struct Improvement;
 
 //
 // Player is a generic class that ties units and buildings to some ai type.
@@ -61,9 +62,11 @@ namespace player {
 
   bool all_players_turn_ended();
 
+  // Deterministic (sorted) order iteration of the player's objects
   void for_each_player(std::function<void(Player& player)> operation);
   void for_each_player_unit(uint32_t player_id, std::function<void(Unit& unit)> operation);
   void for_each_player_city(uint32_t player_id, std::function<void(City& city)> operation);
+  void for_each_player_improvement(uint32_t player_id, std::function<void(Improvement&)>);
   void for_each_player_meet(uint32_t player_id, std::function<void(Player& player)> operation);
   void for_each_city_found(uint32_t player_id, std::function<void(City& city)> operation);
 }

@@ -179,6 +179,20 @@ void player::for_each_player_city(uint32_t player_id, std::function<void(City& c
   }
 }
 
+void player::for_each_player_improvement(uint32_t player_id, std::function<void(Improvement&)> operation) {
+  Player* player = get_player(player_id);
+  if (!player) {
+    return;
+  }
+  for (auto i : player->m_improvements) {
+    Improvement* imprv = improvement::get_improvement(i);
+    if (!imprv) {
+      continue;
+    }
+    operation(*imprv);
+  }
+}
+
 void player::for_each_player_meet(uint32_t player_id, std::function<void(Player& player)> operation) {
   Player* player = get_player(player_id);
   if (!player) {

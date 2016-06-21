@@ -21,7 +21,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace {
+namespace simulation {
   // Contains the current execution step
   Step* s_current_step;
   // Units to move in the current step
@@ -49,6 +49,9 @@ namespace {
   void phase_diplomatic_progression();
   void phase_global_events();
   void phase_restore_actions();
+
+  void grant_improvement_resources(const Improvement& , Player& );
+  void phase_improvement_accrual();
 
   // Order of operations when a turn begins
   void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
@@ -179,16 +182,34 @@ namespace {
   }
 
   void phase_city_growth() {
-    city::for_each_city([](City& cityInstance) { 
+    auto city_func = [](City& cityInstance, Player& player) { 
       TerrainYield t = cityInstance.DumpYields();
       std::cout << t << std::endl;
       cityInstance.Simulate(t);
-      Player* player = player::get_player(cityInstance.m_owner_id);
-      if (!player) return;
-      player->m_gold += t.m_gold;
-      player->m_science += t.m_science;
-      player->m_magic += t.m_magic;
-    });
+      player.m_gold += t.m_gold;
+      player.m_science += t.m_science;
+      player.m_magic += t.m_magic;
+    };
+    auto player_func = [city_func](Player& player) {
+      player::for_each_player_city(player.m_id,
+        [city_func, &player](City& c) { city_func(c, player); });
+    };
+    // Important: for_each_player is an ordered std::set
+    // We must process players in order for consistent simulation results
+    player::for_each_player(player_func);
+  }
+
+  void phase_improvement_accrual() {
+    // Run improvement specific work. Example: Grant players reources for their improved tiles.
+    auto improvement_update_func = [](const Improvement& improvement, Player& player) {
+        if (improvement.m_type == IMPROVEMENT_TYPE::UNKNOWN) return;
+        grant_improvement_resources(improvement, player); 
+    };
+    auto player_func = [improvement_update_func](Player& player) {
+      auto rebind = [improvement_update_func, &player] (const Improvement& i) { improvement_update_func(i, player); };
+      player::for_each_player_improvement(player.m_id, rebind);
+    };
+    player::for_each_player(player_func);
   }
 
   void phase_science_progression() {
@@ -744,14 +765,9 @@ void simulation::process_step_from_ai(Step* step) {
   delete step;
 }
 
-void grant_improvement_resources(const Improvement& improvement) {
+void simulation::grant_improvement_resources(const Improvement& improvement, Player& player) {
   Tile* tile = world_map::get_tile(improvement.m_location);
   if (!tile) {
-    return;
-  }
-
-  Player* player = player::get_player(improvement.m_owner_id);
-  if (!player) {
     return;
   }
 
@@ -759,7 +775,7 @@ void grant_improvement_resources(const Improvement& improvement) {
   // to the player. Perhaps we will need to check the type of resource/improvement if there are 
   // multiple resource on the tile for instance. 
   for (auto resource : tile->m_resources) {
-    player->m_resources.add(resource); 
+    player.m_resources.add(resource); 
   }
 }
 
@@ -784,18 +800,7 @@ void simulation::process_begin_turn() {
   // Increment turn counter
   ++s_current_turn;
 
-  // Run improvement specific work. Example: Grant players reources for their improved tiles.
-  improvement::for_each_improvement([](const Improvement& improvement) {
-    switch(improvement.m_type) {
-    case IMPROVEMENT_TYPE::UNKNOWN:
-      break;
-    case IMPROVEMENT_TYPE::RESOURCE:
-      grant_improvement_resources(improvement); 
-      break;
-    default:
-      break;
-    }
-  });
+  phase_improvement_accrual();
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {
