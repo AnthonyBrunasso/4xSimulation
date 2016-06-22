@@ -23,7 +23,9 @@ namespace science {
   void shutdown();
 
   ScienceNode* Science(SCIENCE_TYPE);
+  ScienceNode* Science(uint32_t);
   void debug_requirements(ScienceNode* sn);
   bool available(uint32_t player_id, ScienceNode* sn);
+  void research_complete(uint32_t player_id, ScienceNode* sn);
 }
 

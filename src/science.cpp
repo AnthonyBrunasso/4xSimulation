@@ -2,6 +2,7 @@
 #include "science.h"
 #include "game_types.h"
 #include "player.h"
+#include <algorithm>
 #include <unordered_map>
 #include <iostream>
 
@@ -13,7 +14,11 @@ namespace science {
   std::vector<ScienceEdge> s_edges;
 
   ScienceNode* Science(SCIENCE_TYPE st)  {
-    ScienceNodeMap::const_iterator itFind = s_tower_of_babylon.find(static_cast<uint32_t>(st));
+    return Science(static_cast<uint32_t>(st));
+  }
+
+  ScienceNode* Science(uint32_t st_i) {
+    ScienceNodeMap::const_iterator itFind = s_tower_of_babylon.find(st_i);
     if (itFind == s_tower_of_babylon.end()) return nullptr;
     return itFind->second;
   }
@@ -73,6 +78,22 @@ namespace science {
     return can_research;
   }
 
+  void research_complete(uint32_t player_id, ScienceNode* sn) {
+    if (!sn) return;
+    Player* player = player::get_player(player_id);
+    if(!player) return;
+    uint32_t st_i = static_cast<uint32_t>(sn->m_type);
+    std::vector<uint32_t>::iterator findIt = std::find(player->m_available_science.begin(), player->m_available_science.end(), st_i);
+    if (findIt == player->m_available_science.end()) return;
+    player->m_available_science.erase(findIt);
+    player->m_discovered_science.insert(st_i);
+    for (auto node : sn->m_next) {
+      if (available(player_id, node)) {
+        player->m_available_science.push_back(static_cast<uint32_t>(node->m_type));
+      }
+    }
+  }
+  
   void shutdown() {
     ScienceNodeMap::iterator it = s_tower_of_babylon.begin();
     for(; it != s_tower_of_babylon.end(); ++it) {

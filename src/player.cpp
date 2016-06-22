@@ -43,6 +43,8 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     }
     this->m_improvements.erase(id);
   });
+
+  m_available_science.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
 }
 
 Player::~Player() {

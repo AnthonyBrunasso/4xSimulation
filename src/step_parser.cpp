@@ -151,6 +151,17 @@ namespace {
       step = resource_mutator_step;
     }
 
+    else if (tokens[0] == "grant") {
+      CHECK_VALID(2, tokens);
+      GrantStep* grant_step = new GrantStep();
+      grant_step->m_player = s_active_player;
+      grant_step->m_science = static_cast<uint32_t>(get_science_type(tokens[1]));
+      if (grant_step->m_science == 0) {
+        grant_step->m_science = std::stoul(tokens[1]);
+      }
+      step = grant_step;
+    }
+    
     else if (tokens[0] == "harvest") {
       CHECK(4, tokens);
       HarvestStep* harvest_step = new HarvestStep(COMMAND::HARVEST);

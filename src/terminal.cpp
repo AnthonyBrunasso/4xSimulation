@@ -34,6 +34,13 @@ namespace terminal  {
   } \
 } 
 
+#define CHECK(arg_count, tokens) { \
+  if (tokens.size() < arg_count) { \
+    bad_arguments(tokens); \
+    return true; \
+  } \
+}
+
   typedef std::unordered_map<std::string, std::function<bool(const std::vector<std::string>&)> > CommandMap;
   std::vector<std::string> s_help_list;
   CommandMap s_query_map;
@@ -79,24 +86,38 @@ namespace terminal  {
       return true;
     });
 
-    terminal::add_query("science", "science <scienceType> <playerId>", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(2, tokens);
-      SCIENCE_TYPE st = get_science_type(tokens[1]);
-      if (st == SCIENCE_TYPE::UNKNOWN) {
-        st = static_cast<SCIENCE_TYPE>(std::stoul(tokens[1]));
-      }
-      ScienceNode* sn = science::Science(st);
-      if (!sn) return false;
+    terminal::add_query("science", "science <playerId> [scienceType]", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK(2, tokens);
+      uint32_t player_id = std::stoul(tokens[1]);
+      if (tokens.size() > 2) {
+        SCIENCE_TYPE st = get_science_type(tokens[2]);
+        if (st == SCIENCE_TYPE::UNKNOWN) {
+          st = static_cast<SCIENCE_TYPE>(std::stoul(tokens[2]));
+        }
+        ScienceNode* sn = science::Science(st);
+        if (!sn) return false;
 
-      science::debug_requirements(sn);
-      uint32_t player_id = std::stoul(tokens[2]);
-      if (science::available(player_id, sn)) {
-        std::cout << "Science is ready for research" << std::endl;
-      }
-      else {
-        std::cout << "The study of this science is yet unknown to this player." << std::endl;
+        science::debug_requirements(sn);
+      
+        uint32_t player_id = std::stoul(tokens[1]);
+        if (science::available(player_id, sn)) {
+          std::cout << "Science is ready for research" << std::endl;
+        }
+        else {
+          std::cout << "The study of this science is yet unknown to this player." << std::endl;
+        }
       }
 
+      Player* player = player::get_player(player_id);
+      if (!player) return false;
+      std::cout << "-- Available Sciences --" << std::endl;
+      for (size_t i = 0; i < player->m_available_science.size(); ++i) {
+        uint32_t st_i = player->m_available_science[i];
+        ScienceNode* sn = science::Science(st_i);
+        if (!sn) continue;
+        std::cout << static_cast<uint32_t>(sn->m_type) << ": " << sn->Name() << std::endl;
+      }
+      
       return true;
     });
     
@@ -449,6 +470,7 @@ namespace terminal  {
     std::cout << "  colonize <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <constructionType>" << std::endl;
     std::cout << "  end_turn" << std::endl;
+    std::cout << "  grant <scienceType>" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
     std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;

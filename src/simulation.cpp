@@ -330,6 +330,12 @@ namespace simulation {
     } 
   }
 
+  void execute_grant() {
+    GrantStep* grant_step = static_cast<GrantStep*>(s_current_step);
+    SCIENCE_TYPE st = static_cast<SCIENCE_TYPE>(grant_step->m_science);
+    science::research_complete(grant_step->m_player, science::Science(st));
+  }
+
   void execute_harvest() {
     HarvestStep* harvest_step = static_cast<HarvestStep*>(s_current_step);
     Player* player = player::get_player(harvest_step->m_player);
@@ -729,6 +735,9 @@ void simulation::process_step(Step* step) {
       execute_construction();
       break;
     case COMMAND::DISCOVER:
+      break;
+    case COMMAND::GRANT:
+      execute_grant();
       break;
     case COMMAND::HARVEST:
       execute_harvest();
