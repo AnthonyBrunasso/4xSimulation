@@ -16,6 +16,7 @@
 #include "game_types.h"
 #include "terrain_yield.h"
 #include "ai_barbarians.h"
+#include "science.h"
 
 #include <iostream>
 #include <vector>
@@ -664,12 +665,14 @@ void simulation::start() {
   world_map::build(start, 10);
   // Setup unit definitions
   unit_definitions::initialize();
+  science::initialize();
   world_map::load_file("marin.dat");
 }
 
 void simulation::kill() {
   units::clear();
   city::clear();
+  science::shutdown();
 }
 
 uint32_t simulation::get_turn() {

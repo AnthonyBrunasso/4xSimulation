@@ -14,6 +14,7 @@ AI_ORDER     = "AI_ORDER"
 TURN         = "TURN"
 SEARCH       = "SEARCH"
 DIRECTION    = "DIRECTION"
+SCIENCE      = "SCIENCE"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Gold'     , 1)
@@ -69,3 +70,17 @@ add_gametype(DIRECTION, "South_East", 3);
 add_gametype(DIRECTION, "South_West", 4);
 add_gametype(DIRECTION, "West"      , 5);
 add_gametype(DIRECTION, "North_West", 6);
+
+add_gametype(SCIENCE, "Agriculture", 1);
+add_gametype(SCIENCE, "Pottery", 2);
+add_gametype(SCIENCE, "Animal_Husbandry", 3);
+add_gametype(SCIENCE, "Archery", 4);
+add_gametype(SCIENCE, "Mining", 5);
+add_gametype(SCIENCE, "Sailing", 6);
+add_gametype(SCIENCE, "Calendar", 7);
+add_gametype(SCIENCE, "Writing", 8);
+add_gametype(SCIENCE, "Trapping", 9);
+add_gametype(SCIENCE, "Wheel", 10);
+add_gametype(SCIENCE, "Masonry", 11);
+add_gametype(SCIENCE, "Bronze_Working", 12);
+

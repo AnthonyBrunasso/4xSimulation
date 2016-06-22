@@ -16,6 +16,7 @@
 #include "search.h"
 #include "terrain_yield.h"
 #include "random.h"
+#include "science.h"
 
 #include <algorithm>
 #include <iostream>
@@ -78,6 +79,25 @@ namespace terminal  {
       return true;
     });
 
+    terminal::add_query("science", "science <scienceType>", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(2, tokens);
+      SCIENCE_TYPE st = get_science_type(tokens[1]);
+      if (st == SCIENCE_TYPE::UNKNOWN) {
+        st = static_cast<SCIENCE_TYPE>(std::stoul(tokens[1]));
+      }
+      ScienceNode* sn = science::Science(st);
+      if (!sn) return false;
+
+      science::debug_requirements(sn);
+      if (science::available(sn)) {
+        std::cout << "Science is ready for research" << std::endl;
+      }
+      else {
+        std::cout << "The study of this science is yet unknown." << std::endl;
+      }
+      return true;
+    });
+    
     terminal::add_query("idle_queue", "idle_queue", [](const std::vector<std::string>& tokens) {
       CHECK_VALID(1, tokens);
   
