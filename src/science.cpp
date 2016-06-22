@@ -1,6 +1,7 @@
 
 #include "science.h"
 #include "game_types.h"
+#include "player.h"
 #include <unordered_map>
 #include <iostream>
 
@@ -31,7 +32,7 @@ namespace science {
   void initialize() {
     auto science_init = [](SCIENCE_TYPE st) {
       uint32_t key = static_cast<uint32_t>(st);
-      s_tower_of_babylon[key] = new ScienceNode(get_science_name(st));
+      s_tower_of_babylon[key] = new ScienceNode(st);
     };
     for_each_science_type(science_init);
     std::vector<ScienceEdge> edges { 
@@ -57,19 +58,19 @@ namespace science {
 
   void debug_requirements(ScienceNode* sn) {
     if (!sn) return;
-    std::cout << "Science Required: " << sn->m_name << std::endl;
+    std::cout << "Science Required: " << sn->Name() << std::endl;
     for (auto node : sn->m_previous) {
       debug_requirements(node);
     }
   }
 
-  bool available(ScienceNode* sn) {
+  bool available(uint32_t player_id, ScienceNode* sn) {
     if(!sn) return false;
-    bool researched = true;
+    bool can_research = true;
     for (auto node : sn->m_previous) {
-      researched = researched && node->m_researched;
+      can_research = can_research && node->Researched(player_id);
     }
-    return researched;
+    return can_research;
   }
 
   void shutdown() {
@@ -81,3 +82,14 @@ namespace science {
     s_tower_of_babylon.clear();
   }
 };
+
+std::string ScienceNode::Name() {
+  return get_science_name(m_type);
+}
+
+bool ScienceNode::Researched(uint32_t player_id) {
+  Player* player = player::get_player(player_id);
+  if (!player) return false;
+  return player->DiscoveredScience(m_type);
+}
+

@@ -79,7 +79,7 @@ namespace terminal  {
       return true;
     });
 
-    terminal::add_query("science", "science <scienceType>", [](const std::vector<std::string>& tokens) -> bool {
+    terminal::add_query("science", "science <scienceType> <playerId>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(2, tokens);
       SCIENCE_TYPE st = get_science_type(tokens[1]);
       if (st == SCIENCE_TYPE::UNKNOWN) {
@@ -89,12 +89,14 @@ namespace terminal  {
       if (!sn) return false;
 
       science::debug_requirements(sn);
-      if (science::available(sn)) {
+      uint32_t player_id = std::stoul(tokens[2]);
+      if (science::available(player_id, sn)) {
         std::cout << "Science is ready for research" << std::endl;
       }
       else {
-        std::cout << "The study of this science is yet unknown." << std::endl;
+        std::cout << "The study of this science is yet unknown to this player." << std::endl;
       }
+
       return true;
     });
     

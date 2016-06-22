@@ -27,6 +27,7 @@ public:
   bool OwnsImprovement(uint32_t id) const;
   bool DiscoveredPlayer(uint32_t id) const;
   bool DiscoveredCity(uint32_t id) const;
+  bool DiscoveredScience(SCIENCE_TYPE st) const;
 
   uint32_t m_id;
   std::string m_name;
@@ -36,6 +37,7 @@ public:
   std::set<uint32_t> m_improvements;
   std::set<uint32_t> m_discovered_players;
   std::set<uint32_t> m_discovered_cities;
+  std::set<uint32_t> m_discovered_science;
   TURN_TYPE m_turn_state;
 
   float m_gold;

@@ -71,6 +71,11 @@ bool Player::DiscoveredCity(uint32_t id) const {
   return m_discovered_cities.find(id) != m_discovered_cities.end();
 }
 
+bool Player::DiscoveredScience(SCIENCE_TYPE st) const {
+  uint32_t id = static_cast<uint32_t>(st);
+  return m_discovered_science.find(id) != m_discovered_science.end();
+}
+
 namespace {
   // List of players, player at index 0 will be player 1 ... index N player N - 1
   std::vector<Player*> s_players;
