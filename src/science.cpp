@@ -4,6 +4,7 @@
 #include "player.h"
 #include <algorithm>
 #include <unordered_map>
+#include <cmath>
 #include <iostream>
 
 namespace science {
@@ -94,6 +95,36 @@ namespace science {
     }
   }
   
+  uint32_t node_depth(ScienceNode* sn, uint32_t depth=1) {
+    if (sn->m_previous.empty()) return depth;
+    uint32_t min_depth = 0xffffffff;
+    for (auto node : sn->m_previous) {
+      min_depth = std::min(min_depth, node_depth(node, depth+1));
+    }
+    return min_depth;
+  }
+  
+  float ancient_exponent(uint32_t x) {
+    return 43.f - 18.f*x + 14.f * std::pow(x,2);
+  }
+
+  float normal_exponent(uint32_t x) {
+    return 270.f - 20.f*x+72.f*std::pow(x, 2);
+  }
+  
+  float research_cost(ScienceNode* sn) {
+    uint32_t depth = node_depth(sn) - 1;
+    std::cout << "Depth of science " << get_science_name(sn->m_type) << " is " << depth << std::endl;
+    if (depth == 0) {
+      return 23.f;
+    }
+    else if (depth <= 4) {
+      return ancient_exponent(depth);
+    }
+
+    return normal_exponent(depth-4);
+  }
+
   void shutdown() {
     ScienceNodeMap::iterator it = s_tower_of_babylon.begin();
     for(; it != s_tower_of_babylon.end(); ++it) {

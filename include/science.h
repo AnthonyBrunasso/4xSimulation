@@ -24,6 +24,7 @@ namespace science {
 
   ScienceNode* Science(SCIENCE_TYPE);
   ScienceNode* Science(uint32_t);
+  float research_cost(ScienceNode* sn);
   void debug_requirements(ScienceNode* sn);
   bool available(uint32_t player_id, ScienceNode* sn);
   void research_complete(uint32_t player_id, ScienceNode* sn);

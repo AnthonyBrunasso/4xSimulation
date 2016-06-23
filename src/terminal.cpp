@@ -106,6 +106,8 @@ namespace terminal  {
         else {
           std::cout << "The study of this science is yet unknown to this player." << std::endl;
         }
+        
+        std::cout << "The science costs: " << science::research_cost(sn) << std::endl;
       }
 
       Player* player = player::get_player(player_id);
