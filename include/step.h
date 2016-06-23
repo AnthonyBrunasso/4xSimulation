@@ -33,6 +33,7 @@ enum class COMMAND {
   ABORT,
   SIEGE,
   GRANT,
+  MAGIC,
 };
 
 struct Step {
@@ -226,3 +227,9 @@ struct GrantStep : public Step {
   uint32_t m_science;
 };
 
+struct MagicStep : public Step {
+  MagicStep() : Step(COMMAND::MAGIC) {};
+  uint32_t m_player;
+  sf::Vector3i m_location;
+  MAGIC_TYPE m_type;
+};

@@ -15,6 +15,7 @@ TURN         = "TURN"
 SEARCH       = "SEARCH"
 DIRECTION    = "DIRECTION"
 SCIENCE      = "SCIENCE"
+MAGIC        = "MAGIC"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Gold'     , 1)
@@ -84,3 +85,4 @@ add_gametype(SCIENCE, "Wheel", 10);
 add_gametype(SCIENCE, "Masonry", 11);
 add_gametype(SCIENCE, "Bronze_Working", 12);
 
+add_gametype(MAGIC, "Fireball", 1);

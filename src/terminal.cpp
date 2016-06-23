@@ -469,6 +469,7 @@ namespace terminal  {
     std::cout << "  abort <cityId> <constructionIndex>" << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  city_defense <unitId>" << std::endl;
+    std::cout << "  cast <magicType> <x> <y> <z>" << std::endl;
     std::cout << "  colonize <x> <y> <z>" << std::endl;
     std::cout << "  construct <cityId> <constructionType>" << std::endl;
     std::cout << "  end_turn" << std::endl;

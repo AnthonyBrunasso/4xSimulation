@@ -17,6 +17,7 @@
 #include "terrain_yield.h"
 #include "ai_barbarians.h"
 #include "science.h"
+#include "magic.h"
 
 #include <iostream>
 #include <vector>
@@ -580,6 +581,11 @@ namespace simulation {
     return "Siege Occured";
   }
 
+  void execute_magic() {
+    MagicStep* magic_step = static_cast<MagicStep*>(s_current_step);
+    magic::cast(magic_step->m_player, magic_step->m_type, magic_step->m_location);
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
     if(!unit) return;
@@ -672,6 +678,7 @@ void simulation::start() {
   // Setup unit definitions
   unit_definitions::initialize();
   science::initialize();
+  magic::initialize();
   world_map::load_file("marin.dat");
 }
 
@@ -791,6 +798,9 @@ void simulation::process_step(Step* step) {
     case COMMAND::CITY_DEFENSE:
       std::cout << execute_city_defense() << std::endl;
       return;
+    case COMMAND::MAGIC:
+      execute_magic();
+      break;
     default:
       break;
   }
