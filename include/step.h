@@ -228,8 +228,9 @@ struct GrantStep : public Step {
 };
 
 struct MagicStep : public Step {
-  MagicStep() : Step(COMMAND::MAGIC) {};
+  MagicStep() : Step(COMMAND::MAGIC), m_cheat(false) {};
   uint32_t m_player;
   sf::Vector3i m_location;
   MAGIC_TYPE m_type;
+  bool m_cheat;
 };

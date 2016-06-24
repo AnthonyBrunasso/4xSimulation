@@ -314,11 +314,14 @@ namespace {
     }
 
     else if (tokens[0] == "cast") {
-      CHECK_VALID(5, tokens);
+      CHECK(5, tokens);
       MagicStep* magic = new MagicStep();
       magic->m_type = get_magic_type(tokens[1]);
       magic->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       magic->m_player = s_active_player;
+      if (tokens.size() > 5) {
+        magic->m_cheat = true;
+      }
       step = magic;
     }
 

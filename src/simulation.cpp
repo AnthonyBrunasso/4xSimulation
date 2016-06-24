@@ -583,7 +583,7 @@ namespace simulation {
 
   void execute_magic() {
     MagicStep* magic_step = static_cast<MagicStep*>(s_current_step);
-    magic::cast(magic_step->m_player, magic_step->m_type, magic_step->m_location);
+    magic::cast(magic_step->m_player, magic_step->m_type, magic_step->m_location, magic_step->m_cheat);
   }
 
   void execute_queue_move() {
