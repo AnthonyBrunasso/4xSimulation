@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
+Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_type)
     : m_id(id)
     , m_name(name)
     , m_cities()
@@ -16,7 +16,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_turn_state(TURN_TYPE::TURNACTIVE)
     , m_gold(0.0f)
     , m_science(0.0f)
-    , m_magic(0.f)
+    , m_magic(magic) // Players should start with some magic
     , m_resources()
     , m_research(SCIENCE_TYPE::AGRICULTURE)
     , m_ai_type(ai_type)
@@ -86,7 +86,7 @@ namespace {
 
 uint32_t player::create(AI_TYPE ai_type, const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
-  s_players.push_back(new Player(playerId, name, ai_type));
+  s_players.push_back(new Player(playerId, name, 10.0f, ai_type));
   return playerId;
 }
 

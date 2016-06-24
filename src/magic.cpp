@@ -4,7 +4,10 @@
 #include "world_map.h"
 #include "util.h"
 #include "units.h"
+#include "search.h"
 #include "player.h"
+#include "world_map.h"
+#include "city.h"
 
 #include <iostream>
 #include <unordered_map>
@@ -24,6 +27,10 @@ namespace {
   };
   
   std::unordered_map<uint32_t, Spell> s_magic_stats;
+
+  typedef std::vector<std::function<bool(uint32_t, const sf::Vector3i&)> > Requirements;
+  typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
+  RequirementMap s_requirements;
 
   void damage_units(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
@@ -45,10 +52,32 @@ void magic::initialize() {
   uint32_t id = util::enum_to_uint(MAGIC_TYPE::FIREBALL);
   // Fireball does 5 whopping damage! Woah!
   s_magic_stats[id] = Spell(5.0f, 2.0f, MAGIC_TYPE::FIREBALL);
+
+  id = util::enum_to_uint(MAGIC_TYPE::MAGIC_MISSLE);
+  s_magic_stats[id] = Spell(3.0f, 0.5f, MAGIC_TYPE::MAGIC_MISSLE);
+
+  // Magic missles must come from a city.
+  auto missle_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
+    // Verify that a players city is nearby 
+    auto find_city = [player_id](const City& c) { 
+      if (c.m_owner_id == player_id) return true; 
+      return false;
+    };
+
+    // Dfs for for a city within two tiles of the target location.
+    if (search::bfs_cities(location, 2, world_map::get_map(), find_city)) {
+      return true;
+    }
+
+    return false;
+  };
+
+  s_requirements[id].push_back(missle_requirements);
 }
 
 void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& location, bool cheat/*=false*/) {
-  float magic_cost = s_magic_stats[util::enum_to_uint(type)].m_cost;
+  uint32_t utype = util::enum_to_uint(type);
+  float magic_cost = s_magic_stats[utype].m_cost;
   Player* p = player::get_player(player_id);
   if (!p) {
     std::cout << "Invalid player " << player_id << " attempting to cast a spell." << std::endl;
@@ -61,8 +90,21 @@ void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& locati
     return;
   }
 
+  // Check that the spell satisfies all its requirements.
+  if (!cheat && s_requirements.find(utype) != s_requirements.end()) {
+    for (auto req : s_requirements[utype]) {
+      if (!req(player_id, location)) {
+        std::cout << get_magic_name(type) << " does not meet requirements" << std::endl;
+        return;
+      }
+    }
+  }
+
   switch (type) {
     case MAGIC_TYPE::FIREBALL:
+      damage_units(player_id, type, location);
+      break;
+    case MAGIC_TYPE::MAGIC_MISSLE:
       damage_units(player_id, type, location);
       break;
     case MAGIC_TYPE::UNKNOWN:

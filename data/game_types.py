@@ -85,4 +85,5 @@ add_gametype(SCIENCE, "Wheel", 10);
 add_gametype(SCIENCE, "Masonry", 11);
 add_gametype(SCIENCE, "Bronze_Working", 12);
 
-add_gametype(MAGIC, "Fireball", 1);
+add_gametype(MAGIC, "Fireball"    , 1);
+add_gametype(MAGIC, "Magic_Missle", 2);

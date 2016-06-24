@@ -19,7 +19,7 @@ struct Improvement;
 
 class Player {
 public:
-  Player(uint32_t id, const std::string& name, AI_TYPE ai_type);
+  Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_type);
   ~Player();
 
   bool OwnsCity(uint32_t id) const;
