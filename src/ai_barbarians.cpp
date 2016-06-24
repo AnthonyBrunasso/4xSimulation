@@ -3,6 +3,7 @@
 #include "ai_evaluations.h"
 #include "ai_evaluator_store.h"
 #include "ai_decisions.h"
+#include "ai_decision_store.h"
 #include "ai_state.h"
 #include "player.h"
 #include "dtree.h"
@@ -14,12 +15,6 @@
 namespace {
   DTree* s_macro_dtree = nullptr;
   DTree* s_micro_dtree = nullptr;
-  Settle s_settle_decision;
-  Explore s_explore_decision;
-  // Barbarians only construct melee units.
-  Construct s_construct_decision(CONSTRUCTION_TYPE::MELEE);
-  UnitDecision s_unit_decision;
-  // TODO end here
   std::vector<uint32_t> s_player_ids;
 }
 
@@ -29,12 +24,12 @@ void barbarians::initialize() {
   DNode* node = new DNode(nullptr, &evaluations::get_colonize());
 
   // If they do create a city.
-  node->m_right = new DNode(&s_settle_decision, nullptr);
+  node->m_right = new DNode(&decisions::get_settle(), nullptr);
   // Otherwise evaluate the production needs of the city.
   node->m_left = new DNode(nullptr, &evaluations::get_produce());
   DNode*& produce_eval = node->m_left;
   // Construct something in the city.
-  produce_eval->m_right = new DNode(&s_construct_decision, nullptr);
+  produce_eval->m_right = new DNode(&decisions::get_construct(), nullptr);
 
   // Create micro tree.
   DNode* mnode = new DNode(nullptr, &evaluations::get_has_units());
@@ -42,14 +37,14 @@ void barbarians::initialize() {
   mnode->m_right = new DNode(nullptr, &evaluations::get_discovered_cities());
   DNode*& discovered_eval = mnode->m_right;
   // If there are no discovered cities send all units to explore.
-  discovered_eval->m_left = new DNode(&s_explore_decision, nullptr);
+  discovered_eval->m_left = new DNode(&decisions::get_explore(), nullptr);
   // Otherwise evaluate each units order.
   discovered_eval->m_right = new DNode(nullptr, &evaluations::get_unit_order());
   DNode*& attack_eval = discovered_eval->m_right;
   // Execute all unit orders.
-  attack_eval->m_right = new DNode(&s_unit_decision, nullptr);
+  attack_eval->m_right = new DNode(&decisions::get_unit(), nullptr);
   // If unit orders can't be evaluated, for whatever reason, just explore.
-  attack_eval->m_left = new DNode(&s_explore_decision, nullptr);
+  attack_eval->m_left = new DNode(&decisions::get_explore(), nullptr);
 
   // Construct the barbarians decision tree.
   s_macro_dtree = new DTree(node);
