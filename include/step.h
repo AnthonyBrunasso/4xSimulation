@@ -34,6 +34,7 @@ enum class COMMAND {
   SIEGE,
   GRANT,
   MAGIC,
+  RESEARCH,
 };
 
 struct Step {
@@ -234,3 +235,10 @@ struct MagicStep : public Step {
   MAGIC_TYPE m_type;
   bool m_cheat;
 };
+
+struct ResearchStep : public Step {
+  ResearchStep() : Step(COMMAND::RESEARCH) {};
+  uint32_t m_player;
+  uint32_t m_science;
+};
+

@@ -113,10 +113,13 @@ namespace terminal  {
       Player* player = player::get_player(player_id);
       if (!player) return false;
       std::cout << "-- Available Sciences --" << std::endl;
-      for (size_t i = 0; i < player->m_available_science.size(); ++i) {
-        uint32_t st_i = player->m_available_science[i];
+      for (size_t i = 0; i < player->m_available_research.size(); ++i) {
+        uint32_t st_i = player->m_available_research[i];
         ScienceNode* sn = science::Science(st_i);
         if (!sn) continue;
+        if (sn->m_type == player->m_research) {
+          std::cout << "*";
+        }
         std::cout << static_cast<uint32_t>(sn->m_type) << ": " << sn->Name() << std::endl;
       }
       

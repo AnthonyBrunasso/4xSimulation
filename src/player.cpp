@@ -18,6 +18,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     , m_science(0.0f)
     , m_magic(0.f)
     , m_resources()
+    , m_research(SCIENCE_TYPE::AGRICULTURE)
     , m_ai_type(ai_type)
     , m_ai_state(nullptr)
 {
@@ -44,7 +45,7 @@ Player::Player(uint32_t id, const std::string& name, AI_TYPE ai_type)
     this->m_improvements.erase(id);
   });
 
-  m_available_science.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
+  m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
 }
 
 Player::~Player() {

@@ -58,7 +58,6 @@ namespace simulation {
   // Order of operations when a turn begins
   void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
   void phase_spawn_buildings();
-  void phase_science_done();
 
   bool step_move(UnitMovementVector& units_to_move, uint32_t player_id) {
     bool movement = false;
@@ -215,6 +214,17 @@ namespace simulation {
   }
 
   void phase_science_progression() {
+    player::for_each_player([] (Player& player) {
+      ScienceNode* sn = science::Science(player.m_research);
+      if (!sn) return;
+      float req = science::research_cost(sn);
+      if (player.m_science >= req) {
+        std::cout << "Player " << player.m_id << " has discovered the science of " << get_science_name(player.m_research) << std::endl;
+        player.m_science -= req;
+        science::research_complete(player.m_id, sn);
+        player.m_research = SCIENCE_TYPE::UNKNOWN;
+      }
+    });
 
   }
 
@@ -248,8 +258,12 @@ namespace simulation {
     }
   }
 
-  void phase_science_done() {
-
+  void science_notifications() {
+    player::for_each_player([] (Player& player) {
+      if (player.m_research == SCIENCE_TYPE::UNKNOWN) {
+        std::cout << "You require a new research task." << std::endl;
+      }
+    });
   }
 
   void execute_construction() {
@@ -536,6 +550,17 @@ namespace simulation {
     return ss.str();
   }
 
+  std::string execute_research() {
+    ResearchStep* research_step = static_cast<ResearchStep*>(s_current_step);
+    Player* player = player::get_player(research_step->m_player);
+    if (!player) return "Invalid player";
+    std::vector<uint32_t>& research = player->m_available_research;
+    std::vector<uint32_t>::const_iterator findIt = find(research.begin(), research.end(), research_step->m_science);
+    if (findIt == research.end()) return "Research is not available to player.";
+    player->m_research = static_cast<SCIENCE_TYPE>(research_step->m_science);
+    return "Research assigned.";
+  }
+
   std::string execute_sell() {
     SellStep* sell_step = static_cast<SellStep*>(s_current_step);
     Player* player = player::get_player(sell_step->m_player);
@@ -713,6 +738,7 @@ void player_notifications(uint32_t player_id) {
   if (unit_count) {
     std::cout << "Player has " << unit_count << " idle_unit." << std::endl;
   }
+  simulation::science_notifications();
 }
 
 void simulation::process_step(Step* step) {
@@ -772,6 +798,9 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND::PURCHASE:
       std::cout << execute_purchase() << std::endl;
+      break;
+    case COMMAND::RESEARCH:
+      std::cout << execute_research() << std::endl;
       break;
     case COMMAND::SPECIALIZE:
       execute_specialize();
@@ -851,7 +880,6 @@ void simulation::process_begin_turn() {
 
   // Provide turn feedback
   phase_global_events();
-  phase_science_done();
 
   // Increment turn counter
   ++s_current_turn;

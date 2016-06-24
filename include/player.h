@@ -38,7 +38,7 @@ public:
   std::set<uint32_t> m_discovered_players;
   std::set<uint32_t> m_discovered_cities;
   std::set<uint32_t> m_discovered_science;
-  std::vector<uint32_t> m_available_science;
+  std::vector<uint32_t> m_available_research;
   TURN_TYPE m_turn_state;
 
   float m_gold;
@@ -47,6 +47,7 @@ public:
 
   // Resources owned by this player.
   ResourceUMap m_resources;
+  SCIENCE_TYPE m_research;
   AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
   AIState* m_ai_state;

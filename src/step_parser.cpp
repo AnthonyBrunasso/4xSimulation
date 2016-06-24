@@ -248,6 +248,17 @@ namespace {
       step = purchase_step;
     }
 
+    else if (tokens[0] == "research") {
+      CHECK_VALID(2, tokens);
+      ResearchStep* research_step = new ResearchStep();
+      research_step->m_player = s_active_player;
+      research_step->m_science = static_cast<uint32_t>(get_science_type(tokens[1]));
+      if (research_step->m_science == 0) {
+        research_step->m_science = std::stoul(tokens[1]);
+      }
+      step = research_step;
+    }
+    
     else if (tokens[0] == "sell") {
       CHECK(2, tokens);
       SellStep* sell_step = new SellStep(COMMAND::SELL);
