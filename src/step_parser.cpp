@@ -336,6 +336,14 @@ namespace {
       step = magic;
     }
 
+    else if (tokens[0] == "status") {
+      CHECK(5, tokens);
+      StatusStep* status = new StatusStep();
+      status->m_type = get_status_type(tokens[1]);
+      status->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      step = status;
+    }
+
     else {
       std::cout << "Unrecognized step: " << format::vector(tokens) << std::endl;
     }

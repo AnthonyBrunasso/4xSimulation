@@ -35,6 +35,7 @@ enum class COMMAND {
   GRANT,
   MAGIC,
   RESEARCH,
+  STATUS,
 };
 
 struct Step {
@@ -240,5 +241,11 @@ struct ResearchStep : public Step {
   ResearchStep() : Step(COMMAND::RESEARCH) {};
   uint32_t m_player;
   uint32_t m_science;
+};
+
+struct StatusStep : public Step {
+  StatusStep() : Step(COMMAND::STATUS) {};
+  STATUS_TYPE m_type;
+  sf::Vector3i m_location;
 };
 

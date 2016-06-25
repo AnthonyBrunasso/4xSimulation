@@ -40,7 +40,7 @@ public:
 };
 
 namespace units {
-  uint32_t create(UNIT_TYPE UNIT_TYPE, const sf::Vector3i& location, uint32_t player_id);
+  uint32_t create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void destroy(uint32_t entity_id);

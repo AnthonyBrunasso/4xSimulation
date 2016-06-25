@@ -486,6 +486,7 @@ namespace terminal  {
     std::cout << "  sell <cityId> [constructionType]" << std::endl;
     std::cout << "  siege <cityId> <unitId>" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;
+    std::cout << "  status <statusType> <x> <y> <z>" << std::endl;
     // Modifies the stats of a unit
     std::cout << std::endl;
     std::cout << "Queries: " << std::endl;

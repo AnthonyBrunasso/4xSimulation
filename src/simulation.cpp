@@ -19,6 +19,7 @@
 #include "science.h"
 #include "magic.h"
 #include "custom_math.h"
+#include "status_effect.h"
 
 #include <iostream>
 #include <vector>
@@ -623,6 +624,11 @@ namespace simulation {
     magic::cast(magic_step->m_player, magic_step->m_type, magic_step->m_location, magic_step->m_cheat);
   }
 
+  void execute_status() {
+    StatusStep* status_step = static_cast<StatusStep*>(s_current_step);
+    status_effect::create(status_step->m_type, status_step->m_location);
+  }
+
   void execute_queue_move() {
     Unit* unit = generate_path();
     if(!unit) return;
@@ -841,6 +847,9 @@ void simulation::process_step(Step* step) {
       return;
     case COMMAND::MAGIC:
       execute_magic();
+      break;
+    case COMMAND::STATUS:
+      execute_status();
       break;
     default:
       break;

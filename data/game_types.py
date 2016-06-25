@@ -16,6 +16,7 @@ SEARCH       = "SEARCH"
 DIRECTION    = "DIRECTION"
 SCIENCE      = "SCIENCE"
 MAGIC        = "MAGIC"
+STATUS       = "STATUS"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Gold'     , 1)
@@ -65,25 +66,28 @@ add_gametype(AI_ORDER, 'Pillage_Improvement' , 5)
 add_gametype(AI_ORDER, 'Approach_Improvement', 6)
 add_gametype(AI_ORDER, 'Wander'              , 7)
 
-add_gametype(DIRECTION, "North_East", 1);
-add_gametype(DIRECTION, "East"      , 2);
-add_gametype(DIRECTION, "South_East", 3);
-add_gametype(DIRECTION, "South_West", 4);
-add_gametype(DIRECTION, "West"      , 5);
-add_gametype(DIRECTION, "North_West", 6);
+add_gametype(DIRECTION, "North_East", 1)
+add_gametype(DIRECTION, "East"      , 2)
+add_gametype(DIRECTION, "South_East", 3)
+add_gametype(DIRECTION, "South_West", 4)
+add_gametype(DIRECTION, "West"      , 5)
+add_gametype(DIRECTION, "North_West", 6)
 
-add_gametype(SCIENCE, "Agriculture", 1);
-add_gametype(SCIENCE, "Pottery", 2);
-add_gametype(SCIENCE, "Animal_Husbandry", 3);
-add_gametype(SCIENCE, "Archery", 4);
-add_gametype(SCIENCE, "Mining", 5);
-add_gametype(SCIENCE, "Sailing", 6);
-add_gametype(SCIENCE, "Calendar", 7);
-add_gametype(SCIENCE, "Writing", 8);
-add_gametype(SCIENCE, "Trapping", 9);
-add_gametype(SCIENCE, "Wheel", 10);
-add_gametype(SCIENCE, "Masonry", 11);
-add_gametype(SCIENCE, "Bronze_Working", 12);
+add_gametype(SCIENCE, "Agriculture", 1)
+add_gametype(SCIENCE, "Pottery", 2)
+add_gametype(SCIENCE, "Animal_Husbandry", 3)
+add_gametype(SCIENCE, "Archery", 4)
+add_gametype(SCIENCE, "Mining", 5)
+add_gametype(SCIENCE, "Sailing", 6)
+add_gametype(SCIENCE, "Calendar", 7)
+add_gametype(SCIENCE, "Writing", 8)
+add_gametype(SCIENCE, "Trapping", 9)
+add_gametype(SCIENCE, "Wheel", 10)
+add_gametype(SCIENCE, "Masonry", 11)
+add_gametype(SCIENCE, "Bronze_Working", 12)
 
-add_gametype(MAGIC, "Fireball"    , 1);
-add_gametype(MAGIC, "Magic_Missle", 2);
+add_gametype(MAGIC, "Fireball"    , 1)
+add_gametype(MAGIC, "Magic_Missle", 2)
+
+add_gametype(STATUS, "Resist_Modifiers", 1);
+add_gametype(STATUS, "Stasis", 2);
