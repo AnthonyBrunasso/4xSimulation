@@ -110,13 +110,21 @@ bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
   if (!attacker || !defender) {
     return false;
   }
+  
+  Modifier attack_mod, defend_mod;
+  combat::calculate_modifiers(attacker, defender, attack_mod, defend_mod);
 
   std::cout << "Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
 
   // Get distance between characters
   uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
-  bool result = combat::engage(attacker->m_combat_stats, defender->m_combat_stats, distance);
+  bool result = combat::engage(
+    attacker->m_combat_stats, 
+    attack_mod, 
+    defender->m_combat_stats, 
+    defend_mod, 
+    distance);
 
   // If attacker or defender died, kill them
   if (defender->m_combat_stats.m_health == 0) {
@@ -151,6 +159,12 @@ void units::heal(uint32_t receiver_id, float amount) {
   if (!stats) return;
   float new_health = std::min(receiver->m_combat_stats.m_health+amount, stats->m_health);
   receiver->m_combat_stats.m_health = new_health;
+}
+
+void units::change_direction(uint32_t id, const sf::Vector3i& target) {
+  Unit* u = get_unit(id);
+  if (!u) return;
+  u->m_direction = target - u->m_location;
 }
 
 void units::clear() {

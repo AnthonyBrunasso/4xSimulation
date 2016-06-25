@@ -35,7 +35,7 @@ public:
   uint32_t m_owner_id;
 
   CombatStats m_combat_stats;
-  // Direction the unit is currently facing.
+  // Vector pointing the way the unit is facing. Directions in this game aren't normalized.
   sf::Vector3i m_direction;
 };
 
@@ -57,6 +57,9 @@ namespace units {
   bool combat(uint32_t attacker_id, uint32_t defender_id);
   void damage(uint32_t receiver_id, float amount);
   void heal(uint32_t receiver_id, float amount);
+
+  // Changes directoin towards target, doesn't normalize direction.
+  void change_direction(uint32_t id, const sf::Vector3i& target);
 
   void clear();
 }

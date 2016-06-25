@@ -1,6 +1,8 @@
 #include "combat.h"
 
 #include "hex.h"
+#include "units.h"
+#include "custom_math.h"
 
 #include <cmath>
 #include <algorithm>
@@ -28,7 +30,7 @@ bool combat::engage(CombatStats& attack_stats,
 
   defender_health -= attacker_attack;
   defend_stats.m_health = (std::max(0.0f, roundf(defender_health)));
-  std::cout << "Defender is delt " << attacker_attack << " damage! " << std::endl;
+  std::cout << "Defender is dealt " << attacker_attack << " damage! " << std::endl;
   std::cout << "Defender health is " << defend_stats.m_health << std::endl;
 
   // Only return fire if the defender can reach the attacker
@@ -52,4 +54,19 @@ bool combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32
   modifier.m_range_modifier = 1.0f;
 
   return engage(attack_stats, modifier, defend_stats, modifier, distance);
+}
+
+bool combat::calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attacker_modifier, Modifier& defender_modifier) {
+  if (!attacker || !defender) return false;
+
+  attacker_modifier.reset();
+  defender_modifier.reset();
+
+  // Attacker and defender are facing *nearly* the same direction, this is a backstab.
+  if (cmath::dot(attacker->m_direction, defender->m_direction) > 0) {
+    std::cout << attacker->m_unique_id << " backstabs " << defender->m_unique_id << std::endl;
+    attacker_modifier.m_attack_modifier = 1.5f;
+  }
+
+  return true;
 }

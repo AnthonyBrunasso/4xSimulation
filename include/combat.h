@@ -19,6 +19,12 @@ struct CombatStats {
 };
 
 struct Modifier {
+  void reset() { 
+    m_health_modifier = 1.0f;
+    m_attack_modifier = 1.0f;
+    m_range_modifier = 1.0f;
+  };
+
   float m_health_modifier;
   float m_attack_modifier;
   float m_range_modifier;
@@ -35,4 +41,6 @@ namespace combat {
 
   // Calls above function with all modifers equal to 1.0
   bool engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance);
+
+  bool calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attacker_modifier, Modifier& defender_modifier);
 }

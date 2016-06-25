@@ -18,6 +18,7 @@
 #include "ai_barbarians.h"
 #include "science.h"
 #include "magic.h"
+#include "custom_math.h"
 
 #include <iostream>
 #include <vector>
@@ -150,16 +151,27 @@ namespace simulation {
       if (!unit) {
         continue;
       }
+
+      Unit* defender = units::get_unit(pair.second);
+      if (!defender) {
+        continue;
+      }
       
       if (!unit->m_action_points) {
         std::cout << "Unit " << unit->m_unique_id << " (id) is too exhausted to initiate combat. " << std::endl;
         continue;
       }
 
-      // If combat occurs deduct action points from the initiator
+      // Attacker faces defender on combat initiation.
+      units::change_direction(pair.first, defender->m_location);
+
+      // If combat occurs deplete action points from the initiator
       if (units::combat(pair.first, pair.second)) {
         unit->m_action_points = 0;
       }
+
+      // Defender turns to face attacker after combat.
+      units::change_direction(pair.second, unit->m_location);
     }
 
     // Attacks should all complete in a single step?
