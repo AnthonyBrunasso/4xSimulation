@@ -2,6 +2,7 @@
 #include "city.h"
 #include "production.h"
 #include "terrain_yield.h"
+#include "util.h"
 
 #include "hex.h"
 #include "unique_id.h"
@@ -59,7 +60,7 @@ std::string format::unit(const Unit& unit) {
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl
      << " path: " << unit.m_path.size() << std::endl
      << " owner: " << unit.m_owner_id << std::endl
-     << " direction: " << get_direction_name(unit.m_direction);
+     << " direction: " << get_direction_name(util::get_direction(unit.m_direction));
 
   return std::move(ss.str());
 }

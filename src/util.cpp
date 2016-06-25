@@ -45,3 +45,22 @@ DIRECTION_TYPE util::get_direction(const sf::Vector3i& diff) {
   return DIRECTION_TYPE::UNKNOWN;
 }
 
+sf::Vector3i util::get_direction(DIRECTION_TYPE type) {
+  switch (type) {
+    case DIRECTION_TYPE::NORTH_EAST:
+      return sf::Vector3i(1, -1, 0);
+    case DIRECTION_TYPE::EAST:
+      return sf::Vector3i(1, 0, -1);
+    case DIRECTION_TYPE::SOUTH_EAST:
+      return sf::Vector3i(0, 1, -1);
+    case DIRECTION_TYPE::SOUTH_WEST:
+      return sf::Vector3i(-1, 1, 0);
+    case DIRECTION_TYPE::WEST:
+      return sf::Vector3i(-1, 0, 1);
+    case DIRECTION_TYPE::NORTH_WEST:
+      return sf::Vector3i(0, -1, 1);
+    case DIRECTION_TYPE::UNKNOWN:
+      return sf::Vector3i(0, 0, 0);
+  }
+  return sf::Vector3i(0, 0, 0);
+}

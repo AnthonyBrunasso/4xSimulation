@@ -3,6 +3,7 @@
 #include "game_types.h"
 #include "Vector3.hpp"
 #include "combat.h"
+#include "util.h"
 
 #include <cstdint>
 #include <functional>
@@ -21,7 +22,7 @@ public:
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1)
     // Random start direction? 
-    , m_direction(DIRECTION_TYPE::NORTH_EAST){};
+    , m_direction(util::get_direction(DIRECTION_TYPE::EAST)){};
 
   UNIT_TYPE m_unit_type;
   uint32_t m_unique_id;
@@ -35,7 +36,7 @@ public:
 
   CombatStats m_combat_stats;
   // Direction the unit is currently facing.
-  DIRECTION_TYPE m_direction;
+  sf::Vector3i m_direction;
 };
 
 namespace units {

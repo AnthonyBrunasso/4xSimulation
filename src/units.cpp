@@ -4,7 +4,6 @@
 #include "tile.h"
 #include "format.h"
 #include "hex.h"
-#include "util.h"
 #include "combat.h"
 #include "unit_definitions.h"
 
@@ -31,8 +30,6 @@ uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32
   Unit* unit = new Unit(id, unit_type);
   unit->m_location = location;
   unit->m_owner_id = player_id;
-  // Random direction.
-  unit->m_direction = DIRECTION_TYPE::NORTH_EAST;
   
   // Apply unit specific stats if they exist.
   CombatStats* stats = unit_definitions::get(unit_type);

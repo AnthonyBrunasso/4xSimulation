@@ -158,7 +158,7 @@ namespace simulation {
 
       // If combat occurs deduct action points from the initiator
       if (units::combat(pair.first, pair.second)) {
-        --unit->m_action_points;
+        unit->m_action_points = 0;
       }
     }
 
