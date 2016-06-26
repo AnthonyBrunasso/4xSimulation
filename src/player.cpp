@@ -17,7 +17,6 @@ Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_typ
     , m_gold(0.0f)
     , m_science(0.0f)
     , m_magic(magic) // Players should start with some magic
-    , m_resources()
     , m_research(SCIENCE_TYPE::AGRICULTURE)
     , m_ai_type(ai_type)
     , m_ai_state(nullptr)
@@ -100,6 +99,21 @@ Player* player::get_player(uint32_t i) {
 
 size_t player::get_count() {
   return s_players.size();
+}
+
+ResourceUMap player::get_resources(uint32_t player_id) {
+  ResourceUMap player_resources;
+
+  Player* player = player::get_player(player_id);
+  if (!player) return player_resources;
+
+  for (auto& impv_id : player->m_improvements) {
+    Improvement* impv = improvement::get_improvement(impv_id);
+    if (!impv) continue;
+    player_resources.add(impv->m_resource);
+  }
+
+  return player_resources;
 }
 
 void player::add_city(uint32_t player_id, uint32_t city_id) {

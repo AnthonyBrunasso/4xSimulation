@@ -51,7 +51,7 @@ void improvement::initialize() {
   s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS)] = fish_boats;
 }
 
-Improvement::Improvement(uint32_t unique_id, RESOURCE_TYPE res, IMPROVEMENT_TYPE type) 
+Improvement::Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type) 
   : m_unique_id(unique_id)
   , m_resource(res)
   , m_type(type)
@@ -64,11 +64,11 @@ void improvement::add_requirement(IMPROVEMENT_TYPE type,
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-uint32_t improvement::create(RESOURCE_TYPE res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
+uint32_t improvement::create(Resource res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
   Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
-    if (!requirement(res, type, location)) {
+    if (!requirement(res.m_type, type, location)) {
       std::cout << "Could not satisfy improvement create requirements." << std::endl;
       return unique_id::INVALID_ID;
     }
@@ -135,3 +135,4 @@ void improvement::for_each_improvement(
     operation(*improvement.second);
   }
 }
+

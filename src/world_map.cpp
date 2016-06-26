@@ -72,7 +72,7 @@ namespace {
     }     
   }
 
-  bool is_resource_available(RESOURCE_TYPE res, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+  bool is_resource_available(RESOURCE_TYPE rt, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
@@ -83,7 +83,7 @@ namespace {
     for (auto id : tile->m_improvement_ids) {
       Improvement* improvement = improvement::get_improvement(id);
       if (!improvement) continue;
-      if (improvement->m_resource == res) {
+      if (improvement->m_resource.m_type == rt) {
         std::cout << "Resource improvement already exists on this tile" << std::endl;
         return false;
       }

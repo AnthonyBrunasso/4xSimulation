@@ -112,7 +112,7 @@ std::string format::player(const Player& player) {
   ss << " gold: " << player.m_gold << std::endl;
   ss << " science: " << player.m_science << std::endl;
   ss << " magic: " << player.m_magic << std::endl;
-  ss << " resources: " << format::resources(player.m_resources) << std::endl;
+  ss << " resources: " << format::resources(player::get_resources(player.m_id)) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
   ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
   ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
@@ -153,7 +153,7 @@ std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 
   ss << "Unique id: " << improvement.m_unique_id << std::endl;
-  ss << " resource: " << get_resource_name(improvement.m_resource) << std::endl;
+  ss << " resource: " << get_resource_name(improvement.m_resource.m_type) << std::endl;
   ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);

@@ -54,9 +54,6 @@ namespace simulation {
   void phase_global_events();
   void phase_restore_actions();
 
-  void grant_improvement_resources(const Improvement& , Player& );
-  void phase_improvement_accrual();
-
   // Order of operations when a turn begins
   void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
   void phase_spawn_buildings();
@@ -213,19 +210,6 @@ namespace simulation {
     player::for_each_player(player_func);
   }
 
-  void phase_improvement_accrual() {
-    // Run improvement specific work. Example: Grant players reources for their improved tiles.
-    auto improvement_update_func = [](const Improvement& improvement, Player& player) {
-        if (improvement.m_type == IMPROVEMENT_TYPE::UNKNOWN) return;
-        grant_improvement_resources(improvement, player); 
-    };
-    auto player_func = [improvement_update_func](Player& player) {
-      auto rebind = [improvement_update_func, &player] (const Improvement& i) { improvement_update_func(i, player); };
-      player::for_each_player_improvement(player.m_id, rebind);
-    };
-    player::for_each_player(player_func);
-  }
-
   void phase_science_progression() {
     player::for_each_player([] (Player& player) {
       ScienceNode* sn = science::Science(player.m_research);
@@ -356,12 +340,17 @@ namespace simulation {
       return;
     }
     RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
-    if (!tile->HasResource(rt)) {
+    size_t i = 0;
+    for (; i < tile->m_resources.size(); ++i) {
+      if (tile->m_resources[i].m_type == rt) break;
+    }
+    if (i == tile->m_resources.size()) {
       std::cout << "Resource not available on this tile." << std::endl;
       return;
     }
+    Resource& res = tile->m_resources[i];
     auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
-    uint32_t id = improvement::create(rt, impv, improve_step->m_location, improve_step->m_player);
+    uint32_t id = improvement::create(res, impv, improve_step->m_location, improve_step->m_player);
     if (id) {
       std::cout << "adding improvement to player: " << player->m_name << std::endl;
       player::add_improvement(improve_step->m_player, id);
@@ -881,20 +870,6 @@ void simulation::process_step_from_ai(Step* step) {
   delete step;
 }
 
-void simulation::grant_improvement_resources(const Improvement& improvement, Player& player) {
-  Tile* tile = world_map::get_tile(improvement.m_location);
-  if (!tile) {
-    return;
-  }
-
-  // This will need some more work. This will cause all resources on a tile to be granted
-  // to the player. Perhaps we will need to check the type of resource/improvement if there are 
-  // multiple resource on the tile for instance. 
-  for (auto resource : tile->m_resources) {
-    player.m_resources.add(resource); 
-  }
-}
-
 void simulation::process_begin_turn() {
 
   if (!player::all_players_turn_ended()) {
@@ -914,8 +889,6 @@ void simulation::process_begin_turn() {
 
   // Increment turn counter
   ++s_current_turn;
-
-  phase_improvement_accrual();
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {

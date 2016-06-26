@@ -5,14 +5,15 @@
 #include <functional>
 #include <vector>
 
-enum class RESOURCE_TYPE;
+#include "resources.h"
+
 enum class IMPROVEMENT_TYPE;
 
 struct Improvement {
-  Improvement(uint32_t unique_id, RESOURCE_TYPE res, IMPROVEMENT_TYPE type);
+  Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type);
 
   uint32_t m_unique_id;
-  RESOURCE_TYPE m_resource;
+  Resource m_resource;
   IMPROVEMENT_TYPE m_type;
   // This is the player that owns this resource
   uint32_t m_owner_id;
@@ -27,7 +28,7 @@ namespace improvement {
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
   void add_requirement(IMPROVEMENT_TYPE type, std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
-  uint32_t create(RESOURCE_TYPE res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner);
+  uint32_t create(Resource res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);

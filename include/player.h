@@ -46,7 +46,6 @@ public:
   float m_magic;
 
   // Resources owned by this player.
-  ResourceUMap m_resources;
   SCIENCE_TYPE m_research;
   AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
@@ -57,13 +56,14 @@ namespace player {
   uint32_t create(AI_TYPE ai_type, const std::string& name);
   Player* get_player(uint32_t i);
   size_t get_count();
+  ResourceUMap get_resources(uint32_t player_id);
 
   void add_city(uint32_t player_id, uint32_t city_id);
   void add_unit(uint32_t player_id, uint32_t unit_id);
   void add_improvement(uint32_t player_id, uint32_t improvement_id);
   void add_discovered_player(uint32_t player_id, uint32_t other_player_id);
   void add_discovered_city(uint32_t player_id, uint32_t city);
-
+  
   bool all_players_turn_ended();
 
   // Deterministic (sorted) order iteration of the player's objects
