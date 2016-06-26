@@ -10,38 +10,72 @@
 namespace {
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
   typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
-  typedef std::vector<std::function<bool(const sf::Vector3i&)> > Requirements;
+  typedef std::vector<std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> > Requirements;
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
+  typedef std::vector<std::uint32_t> ValidResourceVector;
+  typedef std::unordered_map<uint32_t, ValidResourceVector> ImprovementResourcesMap;
+  ImprovementResourcesMap s_impvResources;
   ImprovementMap s_improvements;
   SubMap s_destroy_subs;
   SubMap s_create_subs;
   RequirementMap s_creation_requirements;
 }
 
-Improvement::Improvement(uint32_t unique_id, IMPROVEMENT_TYPE type) :
-  m_unique_id(unique_id)
+void improvement::initialize() {
+  ValidResourceVector mining = { 
+    util::enum_to_uint(RESOURCE_TYPE::LUXURY_GOLD),
+    util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_IRON),
+    util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_COAL),
+  };
+  ValidResourceVector pasture = {
+    util::enum_to_uint(RESOURCE_TYPE::CATTLE),
+  };
+  ValidResourceVector camp = {
+    util::enum_to_uint(RESOURCE_TYPE::DEER),
+  };
+  ValidResourceVector quarry = {
+    util::enum_to_uint(RESOURCE_TYPE::STONE),
+  };
+  ValidResourceVector fish_boats = {
+    util::enum_to_uint(RESOURCE_TYPE::FISH),
+  };
+  ValidResourceVector plantation = {
+    util::enum_to_uint(RESOURCE_TYPE::LUXURY_SUGAR),
+  };
+  
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::MINE)] = mining;
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE)] = pasture;
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::CAMP)] = camp;
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::PLANTATION)] = plantation;
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::QUARRY)] = quarry;
+  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS)] = fish_boats;
+}
+
+Improvement::Improvement(uint32_t unique_id, RESOURCE_TYPE res, IMPROVEMENT_TYPE type) 
+  : m_unique_id(unique_id)
+  , m_resource(res)
   , m_type(type)
   , m_owner_id(unique_id::INVALID_ID)
 {
 }
 
 void improvement::add_requirement(IMPROVEMENT_TYPE type, 
-    std::function<bool(const sf::Vector3i&)> requirement) {
+    std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement) {
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-uint32_t improvement::create(IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
+uint32_t improvement::create(RESOURCE_TYPE res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
   Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
-    if (!requirement(location)) {
+    if (!requirement(res, type, location)) {
       std::cout << "Could not satisfy improvement create requirements." << std::endl;
       return unique_id::INVALID_ID;
     }
   }
 
   uint32_t id = unique_id::generate();
-  Improvement* improvement = new Improvement(id, type);
+  Improvement* improvement = new Improvement(id, res, type);
   improvement->m_location = location;
   improvement->m_owner_id = owner;
 
@@ -75,6 +109,17 @@ void improvement::destroy(uint32_t id) {
 
 void improvement::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
   s_destroy_subs.push_back(sub);
+}
+
+ValidResourceVector improvement::resource_requirements(IMPROVEMENT_TYPE type) {
+  ValidResourceVector none;
+  uint32_t impv = util::enum_to_uint(type);
+  ImprovementResourcesMap::const_iterator itFind = s_impvResources.find(impv);
+  if (itFind == s_impvResources.end()) {
+    return none;
+  }
+
+  return itFind->second;
 }
 
 Improvement* improvement::get_improvement(uint32_t id) {

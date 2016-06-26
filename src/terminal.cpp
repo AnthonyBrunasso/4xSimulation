@@ -341,6 +341,7 @@ namespace terminal  {
       CHECK_VALID(1, tokens);
       for_each_improvement_type([](IMPROVEMENT_TYPE improvement) {
         std::cout << static_cast<int32_t>(improvement) << ": " << get_improvement_name(improvement) << std::endl;
+        std::cout << "  " << improvement::resource_requirements(improvement).size() << " requirements" << std::endl;
       });
       return true;
     });   
@@ -478,7 +479,7 @@ namespace terminal  {
     std::cout << "  end_turn" << std::endl;
     std::cout << "  grant <scienceType>" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
-    std::cout << "  improve <improvementType> <x> <y> <z>" << std::endl;
+    std::cout << "  improve <resourceType> <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  pillage <uintId>" << std::endl;
     std::cout << "  purchase <cityId> [constructionType]" << std::endl;

@@ -153,6 +153,7 @@ std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 
   ss << "Unique id: " << improvement.m_unique_id << std::endl;
+  ss << " resource: " << get_resource_name(improvement.m_resource) << std::endl;
   ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);

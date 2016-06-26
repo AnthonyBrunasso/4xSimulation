@@ -170,15 +170,21 @@ namespace {
       step = harvest_step;
     }
     else if (tokens[0] == "improve") {
-      CHECK(5, tokens);
+      CHECK(6, tokens);
       ImproveStep* improve_step = new ImproveStep();
       if (std::isdigit(tokens[1][0])) {
-        improve_step->m_improvement_type = std::stoul(tokens[1]);
+        improve_step->m_resource = std::stoul(tokens[1]);
       }
       else {
-        improve_step->m_improvement_type = util::enum_to_uint(get_improvement_type(tokens[1]));
+        improve_step->m_resource = util::enum_to_uint(get_resource_type(tokens[1]));
       }
-      improve_step->m_location = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
+      if (std::isdigit(tokens[2][0])) {
+        improve_step->m_improvement_type = std::stoul(tokens[2]);
+      }
+      else {
+        improve_step->m_improvement_type = util::enum_to_uint(get_improvement_type(tokens[2]));
+      }
+      improve_step->m_location = util::str_to_vector3(tokens[3], tokens[4], tokens[5]);
       improve_step->m_player = s_active_player;
       step = improve_step;
     }

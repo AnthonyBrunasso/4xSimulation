@@ -32,6 +32,7 @@ struct ImproveStep : public Step {
 
   uint32_t m_improvement_type;
   sf::Vector3i m_location;
+  uint32_t m_resource;
   uint32_t m_player;
 };
 

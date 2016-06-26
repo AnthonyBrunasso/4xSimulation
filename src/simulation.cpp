@@ -350,8 +350,18 @@ namespace simulation {
       std::cout << "Invalid player" << std::endl;
       return;
     }
+    Tile* tile = world_map::get_tile(improve_step->m_location);
+    if (!tile) {
+      std::cout << "Invalid tile" << std::endl;
+      return;
+    }
+    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
+    if (!tile->HasResource(rt)) {
+      std::cout << "Resource not available on this tile." << std::endl;
+      return;
+    }
     auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
-    uint32_t id = improvement::create(impv, improve_step->m_location, improve_step->m_player);
+    uint32_t id = improvement::create(rt, impv, improve_step->m_location, improve_step->m_player);
     if (id) {
       std::cout << "adding improvement to player: " << player->m_name << std::endl;
       player::add_improvement(improve_step->m_player, id);

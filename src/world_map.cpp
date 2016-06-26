@@ -72,29 +72,45 @@ namespace {
     }     
   }
 
-  bool resource_requirement(const sf::Vector3i& location) {
+  bool is_resource_available(RESOURCE_TYPE res, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+      std::cout << "Invalid tile" << std::endl;
       return false;
     }
-
-    if (tile->m_resources.empty()) {
-      std::cout << "No resources exist on tile: " << format::vector3(location) << std::endl;
-      return false;
-    }
-
+    
     // Check if this tile already contains a resource improvement.
     for (auto id : tile->m_improvement_ids) {
       Improvement* improvement = improvement::get_improvement(id);
       if (!improvement) continue;
-      if (improvement->m_type == IMPROVEMENT_TYPE::RESOURCE) {
+      if (improvement->m_resource == res) {
         std::cout << "Resource improvement already exists on this tile" << std::endl;
         return false;
       }
     }
 
     return true;
+  }
+
+  bool valid_resource(RESOURCE_TYPE selected_type, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+    improvement::ValidResourceVector valid_types = improvement::resource_requirements(type);
+    size_t i = 0;
+    for (; i < valid_types.size(); ++i) {
+      if (valid_types[i] == util::enum_to_uint(selected_type)) break;
+    }
+    if (i == valid_types.size()) {
+      std::cout << "Iterated all resources, could not find valid resource for this improvement" << std::endl;
+      return false;
+    }
+
+    return true;
+  }
+
+  void set_improvement_requirements() {
+    for_each_improvement_type([] (IMPROVEMENT_TYPE impv) {
+      improvement::add_requirement(impv, is_resource_available);
+      improvement::add_requirement(impv, valid_resource);
+    });
   }
 
   bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {
@@ -136,10 +152,6 @@ namespace {
     improvement::sub_destroy(improvement_destroy);
   }
 
-  void set_improvement_requirements() {
-    improvement::add_requirement(IMPROVEMENT_TYPE::RESOURCE, resource_requirement);
-  }
-
   void set_city_requirements() {
     city::add_requirement(BUILDING_TYPE::TOWN, town_requirement);
   }
@@ -168,6 +180,7 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
 
   tile_costs::initialize();
   barbarians::initialize();
+  improvement::initialize();
 
   subscribe_to_events();
   set_improvement_requirements();

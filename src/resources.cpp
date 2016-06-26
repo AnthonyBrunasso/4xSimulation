@@ -4,6 +4,10 @@
 
 #include "util.h"
 
+bool Resource::operator==(const Resource& rhs) const {
+  return m_type == rhs.m_type;
+}
+
 Resource& Resource::operator+=(const Resource& rhs) {
   // Addition with non matching types do nothing.
   if (rhs.m_type != m_type) {

@@ -15,6 +15,7 @@ struct Resource {
   explicit Resource(RESOURCE_TYPE type) : m_type(type), m_quantity(0) {};
   explicit Resource(RESOURCE_TYPE type, uint32_t quantity) : m_type(type), m_quantity(quantity) {};
 
+  bool operator==(const Resource& rhs) const;
   Resource& operator+=(const Resource& rhs);
 
   // Idicates the type of resource this is.

@@ -16,6 +16,8 @@ public:
   Tile();
   Tile(sf::Vector3i location);
 
+  bool HasResource(RESOURCE_TYPE res);
+
   TERRAIN_TYPE m_terrain_type;
 
   // Multiple unit can be contained on a tile, ex: Worker and warrior

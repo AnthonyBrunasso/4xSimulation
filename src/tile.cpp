@@ -1,6 +1,7 @@
 #include "tile.h"
 
 #include "unique_id.h"
+#include <algorithm>
 
 Tile::Tile() : 
   m_terrain_type(TERRAIN_TYPE::UNKNOWN)
@@ -29,3 +30,9 @@ Tile::Tile(sf::Vector3i loc) :
   , m_status_ids()
 {
 }
+
+bool Tile::HasResource(RESOURCE_TYPE res) {
+  std::vector<Resource>::const_iterator findIt = std::find(m_resources.begin(), m_resources.end(), Resource(res));
+  return findIt != m_resources.end();
+}
+
