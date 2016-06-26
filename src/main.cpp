@@ -25,7 +25,7 @@ int main(int , char* []) {
     
     simulation::process_step(step);
 
-    bool quitting = step->m_command == COMMAND::QUIT;
+    bool quitting = step->m_command == COMMAND_TYPE::QUIT;
     // Finished with the step, clean it up
     delete step;
 

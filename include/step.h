@@ -6,47 +6,15 @@
 #include "game_types.h"
 #include "Vector3.hpp"
 
-enum class COMMAND {
-  QUIT,
-  BEGIN_TURN,
-  END_TURN,
-  ATTACK,
-  COLONIZE,
-  CONSTRUCT,
-  DISCOVER,
-  IMPROVE,
-  KILL,
-  MOVE,
-  QUEUE_MOVE,
-  PURCHASE,
-  SELL,
-  TILE_MUTATOR,
-  RESOURCE_MUTATOR,
-  SPAWN,
-  ADD_PLAYER,
-  MODIFY_UNIT_STATS,
-  HARVEST,
-  SPECIALIZE,
-  BARBARIAN_TURN,
-  CITY_DEFENSE,
-  PILLAGE,
-  ABORT,
-  SIEGE,
-  GRANT,
-  MAGIC,
-  RESEARCH,
-  STATUS,
-};
-
 struct Step {
-  Step(COMMAND command) : m_command(command) {};
+  Step(COMMAND_TYPE command) : m_command(command) {};
   virtual ~Step() {};
 
-  COMMAND m_command;
+  COMMAND_TYPE m_command;
 };
 
 struct SpawnStep : public Step {
-  SpawnStep(COMMAND command) : Step(command)
+  SpawnStep() : Step(COMMAND_TYPE::SPAWN)
     , m_unit_type(0)
     , m_location()
     , m_player(0) {};
@@ -57,7 +25,7 @@ struct SpawnStep : public Step {
 };
 
 struct ImproveStep : public Step {
-  ImproveStep(COMMAND command) : Step(command)
+  ImproveStep() : Step(COMMAND_TYPE::IMPROVE)
     , m_improvement_type(0)
     , m_location()
     , m_player(0) {};
@@ -68,7 +36,7 @@ struct ImproveStep : public Step {
 };
 
 struct ColonizeStep : public Step {
-  ColonizeStep(COMMAND command) : Step(command)
+  ColonizeStep() : Step(COMMAND_TYPE::COLONIZE)
     , m_location()
     , m_player(0) {};
     
@@ -77,7 +45,7 @@ struct ColonizeStep : public Step {
 };
 
 struct ConstructionStep : public Step {
-  ConstructionStep(COMMAND command) : Step(command)
+  ConstructionStep() : Step(COMMAND_TYPE::CONSTRUCT)
     , m_city_id(0)
     , m_production_id(0)
     , m_cheat(false)
@@ -91,15 +59,15 @@ struct ConstructionStep : public Step {
 };
 
 struct MoveStep : public Step {
-  MoveStep(COMMAND command) : Step(command) {};
+  MoveStep() : Step(COMMAND_TYPE::MOVE) {};
   uint32_t m_unit_id;
   sf::Vector3i m_destination;
   uint32_t m_player;
 };
 
 struct PurchaseStep : public Step {
-  PurchaseStep(COMMAND command) 
-  : Step(command) 
+  PurchaseStep() 
+  : Step(COMMAND_TYPE::PURCHASE) 
   , m_player(0)
   , m_city(0)
   , m_production_id(0)
@@ -111,8 +79,8 @@ struct PurchaseStep : public Step {
 };
 
 struct SellStep : public Step {
-  SellStep(COMMAND command)
-  : Step(command)
+  SellStep()
+  : Step(COMMAND_TYPE::SELL)
   , m_player(0)
   , m_city(0)
   , m_production_id(0)
@@ -125,25 +93,25 @@ struct SellStep : public Step {
 
 
 struct AddPlayerStep : public Step {
-  AddPlayerStep(COMMAND command) : Step(command), m_name(), ai_type(AI_TYPE::UNKNOWN) {};
+  AddPlayerStep() : Step(COMMAND_TYPE::ADD_PLAYER), m_name(), ai_type(AI_TYPE::UNKNOWN) {};
   std::string m_name;
   AI_TYPE ai_type; 
 };
 
 struct AttackStep : public Step {
-  AttackStep(COMMAND command) : Step(command) {};
+  AttackStep() : Step(COMMAND_TYPE::ATTACK) {};
   uint32_t m_attacker_id;
   uint32_t m_defender_id;
   uint32_t m_player;
 };
 
 struct KillStep : public Step {
-  KillStep(COMMAND command) : Step(command) {};
+  KillStep() : Step(COMMAND_TYPE::KILL) {};
   uint32_t m_unit_id;
 };
 
 struct UnitStatsStep : public Step {
-  UnitStatsStep(COMMAND command) : Step(command) {};
+  UnitStatsStep() : Step(COMMAND_TYPE::MODIFY_UNIT_STATS) {};
   uint32_t m_unit_id;
   uint32_t m_health;
   uint32_t m_attack; 
@@ -151,34 +119,34 @@ struct UnitStatsStep : public Step {
 };
 
 struct TileMutatorStep : public Step {
-  TileMutatorStep(COMMAND command) : Step(command) {};
+  TileMutatorStep() : Step(COMMAND_TYPE::TILE_MUTATOR) {};
   sf::Vector3i m_destination;
   uint32_t m_movement_cost;
 };
 
 struct ResourceMutatorStep : public Step {
-  ResourceMutatorStep(COMMAND command) : Step(command) {};
+  ResourceMutatorStep() : Step(COMMAND_TYPE::RESOURCE_MUTATOR) {};
   sf::Vector3i m_destination;
   uint32_t m_type;
   uint32_t m_quantity;
 };
 
 struct EndTurnStep : public Step {
-  EndTurnStep(COMMAND command) : Step(command) {};
+  EndTurnStep() : Step(COMMAND_TYPE::END_TURN) {};
 
   uint32_t m_player;
   uint32_t m_next_player;
 };
 
 struct HarvestStep : public Step {
-  HarvestStep(COMMAND command) : Step(command) {};
+  HarvestStep() : Step(COMMAND_TYPE::HARVEST) {};
 
   uint32_t m_player;
   sf::Vector3i m_destination;
 };
 
 struct SpecializeStep : public Step {
-  SpecializeStep(COMMAND command) : Step(command) {};
+  SpecializeStep() : Step(COMMAND_TYPE::SPECIALIZE) {};
 
   uint32_t m_city_id;
   uint32_t m_terrain_type;
@@ -186,51 +154,51 @@ struct SpecializeStep : public Step {
 };
 
 struct BarbarianStep : public Step {
-  BarbarianStep(COMMAND command) : Step(command) {};
+  BarbarianStep() : Step(COMMAND_TYPE::BARBARIAN_TURN) {};
 
   uint32_t m_player;
 };
 
 struct BeginStep : public Step {
-  BeginStep(COMMAND command) : Step(command) {};
+  BeginStep() : Step(COMMAND_TYPE::BEGIN_TURN) {};
   uint32_t m_active_player;
 };
 
 struct CityDefenseStep : public Step {
-  CityDefenseStep(COMMAND command) : Step(command) {}
+  CityDefenseStep() : Step(COMMAND_TYPE::CITY_DEFENSE) {}
   uint32_t m_player;
   uint32_t m_unit;
 };
 
 struct PillageStep : public Step {
-  PillageStep(COMMAND command) : Step(command) {}
+  PillageStep() : Step(COMMAND_TYPE::PILLAGE) {}
 
   uint32_t m_player;
   uint32_t m_unit;
 };
 
 struct AbortStep : public Step {
-  AbortStep() : Step(COMMAND::ABORT) {}
+  AbortStep() : Step(COMMAND_TYPE::ABORT) {}
   uint32_t m_player;
   uint32_t m_city;
   uint32_t m_index;
 };
 
 struct SiegeStep : public Step {
-  SiegeStep() : Step(COMMAND::SIEGE) {}
+  SiegeStep() : Step(COMMAND_TYPE::SIEGE) {}
   uint32_t m_player;
   uint32_t m_city;
   uint32_t m_unit;
 };
 
 struct GrantStep : public Step {
-  GrantStep() : Step(COMMAND::GRANT) {}
+  GrantStep() : Step(COMMAND_TYPE::GRANT) {}
   uint32_t m_player;
   uint32_t m_science;
 };
 
 struct MagicStep : public Step {
-  MagicStep() : Step(COMMAND::MAGIC), m_cheat(false) {};
+  MagicStep() : Step(COMMAND_TYPE::MAGIC), m_cheat(false) {};
   uint32_t m_player;
   sf::Vector3i m_location;
   MAGIC_TYPE m_type;
@@ -238,13 +206,13 @@ struct MagicStep : public Step {
 };
 
 struct ResearchStep : public Step {
-  ResearchStep() : Step(COMMAND::RESEARCH) {};
+  ResearchStep() : Step(COMMAND_TYPE::RESEARCH) {};
   uint32_t m_player;
   uint32_t m_science;
 };
 
 struct StatusStep : public Step {
-  StatusStep() : Step(COMMAND::STATUS) {};
+  StatusStep() : Step(COMMAND_TYPE::STATUS) {};
   STATUS_TYPE m_type;
   sf::Vector3i m_location;
 };

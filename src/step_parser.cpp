@@ -43,19 +43,19 @@ namespace {
     }
 
     if (tokens[0] == "quit") {
-      CREATE_GENERIC_STEP(1, tokens, step, COMMAND::QUIT);
+      CREATE_GENERIC_STEP(1, tokens, step, COMMAND_TYPE::QUIT);
     }
 
     else if (tokens[0] == "begin_turn") {
       CHECK_VALID(1, tokens);
-      BeginStep* begin_step = new BeginStep(COMMAND::BEGIN_TURN);
+      BeginStep* begin_step = new BeginStep();
       begin_step->m_active_player = s_active_player;
       step = begin_step;
     }
 
     else if (tokens[0] == "end_turn") {
       CHECK_VALID(1, tokens);
-      EndTurnStep* end_turn_step = new EndTurnStep(COMMAND::END_TURN);
+      EndTurnStep* end_turn_step = new EndTurnStep();
       end_turn_step->m_player = s_active_player;
       step = end_turn_step;
       if (player::get_count()) {
@@ -78,7 +78,7 @@ namespace {
     }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);
-      AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);
+      AttackStep* attack_step = new AttackStep();
       attack_step->m_attacker_id = std::stoul(tokens[1]);
       attack_step->m_defender_id = std::stoul(tokens[2]);
       attack_step->m_player = s_active_player;
@@ -87,21 +87,21 @@ namespace {
 
     else if (tokens[0] == "barbarians") {
       CHECK_VALID(1, tokens);
-      BarbarianStep* barbarian_step = new BarbarianStep(COMMAND::BARBARIAN_TURN);
+      BarbarianStep* barbarian_step = new BarbarianStep();
       barbarian_step->m_player = s_active_player;
       step = barbarian_step;
     }
 
     else if (tokens[0] == "city_defense") {
       CHECK_VALID(2, tokens);
-      CityDefenseStep* city_defense_step = new CityDefenseStep(COMMAND::CITY_DEFENSE);
+      CityDefenseStep* city_defense_step = new CityDefenseStep();
       city_defense_step->m_player = s_active_player;
       city_defense_step->m_unit = std::stoul(tokens[1]);
       step = city_defense_step;
     }
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
-      ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
+      ColonizeStep* colonize_step = new ColonizeStep();
       colonize_step->m_location = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       step = colonize_step;
       colonize_step->m_player = s_active_player;
@@ -109,7 +109,7 @@ namespace {
 
     else if (tokens[0] == "construct") {
       CHECK(3, tokens);
-      ConstructionStep* construction_step = new ConstructionStep(COMMAND::CONSTRUCT);
+      ConstructionStep* construction_step = new ConstructionStep();
       construction_step->m_city_id = std::stoul(tokens[1]);
       if (std::isdigit(tokens[2][0])) {
         construction_step->m_production_id = std::stoul(tokens[2]);
@@ -126,7 +126,7 @@ namespace {
 
     else if (tokens[0] == "tile_cost") {
       CHECK(5, tokens);
-      TileMutatorStep* tile_mutator_step = new TileMutatorStep(COMMAND::TILE_MUTATOR);
+      TileMutatorStep* tile_mutator_step = new TileMutatorStep();
       tile_mutator_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       tile_mutator_step->m_movement_cost = std::stoul(tokens[4]);
       step = tile_mutator_step;
@@ -134,7 +134,7 @@ namespace {
 
     else if (tokens[0] == "tile_resource") {
       CHECK(5, tokens);
-      ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep(COMMAND::RESOURCE_MUTATOR);
+      ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep();
       if (std::isdigit(tokens[1][0])) {
         resource_mutator_step->m_type = std::stoul(tokens[1]);
       }
@@ -164,14 +164,14 @@ namespace {
     
     else if (tokens[0] == "harvest") {
       CHECK(4, tokens);
-      HarvestStep* harvest_step = new HarvestStep(COMMAND::HARVEST);
+      HarvestStep* harvest_step = new HarvestStep();
       harvest_step->m_destination = util::str_to_vector3(tokens[1], tokens[2], tokens[3]);
       harvest_step->m_player = s_active_player;
       step = harvest_step;
     }
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
-      ImproveStep* improve_step = new ImproveStep(COMMAND::IMPROVE);
+      ImproveStep* improve_step = new ImproveStep();
       if (std::isdigit(tokens[1][0])) {
         improve_step->m_improvement_type = std::stoul(tokens[1]);
       }
@@ -185,7 +185,7 @@ namespace {
 
     else if (tokens[0] == "join") {
       CHECK(2, tokens);
-      AddPlayerStep* player_step = new AddPlayerStep(COMMAND::ADD_PLAYER);
+      AddPlayerStep* player_step = new AddPlayerStep();
       player_step->m_name = tokens[1];
       if (tokens.size() == 3) {
         if (std::isdigit(tokens[2][0])) {
@@ -203,14 +203,14 @@ namespace {
 
     else if (tokens[0] == "kill") {
       CHECK_VALID(2, tokens);
-      KillStep* kill_step = new KillStep(COMMAND::KILL);
+      KillStep* kill_step = new KillStep();
       kill_step->m_unit_id = std::stoul(tokens[1]);
       step = kill_step;
     }
 
     else if (tokens[0] == "move") {
       CHECK_VALID(5, tokens);
-      MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+      MoveStep* move_step = new MoveStep();
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       move_step->m_player = s_active_player;
@@ -218,14 +218,14 @@ namespace {
     }
     else if (tokens[0] == "pillage") {
       CHECK_VALID(2, tokens);
-      PillageStep* pillage_step = new PillageStep(COMMAND::PILLAGE);
+      PillageStep* pillage_step = new PillageStep();
       pillage_step->m_player = s_active_player;
       pillage_step->m_unit = std::stoul(tokens[1]);
       step = pillage_step;
     }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
-      MoveStep* move_step = new MoveStep(COMMAND::QUEUE_MOVE);
+      MoveStep* move_step = new MoveStep();
       move_step->m_unit_id = std::stoul(tokens[1]);
       move_step->m_destination = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       move_step->m_player = s_active_player;
@@ -234,7 +234,7 @@ namespace {
 
     else if (tokens[0] == "purchase") {
       CHECK(2, tokens);
-      PurchaseStep* purchase_step = new PurchaseStep(COMMAND::PURCHASE);
+      PurchaseStep* purchase_step = new PurchaseStep();
       purchase_step->m_player = s_active_player;
       purchase_step->m_city = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
@@ -261,7 +261,7 @@ namespace {
     
     else if (tokens[0] == "sell") {
       CHECK(2, tokens);
-      SellStep* sell_step = new SellStep(COMMAND::SELL);
+      SellStep* sell_step = new SellStep();
       sell_step->m_player = s_active_player;
       sell_step->m_city = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
@@ -285,7 +285,7 @@ namespace {
     }
     else if (tokens[0] == "specialize") {
       CHECK(3, tokens);
-      SpecializeStep* specialize_step = new SpecializeStep(COMMAND::SPECIALIZE);
+      SpecializeStep* specialize_step = new SpecializeStep();
       specialize_step->m_city_id = std::stoul(tokens[1]);
       if (std::isdigit(tokens[2][0])) {
         specialize_step->m_terrain_type = std::stoul(tokens[2]);
@@ -299,7 +299,7 @@ namespace {
 
     else if (tokens[0] == "spawn") {
       CHECK(5, tokens);
-      step = new SpawnStep(COMMAND::SPAWN);
+      step = new SpawnStep();
       SpawnStep* spawn_step = static_cast<SpawnStep*>(step);
       // If first character in string is a number treat it as an id.
       if (std::isdigit(tokens[1][0])) {
@@ -316,7 +316,7 @@ namespace {
 
     else if (tokens[0] == "stats") {
       CHECK_VALID(5, tokens);
-      UnitStatsStep* stats = new UnitStatsStep(COMMAND::MODIFY_UNIT_STATS);
+      UnitStatsStep* stats = new UnitStatsStep();
       stats->m_unit_id = std::stoul(tokens[1]);
       stats->m_health = std::stoul(tokens[2]);
       stats->m_attack = std::stoul(tokens[3]);

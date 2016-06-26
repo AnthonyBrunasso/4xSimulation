@@ -581,7 +581,7 @@ Step* terminal::parse_input() {
     // Generate any valid steps from the tokens
     step = step_parser::parse(tokens);
     // If a valid step and not a quit, save the command to file.
-    if (step && step->m_command != COMMAND::QUIT) {
+    if (step && step->m_command != COMMAND_TYPE::QUIT) {
       s_target_file << value << std::endl; 
     } 
   }

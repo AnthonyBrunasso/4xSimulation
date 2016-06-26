@@ -46,7 +46,7 @@ void Settle::operator()(uint32_t player_id) {
 
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
   // Create a worker, for now, on that tile then a city.
-  SpawnStep* spawn_step = new SpawnStep(COMMAND::SPAWN);
+  SpawnStep* spawn_step = new SpawnStep();
   spawn_step->m_unit_type = util::enum_to_uint(UNIT_TYPE::WORKER);
   spawn_step->m_location = new_home;
   spawn_step->m_player = player_id;
@@ -55,13 +55,13 @@ void Settle::operator()(uint32_t player_id) {
   // Preemptively get the id of the city that will be created in the colonize step.
   uint32_t city_id = unique_id::get_next();
 
-  ColonizeStep* colonize_step = new ColonizeStep(COMMAND::COLONIZE);
+  ColonizeStep* colonize_step = new ColonizeStep();
   colonize_step->m_location = new_home;
   colonize_step->m_player = player_id;
   simulation::process_step_from_ai(colonize_step);
 
   // TEMPORARY: Construct the barbarian and uber forge.
-  ConstructionStep* forge = new ConstructionStep(COMMAND::CONSTRUCT);
+  ConstructionStep* forge = new ConstructionStep();
   forge->m_city_id = city_id;
   forge->m_production_id = util::enum_to_uint(CONSTRUCTION_TYPE::FORGE);
   forge->m_player = player_id;
@@ -110,7 +110,7 @@ void Explore::operator()(uint32_t player_id) {
   player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
     sf::Vector3i coord = get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
-    MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+    MoveStep* move_step = new MoveStep();
     move_step->m_unit_id = unit.m_unique_id;
     move_step->m_destination = coord;
     move_step->m_player = player_id; 
@@ -132,7 +132,7 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return true;
   }
   
-  AttackStep* attack_step = new AttackStep(COMMAND::ATTACK);
+  AttackStep* attack_step = new AttackStep();
   attack_step->m_attacker_id = unit_id;
   attack_step->m_defender_id = target_id;
   attack_step->m_player = player_id;
@@ -164,7 +164,7 @@ bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return false;
   }
 
-  MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+  MoveStep* move_step = new MoveStep();
   move_step->m_unit_id = unit_id;
   move_step->m_destination = location;
   move_step->m_player = player_id;
@@ -199,7 +199,7 @@ bool approach_city(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return false;
   }
 
-  MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+  MoveStep* move_step = new MoveStep();
   move_step->m_unit_id = unit_id;
   move_step->m_destination = location;
   move_step->m_player = player_id;
@@ -221,7 +221,7 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
     return true;
   }
  
-  PillageStep* pillage_step = new PillageStep(COMMAND::PILLAGE);
+  PillageStep* pillage_step = new PillageStep();
   pillage_step->m_player = player_id;
   pillage_step->m_unit = unit_id;
   simulation::process_step_from_ai(pillage_step);
@@ -235,7 +235,7 @@ bool wander(uint32_t unit_id, uint32_t player_id) {
   }
 
   // Move to the improvement.
-  MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+  MoveStep* move_step = new MoveStep();
   move_step->m_unit_id = unit_id;
   move_step->m_destination = get_random_coord();
   move_step->m_player = player_id;
@@ -253,7 +253,7 @@ bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_
   } 
 
   // Move to the improvement.
-  MoveStep* move_step = new MoveStep(COMMAND::MOVE);
+  MoveStep* move_step = new MoveStep();
   move_step->m_unit_id = unit_id;
   move_step->m_destination = ti->m_location;
   move_step->m_player = player_id;

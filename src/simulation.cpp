@@ -765,90 +765,90 @@ void simulation::process_step(Step* step) {
 
   // Process the step
   switch (step->m_command) {
-    case COMMAND::QUIT:
+    case COMMAND_TYPE::QUIT:
       break;
-    case COMMAND::BEGIN_TURN:
+    case COMMAND_TYPE::BEGIN_TURN:
       process_begin_turn();
       break;
-    case COMMAND::END_TURN:
+    case COMMAND_TYPE::END_TURN:
       process_end_turn();
       break;
-    case COMMAND::ATTACK:
+    case COMMAND_TYPE::ATTACK:
       execute_attack();
       break;
-    case COMMAND::ABORT:
+    case COMMAND_TYPE::ABORT:
       std::cout << execute_abort() << std::endl;
       break;
-    case COMMAND::COLONIZE:
+    case COMMAND_TYPE::COLONIZE:
       execute_colonize();
       break;
-    case COMMAND::CONSTRUCT:
+    case COMMAND_TYPE::CONSTRUCT:
       execute_construction();
       break;
-    case COMMAND::DISCOVER:
+    case COMMAND_TYPE::DISCOVER:
       break;
-    case COMMAND::GRANT:
+    case COMMAND_TYPE::GRANT:
       execute_grant();
       break;
-    case COMMAND::HARVEST:
+    case COMMAND_TYPE::HARVEST:
       execute_harvest();
       break;
-    case COMMAND::IMPROVE:
+    case COMMAND_TYPE::IMPROVE:
       execute_improve();
       break;
-    case COMMAND::TILE_MUTATOR:
+    case COMMAND_TYPE::TILE_MUTATOR:
       execute_tile_mutator();
       break;
-    case COMMAND::RESOURCE_MUTATOR:
+    case COMMAND_TYPE::RESOURCE_MUTATOR:
       execute_resource_mutator();
       break;
-    case COMMAND::KILL:
+    case COMMAND_TYPE::KILL:
       execute_kill();
       break;
-    case COMMAND::MOVE:
+    case COMMAND_TYPE::MOVE:
       execute_move();
       break;
-    case COMMAND::PILLAGE:
+    case COMMAND_TYPE::PILLAGE:
       std::cout << execute_pillage() << std::endl;;
       break;
-    case COMMAND::QUEUE_MOVE:
+    case COMMAND_TYPE::QUEUE_MOVE:
       execute_queue_move();
       break;
-    case COMMAND::PURCHASE:
+    case COMMAND_TYPE::PURCHASE:
       std::cout << execute_purchase() << std::endl;
       break;
-    case COMMAND::RESEARCH:
+    case COMMAND_TYPE::RESEARCH:
       std::cout << execute_research() << std::endl;
       break;
-    case COMMAND::SPECIALIZE:
+    case COMMAND_TYPE::SPECIALIZE:
       execute_specialize();
       break;
-    case COMMAND::SELL:
+    case COMMAND_TYPE::SELL:
       std::cout << execute_sell() << std::endl;
       break;
-    case COMMAND::SIEGE:
+    case COMMAND_TYPE::SIEGE:
       std::cout << execute_siege() << std::endl;
       break;
-    case COMMAND::SPAWN:
+    case COMMAND_TYPE::SPAWN:
       std::cout << execute_spawn() << std::endl;
       break;
-    case COMMAND::ADD_PLAYER:
+    case COMMAND_TYPE::ADD_PLAYER:
       execute_add_player();
       return; // Special case, adding a player does not have output
-    case COMMAND::MODIFY_UNIT_STATS:
+    case COMMAND_TYPE::MODIFY_UNIT_STATS:
       execute_modify_stats();
       return; // Modifying stats also does not have output
-    case COMMAND::BARBARIAN_TURN:
+    case COMMAND_TYPE::BARBARIAN_TURN:
       // Process the barbarian turn.
       // FIXME
       return;
-    case COMMAND::CITY_DEFENSE:
+    case COMMAND_TYPE::CITY_DEFENSE:
       std::cout << execute_city_defense() << std::endl;
       return;
-    case COMMAND::MAGIC:
+    case COMMAND_TYPE::MAGIC:
       execute_magic();
       break;
-    case COMMAND::STATUS:
+    case COMMAND_TYPE::STATUS:
       execute_status();
       break;
     default:
