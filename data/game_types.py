@@ -19,10 +19,14 @@ MAGIC        = "MAGIC"
 STATUS       = "STATUS"
 
 # Resources to generate when running type_generator.py
-add_gametype(RESOURCE, 'Gold'     , 1)
-add_gametype(RESOURCE, 'Happiness', 2)
-add_gametype(RESOURCE, 'Sugar'    , 3)
-add_gametype(RESOURCE, 'Stone'    , 4)
+add_gametype(RESOURCE, 'Luxury_Gold', 1)
+add_gametype(RESOURCE, 'Luxury_Sugar', 2)
+add_gametype(RESOURCE, 'Strategic_Iron', 3)
+add_gametype(RESOURCE, 'Strategic_Coal', 4)
+add_gametype(RESOURCE, 'Cattle', 5)
+add_gametype(RESOURCE, 'Deer', 6)
+add_gametype(RESOURCE, 'Fish', 7)
+add_gametype(RESOURCE, 'Stone', 8)
 
 add_gametype(IMPROVEMENT, 'Resource', 1)
 

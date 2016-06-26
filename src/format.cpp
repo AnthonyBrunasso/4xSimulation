@@ -32,7 +32,7 @@ std::string format::axial_neighbors(const sf::Vector2i& start) {
 std::string format::tile(const Tile& tile) {
   std::stringstream ss;
   ss << "terrain: " << get_terrain_name(tile.m_terrain_type) << std::endl
-     << " " << terrain_yield::get_base_yield(tile.m_terrain_type) << std::endl
+     << " base yield: " << terrain_yield::get_base_yield(tile.m_terrain_type) << std::endl
      << " type id: " << static_cast<int32_t>(tile.m_terrain_type) << std::endl
      << " units: " << format::vector(tile.m_unit_ids) << std::endl
      << " city: " << tile.m_city_id << std::endl

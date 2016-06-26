@@ -137,6 +137,30 @@ namespace terrain_yield {
     t.m_gold += 1;
     t.m_experience += 1;
   }
+
+  void StandardLuxury(TerrainYield& t) {
+    t.m_gold += 2;
+  }
+
+  void StandardStrategic(TerrainYield& t) {
+    t.m_production += 1;
+  }
+
+  void BonusCattle(TerrainYield& t) {
+    t.m_food += 1;
+  }
+  
+  void BonusDeer(TerrainYield& t) {
+    t.m_food += 1;
+  }
+
+  void BonusFish(TerrainYield& t) {
+    t.m_food += 1;
+  }
+
+  void BonusStone(TerrainYield& t) {
+    t.m_production += 1;
+  }
   
   typedef std::unordered_map<int32_t, std::function<void (TerrainYield&)> > YieldFunctions;
   static YieldFunctions s_defaultYieldFn{
@@ -153,6 +177,16 @@ namespace terrain_yield {
     {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
     {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterSpecialization},
   };
+  static YieldFunctions s_resourceYieldFn{
+    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
+    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
+    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
+    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
+    {static_cast<int32_t>(RESOURCE_TYPE::CATTLE), &BonusCattle},
+    {static_cast<int32_t>(RESOURCE_TYPE::DEER), &BonusDeer},
+    {static_cast<int32_t>(RESOURCE_TYPE::FISH), &BonusFish},
+    {static_cast<int32_t>(RESOURCE_TYPE::STONE), &BonusStone},
+  };
 
   TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();
@@ -166,6 +200,12 @@ namespace terrain_yield {
     if (tile->m_terrain_type == spec) {
       base += terrain_yield::get_specialization_yield(spec);
     }
+    
+    for (size_t i = 0; i < tile->m_resources.size(); ++i) {
+      const Resource& res = tile->m_resources[i];
+      base += terrain_yield::get_resource_yield(res.m_type);
+    }
+    
     return base;
   }
 }
@@ -189,6 +229,17 @@ TerrainYield terrain_yield::get_specialization_yield(TERRAIN_TYPE type) {
     return base;
   }
   
+  findIt->second(base);
+  return base;
+}
+
+TerrainYield terrain_yield::get_resource_yield(RESOURCE_TYPE type) {
+  TerrainYield base;
+  const auto& findIt = s_resourceYieldFn.find(static_cast<int32_t>(type));
+  if (findIt == s_resourceYieldFn.end()) {
+    return base;
+  }
+
   findIt->second(base);
   return base;
 }

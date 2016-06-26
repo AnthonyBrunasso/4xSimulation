@@ -3,6 +3,7 @@
 
 class City;
 enum class TERRAIN_TYPE;
+enum class RESOURCE_TYPE;
 
 struct TerrainYield
 {
@@ -30,4 +31,5 @@ namespace terrain_yield {
   TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE specialization);
   TerrainYield get_base_yield(TERRAIN_TYPE type);
   TerrainYield get_specialization_yield(TERRAIN_TYPE type);
+  TerrainYield get_resource_yield(RESOURCE_TYPE);
 }
