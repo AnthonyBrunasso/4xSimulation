@@ -12,6 +12,7 @@ Tile::Tile() :
   , m_resources()
   , m_improvement_ids()
   , m_location()
+  , m_status_ids()
 {
 }
 
@@ -25,5 +26,6 @@ Tile::Tile(sf::Vector3i loc) :
   , m_resources()
   , m_improvement_ids()
   , m_location(loc)
+  , m_status_ids()
 {
 }

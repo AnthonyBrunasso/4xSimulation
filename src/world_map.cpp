@@ -28,109 +28,120 @@ namespace {
   void set_improvement_requirements();
   void set_city_requirements();
 
+  void unit_create(const sf::Vector3i& location, uint32_t id) {
+    world_map::add_unit(location, id);
+  } 
+
+  void unit_destroy(const sf::Vector3i& location, uint32_t id) {
+    world_map::remove_unit(location, id);
+  }
+
+  void city_create(const sf::Vector3i& location, uint32_t id) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      return;
+    }
+    tile->m_city_id = id;
+  }
+
+  void city_raze(const sf::Vector3i& location, uint32_t /*id*/) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      return;
+    }
+    
+    tile->m_city_id = unique_id::INVALID_ID;
+  }
+
+  void improvement_create(const sf::Vector3i& location, uint32_t id) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      return;
+    }
+    tile->m_improvement_ids.push_back(id);
+  }
+
+  void improvement_destroy(const sf::Vector3i& location, uint32_t id) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      return;
+    }
+    auto findIt = std::find(tile->m_improvement_ids.begin(), tile->m_improvement_ids.end(), id);
+    if (findIt != tile->m_improvement_ids.end()) {
+      tile->m_improvement_ids.erase(findIt);
+    }     
+  }
+
+  bool resource_requirement(const sf::Vector3i& location) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+      return false;
+    }
+
+    if (tile->m_resources.empty()) {
+      std::cout << "No resources exist on tile: " << format::vector3(location) << std::endl;
+      return false;
+    }
+
+    // Check if this tile already contains a resource improvement.
+    for (auto id : tile->m_improvement_ids) {
+      Improvement* improvement = improvement::get_improvement(id);
+      if (!improvement) continue;
+      if (improvement->m_type == IMPROVEMENT_TYPE::RESOURCE) {
+        std::cout << "Resource improvement already exists on this tile" << std::endl;
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) {
+      std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+      return false;
+    }
+
+    Player* player = player::get_player(player_id);
+    if (!player) {
+      std::cout << "Invalid player id: " << player_id << std::endl;
+      return false;
+    }
+
+    // Check if this tile already contains a resource improvement.
+    for (auto id : tile->m_unit_ids) {
+      Unit* unit = units::get_unit(id);
+      if (!unit) continue;
+      if (unit->m_unit_type == UNIT_TYPE::WORKER) {
+        // Get the player and check that the player owns this unit.
+        if (player->OwnsUnit(unit->m_unique_id)) {
+          return true;
+        }
+      }
+    }
+    
+    // No worker is contained on the tile.
+    std::cout << player->m_name << " does not own a worker at " << format::vector3(location) << std::endl;
+    return false;
+  }
+
   void subscribe_to_events() {
-    units::sub_create([](const sf::Vector3i& location, uint32_t id) {
-      world_map::add_unit(location, id);
-    });
-
-    city::sub_create([](const sf::Vector3i& location, uint32_t id) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        return;
-      }
-      tile->m_city_id = id;
-    });
-
-    units::sub_destroy([](const sf::Vector3i& location, uint32_t id) {
-      world_map::remove_unit(location, id);
-    });
-
-    city::sub_raze_complete([](const sf::Vector3i& location, uint32_t /*id*/) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        return;
-      }
-      
-      tile->m_city_id = unique_id::INVALID_ID;
-    });
-
-    improvement::sub_create([](const sf::Vector3i& location, uint32_t id) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        return;
-      }
-      tile->m_improvement_ids.push_back(id);
-    });
-
-    improvement::sub_destroy([](const sf::Vector3i& location, uint32_t id) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        return;
-      }
-      auto findIt = std::find(tile->m_improvement_ids.begin(), tile->m_improvement_ids.end(), id);
-      if (findIt != tile->m_improvement_ids.end()) {
-        tile->m_improvement_ids.erase(findIt);
-      }     
-    });
+    units::sub_create(unit_create);
+    city::sub_create(city_create);
+    units::sub_destroy(unit_destroy);
+    city::sub_raze_complete(city_raze);
+    improvement::sub_create(improvement_create);
+    improvement::sub_destroy(improvement_destroy);
   }
 
   void set_improvement_requirements() {
-    improvement::add_requirement(IMPROVEMENT_TYPE::RESOURCE, [](const sf::Vector3i& location) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
-        return false;
-      }
-
-      if (tile->m_resources.empty()) {
-        std::cout << "No resources exist on tile: " << format::vector3(location) << std::endl;
-        return false;
-      }
-
-      // Check if this tile already contains a resource improvement.
-      for (auto id : tile->m_improvement_ids) {
-        Improvement* improvement = improvement::get_improvement(id);
-        if (!improvement) continue;
-        if (improvement->m_type == IMPROVEMENT_TYPE::RESOURCE) {
-          std::cout << "Resource improvement already exists on this tile" << std::endl;
-          return false;
-        }
-      }
-
-      return true;
-    });
+    improvement::add_requirement(IMPROVEMENT_TYPE::RESOURCE, resource_requirement);
   }
 
   void set_city_requirements() {
-    city::add_requirement(BUILDING_TYPE::TOWN, [](const sf::Vector3i& location, uint32_t player_id) {
-      Tile* tile = world_map::get_tile(location);
-      if (!tile) {
-        std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
-        return false;
-      }
-
-      Player* player = player::get_player(player_id);
-      if (!player) {
-        std::cout << "Invalid player id: " << player_id << std::endl;
-        return false;
-      }
-
-      // Check if this tile already contains a resource improvement.
-      for (auto id : tile->m_unit_ids) {
-        Unit* unit = units::get_unit(id);
-        if (!unit) continue;
-        if (unit->m_unit_type == UNIT_TYPE::WORKER) {
-          // Get the player and check that the player owns this unit.
-          if (player->OwnsUnit(unit->m_unique_id)) {
-            return true;
-          }
-        }
-      }
-      
-      // No worker is contained on the tile.
-      std::cout << player->m_name << " does not own a worker at " << format::vector3(location) << std::endl;
-      return false;
-    });
+    city::add_requirement(BUILDING_TYPE::TOWN, town_requirement);
   }
 }
 

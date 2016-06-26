@@ -31,6 +31,7 @@ public:
   // Improvements contained on this tile
   std::vector<uint32_t> m_improvement_ids;
   sf::Vector3i m_location;
+  std::vector<uint32_t> m_status_ids;
 };
 
 namespace std {
