@@ -188,6 +188,37 @@ namespace terrain_yield {
     {static_cast<int32_t>(RESOURCE_TYPE::STONE), &BonusStone},
   };
 
+  TerrainYield ImprovementYields(RESOURCE_TYPE , IMPROVEMENT_TYPE impv) {
+    // Not yet implemented: there are examples of Improvement benefits varying by resource
+    // Not yet implemented: there are examples of Improvement benefits varying by technology
+    
+    TerrainYield t;
+    switch(impv) {
+    case IMPROVEMENT_TYPE::MINE:
+      t.m_production += 1;
+      break;
+    case IMPROVEMENT_TYPE::PASTURE:
+      t.m_food += 1;
+      break;
+    case IMPROVEMENT_TYPE::CAMP:
+      t.m_production += 1;
+      break;
+    case IMPROVEMENT_TYPE::PLANTATION:
+      t.m_gold += 1;
+      break;
+    case IMPROVEMENT_TYPE::QUARRY:
+      t.m_production += 1;
+      break;
+    case IMPROVEMENT_TYPE::FISH_BOATS:
+      t.m_food += 1;
+      break;
+    default:
+      break;
+    };
+    
+    return t;
+  }
+
   TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();
     Tile* tile = world_map::get_tile(loc);
@@ -204,6 +235,14 @@ namespace terrain_yield {
     for (size_t i = 0; i < tile->m_resources.size(); ++i) {
       const Resource& res = tile->m_resources[i];
       base += terrain_yield::get_resource_yield(res.m_type);
+    }
+
+    for (size_t i = 0; i < tile->m_improvement_ids.size(); ++i) {
+      uint32_t impv_id = tile->m_improvement_ids[i];
+      Improvement* impv = improvement::get_improvement(impv_id);
+      if (!impv) continue;
+
+      base += ImprovementYields(impv->m_resource.m_type, impv->m_type);
     }
     
     return base;
