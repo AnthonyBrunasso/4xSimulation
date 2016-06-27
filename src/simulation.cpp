@@ -339,8 +339,22 @@ namespace simulation {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
     size_t i = 0;
+    Unit* unit = nullptr;
+    for (; i < tile->m_unit_ids.size(); ++i) {
+      uint32_t unit_id = tile->m_unit_ids[i];
+      Unit* unit = units::get_unit(unit_id);
+      if (!unit) continue;
+      if (!unit->m_action_points) continue;
+      if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
+      break;
+    }
+    if (i == tile->m_unit_ids.size()) {
+      std::cout << "No worker is available to improve the tile" << std::endl;
+      return;
+    }
+    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
+    i = 0;
     for (; i < tile->m_resources.size(); ++i) {
       if (tile->m_resources[i].m_type == rt) break;
     }
@@ -354,6 +368,7 @@ namespace simulation {
     if (id) {
       std::cout << "adding improvement to player: " << player->m_name << std::endl;
       player::add_improvement(improve_step->m_player, id);
+      unit->m_action_points = 0;
     } 
   }
 
