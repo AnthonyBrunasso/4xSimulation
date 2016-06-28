@@ -5,11 +5,12 @@ env['LIBS'] = ['sfml-audio.lib', 'sfml-graphics.lib', 'sfml-network.lib', 'sfml-
 srcFiles = Glob('*.cpp')
 
 if not GetOption('projects'):
-  if not GetOption('lib'):
-    env.Program('Game', source=srcFiles)
+  env.Program('4xsim', source=srcFiles)
+  
+  if GetOption('lib'):
+    env.Library('4xsim', source=srcFiles)
 
-if GetOption('lib'):
-  env.Library('4xsim', source=srcFiles)
-
+  if GetOption('shared_lib'):
+    env.SharedLibrary('4xsim', source=srcFiles)
 
 Return('srcFiles')

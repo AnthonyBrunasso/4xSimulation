@@ -8,8 +8,11 @@ AddOption('--projects',
   help='Create visual studio project file')
 AddOption('--lib',
   action='store_true',
-  help='Create a library instead of executable')
-  
+  help='Create a library')
+AddOption('--shared_lib',
+  action='store_true',
+  help='Create a shared library')
+
 # Create required directories
 dirs = ['build', 'projects']
 for dir in dirs:
@@ -20,13 +23,14 @@ for dir in dirs:
 
 #Build Environment
 env = Environment(TARGET_ARCH='i386')
+print(env['MSVC_VERSION'])
 
 #Enable windows specific CXXFLAGS
 if env['PLATFORM'] == 'win32':
-  env['CXXCOM'] = env['CXXCOM'].replace("$CXXFLAGS", "$CXXWINFLAGS $CXXFLAGS")
-  
-#use CXXWINFLAGS
-env.Append(CXXWINFLAGS=['/EHsc'])
+  env['CXXCOM'] = env['CXXCOM'].replace("$CXXFLAGS", "$WINFLAGS $CXXFLAGS")
+  env['SHCXXCOM'] = env['SHCXXCOM'].replace("$SHCXXFLAGS", "$WINFLAGS $SHCXXFLAGS")
+#windows specific compiler flags
+env.Append(WINFLAGS=['/EHsc'])
 
 #Paths
 env['LIBPATH'] = [os.path.join(GetOption('sfmlDir'), 'lib')]
