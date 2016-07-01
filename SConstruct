@@ -12,6 +12,15 @@ AddOption('--lib',
 AddOption('--shared_lib',
   action='store_true',
   help='Create a shared library')
+AddOption('--variant',
+  choices=["debug","release"],
+  default='debug',
+  action='store',
+  help='debug/release variant')
+AddOption('--arch',
+  choices=['x86', 'x86_64'],
+  default='x86_64',
+  help='output architecture for binaries')
 
 # Create required directories
 dirs = ['build', 'projects']
@@ -22,7 +31,7 @@ for dir in dirs:
     pass
 
 #Build Environment
-env = Environment(TARGET_ARCH='i386')
+env = Environment(TARGET_ARCH=GetOption('arch'))
 print(env['MSVC_VERSION'])
 
 #Enable windows specific CXXFLAGS
@@ -32,6 +41,11 @@ if env['PLATFORM'] == 'win32':
 #windows specific compiler flags
 env.Append(WINFLAGS=['/EHsc'])
 
+if (GetOption('variant') == 'debug'):
+  env.Append(WINFLAGS=['/MDd'])
+else:
+  env.Append(WINFLAGS=['/MD'])
+  
 #Paths
 env['LIBPATH'] = [os.path.join(GetOption('sfmlDir'), 'lib')]
 env.Append(CPPPATH=[Dir('#include').abspath])
