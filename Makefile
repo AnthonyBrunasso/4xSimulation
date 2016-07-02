@@ -28,7 +28,7 @@ SRCS    := $(wildcard $(SRCDIR)/*.cpp)
 SRCDIRS := $(sort $(dir $(wildcard $(SRCDIR)/*/)))
 OBJS    := $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS))
 
-CFLAGS  = -std=c++11 -c -Wall -Wextra -I$(INCDIR)
+CFLAGS  = -fno-rtti -std=c++11 -c -Wall -Wextra -I$(INCDIR)
 
 all: $(APP)
 
