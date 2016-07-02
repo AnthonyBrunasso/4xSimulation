@@ -13,7 +13,7 @@ struct Improvement;
 struct Resource;
 
 namespace search {
-  void range(const sf::Vector3i& start, int32_t distance, std::vector<sf::Vector3i>& coords);
+  std::vector<sf::Vector3i> range(const sf::Vector3i& start, int32_t distance);
   void path_to(const sf::Vector3i& start, 
       const sf::Vector3i& end, 
       world_map::TileMap& tile_map, 

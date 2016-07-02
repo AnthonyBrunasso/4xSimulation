@@ -169,7 +169,7 @@ namespace terminal  {
         std::cout << "City (" << city.m_id << ") harvest <x> <y> <z>" << std::endl;
         std::vector<sf::Vector3i> coords;
         std::set<uint32_t> terrainTypes;
-        search::range(city.m_location, distance, coords);
+        coords = search::range(city.m_location, distance);
         for (size_t i = 0; i < coords.size(); ++i) {
           Tile* t = world_map::get_tile(coords[i]);
           if(!t) continue;
@@ -237,7 +237,7 @@ namespace terminal  {
         return false;
       }
       std::vector<sf::Vector3i> coords;
-      search::range(start, distance, coords);
+      coords = search::range(start, distance);
       for (uint32_t i = 0; i < coords.size(); ++i) {
         Tile* near = world_map::get_tile(coords[i]);
         if (!near) continue;

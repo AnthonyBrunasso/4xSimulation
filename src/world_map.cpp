@@ -22,7 +22,6 @@
 namespace {
   static world_map::TileMap s_map;
   static uint32_t s_map_size;
-  static std::vector<sf::Vector3i> s_coords;
   
   void subscribe_to_events();
   void set_improvement_requirements();
@@ -171,8 +170,8 @@ void init_discoverable_tiles(uint32_t size) {
 }
 
 void world_map::build(sf::Vector3i start, uint32_t size) {
-  search::range(start, size, s_coords);
-  for (auto tile : s_coords) {
+  std::vector<sf::Vector3i> coords = search::range(start, size);
+  for (auto tile : coords) {
     s_map[tile] = Tile(tile);
   }
   s_map_size = size;
@@ -198,7 +197,7 @@ bool world_map::load_file(const std::string& name) {
   }
 
   std::vector<sf::Vector3i> coords;
-  search::range(sf::Vector3i(0, 0, 0), s_map_size, coords);
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
   for (const auto& coord : coords) {
     auto& tile = s_map[coord];
     if (!inputFile.good()) {
