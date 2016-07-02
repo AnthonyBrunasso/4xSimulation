@@ -101,6 +101,7 @@ add_gametype(MAGIC, "Magic_Missle", 2)
 
 add_gametype(STATUS, "Resist_Modifiers", 1);
 add_gametype(STATUS, "Stasis", 2);
+add_gametype(STATUS, "Constructing_Improvement", 3);
 
 add_gametype(COMMAND, "Quit", 1)
 add_gametype(COMMAND, "Begin_Turn", 2)

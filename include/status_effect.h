@@ -4,7 +4,10 @@
 #include "Vector3.hpp"
 
 #include <cstdint>
+#include <vector>
 #include <functional>
+
+class Tile;
 
 class StatusEffect {
 public:
@@ -12,12 +15,36 @@ public:
     m_id(id)
     , m_type(type)
     , m_location(location)
-    , m_turns(0) {};
+    , m_turns(0)
+    , m_current_turn(m_turns) {};
+
+  virtual ~StatusEffect() {};
+
+  // Begin turn will run on the first turn the status effect is in play.
+  // The first turn of a status effect starts the turn *after* it is played.
+  virtual void begin_turn() {};
+
+  // End turn is defined by m_current_turn equalling 0.
+  virtual void end_turn() {};
+
+  // Per turn will run every begin_turn step after the status effect comes into play.
+  virtual void per_turn() {};
+
+  // Status effects dictate who they spread to.
+  virtual void spread(Tile& tile) = 0;
 
   uint32_t m_id;
   STATUS_TYPE m_type;
+  // Origination location
   sf::Vector3i m_location;
+  uint32_t m_range;
   uint32_t m_turns;
+  uint32_t m_current_turn;
+
+  // Targets
+  std::vector<sf::Vector3i> m_tiles;
+  std::vector<uint32_t> m_units;
+  std::vector<uint32_t> m_cities;
 };
 
 namespace status_effect {
@@ -29,4 +56,6 @@ namespace status_effect {
 
   StatusEffect* get_effect(uint32_t id);
   void for_each_effect(std::function<void(const StatusEffect& effect)> operation);
+
+  void process(); 
 }

@@ -912,6 +912,7 @@ void simulation::process_begin_turn() {
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
   phase_restore_actions();
+  status_effect::process();
 }
 
 void simulation::process_end_turn() {

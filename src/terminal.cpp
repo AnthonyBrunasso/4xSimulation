@@ -434,6 +434,14 @@ namespace terminal  {
       game_random::set_seed(std::stoul(tokens[1]));
       return true;
     });
+
+    terminal::add_query("status_effects", "status_effects", [](const std::vector<std::string>& tokens) -> bool{
+      CHECK_VALID(1, tokens);
+      status_effect::for_each_effect([](const StatusEffect& effect) {
+        std::cout << format::effect(effect) << std::endl;
+      });
+      return true;
+    });
   }
 
   bool execute_queries(const std::vector<std::string>& tokens) {

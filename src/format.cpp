@@ -160,3 +160,36 @@ std::string format::improvement(const Improvement& improvement) {
 
   return std::move(ss.str());
 }
+
+std::string format::effect(const StatusEffect& effect) {
+  std::stringstream ss;
+
+  ss << "Unique id: " << effect.m_id << std::endl;
+  ss << " type: " << get_status_name(effect.m_type) << std::endl;
+  ss << " source location: " << format::vector3(effect.m_location) << std::endl;
+  ss << " range: " << effect.m_range << std::endl;
+  ss << " total turns: " << effect.m_turns << std::endl;
+  ss << " current turn: " << effect.m_current_turn << std::endl;
+  ss << " affecting tiles: [ ";
+  for (auto t : effect.m_tiles) {
+    ss << format::vector3(t) << " ";
+  }
+  ss << "]" << std::endl;
+  ss << " affecting units: " << format::uint_vector(effect.m_units) << std::endl;
+  ss << " affecting cities: " << format::uint_vector(effect.m_cities);
+
+  return std::move(ss.str());
+}
+
+std::string format::uint_vector(const std::vector<uint32_t>& vec) {
+  std::stringstream ss;
+
+  ss << "[ ";
+
+  for (auto ui : vec) {
+    ss << ui << " ";
+  }
+
+  ss << "]";
+  return std::move(ss.str());
+}

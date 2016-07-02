@@ -7,6 +7,7 @@
 #include "combat.h"
 #include "improvements.h"
 #include "resources.h"
+#include "status_effect.h"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
@@ -67,4 +68,6 @@ namespace format {
   std::string resources(const ResourceUMap& resources);
   std::string improvement(const Improvement& improvement);
   std::string resource(const Resource& resource);
+  std::string effect(const StatusEffect& effect);
+  std::string uint_vector(const std::vector<uint32_t>& vec);
 }
