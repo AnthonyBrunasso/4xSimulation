@@ -44,7 +44,8 @@ env.Append(WINFLAGS=['/EHsc'])
 if (GetOption('variant') == 'debug'):
   env.Append(WINFLAGS=['/MDd'])
 else:
-  env.Append(WINFLAGS=['/MD'])
+  env.Append(WINFLAGS=['/MD', '/O1'])
+  env.Append(WINFLAGS=['/GR-']) #Rtti off
   
 #Paths
 env['LIBPATH'] = [os.path.join(GetOption('sfmlDir'), 'lib')]
