@@ -88,11 +88,6 @@ namespace {
       }
     }
 
-    void end_turn() override {
-      // Constructions get injected into the status effect.
-      if (m_end_turn_injection) m_end_turn_injection();
-    }
-
     void spread(Tile& tile) override {
       // TODO: Really this can only spread to a worker.
       ::spread_units(tile, m_units);
@@ -244,6 +239,7 @@ void status_effect::process() {
     // Process begin turn logic. 
     if (e->m_turns == e->m_current_turn) {
       e->begin_turn();
+      if (e->m_begin_turn_injection) e->m_begin_turn_injection();
     }
   }
 
@@ -252,6 +248,7 @@ void status_effect::process() {
     StatusEffect* e = effect.second;
     if (!e) continue;
     e->per_turn();
+    if (e->m_per_turn_injection) e->m_per_turn_injection();
   }
 
   for (auto effect : s_status) {
@@ -260,6 +257,7 @@ void status_effect::process() {
     if (e->m_current_turn == 0) {
       e->end_turn();
       remove_effects.push_back(effect.first);
+      if (e->m_end_turn_injection) e->m_end_turn_injection();
     }
   }
 
