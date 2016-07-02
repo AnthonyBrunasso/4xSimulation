@@ -340,22 +340,22 @@ namespace simulation {
       return;
     }
     size_t i = 0;
+    Unit* unit = nullptr;
     uint32_t unit_id = 0;
     for (; i < tile->m_unit_ids.size(); ++i) {
       unit_id = tile->m_unit_ids[i];
-      Unit* unit = units::get_unit(unit_id);
+      unit = units::get_unit(unit_id);
       if (!unit) continue;
       if (!unit->m_action_points) continue;
       if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
       break;
     }
 
-    if (!unit_id) return;
-
-    if (i == tile->m_unit_ids.size()) {
+    if (!unit || unit->m_unit_type != UNIT_TYPE::WORKER) { 
       std::cout << "No worker is available to improve the tile" << std::endl;
       return;
     }
+
     RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
     i = 0;
     for (; i < tile->m_resources.size(); ++i) {
@@ -390,7 +390,10 @@ namespace simulation {
     };
 
     status_effect::inject_end(end_turn_inject);
-    status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, loc);
+    if (status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, loc)) {
+      // Drain workers action points.
+      unit->m_action_points = 0;
+    }
   }
 
   void execute_grant() {

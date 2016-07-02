@@ -264,7 +264,7 @@ bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_
   return true;
 }
 
-UnitOrder reevaluate_order(uint32_t unit_id, uint32_t player_id) {
+UnitOrder reevaluate_order(uint32_t /*unit_id*/, uint32_t /*player_id*/) {
   // No reevaluation
   std::cout << "IMPLEMENT REEVALUATION!!" << std::endl;
   return UnitOrder(0, 0, AI_ORDER_TYPE::UNKNOWN);

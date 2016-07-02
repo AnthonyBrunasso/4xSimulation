@@ -14,11 +14,6 @@ namespace {
   // Use this to trigger early status effect termination
   const uint32_t INVALID_TURNS = 0xffffffff;
 
-  void terminate_effect(StatusEffect* e) {
-    if (!e) return;
-    e->m_current_turn = INVALID_TURNS;
-  }
-
   // Helper functions for status effect implementations.
   void spread_tile(Tile& tile, std::vector<sf::Vector3i>& tiles) {
     tiles.push_back(tile.m_location);
@@ -82,6 +77,16 @@ namespace {
       m_turns = 2;
       m_current_turn = 2;
     };
+
+    void per_turn() override {
+      for (auto u : m_units) {
+        Unit* unit = units::get_unit(u);
+        if (!unit) continue;
+        if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
+        // Workers get depleted action points per turn.
+        unit->m_action_points = 0;
+      }
+    }
 
     void end_turn() override {
       // Constructions get injected into the status effect.

@@ -32,7 +32,7 @@ namespace {
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   RequirementMap s_requirements;
 
-  void damage_units(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& location) {
+  void damage_units(MAGIC_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << get_magic_name(type) << " targeted invalid location." << std::endl;
@@ -102,10 +102,10 @@ void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& locati
 
   switch (type) {
     case MAGIC_TYPE::FIREBALL:
-      damage_units(player_id, type, location);
+      damage_units(type, location);
       break;
     case MAGIC_TYPE::MAGIC_MISSLE:
-      damage_units(player_id, type, location);
+      damage_units(type, location);
       break;
     case MAGIC_TYPE::UNKNOWN:
       std::cout << "Unkown spell type casted from player_id: " << player_id << std::endl;
