@@ -41,6 +41,11 @@ public:
   uint32_t m_turns;
   uint32_t m_current_turn;
 
+  // An end turn can be injected into a status effect on creation.
+  std::function<void()> m_begin_turn_injection;
+  std::function<void()> m_per_turn_injection;
+  std::function<void()> m_end_turn_injection;
+
   // Targets
   std::vector<sf::Vector3i> m_tiles;
   std::vector<uint32_t> m_units;
@@ -48,6 +53,13 @@ public:
 };
 
 namespace status_effect {
+  // The next status effect created will inject these std functions into 
+  // its begin turn, end turn and per turn members.
+  void inject(std::function<void()> begin, std::function<void()> end, std::function<void()> per);
+  void inject_begin(std::function<void()> begin);
+  void inject_end(std::function<void()> end);
+  void inject_per(std::function<void()> per);
+
   uint32_t create(STATUS_TYPE type, const sf::Vector3i& location);  
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 

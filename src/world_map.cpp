@@ -91,14 +91,18 @@ namespace {
     return true;
   }
 
-  bool valid_resource(RESOURCE_TYPE selected_type, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+  bool valid_resource(RESOURCE_TYPE selected_type
+      , IMPROVEMENT_TYPE type
+      , const sf::Vector3i& location) {
     improvement::ValidResourceVector valid_types = improvement::resource_requirements(type);
     size_t i = 0;
     for (; i < valid_types.size(); ++i) {
       if (valid_types[i] == util::enum_to_uint(selected_type)) break;
     }
     if (i == valid_types.size()) {
-      std::cout << "Iterated all resources, could not find valid resource for this improvement" << std::endl;
+      std::cout 
+        << "Iterated all resources, could not find valid resource for this improvement" 
+        << std::endl;
       return false;
     }
 

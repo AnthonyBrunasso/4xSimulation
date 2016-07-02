@@ -27,8 +27,18 @@ namespace improvement {
   // Improvements will often have requirements. For example, improving a resource
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
-  void add_requirement(IMPROVEMENT_TYPE type, std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
-  uint32_t create(Resource res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner);
+  void add_requirement(IMPROVEMENT_TYPE type
+      , std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
+
+  bool satisfies_requirements(RESOURCE_TYPE rtype
+      , IMPROVEMENT_TYPE itype
+      , const sf::Vector3i& location);
+
+  uint32_t create(Resource res
+      , IMPROVEMENT_TYPE type
+      , const sf::Vector3i& location
+      , uint32_t owner);
+
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);

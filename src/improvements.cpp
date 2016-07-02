@@ -64,14 +64,26 @@ void improvement::add_requirement(IMPROVEMENT_TYPE type,
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-uint32_t improvement::create(Resource res, IMPROVEMENT_TYPE type, const sf::Vector3i& location, uint32_t owner) {
-  Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
+bool improvement::satisfies_requirements(RESOURCE_TYPE rtype
+    , IMPROVEMENT_TYPE itype
+    , const sf::Vector3i& location) {
+  Requirements& requirements = s_creation_requirements[util::enum_to_uint(itype)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
-    if (!requirement(res.m_type, type, location)) {
+    if (!requirement(rtype, itype, location)) {
       std::cout << "Could not satisfy improvement create requirements." << std::endl;
-      return unique_id::INVALID_ID;
+      return false;
     }
+  }
+  return true;
+}
+
+uint32_t improvement::create(Resource res
+    , IMPROVEMENT_TYPE type
+    , const sf::Vector3i& location
+    , uint32_t owner) {
+  if (!satisfies_requirements(res.m_type, type, location)) {
+    return unique_id::INVALID_ID;
   }
 
   uint32_t id = unique_id::generate();

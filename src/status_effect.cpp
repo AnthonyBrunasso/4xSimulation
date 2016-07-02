@@ -72,15 +72,21 @@ namespace {
     }
   };
 
-  class ConstructingImprovementEffect : public StatusEffect {
+  class ConstructingEffect : public StatusEffect {
   public:
-    ConstructingImprovementEffect(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+    ConstructingEffect(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
         StatusEffect(id, type, location) {
       // Only effects the tile it is on, therefore range 0.
       m_range = 0;
-      m_turns = 3;
-      m_current_turn = 3;
+      // Takes two turns to construct.
+      m_turns = 2;
+      m_current_turn = 2;
     };
+
+    void end_turn() override {
+      // Constructions get injected into the status effect.
+      if (m_end_turn_injection) m_end_turn_injection();
+    }
 
     void spread(Tile& tile) override {
       // TODO: Really this can only spread to a worker.
@@ -98,8 +104,32 @@ namespace {
   SubMap s_create_subs;
   SubMap s_destroy_subs;
 
+  std::function<void()> s_injected_begin = {};
+  std::function<void()> s_injected_end = {};
+  std::function<void()> s_injected_per = {};
+
   // Status effects don't use the global unique_id ids.
   uint32_t s_unique_ids = 1;
+}
+
+void status_effect::inject(std::function<void()> begin
+    , std::function<void()> end
+    , std::function<void()> per) {
+  s_injected_begin = begin;
+  s_injected_end = end;
+  s_injected_per = per;
+}
+
+void status_effect::inject_begin(std::function<void()> begin) {
+  s_injected_begin = begin;
+}
+
+void status_effect::inject_end(std::function<void()> end) {
+  s_injected_end = end;
+}
+
+void status_effect::inject_per(std::function<void()> per) {
+  s_injected_per = per;
 }
 
 uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
@@ -111,12 +141,18 @@ uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
     e = new StasisEffect(id, type, location);
     break;
   case STATUS_TYPE::CONSTRUCTING_IMPROVEMENT:
-    e = new ConstructingImprovementEffect(id, type, location);
+    e = new ConstructingEffect(id, type, location);
     break;
   case STATUS_TYPE::RESIST_MODIFIERS:
   case STATUS_TYPE::UNKNOWN:
     return 0;
   }
+
+  if (!e) return 0;
+
+  e->m_begin_turn_injection = s_injected_begin;
+  e->m_end_turn_injection = s_injected_end;
+  e->m_per_turn_injection = s_injected_per;
 
   s_status[id] = e;
   std::cout << "Created status effect id " << id << " type: " << get_status_name(type) << std::endl;
@@ -139,6 +175,11 @@ uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
     if (!t) continue;
     e->spread(*t);
   }
+
+  // Clear the injections.
+  s_injected_begin = {};
+  s_injected_end = {};
+  s_injected_per = {};
 
   return id;
 }

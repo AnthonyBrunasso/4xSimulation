@@ -340,15 +340,18 @@ namespace simulation {
       return;
     }
     size_t i = 0;
-    Unit* unit = nullptr;
+    uint32_t unit_id = 0;
     for (; i < tile->m_unit_ids.size(); ++i) {
-      uint32_t unit_id = tile->m_unit_ids[i];
+      unit_id = tile->m_unit_ids[i];
       Unit* unit = units::get_unit(unit_id);
       if (!unit) continue;
       if (!unit->m_action_points) continue;
       if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
       break;
     }
+
+    if (!unit_id) return;
+
     if (i == tile->m_unit_ids.size()) {
       std::cout << "No worker is available to improve the tile" << std::endl;
       return;
@@ -364,12 +367,30 @@ namespace simulation {
     }
     Resource& res = tile->m_resources[i];
     auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
-    uint32_t id = improvement::create(res, impv, improve_step->m_location, improve_step->m_player);
-    if (id) {
-      std::cout << "adding improvement to player: " << player->m_name << std::endl;
-      player::add_improvement(improve_step->m_player, id);
-      unit->m_action_points = 0;
-    } 
+    if (!improvement::satisfies_requirements(res.m_type, impv, improve_step->m_location)) {
+      return;
+    }
+
+    uint32_t pid = improve_step->m_player;
+    sf::Vector3i loc = improve_step->m_location;
+
+    auto end_turn_inject = [res, impv, pid, loc, unit_id]() {
+      uint32_t id = improvement::create(res, impv, loc, pid);
+
+      if (id) {
+        Unit* u = units::get_unit(unit_id);
+        if (!u) { 
+          std::cout << "unit no longer exists." << std::endl;
+          return;
+        }
+        std::cout << "adding improvement to player: " << pid << std::endl;
+        player::add_improvement(pid, id);
+        u->m_action_points = 0;
+      } 
+    };
+
+    status_effect::inject_end(end_turn_inject);
+    status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, loc);
   }
 
   void execute_grant() {
