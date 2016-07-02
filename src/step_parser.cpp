@@ -360,7 +360,9 @@ namespace {
   }
 }
 
-void step_parser::split_to_tokens(const std::string& line, std::vector<std::string>& tokens) {
+std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
+  std::vector<std::string> tokens;
+
   std::stringstream iss(line);
   // Make sure output vector is empty first
   tokens.clear();
@@ -369,6 +371,8 @@ void step_parser::split_to_tokens(const std::string& line, std::vector<std::stri
   std::copy(std::istream_iterator<std::string>(iss),
     std::istream_iterator<std::string>(),
     std::back_inserter(tokens));
+
+  return std::move(tokens);
 }
 
 Step* step_parser::parse(const std::vector<std::string>& tokens) {

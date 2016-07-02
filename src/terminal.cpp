@@ -579,9 +579,8 @@ Step* terminal::parse_input() {
       return nullptr;
     }
     std::cout << "Executing: " << value << std::endl;
-
-    std::vector<std::string> tokens;
-    step_parser::split_to_tokens(value, tokens);
+    
+    std::vector<std::string> tokens = step_parser::split_to_tokens(value);
     // Execute any valid queries based on the tokens, if 
     // tokens make a query continue to next iteration.
     // Therefore, no command can be both a query and a step
