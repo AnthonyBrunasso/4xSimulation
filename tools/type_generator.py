@@ -28,7 +28,7 @@ def generate_gametype(game_type, object_types, target_file):
   target_file.write("};\n\n")
 
   # Create enum to string function.
-  target_file.write("inline std::string get_{0}_name({1} {2}) {{\n".format(param_name, type_name, param_name))
+  target_file.write("inline const char* get_{0}_name({1} {2}) {{\n".format(param_name, type_name, param_name))
 
   target_file.write("  switch ({0}) {{\n".format(param_name))
   for otype in object_types:
