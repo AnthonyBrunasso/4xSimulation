@@ -14,10 +14,9 @@ struct Resource;
 
 namespace search {
   std::vector<sf::Vector3i> range(const sf::Vector3i& start, int32_t distance);
-  void path_to(const sf::Vector3i& start, 
+  std::vector<sf::Vector3i> path_to(const sf::Vector3i& start,
       const sf::Vector3i& end, 
-      world_map::TileMap& tile_map, 
-      std::vector<sf::Vector3i>& coords);
+      world_map::TileMap& tile_map);
 
   // NOTE:
   // For bfs search, 

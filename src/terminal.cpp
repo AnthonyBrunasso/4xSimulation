@@ -291,11 +291,9 @@ namespace terminal  {
     
     terminal::add_query("path_to", "path_to <x> <y> <z> <tox> <toy> <toz>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(7, tokens);
-      std::vector<sf::Vector3i> path;
-      search::path_to(util::str_to_vector3(tokens[1], tokens[2], tokens[3]), 
+      std::vector<sf::Vector3i> path = search::path_to(util::str_to_vector3(tokens[1], tokens[2], tokens[3]), 
         util::str_to_vector3(tokens[4], tokens[5], tokens[6]),
-        world_map::get_map(), 
-        path);
+        world_map::get_map());
 
       std::cout << "Path size: " << path.size() << std::endl;
       for (auto node : path) {

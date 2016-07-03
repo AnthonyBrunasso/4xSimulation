@@ -545,9 +545,8 @@ namespace simulation {
       return nullptr;
     }
 
-    std::vector<sf::Vector3i> path; 
     // Run pathfinding to location
-    search::path_to(unit->m_location, move_step->m_destination, world_map::get_map(), path);
+    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, move_step->m_destination, world_map::get_map());
     if (!path.empty()) {
       path.erase(path.begin());
     }

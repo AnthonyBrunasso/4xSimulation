@@ -100,10 +100,10 @@ std::vector<sf::Vector3i> search::range(const sf::Vector3i& start, int32_t dista
 }
 
 // Calculates the path with the cheapest cumulative tile path cost
-void search::path_to(const sf::Vector3i& start,
+std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     const sf::Vector3i& end,
-    world_map::TileMap& tile_map, 
-    std::vector<sf::Vector3i>& coords) {
+    world_map::TileMap& tile_map) {
+  std::vector<sf::Vector3i> coords;
   // All the discovered nodes that require evaluation.
   std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparator> open;
   open.push(PathNode(start, 0, heuristic_estimate(start, end))); 
@@ -125,7 +125,7 @@ void search::path_to(const sf::Vector3i& start,
     PathNode current = open.top();
     if (current.m_location == end) {
       build_path(current.m_location, came_from, coords);
-      return;
+      return std::move(coords);
     }
     // Remove from open list.
     open.pop();
@@ -155,6 +155,8 @@ void search::path_to(const sf::Vector3i& start,
       set(true_costs[neighbor.m_location], neighbor.m_cost.m_value);
     }
   }
+
+  return std::move(coords);
 }
 
 // Bfs until the comparator returns true.
