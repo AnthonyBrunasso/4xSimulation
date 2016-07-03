@@ -21,6 +21,9 @@ AddOption('--arch',
   choices=['x86', 'x86_64'],
   default='x86_64',
   help='output architecture for binaries')
+AddOption('--pybinddir',
+  default=Dir('#../py4xsim/4x').abspath,
+  help='Install directory for python bindings')
 
 # Create required directories
 dirs = ['build', 'projects']
@@ -53,6 +56,8 @@ env.Append(CPPPATH=[Dir('#include').abspath])
 outdir='build'
 
 allFiles = SConscript('src/SConscript', exports='env', variant_dir=outdir, duplicate=0)
+
+Alias('install', env.Install(GetOption('pybinddir'), Dir('#include')))
 
 #project files
 if GetOption('projects'):
