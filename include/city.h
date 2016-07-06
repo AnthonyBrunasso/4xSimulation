@@ -40,8 +40,7 @@ public:
 
   bool IsConstructing() const;
 
-  const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction() const;
-  const std::unique_ptr<ConstructionQueueFIFO>& GetConstruction();
+  ConstructionQueueFIFO* GetConstruction() const;
   void Purchase(CONSTRUCTION_TYPE t);
 
   uint32_t m_id;

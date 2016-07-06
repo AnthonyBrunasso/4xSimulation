@@ -202,12 +202,8 @@ bool City::IsConstructing() const {
   return m_construction->Count() != 0;
 }
 
-const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() const {
-  return m_construction; 
-}
-
-const std::unique_ptr<ConstructionQueueFIFO>& City::GetConstruction() {
-  return m_construction; 
+ConstructionQueueFIFO* City::GetConstruction() const {
+  return m_construction.get(); 
 }
 
 void City::Purchase(CONSTRUCTION_TYPE t) {
