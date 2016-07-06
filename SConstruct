@@ -57,7 +57,7 @@ outdir='build'
 
 allFiles = SConscript('src/SConscript', exports='env', variant_dir=outdir, duplicate=0)
 
-Alias('install', env.Install(GetOption('pybinddir'), Dir('#include')))
+Alias('install', env.AlwaysBuild(env.Install(GetOption('pybinddir'), Dir('#include').abspath)))
 
 #project files
 if GetOption('projects'):
