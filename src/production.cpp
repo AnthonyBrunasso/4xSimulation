@@ -108,7 +108,7 @@ bool ConstructionOrder::IsUnique() {
   return production::construction_is_unique(m_type_id);
 }
 
-bool ConstructionOrder::IsCompleted() {
+bool ConstructionOrder::IsComplete() {
   return m_production >= production::required(m_type_id);
 }
 
@@ -161,10 +161,10 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
     return false;
   }
 
-  return itFind->second->IsCompleted();
+  return itFind->second->IsComplete();
 }
 
-std::vector<CONSTRUCTION_TYPE> ConstructionState::GetConstructed() const {
+std::vector<CONSTRUCTION_TYPE> ConstructionState::GetComplete() const {
   std::vector<CONSTRUCTION_TYPE> constructed;
   for_each_construction_type([this, &constructed] (CONSTRUCTION_TYPE t) {
     if (!IsConstructed(t)) return;
@@ -189,8 +189,8 @@ ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
   
 }
 
-std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Constructed() const {
-  return std::move(m_state.GetConstructed());
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Complete() const {
+  return std::move(m_state.GetComplete());
 }
 
 std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
@@ -292,7 +292,7 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
   while (m_queue.size() > 0) {
     ConstructionOrder* order = m_queue.front();
     m_stockpile = order->ApplyProduction(m_stockpile);
-    if (order->IsCompleted()) {
+    if (order->IsComplete()) {
       ConstructionOrder* completed = m_queue.front();
       std::cout << "Construction completed: " << completed->GetName() << std::endl;
       m_queue.pop_front();
@@ -338,7 +338,7 @@ std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
   }
   out << "    --Buildings--" << std::endl;
   for (auto construction : state.m_constructions) {
-    if (!construction.second->IsCompleted()) {
+    if (!construction.second->IsComplete()) {
       continue;
     }
     out << "      " << construction.second->GetName() << " is completed." << std::endl;

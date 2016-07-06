@@ -618,7 +618,7 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(sell_step->m_city);
     if(!city) return "Invalid City";
-    std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Constructed();
+    std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Complete();
     if (sell_step->m_production_id != 0) {
       CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step->m_production_id));
       for (size_t i = 0; i < completed.size(); ++i) {
