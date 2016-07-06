@@ -461,6 +461,7 @@ namespace simulation {
     }
     if (!city->CanSpecialize()) {
       std::cout << "City is not ready for specialization." << std::endl;
+      return;
     }
     if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type))) {
       std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type)) << std::endl;

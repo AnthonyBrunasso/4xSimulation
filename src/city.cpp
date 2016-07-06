@@ -47,6 +47,9 @@ bool City::CanSpecialize() const {
 }
 
 bool City::SetSpecialization(TERRAIN_TYPE type) {
+  if (!CanSpecialize()) {
+    return false;
+  }
   // May only be set once
   if (m_specialization != TERRAIN_TYPE::UNKNOWN) {
     return false;
