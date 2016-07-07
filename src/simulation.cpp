@@ -323,6 +323,7 @@ namespace simulation {
       // Consume the unit that built the city.
       if (u->m_unit_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
         units::destroy(u->m_unique_id);
+        break;
       }
     }
   }
