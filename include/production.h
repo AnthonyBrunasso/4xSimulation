@@ -54,6 +54,10 @@ class ConstructionState
 public:
   ConstructionState();
   ~ConstructionState();
+  ConstructionState(ConstructionState&&) = default;
+
+  ConstructionState(const ConstructionState&) = delete;
+  ConstructionState& operator=(const ConstructionState&) = delete;  
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
   bool EraseConstruction(CONSTRUCTION_TYPE type_id);
@@ -72,6 +76,10 @@ class ConstructionQueueFIFO
 {
 public:
   explicit ConstructionQueueFIFO(uint32_t cityId);
+  ConstructionQueueFIFO(ConstructionQueueFIFO&&) = default;
+
+  ConstructionQueueFIFO(const ConstructionQueueFIFO&) = delete;
+  ConstructionQueueFIFO& operator=(const ConstructionQueueFIFO&) = delete;
 
   std::vector<CONSTRUCTION_TYPE> Complete() const;
   std::vector<CONSTRUCTION_TYPE> Incomplete() const;
