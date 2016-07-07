@@ -6,12 +6,12 @@ AddOption('--sfmlDir',
 AddOption('--projects',
   action='store_true',
   help='Create visual studio project file')
-AddOption('--lib',
-  action='store_true',
-  help='Create a library')
 AddOption('--shared_lib',
   action='store_true',
   help='Create a shared library')
+AddOption('--pdb',
+  action='store_true',
+  help='Create a debugging symbols')
 AddOption('--variant',
   choices=["debug","release"],
   default='debug',
@@ -43,6 +43,7 @@ if env['PLATFORM'] == 'win32':
   env['SHCXXCOM'] = env['SHCXXCOM'].replace("$SHCXXFLAGS", "$WINFLAGS $SHCXXFLAGS")
 #windows specific compiler flags
 env.Append(WINFLAGS=['/EHsc'])
+env['PDB'] = GetOption('pdb')
 
 if (GetOption('variant') == 'debug'):
   env.Append(WINFLAGS=['/MDd'])

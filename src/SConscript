@@ -7,9 +7,8 @@ srcFiles = Glob('*.cpp')
 if not GetOption('projects'):
   env.Program('4xsim', source=srcFiles)
   
-  if GetOption('lib'):
-    lib = env.Library('4xsim', source=srcFiles)
-    Alias('install', env.Install(GetOption('pybinddir'), lib))
+  lib = env.Library('4xsim', source=srcFiles)
+  Alias('install', env.Install(GetOption('pybinddir'), lib))
 
   if GetOption('shared_lib'):
     shared_lib = env.SharedLibrary('4xsim', source=srcFiles)
