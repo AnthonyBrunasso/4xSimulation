@@ -541,6 +541,7 @@ namespace simulation {
     }
     if (player && !player->OwnsUnit(move_step->m_unit_id)) {
       std::cout << "Player does not own unit" << std::endl;
+      return nullptr;
     }
     if (world_map::get_tile(move_step->m_destination) == nullptr) {
       std::cout << "Invalid destination: " << format::vector3(move_step->m_destination) << std::endl;
