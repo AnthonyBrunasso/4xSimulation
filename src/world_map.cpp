@@ -275,13 +275,20 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
     sf::Vector3i difference = unit->m_path[0] - unit->m_location;
     unit->m_direction = difference;
     unit->m_location = unit->m_path[0];
+    Player* player = player::get_player(unit->m_owner_id);
     if (next->m_discover_bonus) {
       next->m_discover_bonus = false;
       std::cout << " Unit " << unit->m_unique_id << " discovered a magical relic! Your civilization gains 50 gold." << std::endl;
-      Player* player = player::get_player(unit->m_owner_id);
       if (player) {
         player->m_gold += 50.f;
       }
+    }
+    if (player) {
+      auto fp = [player](const Tile& t) -> bool {
+        player->m_discovered_tiles.insert(&t);
+        return false;
+      };
+      search::bfs(unit->m_location, 2, world_map::get_map(), fp);
     }
     next->m_unit_ids.push_back(unit->m_unique_id);
     // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
