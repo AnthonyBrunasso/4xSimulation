@@ -1,3 +1,8 @@
-file(GLOB Sources "*.cpp" "*.c")
+file(GLOB sources "*.cpp" "*.c")
+set(lib_sources ${sources})
 
-add_executable(4xSimulation ${Sources})
+list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+
+add_library(4xlib ${lib_sources})
+add_executable(4xsim ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+target_link_libraries(4xsim 4xlib)
