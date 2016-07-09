@@ -7,9 +7,19 @@ cd tools
 python type_generator.py
 ```
 
-Build with:
+Build with Cmake:
 ```sh
-Make
+From root directory, make a build directory to store all build related artifacts.
+mkdir build
+cd build
+If on windows:
+cmake ..\ -G "Visual Studio 14 Win64"
+Start 4xSimulation.sln and build
+If not on windows:
+cmake ../
+make
+cd src
+./4xSimulation
 ```
 ### Multiplayer
 ```sh
