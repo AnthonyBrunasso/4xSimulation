@@ -119,7 +119,7 @@ TerrainYield City::DumpYields(bool log) const {
 }
 
 void City::MutateYield(TerrainYield& yields) const {
-  float bonusFood = 2.f + (m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0:0.0);
+  float bonusFood = 2.f + (m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0f:0.0f);
   yields.m_food += bonusFood;
   yields.m_experience += 1.f;
   m_construction->MutateYield(yields);
@@ -214,7 +214,7 @@ void City::Purchase(CONSTRUCTION_TYPE t) {
 }
 
 float city::food_required_by_population(float population) {
-  return  std::ceil(std::pow(population, 2.75) * 5.f);
+  return std::ceil(std::pow(population, 2.75f) * 5.f);
 }
 
 float city::population_size_from_food(float food) {

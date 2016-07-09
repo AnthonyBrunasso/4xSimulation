@@ -323,7 +323,7 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   auto it = fifo.m_queue.cbegin();
   uint32_t turns = 0;
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
-    turns += ceil((*it)->GetProductionForConstruction()/t.m_production);
+    turns += static_cast<uint32_t>(ceil((*it)->GetProductionForConstruction()/t.m_production));
     out << "        ";
     out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() 
         << " (" << turns << " turns)";

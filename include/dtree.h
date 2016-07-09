@@ -1,8 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <cfloat>
 
-const float NOOP_EVALUATION = 0xffffffff;
+const float NOOP_EVALUATION = FLT_MAX;
 
 // An AI decision is an action an AI takes. Attacking a unit, colonizing, etc.
 class Decision {

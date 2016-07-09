@@ -722,9 +722,9 @@ namespace simulation {
     if (!unit) {
       return;
     }
-    unit->m_combat_stats.m_health = stats_step->m_health;
-    unit->m_combat_stats.m_attack = stats_step->m_attack;
-    unit->m_combat_stats.m_range = stats_step->m_range;
+    unit->m_combat_stats.m_health = static_cast<float>(stats_step->m_health);
+    unit->m_combat_stats.m_attack = static_cast<float>(stats_step->m_attack);
+    unit->m_combat_stats.m_range = static_cast<float>(stats_step->m_range);
 
     std::cout << format::combat_stats(unit->m_combat_stats) << std::endl;
   }

@@ -115,8 +115,8 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
   // Find the closest city or unit and create an order for it. 
   // If none are found in proximity create a wander order.
   auto check_proximity = [&result, &player_id, &state](Unit& owned_unit) {
-    uint32_t range = owned_unit.m_combat_stats.m_range;
-    uint32_t attack = owned_unit.m_combat_stats.m_attack;
+    float range = owned_unit.m_combat_stats.m_range;
+    float attack = owned_unit.m_combat_stats.m_attack;
     auto unit_check = [&result, &range, &owned_unit, &player_id, &state](const Unit& unit) {
       // Existence of a unit means this evaluation was successful.
       result = true;

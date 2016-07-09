@@ -105,11 +105,11 @@ namespace science {
   }
   
   float ancient_exponent(uint32_t x) {
-    return 43.f - 18.f*x + 14.f * std::pow(x,2);
+    return 43.f - 18.f*x + 14.f * std::pow(x,2.0f);
   }
 
   float normal_exponent(uint32_t x) {
-    return 270.f - 20.f*x+72.f*std::pow(x, 2);
+    return 270.f - 20.f*x+72.f*std::pow(x, 2.0f);
   }
   
   float research_cost(ScienceNode* sn) {

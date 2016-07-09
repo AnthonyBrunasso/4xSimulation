@@ -10,6 +10,6 @@ namespace cmath {
 
   template <typename VECTOR>
   float dot(const VECTOR& lhs, const VECTOR& rhs) {
-    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+    return static_cast<float>(lhs.x) * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
   }
 }
