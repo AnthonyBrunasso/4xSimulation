@@ -37,6 +37,7 @@ namespace science {
 
   void initialize() {
     auto science_init = [](SCIENCE_TYPE st) {
+      if (st == SCIENCE_TYPE::UNKNOWN) return;
       uint32_t key = static_cast<uint32_t>(st);
       s_tower_of_babylon[key] = new ScienceNode(st);
     };
