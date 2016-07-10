@@ -1,4 +1,4 @@
-file(GLOB sources "*.cpp" "*.c")
+file(GLOB sources "*.cpp" "*.c" "../include/*.h")
 set(lib_sources ${sources})
 
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
