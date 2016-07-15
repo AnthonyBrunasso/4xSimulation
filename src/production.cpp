@@ -197,6 +197,15 @@ std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
   return std::move(m_state.GetIncomplete());
 }
 
+std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Queue() const {
+  std::vector<CONSTRUCTION_TYPE> queue;
+  for (auto& q : m_queue) {
+    queue.push_back(q->GetType());
+  }
+
+  return std::move(queue);
+}
+
 bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
   return m_state.IsConstructed(type_id);
 }

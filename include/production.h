@@ -83,6 +83,7 @@ public:
 
   std::vector<CONSTRUCTION_TYPE> Complete() const;
   std::vector<CONSTRUCTION_TYPE> Incomplete() const;
+  std::vector<CONSTRUCTION_TYPE> Queue() const;
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
   void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
