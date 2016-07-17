@@ -18,6 +18,7 @@ SCIENCE      = "SCIENCE"
 MAGIC        = "MAGIC"
 STATUS       = "STATUS"
 COMMAND      = "COMMAND"
+NOTIFICATION = "NOTIFICATION"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Luxury_Gold', 1)
@@ -132,3 +133,11 @@ add_gametype(COMMAND, "Grant", 26)
 add_gametype(COMMAND, "Magic", 27)
 add_gametype(COMMAND, "Research", 28)
 add_gametype(COMMAND, "Status", 29)
+
+add_gametype(NOTIFICATION, "City_Starving", 1)
+add_gametype(NOTIFICATION, "City_Defense", 2)
+add_gametype(NOTIFICATION, "City_Harvest", 3)
+add_gametype(NOTIFICATION, "City_Production", 4)
+add_gametype(NOTIFICATION, "City_Specialize", 5)
+add_gametype(NOTIFICATION, "Unit_Idle", 6)
+add_gametype(NOTIFICATION, "Science_Idle", 7)

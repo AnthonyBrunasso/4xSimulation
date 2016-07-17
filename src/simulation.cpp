@@ -20,6 +20,7 @@
 #include "magic.h"
 #include "custom_math.h"
 #include "status_effect.h"
+#include "notification.h"
 
 #include <iostream>
 #include <vector>
@@ -253,14 +254,6 @@ namespace simulation {
     while (step_move(s_units_to_move, player_id)) {
 
     }
-  }
-
-  void science_notifications() {
-    player::for_each_player([] (Player& player) {
-      if (player.m_research == SCIENCE_TYPE::UNKNOWN) {
-        std::cout << "You require a new research task." << std::endl;
-      }
-    });
   }
 
   void execute_construction() {
@@ -775,30 +768,6 @@ uint32_t simulation::get_turn() {
   return s_current_turn;
 }
 
-void player_notifications(uint32_t player_id) {
-  Player* player = player::get_player(player_id);
-  if (!player) {
-    return;
-  }
-  if (player->m_turn_state == TURN_TYPE::TURNCOMPLETED) {
-    return;
-  }
-  std::cout << std::endl << "Active player is " << player_id << std::endl;
-  player::for_each_player_city(player_id, [] (City& c) {
-    c.DoNotifications();
-  });
-  size_t unit_count = 0;
-  player::for_each_player_unit(player_id, [&unit_count] (Unit& u) {
-    if (u.m_path.empty()) {
-      ++unit_count;
-    }
-  });
-  if (unit_count) {
-    std::cout << "Player has " << unit_count << " idle_unit." << std::endl;
-  }
-  simulation::science_notifications();
-}
-
 void simulation::process_step(Step* step) {
   // Save a pointer to the current step
   s_current_step = step;
@@ -951,11 +920,15 @@ void simulation::process_end_turn() {
     barbarians::pillage_and_plunder(end_step->m_player);
   }
 
-  phase_queued_movement(end_step->m_player); //TODO: pass player filter to movement
+  phase_queued_movement(end_step->m_player); 
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }
 
-  player_notifications(end_step->m_next_player);
+  std::cout << std::endl << "Active player is " << end_step->m_next_player << std::endl;
+  NotificationVector events = notification::get_player_notifications(end_step->m_next_player);
+  for (size_t i = 0; i < events.size(); ++i) {
+    std::cout << notification::to_string(events[i]) << std::endl;
+  }
 }

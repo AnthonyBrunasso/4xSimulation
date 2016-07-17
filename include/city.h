@@ -2,6 +2,7 @@
 
 #include "Vector3.hpp"
 #include "game_types.h"
+#include "notification.h"
 
 #include <cstdint>
 #include <functional>
@@ -22,7 +23,6 @@ public:
   bool Capture();
   
   void Simulate(TerrainYield&);
-  void DoNotifications() const;
 
   TerrainYield DumpYields(bool log=false) const;
   void MutateYield(TerrainYield&) const;
@@ -71,6 +71,7 @@ namespace city {
   void sub_raze_complete(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   City* nearest_city(sf::Vector3i&);
   City* get_city(uint32_t id);
+  void do_notifications(uint32_t city_id, NotificationVector& events);
   void for_each_city(std::function<void(City& )> operation);
 
   void clear();

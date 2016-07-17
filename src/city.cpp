@@ -125,33 +125,6 @@ void City::MutateYield(TerrainYield& yields) const {
   m_construction->MutateYield(yields);
 }
 
-void City::DoNotifications() const {
-  TerrainYield t = DumpYields();
-  if (t.m_food < 0.0) {
-    std::cout << "City (" << m_id << ") is starving." << std::endl;
-  }
-  if (m_construction->Count() == 0) {
-    std::cout << "City (" << m_id << ") construction has idle_queue." << std::endl;
-  }
-  float idleCount = IdleWorkers();
-  if (idleCount) {
-    std::cout << "City (" << m_id << ") population has " << idleCount << " idle_worker." << std::endl;
-  }
-  if (m_specialization == TERRAIN_TYPE::UNKNOWN && CanSpecialize()) {
-    std::cout << "City (" << m_id << ") has knowledge of the local terrain, specialize <cityId> <terrainType>." << std::endl;
-  }
-  search::bfs_units(m_location,
-    2,
-    world_map::get_map(),
-    [this](const Unit& u) {
-      if (u.m_owner_id != m_owner_id) {
-        std::cout << "City (" << m_id << ") is vulnerable to attack by unit " << u.m_unique_id << std::endl;
-        return true;
-      }
-      return false;
-    });
-}
-
 size_t City::GetHarvestCount() const {
   return m_yield_tiles.size();
 }
@@ -310,6 +283,52 @@ City* city::get_city(uint32_t id) {
   }
 
   return findIt->second;
+}
+
+void city::do_notifications(uint32_t id, NotificationVector& events) {
+  City* c = get_city(id);
+  TerrainYield t = c->DumpYields();
+  if (t.m_food < 0.0) {
+    Notification n;
+    n.m_event_type = NOTIFICATION_TYPE::CITY_STARVING;
+    n.m_id = id;
+    events.push_back(n);
+  }
+  if (c->m_construction->Count() == 0) {
+    Notification n;
+    n.m_event_type = NOTIFICATION_TYPE::CITY_PRODUCTION;
+    n.m_id = id;
+    events.push_back(n);
+  }
+  float idleCount = c->IdleWorkers();
+  if (idleCount) {
+    Notification n;
+    n.m_event_type = NOTIFICATION_TYPE::CITY_HARVEST;
+    n.m_id = id;
+    events.push_back(n);
+  }
+  if (c->m_specialization == TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
+    Notification n;
+    n.m_event_type = NOTIFICATION_TYPE::CITY_SPECIALIZE;
+    n.m_id = id;
+    events.push_back(n);
+  }
+  search::bfs_units(c->m_location,
+    2,
+    world_map::get_map(),
+    [&events, c](const Unit& u) {
+      if (u.m_owner_id == c->m_owner_id) {
+        return false;
+      }
+      
+      Notification n;
+      n.m_event_type = NOTIFICATION_TYPE::CITY_DEFENSE;
+      n.m_id = c->m_id;
+      events.push_back(n);
+      return true;
+    }
+  );
+
 }
 
 void city::for_each_city(std::function<void(City& )> operation) {
