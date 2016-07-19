@@ -80,17 +80,13 @@ namespace production {
 }
 
 ConstructionOrder::ConstructionOrder(CONSTRUCTION_TYPE type_id)
-: m_type_id(type_id)
+: m_type(type_id)
 , m_production(0.f)
 {
 }
 
-float ConstructionOrder::GetProductionForConstruction() {
-  return production::required(m_type_id) - m_production;
-}
-
 float ConstructionOrder::ApplyProduction(float production) {
-  float required = production::required(m_type_id);
+  float required = production::required(m_type);
   
   float usedProduction = std::min(production, required - m_production);
   //std::cout << "used production: " << usedProduction << std::endl;
@@ -100,22 +96,9 @@ float ConstructionOrder::ApplyProduction(float production) {
   return production - usedProduction;
 }
 
-std::string ConstructionOrder::GetName() {
-  return std::move(get_construction_name(m_type_id));
-}
-
-bool ConstructionOrder::IsUnique() {
-  return production::construction_is_unique(m_type_id);
-}
-
 bool ConstructionOrder::IsComplete() {
-  return m_production >= production::required(m_type_id);
+  return m_production >= production::required(m_type);
 }
-
-CONSTRUCTION_TYPE ConstructionOrder::GetType() {
-  return m_type_id;
-}
-
 
 ConstructionState::ConstructionState() {
 }
@@ -200,7 +183,7 @@ std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
 std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Queue() const {
   std::vector<CONSTRUCTION_TYPE> queue;
   for (auto& q : m_queue) {
-    queue.push_back(q->GetType());
+    queue.push_back(q->m_type);
   }
 
   return std::move(queue);
@@ -303,11 +286,11 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
     m_stockpile = order->ApplyProduction(m_stockpile);
     if (order->IsComplete()) {
       ConstructionOrder* completed = m_queue.front();
-      std::cout << "Construction completed: " << completed->GetName() << std::endl;
+      std::cout << "Construction completed: " << get_construction_name(completed->m_type) << std::endl;
       m_queue.pop_front();
-      if (!order->IsUnique()) {
+      if (!production::construction_is_unique(order->m_type)) {
         // Unit spawn
-        production::spawn_unit(completed->GetType(), parent);
+        production::spawn_unit(completed->m_type, parent);
         delete completed;
       }
     }
@@ -332,9 +315,9 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   auto it = fifo.m_queue.cbegin();
   uint32_t turns = 0;
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
-    turns += static_cast<uint32_t>(ceil((*it)->GetProductionForConstruction()/t.m_production));
+    turns += static_cast<uint32_t>(ceil(production::required((*it)->m_type)/t.m_production));
     out << "        ";
-    out << i << ") " << (*it)->GetName() << " remaining: " << (*it)->GetProductionForConstruction() 
+    out << i << ") " << get_construction_name((*it)->m_type) << " remaining: " << production::required((*it)->m_type)
         << " (" << turns << " turns)";
     out << std::endl;
   }
@@ -350,7 +333,7 @@ std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
     if (!construction.second->IsComplete()) {
       continue;
     }
-    out << "      " << construction.second->GetName() << " is completed." << std::endl;
+    out << "      " << get_construction_name(construction.second->m_type) << " is completed." << std::endl;
   }
   return out;
 }

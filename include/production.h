@@ -13,7 +13,7 @@ class City;
 struct TerrainYield;
 
 namespace production {
-  typedef std::function<void (CONSTRUCTION_TYPE)> UnitCreationCallback;
+  typedef std::function<void(CONSTRUCTION_TYPE)> UnitCreationCallback;
 
   CONSTRUCTION_TYPE id(uint32_t);
   float required(CONSTRUCTION_TYPE type_id);
@@ -33,19 +33,13 @@ class ConstructionOrder
 {
 public:
   explicit ConstructionOrder(CONSTRUCTION_TYPE type_id);
+  ConstructionOrder() = delete;
 
-  float GetProductionForConstruction();
   float ApplyProduction(float production);
 
-  std::string GetName();
-  bool IsUnique();
   bool IsComplete();
-  CONSTRUCTION_TYPE GetType();
 
-private:
-  ConstructionOrder();
-
-  CONSTRUCTION_TYPE m_type_id;
+  CONSTRUCTION_TYPE m_type;
   float m_production;
 };
 
@@ -57,7 +51,7 @@ public:
   ConstructionState(ConstructionState&&) = default;
 
   ConstructionState(const ConstructionState&) = delete;
-  ConstructionState& operator=(const ConstructionState&) = delete;  
+  ConstructionState& operator=(const ConstructionState&) = delete;
 
   ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
   bool EraseConstruction(CONSTRUCTION_TYPE type_id);
@@ -96,9 +90,6 @@ public:
   TerrainYield DumpYields() const;
   void MutateYield(TerrainYield&) const;
   void Simulate(City* parent, TerrainYield&);
-
-private:
-  friend std::ostream& operator<<(std::ostream&, const ConstructionQueueFIFO&);
 
   uint32_t m_cityId;
   ConstructionList m_queue;
