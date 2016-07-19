@@ -106,7 +106,6 @@ namespace terrain_yield {
   
   void MountainYield(TerrainYield& t) {
     t.m_production += 1;
-    t.m_magic += 1;
   }
   
   void WaterYield(TerrainYield& t) {
@@ -134,7 +133,7 @@ namespace terrain_yield {
   }
 
   void WaterSpecialization(TerrainYield& t) {
-    t.m_gold += 1;
+    t.m_magic += 1;
     t.m_experience += 1;
   }
 
