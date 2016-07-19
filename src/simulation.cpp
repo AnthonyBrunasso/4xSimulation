@@ -648,6 +648,7 @@ namespace simulation {
     if (!tile) return "Invalid City Location";
     if (unit->m_action_points == 0) return "Unit is exhausted.";
     if (tile->m_unit_ids.size()) return "City may not be sieged while units defend";
+    if (unit->m_combat_stats.m_range < hex::cube_distance(unit->m_location, city->m_location)) return "Unit doesn't have sufficient range to siege from here";
     // TODO: Should units have siege damage?
     city->Siege(unit->m_combat_stats.m_attack);
     unit->m_action_points = 0;
