@@ -646,9 +646,11 @@ namespace simulation {
     if (!player->OwnsUnit(unit->m_unique_id)) return "Player doesn't own unit";
     Tile* tile = world_map::get_tile(city->m_location);
     if (!tile) return "Invalid City Location";
+    if (unit->m_action_points == 0) return "Unit is exhausted.";
     if (tile->m_unit_ids.size()) return "City may not be sieged while units defend";
     // TODO: Should units have siege damage?
     city->Siege(unit->m_combat_stats.m_attack);
+    unit->m_action_points = 0;
     return "Siege Occured";
   }
 
