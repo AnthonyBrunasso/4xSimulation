@@ -25,6 +25,7 @@ bool combat::engage(CombatStats& attack_stats,
 
   // If attacker can't reach defender exit
   if (attacker_range < static_cast<float>(distance)) {
+    std::cout << "Attack can't reach defender" << std::endl;
     return false;
   }
 
@@ -35,6 +36,7 @@ bool combat::engage(CombatStats& attack_stats,
 
   // Only return fire if the defender can reach the attacker
   if (defender_range < static_cast<float>(distance)) {
+    std::cout << "Defender can't reach attacker" << std::endl;
     return true;
   }
 
