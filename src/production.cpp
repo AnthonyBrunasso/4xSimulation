@@ -315,9 +315,9 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   auto it = fifo.m_queue.cbegin();
   uint32_t turns = 0;
   for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
-    turns += static_cast<uint32_t>(ceil(production::required((*it)->m_type)/t.m_production));
+    turns += static_cast<uint32_t>(ceil((production::required((*it)->m_type)-(*it)->m_production)/t.m_production));
     out << "        ";
-    out << i << ") " << get_construction_name((*it)->m_type) << " remaining: " << production::required((*it)->m_type)
+    out << i << ") " << get_construction_name((*it)->m_type) << ": " << (*it)->m_production << "/" << production::required((*it)->m_type)
         << " (" << turns << " turns)";
     out << std::endl;
   }
