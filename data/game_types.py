@@ -133,6 +133,7 @@ add_gametype(COMMAND, "Grant", 26)
 add_gametype(COMMAND, "Magic", 27)
 add_gametype(COMMAND, "Research", 28)
 add_gametype(COMMAND, "Status", 29)
+add_gametype(COMMAND, "Set_Path", 30)
 
 add_gametype(NOTIFICATION, "City_Starving", 1)
 add_gametype(NOTIFICATION, "City_Defense", 2)

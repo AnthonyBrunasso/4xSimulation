@@ -271,7 +271,7 @@ TerrainYield ConstructionQueueFIFO::DumpYields() const {
 void ConstructionQueueFIFO::MutateYield(TerrainYield& t) const {
  float yield = 1.f;
   if (Has(CONSTRUCTION_TYPE::FORGE)) {
-    yield += 3.f;
+    yield += 1.5f;
   }
   if (Has(CONSTRUCTION_TYPE::FACTORY)) {
     yield += 10.0f;

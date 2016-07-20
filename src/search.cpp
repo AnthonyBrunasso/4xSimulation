@@ -102,7 +102,8 @@ std::vector<sf::Vector3i> search::range(const sf::Vector3i& start, int32_t dista
 // Calculates the path with the cheapest cumulative tile path cost
 std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     const sf::Vector3i& end,
-    world_map::TileMap& tile_map) {
+    world_map::TileMap& tile_map,
+    std::function<bool(const Tile& tile)> expand) {
   std::vector<sf::Vector3i> coords;
   // All the discovered nodes that require evaluation.
   std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparator> open;
@@ -113,7 +114,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
   // All nodes that are already evaluated. Unordered map because set uses tree and needs >,< operator.
   std::unordered_map<sf::Vector3i, bool> closed;
 
-  // Map used to move backwards from goal node to start to get path.
+  // Map used to move backwards from goal node to start to get pstartath.
   std::unordered_map<sf::Vector3i, sf::Vector3i> came_from;
   // The actual costs from the start node to a given node.
   std::unordered_map<sf::Vector3i, Score> true_costs;
@@ -140,6 +141,12 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
 
     // Loop over neighbors and evaluate state of each node in path.
     for (auto neighbor : neighbors) {
+      // If the neibhors location equals end, this is our destination, don't skip it or A* will never finish.
+      // If the node shouldn't be expanded add it to the closed list and continue.
+      if (neighbor.m_location != end && expand && !expand(tile_map[neighbor.m_location])) {
+        closed[neighbor.m_location] = true;
+        continue;
+      }
       // Ignore neighbors that have already been evaluated.
       if (closed.find(neighbor.m_location) != closed.end()) continue;
       // If not in open list, add it for evaluation.

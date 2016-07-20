@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "game_types.h"
 #include "Vector3.hpp"
@@ -216,5 +217,12 @@ struct StatusStep : public Step {
   StatusStep() : Step(COMMAND_TYPE::STATUS) {};
   STATUS_TYPE m_type;
   sf::Vector3i m_location;
+};
+
+struct SetPathStep : public Step {
+  SetPathStep() : Step(COMMAND_TYPE::SET_PATH) {};
+  uint32_t m_unit_id;
+  std::vector<sf::Vector3i> m_path;
+  uint32_t m_player;
 };
 

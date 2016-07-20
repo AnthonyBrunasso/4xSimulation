@@ -23,7 +23,6 @@
 #include "notification.h"
 
 #include <iostream>
-#include <vector>
 #include <algorithm>
 
 namespace simulation {
@@ -551,6 +550,32 @@ namespace simulation {
     return unit;
   }
 
+
+  void execute_setpath() {
+    SetPathStep* path_step = static_cast<SetPathStep*>(s_current_step);
+    Player* player = player::get_player(path_step->m_player);
+    Unit* unit = units::get_unit(path_step->m_unit_id);
+    if (!player) {
+      std::cout << "Invalid player" << std::endl;
+      return;
+    }
+    if (!unit) {
+      std::cout << "Unit: " << path_step->m_unit_id << " does not exist." << std::endl;
+      return;
+    }
+    if (player && !player->OwnsUnit(path_step->m_unit_id)) {
+      std::cout << "Player does not own unit" << std::endl;
+      return;
+    }
+    units::set_path(path_step->m_unit_id, path_step->m_path);
+    UnitMovementVector units_to_move;
+    units_to_move.push_back(unit->m_unique_id);
+    while (step_move(units_to_move, unit->m_owner_id));
+
+    // Queue it for continued movement, unit will remove itself if it is done moving
+    s_units_to_move.push_back(unit->m_unique_id);
+  }
+
   void execute_move() {
     std::cout << "Executing immediate movement " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
@@ -862,6 +887,10 @@ void simulation::process_step(Step* step) {
       break;
     case COMMAND_TYPE::STATUS:
       execute_status();
+      break;
+    case COMMAND_TYPE::SET_PATH:
+      execute_setpath();
+      break;
       break;
     default:
       break;

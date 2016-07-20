@@ -19,6 +19,7 @@
 #include "production.h"
 #include "unique_id.h"
 #include "search.h"
+#include "hex.h"
 
 void Settle::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
@@ -128,6 +129,7 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
 
   // Don't attempt an attack if out of action points.
   if (!su->m_action_points) {
+    std::cout << "No action points to attack" << std::endl;
     // Return true, decision is a success, just out of action points.
     return true;
   }
@@ -140,6 +142,37 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   return true;
 }
 
+void approach(uint32_t unit_id, 
+    uint32_t player_id, 
+    const sf::Vector3i& start, 
+    const sf::Vector3i& location) {
+  auto find_tiles = [&location](const Tile& tile) -> bool {
+    if (tile.m_city_id) return false;
+    if (!tile.m_unit_ids.empty()) return false;
+    return true;
+  };
+
+  std::vector<sf::Vector3i> path = search::path_to(start, location, world_map::get_map(), find_tiles);
+
+  // Erase the first node, the node being stood upon, and the last node, the target city or unit.
+  if (path.size() > 2) {
+    path.erase(path.begin());
+    path.pop_back();
+  }
+  // Otherwise return, the unit is close enough already.
+  else {
+    std::cout << "Unit is close enough to it's target." << std::endl;
+    return;
+  }
+
+  SetPathStep* move_step = new SetPathStep();
+  move_step->m_unit_id = unit_id;
+  move_step->m_path = path;
+  move_step->m_player = player_id;
+  simulation::process_step_from_ai(move_step);
+}
+
+
 bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   Unit* su = units::get_unit(unit_id);
   Unit* tu = units::get_unit(target_id);
@@ -148,28 +181,7 @@ bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return false; 
   }
 
-  sf::Vector3i location;
-  auto find_tiles = [&location, &target_id](const Tile& tile) -> bool{
-    if (!tile.m_unit_ids.empty()) {
-      return false;
-    }
-
-    location = tile.m_location;
-    return true;
-  };
-
-  // Get all tiles around the unit, pick the first that doesn't have a unit at it.
-  // Go twoawrds it
-  if (!search::bfs(tu->m_location, 1, world_map::get_map(), find_tiles)) {
-    return false;
-  }
-
-  MoveStep* move_step = new MoveStep();
-  move_step->m_unit_id = unit_id;
-  move_step->m_destination = location;
-  move_step->m_player = player_id;
-  simulation::process_step_from_ai(move_step);
-
+  approach(unit_id, player_id, su->m_location, tu->m_location);
   // Try to attack the unit.
   attack_unit(unit_id, target_id, player_id);
   return true;
@@ -183,27 +195,7 @@ bool approach_city(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return false; 
   }
 
-  sf::Vector3i location;
-  auto find_tiles = [&location, &target_id](const Tile& tile) {
-    if (!tile.m_unit_ids.empty()) {
-      return false;
-    }
-
-    location = tile.m_location;
-    return true;
-  };
-
-  // Get all tiles around the unit, pick the first that doesn't have a unit at it.
-  // Go twoawrds it
-  if (!search::bfs(tc->m_location, 1, world_map::get_map(), find_tiles)) {
-    return false;
-  }
-
-  MoveStep* move_step = new MoveStep();
-  move_step->m_unit_id = unit_id;
-  move_step->m_destination = location;
-  move_step->m_player = player_id;
-  simulation::process_step_from_ai(move_step);
+  approach(unit_id, player_id, su->m_location, tc->m_location);
   return true;
 }
 

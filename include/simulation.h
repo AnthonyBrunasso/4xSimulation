@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Vector3.hpp"
+
 #include <cstdint>
+#include <vector>
 
 struct Step;
 

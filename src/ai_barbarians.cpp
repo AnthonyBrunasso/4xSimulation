@@ -33,6 +33,8 @@ void barbarians::initialize() {
 
   // Create micro tree.
   DNode* mnode = new DNode(nullptr, &evaluations::get_has_units());
+ 
+  // TODO: Check proximity of units before checking if any cities have been discovered. 
   
   mnode->m_right = new DNode(nullptr, &evaluations::get_discovered_cities());
   DNode*& discovered_eval = mnode->m_right;
