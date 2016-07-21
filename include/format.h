@@ -21,14 +21,14 @@ namespace format {
   template <typename VEC2>
   std::string vector2(const VEC2& vec) {
     std::stringstream ss;
-    ss << "(" << vec.x << "," << vec.y << ")";
+    ss << "v2(" << vec.x << "," << vec.y << ")";
     return std::move(ss.str());
   }
 
   template <typename VEC3>
   std::string vector3(const VEC3& vec) {
     std::stringstream ss;
-    ss << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
+    ss << "v3(" << vec.x << "," << vec.y << "," << vec.z << ")";
     return std::move(ss.str());
   }
 

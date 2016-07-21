@@ -218,7 +218,7 @@ namespace terrain_yield {
     return t;
   }
 
-  TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE spec) {
+  TerrainYield get_yield(const sf::Vector3i& loc, TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();
     Tile* tile = world_map::get_tile(loc);
     if (!tile) {

@@ -28,7 +28,7 @@ namespace terrain_yield {
   bool add_harvest(sf::Vector3i& loc, City*);
   void remove_harvest(sf::Vector3i& loc);
 
-  TerrainYield get_yield(sf::Vector3i loc, TERRAIN_TYPE specialization);
+  TerrainYield get_yield(const sf::Vector3i& loc, TERRAIN_TYPE specialization);
   TerrainYield get_base_yield(TERRAIN_TYPE type);
   TerrainYield get_specialization_yield(TERRAIN_TYPE type);
   TerrainYield get_resource_yield(RESOURCE_TYPE);
