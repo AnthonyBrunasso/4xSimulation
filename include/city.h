@@ -15,6 +15,8 @@ struct TerrainYield;
 class City {
 public:
   explicit City(uint32_t id);
+  City(const City&) = delete;
+  const City& operator=(const City&) = delete;
 
   bool CanSpecialize() const;
   bool SetSpecialization(TERRAIN_TYPE type);
@@ -51,7 +53,7 @@ public:
   bool m_razing;
   bool m_defenses_used;
   TERRAIN_TYPE m_specialization;
-  std::unique_ptr<ConstructionQueueFIFO> m_construction;
+  uint32_t m_production_id;
   std::vector<sf::Vector3i> m_yield_tiles;
   uint32_t m_owner_id;
 };

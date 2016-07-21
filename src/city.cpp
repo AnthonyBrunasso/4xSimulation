@@ -38,7 +38,7 @@ City::City(uint32_t id)
 , m_razing(false)
 , m_defenses_used(false)
 , m_specialization(TERRAIN_TYPE::UNKNOWN)
-, m_construction(new ConstructionQueueFIFO(id))
+, m_production_id(0)
 { 
 }
 
@@ -93,7 +93,7 @@ void City::Simulate(TerrainYield& t) {
   m_damage = std::max(0.f, m_damage-3.f);
 
   // Normal city functions
-  m_construction->Simulate(this, t);
+  GetConstruction()->Simulate(this, t);
   m_food += t.m_food;
   m_experience += t.m_experience;
   std::cout << format::city(*this);
@@ -119,10 +119,10 @@ TerrainYield City::DumpYields(bool log) const {
 }
 
 void City::MutateYield(TerrainYield& yields) const {
-  float bonusFood = 2.f + (m_construction->Has(CONSTRUCTION_TYPE::GRANARY)?2.0f:0.0f);
+  float bonusFood = 2.f + (GetConstruction()->Has(CONSTRUCTION_TYPE::GRANARY)?2.0f:0.0f);
   yields.m_food += bonusFood;
   yields.m_experience += 1.f;
-  m_construction->MutateYield(yields);
+  GetConstruction()->MutateYield(yields);
 }
 
 size_t City::GetHarvestCount() const {
@@ -175,15 +175,15 @@ float City::GetTurnsForGrowth() const {
 }
 
 bool City::IsConstructing() const {
-  return m_construction->Count() != 0;
+  return GetConstruction()->Count() != 0;
 }
 
 ConstructionQueueFIFO* City::GetConstruction() const {
-  return m_construction.get(); 
+  return production::get_production(m_production_id);
 }
 
 void City::Purchase(CONSTRUCTION_TYPE t) {
-  m_construction->Purchase(t, this);
+  GetConstruction()->Purchase(t, this);
 }
 
 float city::food_required_by_population(float population) {
@@ -212,6 +212,7 @@ uint32_t city::create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t
   uint32_t id = unique_id::generate();
 
   City* foundedCity = new City(id);
+  foundedCity->m_production_id = production::create(id);
   s_cities[id] = foundedCity;
   foundedCity->m_location = location;
   foundedCity->m_owner_id = player_id;
@@ -294,7 +295,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
     n.m_id = id;
     events.push_back(n);
   }
-  if (c->m_construction->Count() == 0) {
+  if (c->GetConstruction()->Count() == 0) {
     Notification n;
     n.m_event_type = NOTIFICATION_TYPE::CITY_PRODUCTION;
     n.m_id = id;
@@ -324,6 +325,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
       Notification n;
       n.m_event_type = NOTIFICATION_TYPE::CITY_DEFENSE;
       n.m_id = c->m_id;
+      n.m_other_id = u.m_unique_id;
       events.push_back(n);
       return true;
     }

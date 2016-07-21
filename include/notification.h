@@ -10,6 +10,7 @@ struct Notification
 {
   NOTIFICATION_TYPE m_event_type;
   uint32_t m_id;
+  uint32_t m_other_id;
 };
 
 typedef std::vector<Notification> NotificationVector;

@@ -4,6 +4,7 @@
 #include "player.h"
 #include "units.h"
 #include "terrain_yield.h"
+#include "unique_id.h"
 
 #include <vector>
 #include <iostream>
@@ -14,6 +15,38 @@
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;
   CreationCallbackVector s_creationCallbacks;
+  typedef std::unordered_map<uint32_t, ConstructionQueueFIFO*> ProductionMap;
+  ProductionMap s_production_queues;
+
+  void production_cleanup(const sf::Vector3i&, uint32_t city_id) {
+    City* c = city::get_city(city_id);
+    if (!c) return;
+
+    ProductionMap::iterator itFind = s_production_queues.find(c->m_production_id);
+    if (itFind == s_production_queues.end()) {
+      return;
+    }
+    
+    delete itFind->second;
+    s_production_queues.erase(itFind);
+  }
+  
+  uint32_t create(uint32_t city_id) {
+    uint32_t queue_id = unique_id::generate();
+    s_production_queues[queue_id] = new ConstructionQueueFIFO(city_id);
+    city::sub_raze_complete(production_cleanup);
+    return queue_id;
+  }
+
+  ConstructionQueueFIFO* get_production(uint32_t production_id) {
+    ProductionMap::const_iterator itFind = s_production_queues.find(production_id);
+
+    if (itFind == s_production_queues.end()) {
+      return nullptr;
+    }
+
+    return itFind->second;
+  }
 
   void sub_create(const UnitCreationCallback& cb) {
     s_creationCallbacks.push_back(cb);

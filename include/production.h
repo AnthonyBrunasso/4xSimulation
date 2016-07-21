@@ -10,6 +10,7 @@
 #include "game_types.h"
 
 class City;
+class ConstructionQueueFIFO;
 struct TerrainYield;
 
 namespace production {
@@ -21,6 +22,8 @@ namespace production {
   float yield_from_sale(CONSTRUCTION_TYPE type_id);
   bool construction_is_unique(CONSTRUCTION_TYPE type_id);
 
+  uint32_t create(uint32_t city_id);
+  ConstructionQueueFIFO* get_production(uint32_t production_id);
   void sub_create(const UnitCreationCallback&);
 }
 

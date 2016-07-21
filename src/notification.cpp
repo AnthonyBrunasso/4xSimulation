@@ -42,7 +42,7 @@ namespace notification {
       ss << "City (" << n.m_id << ") is starving." ;
     }
     else if (n.m_event_type == NOTIFICATION_TYPE::CITY_DEFENSE) {
-      ss << "City (" << n.m_id << ") is vulnerable to attack by unit " << n.m_id ;
+      ss << "City (" << n.m_id << ") is vulnerable to attack by unit " << n.m_other_id ;
     }
     else if (n.m_event_type == NOTIFICATION_TYPE::CITY_HARVEST) {
       ss << "City (" << n.m_id << ") has an idle_worker." ;
