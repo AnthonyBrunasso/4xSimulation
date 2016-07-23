@@ -35,6 +35,8 @@ projects/
 
 # Auto generated game_types file
 include/game_types.h
+include/network_types.h
+src/network_types.cpp
 
 #python
 *.pyc

@@ -4,7 +4,7 @@ Prebuild steps:
 
 ```sh
 cd tools
-python type_generator.py
+python serialization.py
 ```
 
 Build with Cmake:
