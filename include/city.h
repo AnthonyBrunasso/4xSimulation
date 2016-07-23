@@ -15,8 +15,7 @@ struct TerrainYield;
 class City {
 public:
   explicit City(uint32_t id);
-  City(const City&) = delete;
-  const City& operator=(const City&) = delete;
+  City(const City&) = default;
 
   bool CanSpecialize() const;
   bool SetSpecialization(TERRAIN_TYPE type);
