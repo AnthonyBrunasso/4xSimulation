@@ -510,33 +510,47 @@ namespace simulation {
     return "Unit created";
   }
 
-  Unit* generate_path(const void* buffer, size_t buffer_len) {
-    MoveStep move_step;
-    deserialize(buffer, buffer_len, move_step);
+  Unit* generate_path(MoveStep& move_step) {
+    bool avoid_city = move_step.get_avoid_city();
+    bool avoid_unit = move_step.get_avoid_unit();
+    sf::Vector3i destination = move_step.get_destination();
+    uint32_t unitId = move_step.get_unit_id();
 
+    auto find_tiles = [avoid_city, avoid_unit](const Tile& tile) -> bool {
+      if (avoid_city && tile.m_city_id) return false;
+      if (avoid_unit && !tile.m_unit_ids.empty()) return false;
+      return true;
+    };
     Player* player = player::get_player(move_step.get_player());
-    Unit* unit = units::get_unit(move_step.get_unit_id());
+    Unit* unit = units::get_unit(unitId);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return nullptr;
     }
     if (!unit) {
-      std::cout << "Unit: " << move_step.get_unit_id() << " does not exist." << std::endl;
+      std::cout << "Unit: " << unitId << " does not exist." << std::endl;
       return nullptr;
     }
-    if (player && !player->OwnsUnit(move_step.get_unit_id())) {
+    if (player && !player->OwnsUnit(unitId)) {
       std::cout << "Player does not own unit" << std::endl;
       return nullptr;
     }
-    if (world_map::get_tile(move_step.get_destination()) == nullptr) {
-      std::cout << "Invalid destination: " << format::vector3(move_step.get_destination()) << std::endl;
+    Tile* destination_tile = world_map::get_tile(destination);
+    if (destination_tile == nullptr) {
+      std::cout << "Invalid destination: " << format::vector3(destination) << std::endl;
       return nullptr;
     }
 
     // Run pathfinding to location
-    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, move_step.get_destination(), world_map::get_map());
+    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, destination, world_map::get_map(), find_tiles);
     if (!path.empty()) {
       path.erase(path.begin());
+      if (avoid_city && destination_tile->m_city_id) {
+        path.pop_back();
+      }
+      else if (avoid_unit && !destination_tile->m_unit_ids.empty()) {
+        path.pop_back();
+      }
     }
     // Set path
     units::set_path(unit->m_unique_id, path);
@@ -572,16 +586,18 @@ namespace simulation {
   void execute_move(const void* buffer, size_t buffer_len) {
     std::cout << "Executing immediate movement " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
+    MoveStep move_step;
+    deserialize(buffer, buffer_len, move_step);
 
-    Unit* unit = generate_path(buffer, buffer_len);
+    Unit* unit = generate_path(move_step);
     if (!unit) return;
-    // Execute on path
-    UnitMovementVector units_to_move;
-    units_to_move.push_back(unit->m_unique_id);
-    while (step_move(units_to_move, unit->m_owner_id)) {
 
+    if (move_step.get_immediate()) {
+      UnitMovementVector units_to_move;
+      units_to_move.push_back(unit->m_unique_id);
+      while (step_move(units_to_move, unit->m_owner_id)) {
+      }
     }
-
     // Queue it for continued movement, unit will remove itself if it is done moving
     s_units_to_move.push_back(unit->m_unique_id);
   }
@@ -692,12 +708,6 @@ namespace simulation {
     StatusStep status_step;
     deserialize(buffer, buffer_len, status_step);
     status_effect::create(status_step.get_type(), status_step.get_location());
-  }
-
-  void execute_queue_move(const void* buffer, size_t buffer_len) {
-    Unit* unit = generate_path(buffer, buffer_len);
-    if(!unit) return;
-    s_units_to_move.push_back(unit->m_unique_id);
   }
 
   void execute_add_player(const void* buffer, size_t buffer_len) {
@@ -858,9 +868,6 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
     break;
   case NETWORK_TYPE::PILLAGESTEP:
     std::cout << execute_pillage(buffer, buffer_len) << std::endl;;
-    break;
-  case NETWORK_TYPE::QUEUEMOVESTEP:
-    execute_queue_move(buffer, buffer_len);
     break;
   case NETWORK_TYPE::PURCHASESTEP:
     std::cout << execute_purchase(buffer, buffer_len) << std::endl;

@@ -39,6 +39,9 @@ Struct('MoveStep', [
 (u32, 'unit_id'),
 (v3i, 'destination'),
 (u32, 'player'),
+(bool, 'immediate'),
+(bool, 'avoid_unit'),
+(bool, 'avoid_city'),
 ])
 Struct('PurchaseStep', [
 (u32, 'player'),
@@ -133,8 +136,3 @@ Struct('StatusStep', [
 (v3i, 'location'),
 ])
 Struct('QuitStep', [])
-Struct('QueueMoveStep', [
-(u32, 'unit_id'),
-(v3i, 'destination'),
-(u32, 'player'),
-])

@@ -26,6 +26,7 @@ char s_ai_buffer[BUFFER_LEN];
 
 template<typename T>
 size_t SimulateStep(const T& step) {
+  memset(s_ai_buffer, 0, sizeof(s_ai_buffer));
   size_t bytes = serialize(s_ai_buffer, BUFFER_LEN, step);
   simulation::process_step_from_ai(s_ai_buffer, bytes);
   return bytes;
@@ -125,6 +126,7 @@ void Explore::operator()(uint32_t player_id) {
     move_step.set_unit_id(unit.m_unique_id);
     move_step.set_destination(coord);
     move_step.set_player(player_id);
+    move_step.set_immediate(true);
     SimulateStep(move_step);
   });
 }
@@ -156,31 +158,14 @@ void approach(uint32_t unit_id,
     uint32_t player_id, 
     const sf::Vector3i& start, 
     const sf::Vector3i& location) {
-  auto find_tiles = [&location](const Tile& tile) -> bool {
-    if (tile.m_city_id) return false;
-    if (!tile.m_unit_ids.empty()) return false;
-    return true;
-  };
-
-  std::vector<sf::Vector3i> path = search::path_to(start, location, world_map::get_map(), find_tiles);
-
-  // Erase the first node, the node being stood upon, and the last node, the target city or unit.
-  if (path.size() > 2) {
-    path.erase(path.begin());
-    path.pop_back();
-  }
-  // Otherwise return, the unit is close enough already.
-  else {
-    std::cout << "Unit is close enough to it's target." << std::endl;
-    return;
-  }
-
-  // BROKEN
-  //SetPathStep* move_step = new SetPathStep();
-  //move_step->m_unit_id = unit_id;
-  //move_step->m_path = path;
-  //move_step->m_player = player_id;
-  //simulation::process_step_from_ai(move_step);
+  MoveStep move_step;
+  move_step.set_unit_id(unit_id);
+  move_step.set_player(player_id);
+  move_step.set_destination(location);
+  move_step.set_immediate(true);
+  move_step.set_avoid_city(true);
+  move_step.set_avoid_unit(true);
+  SimulateStep(move_step);
 }
 
 
@@ -243,6 +228,7 @@ bool wander(uint32_t unit_id, uint32_t player_id) {
   move_step.set_unit_id(unit_id);
   move_step.set_destination(get_random_coord());
   move_step.set_player(player_id);
+  move_step.set_immediate(true);
   SimulateStep(move_step);
 
   return true;
@@ -261,6 +247,7 @@ bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_
   move_step.set_unit_id(unit_id);
   move_step.set_destination(ti->m_location);
   move_step.set_player(player_id);
+  move_step.set_immediate(true);
   SimulateStep(move_step);
   // Try to pillage it.
   pillage_improvement(unit_id, target_id, player_id);

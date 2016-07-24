@@ -214,6 +214,7 @@ namespace {
       move_step.set_unit_id(std::stoul(tokens[1]));
       move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       move_step.set_player(s_active_player);
+      move_step.set_immediate(true);
       bytes_written = serialize(buffer, buffer_len, move_step);
     }
     else if (tokens[0] == "pillage") {
@@ -225,10 +226,11 @@ namespace {
     }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
-      QueueMoveStep move_step;
+      MoveStep move_step;
       move_step.set_unit_id(std::stoul(tokens[1]));
       move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       move_step.set_player(s_active_player);
+      move_step.set_immediate(false);
       bytes_written = serialize(buffer, buffer_len, move_step);
     }
 
