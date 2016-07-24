@@ -3,7 +3,6 @@
 #include "city.h"
 #include "production.h"
 #include "format.h"
-#include "step.h"
 #include "tile.h"
 #include "util.h"
 #include "world_map.h"
@@ -564,34 +563,29 @@ void terminal::add_query(
   std::sort(s_help_list.begin(), s_help_list.end());
 }
 
-Step* terminal::parse_input() {
-  Step* step = nullptr;
+bool terminal::parse_input(const std::string& input) {
+  NETWORK_TYPE command = NETWORK_TYPE::UNKNOWN;
+  char buffer[256];
 
   // Get input until we've created a valid step
-  while (!step) {
-    std::cout << std::endl;
-    std::string value;
-    std::cout << step_parser::get_active_player() << " (turn " << simulation::get_turn() << ")> ";
-    std::getline(std::cin, value);
-    if (!std::cin.good()) {
-      return nullptr;
-    }
-    std::cout << "Executing: " << value << std::endl;
+  std::cout << "Executing: " << input << std::endl;
     
-    std::vector<std::string> tokens = step_parser::split_to_tokens(value);
-    // Execute any valid queries based on the tokens, if 
-    // tokens make a query continue to next iteration.
-    // Therefore, no command can be both a query and a step
-    if (execute_queries(tokens)) continue;
-    // Generate any valid steps from the tokens
-    step = step_parser::parse(tokens);
-    // If a valid step and not a quit, save the command to file.
-    if (step && step->m_command != COMMAND_TYPE::QUIT) {
-      s_target_file << value << std::endl; 
-    } 
-  }
+  std::vector<std::string> tokens = step_parser::split_to_tokens(input);
+  // Execute any valid queries based on the tokens, if 
+  // tokens make a query continue to next iteration.
+  if (execute_queries(tokens)) return true;
 
-  return step;
+  // See if a command is ready
+  size_t bytes = step_parser::parse(tokens, command, buffer, 256);
+  // Process the step
+  simulation::process_step(buffer, bytes);
+
+  // If a valid step and not a quit, save the command to file.
+  if (command != NETWORK_TYPE::UNKNOWN 
+    && command != NETWORK_TYPE::QUITSTEP) {
+    s_target_file << input << std::endl; 
+  } 
+  return command != NETWORK_TYPE::QUITSTEP;
 }
 
 void terminal::record_steps(const std::string& filename) {

@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <unordered_map>
 
-#include "step.h"
+#include "network_types.h"
 #include "tile.h"
 #include "player.h"
 #include "city.h"
@@ -20,6 +20,16 @@
 #include "unique_id.h"
 #include "search.h"
 #include "hex.h"
+
+const size_t BUFFER_LEN = 256;
+char s_ai_buffer[BUFFER_LEN];
+
+template<typename T>
+size_t SimulateStep(const T& step) {
+  size_t bytes = serialize(s_ai_buffer, BUFFER_LEN, step);
+  simulation::process_step_from_ai(s_ai_buffer, bytes);
+  return bytes;
+}
 
 void Settle::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
@@ -46,29 +56,29 @@ void Settle::operator()(uint32_t player_id) {
   }
 
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
-  // Create a worker, for now, on that tile then a city.
-  SpawnStep* spawn_step = new SpawnStep();
-  spawn_step->m_unit_type = util::enum_to_uint(UNIT_TYPE::WORKER);
-  spawn_step->m_location = new_home;
-  spawn_step->m_player = player_id;
-  simulation::process_step_from_ai(spawn_step);
+  // Create a worker, for now, on that tile then a city
+  SpawnStep spawn_step;
+  spawn_step.set_unit_type(util::enum_to_uint(UNIT_TYPE::WORKER));
+  spawn_step.set_location(new_home);
+  spawn_step.set_player(player_id);
+  SimulateStep(spawn_step);
 
   // Preemptively get the id of the city that will be created in the colonize step.
   uint32_t city_id = unique_id::get_next();
 
-  ColonizeStep* colonize_step = new ColonizeStep();
-  colonize_step->m_location = new_home;
-  colonize_step->m_player = player_id;
-  simulation::process_step_from_ai(colonize_step);
+  ColonizeStep colonize_step;
+  colonize_step.set_location(new_home);
+  colonize_step.set_player(player_id);
+  SimulateStep(colonize_step);
 
   // TEMPORARY: Construct the barbarian and uber forge.
-  ConstructionStep* forge = new ConstructionStep();
-  forge->m_city_id = city_id;
-  forge->m_production_id = util::enum_to_uint(CONSTRUCTION_TYPE::FORGE);
-  forge->m_player = player_id;
+  ConstructionStep forge;
+  forge.set_city_id(city_id);
+  forge.set_production_id(util::enum_to_uint(CONSTRUCTION_TYPE::FORGE));
+  forge.set_player(player_id);
   // Give it to them immediately.
-  forge->m_cheat = true;
-  simulation::process_step_from_ai(forge);
+  forge.set_cheat(true);
+  SimulateStep(forge);
 }
 
 void Construct::operator()(uint32_t player_id) {
@@ -111,11 +121,11 @@ void Explore::operator()(uint32_t player_id) {
   player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
     sf::Vector3i coord = get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
-    MoveStep* move_step = new MoveStep();
-    move_step->m_unit_id = unit.m_unique_id;
-    move_step->m_destination = coord;
-    move_step->m_player = player_id; 
-    simulation::process_step_from_ai(move_step);
+    MoveStep move_step;
+    move_step.set_unit_id(unit.m_unique_id);
+    move_step.set_destination(coord);
+    move_step.set_player(player_id);
+    SimulateStep(move_step);
   });
 }
 
@@ -134,11 +144,11 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
     return true;
   }
   
-  AttackStep* attack_step = new AttackStep();
-  attack_step->m_attacker_id = unit_id;
-  attack_step->m_defender_id = target_id;
-  attack_step->m_player = player_id;
-  simulation::process_step_from_ai(attack_step);
+  AttackStep attack_step;
+  attack_step.set_attacker_id(unit_id);
+  attack_step.set_defender_id(target_id);
+  attack_step.set_player(player_id);
+  SimulateStep(attack_step);
   return true;
 }
 
@@ -165,11 +175,12 @@ void approach(uint32_t unit_id,
     return;
   }
 
-  SetPathStep* move_step = new SetPathStep();
-  move_step->m_unit_id = unit_id;
-  move_step->m_path = path;
-  move_step->m_player = player_id;
-  simulation::process_step_from_ai(move_step);
+  // BROKEN
+  //SetPathStep* move_step = new SetPathStep();
+  //move_step->m_unit_id = unit_id;
+  //move_step->m_path = path;
+  //move_step->m_player = player_id;
+  //simulation::process_step_from_ai(move_step);
 }
 
 
@@ -213,10 +224,11 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
     return true;
   }
  
-  PillageStep* pillage_step = new PillageStep();
-  pillage_step->m_player = player_id;
-  pillage_step->m_unit = unit_id;
-  simulation::process_step_from_ai(pillage_step);
+  PillageStep pillage_step;
+  
+  pillage_step.set_player(player_id);
+  pillage_step.set_unit(unit_id);
+  SimulateStep(pillage_step);
   return true;
 }
 
@@ -227,11 +239,11 @@ bool wander(uint32_t unit_id, uint32_t player_id) {
   }
 
   // Move to the improvement.
-  MoveStep* move_step = new MoveStep();
-  move_step->m_unit_id = unit_id;
-  move_step->m_destination = get_random_coord();
-  move_step->m_player = player_id;
-  simulation::process_step_from_ai(move_step);
+  MoveStep move_step;
+  move_step.set_unit_id(unit_id);
+  move_step.set_destination(get_random_coord());
+  move_step.set_player(player_id);
+  SimulateStep(move_step);
 
   return true;
 }
@@ -245,12 +257,11 @@ bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_
   } 
 
   // Move to the improvement.
-  MoveStep* move_step = new MoveStep();
-  move_step->m_unit_id = unit_id;
-  move_step->m_destination = ti->m_location;
-  move_step->m_player = player_id;
-  simulation::process_step_from_ai(move_step);
-
+  MoveStep move_step;
+  move_step.set_unit_id(unit_id);
+  move_step.set_destination(ti->m_location);
+  move_step.set_player(player_id);
+  SimulateStep(move_step);
   // Try to pillage it.
   pillage_improvement(unit_id, target_id, player_id);
   return true;

@@ -17,7 +17,6 @@ DIRECTION    = "DIRECTION"
 SCIENCE      = "SCIENCE"
 MAGIC        = "MAGIC"
 STATUS       = "STATUS"
-COMMAND      = "COMMAND"
 NOTIFICATION = "NOTIFICATION"
 
 # Resources to generate when running type_generator.py
@@ -103,37 +102,6 @@ add_gametype(MAGIC, "Magic_Missle", 2)
 add_gametype(STATUS, "Resist_Modifiers", 1);
 add_gametype(STATUS, "Stasis", 2);
 add_gametype(STATUS, "Constructing_Improvement", 3);
-
-add_gametype(COMMAND, "Quit", 1)
-add_gametype(COMMAND, "Begin_Turn", 2)
-add_gametype(COMMAND, "End_Turn", 3)
-add_gametype(COMMAND, "Attack", 4)
-add_gametype(COMMAND, "Colonize", 5)
-add_gametype(COMMAND, "Construct", 6)
-add_gametype(COMMAND, "Discover", 7)
-add_gametype(COMMAND, "Improve", 8)
-add_gametype(COMMAND, "Kill", 9)
-add_gametype(COMMAND, "Move", 10)
-add_gametype(COMMAND, "Queue_Move", 11)
-add_gametype(COMMAND, "Purchase", 12)
-add_gametype(COMMAND, "Sell", 13)
-add_gametype(COMMAND, "Tile_Mutator", 14)
-add_gametype(COMMAND, "Resource_Mutator", 15)
-add_gametype(COMMAND, "Spawn", 16)
-add_gametype(COMMAND, "Add_Player", 17)
-add_gametype(COMMAND, "Modify_Unit_Stats", 18)
-add_gametype(COMMAND, "Harvest", 19)
-add_gametype(COMMAND, "Specialize", 20)
-add_gametype(COMMAND, "Barbarian_Turn", 21)
-add_gametype(COMMAND, "City_Defense", 22)
-add_gametype(COMMAND, "Pillage", 23)
-add_gametype(COMMAND, "Abort", 24)
-add_gametype(COMMAND, "Siege", 25)
-add_gametype(COMMAND, "Grant", 26)
-add_gametype(COMMAND, "Magic", 27)
-add_gametype(COMMAND, "Research", 28)
-add_gametype(COMMAND, "Status", 29)
-add_gametype(COMMAND, "Set_Path", 30)
 
 add_gametype(NOTIFICATION, "City_Starving", 1)
 add_gametype(NOTIFICATION, "City_Defense", 2)

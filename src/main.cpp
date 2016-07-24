@@ -1,11 +1,12 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "simulation.h"
 #include "terminal.h"
-#include "step.h"
 #include "file_reader.h"
 #include "ai_barbarians.h"
+#include "step_parser.h"
 #include "random.h"
 
 int main(int , char* []) {
@@ -17,22 +18,16 @@ int main(int , char* []) {
   terminal::initialize();
   terminal::record_steps("last_run");
   // Enter interactive mode
-  while (std::cin.good()) {
-    Step* step = terminal::parse_input();
-    if (!step) {
+  std::string value;
+  do
+  {
+    std::cout << std::endl;
+    std::cout << step_parser::get_active_player() << " (turn " << simulation::get_turn() << ")> ";
+    std::getline(std::cin, value);
+    if (!std::cin.good()) {
       break;
     }
-    
-    simulation::process_step(step);
-
-    bool quitting = step->m_command == COMMAND_TYPE::QUIT;
-    // Finished with the step, clean it up
-    delete step;
-
-    if (quitting) {
-      break;
-    }
-  }
+  } while (terminal::parse_input(value));
 
   terminal::kill();
   simulation::kill();

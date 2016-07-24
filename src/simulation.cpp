@@ -1,7 +1,6 @@
 #include "simulation.h"
 
 #include "search.h"
-#include "step.h"
 #include "units.h"
 #include "city.h"
 #include "format.h"
@@ -21,13 +20,12 @@
 #include "custom_math.h"
 #include "status_effect.h"
 #include "notification.h"
+#include "network_types.h"
 
 #include <iostream>
 #include <algorithm>
 
 namespace simulation {
-  // Contains the current execution step
-  Step* s_current_step;
   // Units to move in the current step
   typedef std::vector<uint32_t> UnitMovementVector;
   UnitMovementVector s_units_to_move;
@@ -39,13 +37,8 @@ namespace simulation {
 
   // Order of operations that should be checked after a step
   bool step_move(UnitMovementVector& units_to_move, uint32_t player_id);
-  void step_negotiate();
-  void step_discoever();
+
   void step_combat();
-  void step_death();
-  void step_raze();
-  void step_verterancy();
-  void step_resource();
 
   // Order of operations when a turn ends
   void phase_city_growth();
@@ -135,15 +128,7 @@ namespace simulation {
     return movement;
   }
 
-  void step_negotiate() {
-
-  }
-
-  void step_discoever() {
-
-  }
-
-  void step_combat() {
+  void update_combat() {
     for (auto pair : s_units_to_fight) {
       Unit* unit = units::get_unit(pair.first);
       if (!unit) {
@@ -154,7 +139,7 @@ namespace simulation {
       if (!defender) {
         continue;
       }
-      
+
       if (!unit->m_action_points) {
         std::cout << "Unit " << unit->m_unique_id << " (id) is too exhausted to initiate combat. " << std::endl;
         continue;
@@ -174,22 +159,6 @@ namespace simulation {
 
     // Attacks should all complete in a single step?
     s_units_to_fight.clear();
-  }
-
-  void step_death() {
-
-  }
-
-  void step_raze() {
-
-  }
-
-  void step_verterancy() {
-
-  }
-
-  void step_resource() {
-
   }
 
   void phase_city_growth() {
@@ -255,41 +224,45 @@ namespace simulation {
     }
   }
 
-  void execute_construction() {
-    ConstructionStep* construction_step = static_cast<ConstructionStep*>(s_current_step);
-    Player* player = player::get_player(construction_step->m_player);
+  void execute_construction(const void* buffer, size_t buffer_len) {
+    ConstructionStep construction_step;
+    deserialize(buffer, buffer_len, construction_step);
+    Player* player = player::get_player(construction_step.get_player());
     if (!player) {
       std::cout << "Invalid player index" << std::endl;
       return;
     }
-    City* city = city::get_city(construction_step->m_city_id);
+    City* city = city::get_city(construction_step.get_city_id());
     if(!city) {
       std::cout << "City does not exist" << std::endl;
       return;
     }
-    if (!player->OwnsCity(construction_step->m_city_id)) {
+    if (!player->OwnsCity(construction_step.get_city_id())) {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
-    CONSTRUCTION_TYPE t(production::id(construction_step->m_production_id));
+    CONSTRUCTION_TYPE t(production::id(construction_step.get_production_id()));
 
-    if (!construction_step->m_cheat) {
+    if (!construction_step.get_cheat()) {
       city->GetConstruction()->Add(t);
       return;
     }
  
-    city->Purchase(production::id(construction_step->m_production_id));
+    city->Purchase(production::id(construction_step.get_production_id()));
   }
 
-  void execute_colonize() {
-    ColonizeStep* colonize_step = static_cast<ColonizeStep*>(s_current_step);
-    Player* player = player::get_player(colonize_step->m_player);
+  void execute_colonize(const void* buffer, size_t buffer_len) {
+    ColonizeStep colonize_step;
+    deserialize(buffer, buffer_len, colonize_step);
+
+    Player* player = player::get_player(colonize_step.get_player());
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return;
     }
     bool too_close = false;
-    search::bfs(colonize_step->m_location, 3, world_map::get_map(), 
+    sf::Vector3i location = colonize_step.get_location();
+    search::bfs(location, 3, world_map::get_map(),
       [&too_close](const Tile& tile) {
       if (tile.m_city_id != unique_id::INVALID_ID) {
         std::cout << "Colonization failed: City (" << tile.m_city_id << ") is too close." << std::endl;
@@ -300,15 +273,15 @@ namespace simulation {
     });
     if (too_close) return;
 
-    uint32_t id = city::create(BUILDING_TYPE::TOWN, colonize_step->m_location, colonize_step->m_player);
+    uint32_t id = city::create(BUILDING_TYPE::TOWN, location, colonize_step.get_player());
     if (!id) {
       // Colonization failed.
       return;
     }
     // If colonization succeeded there is a worker on the tile, destroy it.
-    player::add_city(colonize_step->m_player, id);
-    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(colonize_step->m_location) << std::endl;
-    Tile* t = world_map::get_tile(colonize_step->m_location);
+    player::add_city(colonize_step.get_player(), id);
+    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(location) << std::endl;
+    Tile* t = world_map::get_tile(location);
     for (auto uid : t->m_unit_ids) {
       Unit* u = units::get_unit(uid);
       if (!u) continue;
@@ -320,14 +293,17 @@ namespace simulation {
     }
   }
 
-  void execute_improve() {
-    ImproveStep* improve_step = static_cast<ImproveStep*>(s_current_step);
-    Player* player = player::get_player(improve_step->m_player);
+  void execute_improve(const void* buffer, size_t buffer_len) {
+    ImproveStep improve_step;
+    deserialize(buffer, buffer_len, improve_step);
+
+    Player* player = player::get_player(improve_step.get_player());
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    Tile* tile = world_map::get_tile(improve_step->m_location);
+    sf::Vector3i location = improve_step.get_location();
+    Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
       return;
@@ -349,7 +325,7 @@ namespace simulation {
       return;
     }
 
-    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step->m_resource);
+    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(improve_step.get_resource());
     i = 0;
     for (; i < tile->m_resources.size(); ++i) {
       if (tile->m_resources[i].m_type == rt) break;
@@ -359,16 +335,15 @@ namespace simulation {
       return;
     }
     Resource& res = tile->m_resources[i];
-    auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step->m_improvement_type));
-    if (!improvement::satisfies_requirements(res.m_type, impv, improve_step->m_location)) {
+    auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step.get_improvement_type()));
+    if (!improvement::satisfies_requirements(res.m_type, impv, location)) {
       return;
     }
 
-    uint32_t pid = improve_step->m_player;
-    sf::Vector3i loc = improve_step->m_location;
+    uint32_t pid = improve_step.get_player();
 
-    auto end_turn_inject = [res, impv, pid, loc, unit_id]() {
-      uint32_t id = improvement::create(res, impv, loc, pid);
+    auto end_turn_inject = [res, impv, pid, location, unit_id]() {
+      uint32_t id = improvement::create(res, impv, location, pid);
 
       if (id) {
         Unit* u = units::get_unit(unit_id);
@@ -383,35 +358,39 @@ namespace simulation {
     };
 
     status_effect::inject_end(end_turn_inject);
-    if (status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, loc)) {
+    if (status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, location)) {
       // Drain workers action points.
       unit->m_action_points = 0;
     }
   }
 
-  void execute_grant() {
-    GrantStep* grant_step = static_cast<GrantStep*>(s_current_step);
-    SCIENCE_TYPE st = static_cast<SCIENCE_TYPE>(grant_step->m_science);
-    science::research_complete(grant_step->m_player, science::Science(st));
+  void execute_grant(const void* buffer, size_t buffer_len) {
+    GrantStep grant_step;
+    deserialize(buffer, buffer_len, grant_step);
+    SCIENCE_TYPE st = static_cast<SCIENCE_TYPE>(grant_step.get_science());
+    science::research_complete(grant_step.get_player(), science::Science(st));
   }
 
-  void execute_harvest() {
-    HarvestStep* harvest_step = static_cast<HarvestStep*>(s_current_step);
-    Player* player = player::get_player(harvest_step->m_player);
+  void execute_harvest(const void* buffer, size_t buffer_len) {
+    HarvestStep harvest_step;
+    deserialize(buffer, buffer_len, harvest_step);
+
+    Player* player = player::get_player(harvest_step.get_player());
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return;
     }
-    Tile* tile = world_map::get_tile(harvest_step->m_destination);
+    sf::Vector3i destination = harvest_step.get_destination();
+    Tile* tile = world_map::get_tile(destination);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    if (terrain_yield::is_harvested(harvest_step->m_destination)) {
-      terrain_yield::remove_harvest(harvest_step->m_destination);
+    if (terrain_yield::is_harvested(destination)) {
+      terrain_yield::remove_harvest(destination);
       return;
     }
-    City* city = city::nearest_city(harvest_step->m_destination);
+    City* city = city::nearest_city(destination);
     if (!city) {
       std::cout << "No valid city found" << std::endl;
       return; 
@@ -420,30 +399,34 @@ namespace simulation {
       std::cout << "Terrain is not owned by this player" << std::endl;
       return;
     }
-    if (terrain_yield::add_harvest(harvest_step->m_destination, city)) {
+    if (terrain_yield::add_harvest(destination, city)) {
       std::cout << "City (" << city->m_id << ") is now harvesting from " << get_terrain_name(tile->m_terrain_type) << "." << std::endl;
       return;
     }
 }
 
-  void execute_tile_mutator() {
-    TileMutatorStep* tile_mutator_step = static_cast<TileMutatorStep*>(s_current_step);
-    Tile* tile = world_map::get_tile(tile_mutator_step->m_destination);
+  void execute_tile_mutator(const void* buffer, size_t buffer_len) {
+    TileMutatorStep tile_mutator_step;
+    deserialize(buffer, buffer_len, tile_mutator_step);
+
+    Tile* tile = world_map::get_tile(tile_mutator_step.get_destination());
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    tile->m_path_cost = tile_mutator_step->m_movement_cost;
+    tile->m_path_cost = tile_mutator_step.get_movement_cost();
   }
 
-  void execute_specialize() {
-    SpecializeStep* specialize_step = static_cast<SpecializeStep*>(s_current_step);
-    City* city = city::get_city(specialize_step->m_city_id);
+  void execute_specialize(const void* buffer, size_t buffer_len) {
+    SpecializeStep specialize_step;
+    deserialize(buffer, buffer_len, specialize_step);
+
+    City* city = city::get_city(specialize_step.get_city_id());
     if (!city) {
       std::cout << "Invalid city" << std::endl;
       return;
     }
-    Player* player = player::get_player(specialize_step->m_player);
+    Player* player = player::get_player(specialize_step.get_player());
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return;
@@ -456,19 +439,21 @@ namespace simulation {
       std::cout << "City is not ready for specialization." << std::endl;
       return;
     }
-    if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type))) {
-      std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(specialize_step->m_terrain_type)) << std::endl;
+    if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(specialize_step.get_terrain_type()))) {
+      std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(specialize_step.get_terrain_type())) << std::endl;
     }
   }
 
-  void execute_resource_mutator() {
-    ResourceMutatorStep* resource_mutator_step = static_cast<ResourceMutatorStep*>(s_current_step);
-    Tile* tile = world_map::get_tile(resource_mutator_step->m_destination);
+  void execute_resource_mutator(const void* buffer, size_t buffer_len) {
+    ResourceMutatorStep resource_mutator_step;
+    deserialize(buffer, buffer_len, resource_mutator_step);
+
+    Tile* tile = world_map::get_tile(resource_mutator_step.get_destination());
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    Resource new_resource(static_cast<RESOURCE_TYPE>(resource_mutator_step->m_type), resource_mutator_step->m_quantity);
+    Resource new_resource(static_cast<RESOURCE_TYPE>(resource_mutator_step.get_type()), resource_mutator_step.get_quantity());
     bool found = false;
     // If resource already on the tile increment its quantity.
     for (auto& r : tile->m_resources) {
@@ -482,17 +467,21 @@ namespace simulation {
     }
   }
 
-  void execute_kill() {
-    KillStep* kill_step = static_cast<KillStep*>(s_current_step);
-    units::destroy(kill_step->m_unit_id);
-    std::cout << kill_step->m_unit_id << " (id) has been slain." << std::endl;
+  void execute_kill(const void* buffer, size_t buffer_len) {
+    KillStep kill_step;
+    deserialize(buffer, buffer_len, kill_step);
+
+    units::destroy(kill_step.get_unit_id());
+    std::cout << kill_step.get_unit_id() << " (id) has been slain." << std::endl;
   }
 
-  std::string execute_pillage() {
-    PillageStep* pillage_step = static_cast<PillageStep*>(s_current_step);
-    Player* player = player::get_player(pillage_step->m_player);
+  std::string execute_pillage(const void* buffer, size_t buffer_len) {
+    PillageStep pillage_step;
+    deserialize(buffer, buffer_len, pillage_step);
+
+    Player* player = player::get_player(pillage_step.get_player());
     if (!player) return "Invalid player";
-    Unit* unit = units::get_unit(pillage_step->m_unit);
+    Unit* unit = units::get_unit(pillage_step.get_unit());
     if (!unit) return "Invalid unit";
     Tile* tile = world_map::get_tile(unit->m_location);
     if (!tile) return "Invalid tile";
@@ -509,39 +498,43 @@ namespace simulation {
     return "";
   }
 
-  std::string execute_spawn() {
-    SpawnStep* spawn_step = static_cast<SpawnStep*>(s_current_step);
-    Player* player = player::get_player(spawn_step->m_player);
+  std::string execute_spawn(const void* buffer, size_t buffer_len) {
+    SpawnStep spawn_step;
+    deserialize(buffer, buffer_len, spawn_step);
+
+    Player* player = player::get_player(spawn_step.get_player());
     if (!player) return "Invalid player";
-    Tile* tile = world_map::get_tile(spawn_step->m_location);
+    Tile* tile = world_map::get_tile(spawn_step.get_location());
     if (!tile) return "Invalid location";
-    units::create(static_cast<UNIT_TYPE>(spawn_step->m_unit_type), spawn_step->m_location, spawn_step->m_player);
+    units::create(static_cast<UNIT_TYPE>(spawn_step.get_unit_type()), spawn_step.get_location(), spawn_step.get_player());
     return "Unit created";
   }
 
-  Unit* generate_path() {
-    MoveStep* move_step = static_cast<MoveStep*>(s_current_step);
-    Player* player = player::get_player(move_step->m_player);
-    Unit* unit = units::get_unit(move_step->m_unit_id);
+  Unit* generate_path(const void* buffer, size_t buffer_len) {
+    MoveStep move_step;
+    deserialize(buffer, buffer_len, move_step);
+
+    Player* player = player::get_player(move_step.get_player());
+    Unit* unit = units::get_unit(move_step.get_unit_id());
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return nullptr;
     }
     if (!unit) {
-      std::cout << "Unit: " << move_step->m_unit_id << " does not exist." << std::endl;
+      std::cout << "Unit: " << move_step.get_unit_id() << " does not exist." << std::endl;
       return nullptr;
     }
-    if (player && !player->OwnsUnit(move_step->m_unit_id)) {
+    if (player && !player->OwnsUnit(move_step.get_unit_id())) {
       std::cout << "Player does not own unit" << std::endl;
       return nullptr;
     }
-    if (world_map::get_tile(move_step->m_destination) == nullptr) {
-      std::cout << "Invalid destination: " << format::vector3(move_step->m_destination) << std::endl;
+    if (world_map::get_tile(move_step.get_destination()) == nullptr) {
+      std::cout << "Invalid destination: " << format::vector3(move_step.get_destination()) << std::endl;
       return nullptr;
     }
 
     // Run pathfinding to location
-    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, move_step->m_destination, world_map::get_map());
+    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, move_step.get_destination(), world_map::get_map());
     if (!path.empty()) {
       path.erase(path.begin());
     }
@@ -552,35 +545,35 @@ namespace simulation {
 
 
   void execute_setpath() {
-    SetPathStep* path_step = static_cast<SetPathStep*>(s_current_step);
-    Player* player = player::get_player(path_step->m_player);
-    Unit* unit = units::get_unit(path_step->m_unit_id);
-    if (!player) {
-      std::cout << "Invalid player" << std::endl;
-      return;
-    }
-    if (!unit) {
-      std::cout << "Unit: " << path_step->m_unit_id << " does not exist." << std::endl;
-      return;
-    }
-    if (player && !player->OwnsUnit(path_step->m_unit_id)) {
-      std::cout << "Player does not own unit" << std::endl;
-      return;
-    }
-    units::set_path(path_step->m_unit_id, path_step->m_path);
-    UnitMovementVector units_to_move;
-    units_to_move.push_back(unit->m_unique_id);
-    while (step_move(units_to_move, unit->m_owner_id));
+    //SetPathStep* path_step = static_cast<SetPathStep*>(s_current_step);
+    //Player* player = player::get_player(path_step->m_player);
+    //Unit* unit = units::get_unit(path_step->m_unit_id);
+    //if (!player) {
+    //  std::cout << "Invalid player" << std::endl;
+    //  return;
+    //}
+    //if (!unit) {
+    //  std::cout << "Unit: " << path_step->m_unit_id << " does not exist." << std::endl;
+    //  return;
+    //}
+    //if (player && !player->OwnsUnit(path_step->m_unit_id)) {
+    //  std::cout << "Player does not own unit" << std::endl;
+    //  return;
+    //}
+    //units::set_path(path_step->m_unit_id, path_step->m_path);
+    //UnitMovementVector units_to_move;
+    //units_to_move.push_back(unit->m_unique_id);
+    //while (step_move(units_to_move, unit->m_owner_id));
 
-    // Queue it for continued movement, unit will remove itself if it is done moving
-    s_units_to_move.push_back(unit->m_unique_id);
+    //// Queue it for continued movement, unit will remove itself if it is done moving
+    //s_units_to_move.push_back(unit->m_unique_id);
   }
 
-  void execute_move() {
+  void execute_move(const void* buffer, size_t buffer_len) {
     std::cout << "Executing immediate movement " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
 
-    Unit* unit = generate_path();
+    Unit* unit = generate_path(buffer, buffer_len);
     if (!unit) return;
     // Execute on path
     UnitMovementVector units_to_move;
@@ -593,15 +586,17 @@ namespace simulation {
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
-  std::string execute_purchase() {
-    PurchaseStep* purchase_step = static_cast<PurchaseStep*>(s_current_step);
-    Player* player = player::get_player(purchase_step->m_player);
+  std::string execute_purchase(const void* buffer, size_t buffer_len) {
+    PurchaseStep purchase_step;
+    deserialize(buffer, buffer_len, purchase_step);
+
+    Player* player = player::get_player(purchase_step.get_player());
     std::stringstream ss;
     if(!player) return "Invalid Player";
-    City* city = city::get_city(purchase_step->m_city);
+    City* city = city::get_city(purchase_step.get_city());
     if(!city) return "Invalid City";
-    if (purchase_step->m_production_id != 0) {
-      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(purchase_step->m_production_id));
+    if (purchase_step.get_production() != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(purchase_step.get_production()));
       float cost = production::required_to_purchase(t);
       if (player->m_gold < cost) {
         ss << "Player has " << player->m_gold << " and needs " << cost << " gold. Purchase failed.";
@@ -621,27 +616,31 @@ namespace simulation {
     return ss.str();
   }
 
-  std::string execute_research() {
-    ResearchStep* research_step = static_cast<ResearchStep*>(s_current_step);
-    Player* player = player::get_player(research_step->m_player);
+  std::string execute_research(const void* buffer, size_t buffer_len) {
+    ResearchStep research_step;
+    deserialize(buffer, buffer_len, research_step);
+
+    Player* player = player::get_player(research_step.get_player());
     if (!player) return "Invalid player";
     std::vector<uint32_t>& research = player->m_available_research;
-    std::vector<uint32_t>::const_iterator findIt = find(research.begin(), research.end(), research_step->m_science);
+    std::vector<uint32_t>::const_iterator findIt = find(research.begin(), research.end(), research_step.get_science());
     if (findIt == research.end()) return "Research is not available to player.";
-    player->m_research = static_cast<SCIENCE_TYPE>(research_step->m_science);
+    player->m_research = static_cast<SCIENCE_TYPE>(research_step.get_science());
     return "Research assigned.";
   }
 
-  std::string execute_sell() {
-    SellStep* sell_step = static_cast<SellStep*>(s_current_step);
-    Player* player = player::get_player(sell_step->m_player);
+  std::string execute_sell(const void* buffer, size_t buffer_len) {
+    SellStep sell_step;
+    deserialize(buffer, buffer_len, sell_step);
+
+    Player* player = player::get_player(sell_step.get_player());
     std::stringstream ss;
     if(!player) return "Invalid Player";
-    City* city = city::get_city(sell_step->m_city);
+    City* city = city::get_city(sell_step.get_city());
     if(!city) return "Invalid City";
     std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Complete();
-    if (sell_step->m_production_id != 0) {
-      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step->m_production_id));
+    if (sell_step.get_production_id() != 0) {
+      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step.get_production_id()));
       for (size_t i = 0; i < completed.size(); ++i) {
         if (completed[i] == t) {
           player->m_gold += production::yield_from_sale(completed[i]);
@@ -660,13 +659,15 @@ namespace simulation {
     return ss.str();
   }
 
-  std::string execute_siege() {
-    SiegeStep* siege_step = static_cast<SiegeStep*>(s_current_step);
-    Player* player = player::get_player(siege_step->m_player);
+  std::string execute_siege(const void* buffer, size_t buffer_len) {
+    SiegeStep siege_step;
+    deserialize(buffer, buffer_len, siege_step);
+
+    Player* player = player::get_player(siege_step.get_player());
     if(!player) return "Invalid Player";
-    City* city = city::get_city(siege_step->m_city);
+    City* city = city::get_city(siege_step.get_city());
     if(!city) return "Invalid City";
-    Unit* unit = units::get_unit(siege_step->m_unit);
+    Unit* unit = units::get_unit(siege_step.get_unit());
     if (!unit) return "Invalid Unit";
     if (!player->OwnsUnit(unit->m_unique_id)) return "Player doesn't own unit";
     Tile* tile = world_map::get_tile(city->m_location);
@@ -680,27 +681,32 @@ namespace simulation {
     return "Siege Occured";
   }
 
-  void execute_magic() {
-    MagicStep* magic_step = static_cast<MagicStep*>(s_current_step);
-    magic::cast(magic_step->m_player, magic_step->m_type, magic_step->m_location, magic_step->m_cheat);
+  void execute_magic(const void* buffer, size_t buffer_len) {
+    MagicStep magic_step;
+    deserialize(buffer, buffer_len, magic_step);
+    
+    magic::cast(magic_step.get_player(), magic_step.get_type(), magic_step.get_location(), magic_step.get_cheat());
   }
 
-  void execute_status() {
-    StatusStep* status_step = static_cast<StatusStep*>(s_current_step);
-    status_effect::create(status_step->m_type, status_step->m_location);
+  void execute_status(const void* buffer, size_t buffer_len) {
+    StatusStep status_step;
+    deserialize(buffer, buffer_len, status_step);
+    status_effect::create(status_step.get_type(), status_step.get_location());
   }
 
-  void execute_queue_move() {
-    Unit* unit = generate_path();
+  void execute_queue_move(const void* buffer, size_t buffer_len) {
+    Unit* unit = generate_path(buffer, buffer_len);
     if(!unit) return;
     s_units_to_move.push_back(unit->m_unique_id);
   }
 
-  void execute_add_player() {
-    AddPlayerStep* player_step = static_cast<AddPlayerStep*>(s_current_step);
-    uint32_t player_id = player::create(player_step->ai_type, player_step->m_name);
-    if (player_step->ai_type != AI_TYPE::UNKNOWN) {
-      switch (player_step->ai_type) {
+  void execute_add_player(const void* buffer, size_t buffer_len) {
+    AddPlayerStep player_step;
+    deserialize(buffer, buffer_len, player_step);
+
+    uint32_t player_id = player::create(player_step.get_ai_type(), player_step.get_name());
+    if (player_step.get_ai_type() != AI_TYPE::UNKNOWN) {
+      switch (player_step.get_ai_type()) {
         case AI_TYPE::BARBARIAN:
           barbarians::set_player_id(player_id);
           break;
@@ -711,50 +717,58 @@ namespace simulation {
     }
   }
 
-  void execute_attack() {
+  void execute_attack(const void* buffer, size_t buffer_len) {
     // Add a fight to the list to be executed in the combat phase
-    AttackStep* attack_step = static_cast<AttackStep*>(s_current_step);
-    Player* player = player::get_player(attack_step->m_player);
+    AttackStep attack_step;
+    deserialize(buffer, buffer_len, attack_step);
+    Player* player = player::get_player(attack_step.get_player());
     if (!player) {
       std::cout << "Invalid player for attack action" << std::endl;
       return;
     }
-    if (!player->OwnsUnit(attack_step->m_attacker_id)) {
+    if (!player->OwnsUnit(attack_step.get_attacker_id())) {
       std::cout << "Player does not own attacking unit" << std::endl;
       return;
     }
-    s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step->m_attacker_id, attack_step->m_defender_id));
+    s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step.get_attacker_id(), attack_step.get_defender_id()));
   }
 
-  std::string execute_abort() {
-    AbortStep* abort_step = static_cast<AbortStep*>(s_current_step);
-    Player* player = player::get_player(abort_step->m_player);
+  std::string execute_abort(const void* buffer, size_t buffer_len) {
+    AbortStep abort_step;
+    deserialize(buffer, buffer_len, abort_step);
+    
+    Player* player = player::get_player(abort_step.get_player());
     if (!player) return "Invalid Player";
-    City* city = city::get_city(abort_step->m_city);
+    City* city = city::get_city(abort_step.get_city());
     if (!city) return "Invalid City";
     if (!player->OwnsCity(city->m_id)) return "Player doesn't own city.";
-    city->GetConstruction()->Abort(abort_step->m_index);
+    city->GetConstruction()->Abort(abort_step.get_index());
     return "Removing...";
   }
 
-  void execute_modify_stats() {
-    UnitStatsStep* stats_step = static_cast<UnitStatsStep*>(s_current_step);
-    Unit* unit = units::get_unit(stats_step->m_unit_id);
+  void execute_modify_stats(const void* buffer, size_t buffer_len) {
+
+    UnitStatsStep stats_step;
+    deserialize(buffer, buffer_len, stats_step);
+
+    Unit* unit = units::get_unit(stats_step.get_unit_id());
     if (!unit) {
       return;
     }
-    unit->m_combat_stats.m_health = static_cast<float>(stats_step->m_health);
-    unit->m_combat_stats.m_attack = static_cast<float>(stats_step->m_attack);
-    unit->m_combat_stats.m_range = static_cast<float>(stats_step->m_range);
+    unit->m_combat_stats.m_health = static_cast<float>(stats_step.get_health());
+    unit->m_combat_stats.m_attack = static_cast<float>(stats_step.get_attack());
+    unit->m_combat_stats.m_range = static_cast<float>(stats_step.get_range());
 
     std::cout << format::combat_stats(unit->m_combat_stats) << std::endl;
   }
 
-  std::string execute_city_defense() {
-    CityDefenseStep* city_defense_step = static_cast<CityDefenseStep*>(s_current_step);
-    Player* player = player::get_player(city_defense_step->m_player);
+  std::string execute_city_defense(const void* buffer, size_t buffer_len) {
+    CityDefenseStep city_defense_step;
+    deserialize(buffer, buffer_len, city_defense_step);
+
+    Player* player = player::get_player(city_defense_step.get_player());
     if(!player) return "Invalid Player";
-    Unit* unit = units::get_unit(city_defense_step->m_unit);
+    Unit* unit = units::get_unit(city_defense_step.get_unit());
     if(!unit) return "Invalid Unit";
     uint32_t cityId = 0;
     auto find_defending_city = [player, &cityId](const City& city) {
@@ -796,120 +810,104 @@ uint32_t simulation::get_turn() {
   return s_current_turn;
 }
 
-void simulation::process_step(Step* step) {
-  // Save a pointer to the current step
-  s_current_step = step;
+void simulation::process_step(const void* buffer, size_t buffer_len) {
+  NETWORK_TYPE t = read_type(buffer, buffer_len);
 
   // Process the step
-  switch (step->m_command) {
-    case COMMAND_TYPE::QUIT:
-      break;
-    case COMMAND_TYPE::BEGIN_TURN:
-      process_begin_turn();
-      break;
-    case COMMAND_TYPE::END_TURN:
-      process_end_turn();
-      break;
-    case COMMAND_TYPE::ATTACK:
-      execute_attack();
-      break;
-    case COMMAND_TYPE::ABORT:
-      std::cout << execute_abort() << std::endl;
-      break;
-    case COMMAND_TYPE::COLONIZE:
-      execute_colonize();
-      break;
-    case COMMAND_TYPE::CONSTRUCT:
-      execute_construction();
-      break;
-    case COMMAND_TYPE::DISCOVER:
-      break;
-    case COMMAND_TYPE::GRANT:
-      execute_grant();
-      break;
-    case COMMAND_TYPE::HARVEST:
-      execute_harvest();
-      break;
-    case COMMAND_TYPE::IMPROVE:
-      execute_improve();
-      break;
-    case COMMAND_TYPE::TILE_MUTATOR:
-      execute_tile_mutator();
-      break;
-    case COMMAND_TYPE::RESOURCE_MUTATOR:
-      execute_resource_mutator();
-      break;
-    case COMMAND_TYPE::KILL:
-      execute_kill();
-      break;
-    case COMMAND_TYPE::MOVE:
-      execute_move();
-      break;
-    case COMMAND_TYPE::PILLAGE:
-      std::cout << execute_pillage() << std::endl;;
-      break;
-    case COMMAND_TYPE::QUEUE_MOVE:
-      execute_queue_move();
-      break;
-    case COMMAND_TYPE::PURCHASE:
-      std::cout << execute_purchase() << std::endl;
-      break;
-    case COMMAND_TYPE::RESEARCH:
-      std::cout << execute_research() << std::endl;
-      break;
-    case COMMAND_TYPE::SPECIALIZE:
-      execute_specialize();
-      break;
-    case COMMAND_TYPE::SELL:
-      std::cout << execute_sell() << std::endl;
-      break;
-    case COMMAND_TYPE::SIEGE:
-      std::cout << execute_siege() << std::endl;
-      break;
-    case COMMAND_TYPE::SPAWN:
-      std::cout << execute_spawn() << std::endl;
-      break;
-    case COMMAND_TYPE::ADD_PLAYER:
-      execute_add_player();
-      return; // Special case, adding a player does not have output
-    case COMMAND_TYPE::MODIFY_UNIT_STATS:
-      execute_modify_stats();
-      return; // Modifying stats also does not have output
-    case COMMAND_TYPE::BARBARIAN_TURN:
-      // Process the barbarian turn.
-      // FIXME
-      return;
-    case COMMAND_TYPE::CITY_DEFENSE:
-      std::cout << execute_city_defense() << std::endl;
-      return;
-    case COMMAND_TYPE::MAGIC:
-      execute_magic();
-      break;
-    case COMMAND_TYPE::STATUS:
-      execute_status();
-      break;
-    case COMMAND_TYPE::SET_PATH:
-      execute_setpath();
-      break;
-      break;
-    default:
-      break;
+  switch (t) {
+  case NETWORK_TYPE::QUITSTEP:
+    break;
+  case NETWORK_TYPE::BEGINSTEP:
+    process_begin_turn();
+    break;
+  case NETWORK_TYPE::ENDTURNSTEP:
+    process_end_turn(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::ATTACKSTEP:
+    execute_attack(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::ABORTSTEP:
+    std::cout << execute_abort(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::COLONIZESTEP:
+    execute_colonize(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::CONSTRUCTIONSTEP:
+    execute_construction(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::GRANTSTEP:
+    execute_grant(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::HARVESTSTEP:
+    execute_harvest(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::IMPROVESTEP:
+    execute_improve(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::TILEMUTATORSTEP:
+    execute_tile_mutator(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::RESOURCEMUTATORSTEP:
+    execute_resource_mutator(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::KILLSTEP:
+    execute_kill(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::MOVESTEP:
+    execute_move(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::PILLAGESTEP:
+    std::cout << execute_pillage(buffer, buffer_len) << std::endl;;
+    break;
+  case NETWORK_TYPE::QUEUEMOVESTEP:
+    execute_queue_move(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::PURCHASESTEP:
+    std::cout << execute_purchase(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::RESEARCHSTEP:
+    std::cout << execute_research(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::SPECIALIZESTEP:
+    execute_specialize(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::SELLSTEP:
+    std::cout << execute_sell(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::SIEGESTEP:
+    std::cout << execute_siege(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::SPAWNSTEP:
+    std::cout << execute_spawn(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::ADDPLAYERSTEP:
+    execute_add_player(buffer, buffer_len);
+    return; // Special case, adding a player does not have output
+  case NETWORK_TYPE::UNITSTATSSTEP:
+    execute_modify_stats(buffer, buffer_len);
+    return; // Modifying stats also does not have output
+  case NETWORK_TYPE::BARBARIANSTEP:
+    return;
+  case NETWORK_TYPE::CITYDEFENSESTEP:
+    std::cout << execute_city_defense(buffer, buffer_len) << std::endl;
+    return;
+  case NETWORK_TYPE::MAGICSTEP:
+    execute_magic(buffer, buffer_len);
+    break;
+  case NETWORK_TYPE::STATUSSTEP:
+    execute_status(buffer, buffer_len);
+    break;
+   default:
+    break;
   }
 
-  // Process potential outputs of steps
-  step_negotiate();
-  step_discoever();
-  step_combat();
-  step_death();
-  step_raze();
-  step_verterancy();
-  step_resource();
+  // Well, this is a weird one-off
+  update_combat();
 }
 
 // Same as regular step, just deletes step on behalf of ai when finished.
-void simulation::process_step_from_ai(Step* step) {
-  simulation::process_step(step);
-  delete step;
+void simulation::process_step_from_ai(const void* buffer, size_t buffer_len) {
+  simulation::process_step(buffer, buffer_len);
 }
 
 void simulation::process_begin_turn() {
@@ -942,24 +940,25 @@ void simulation::process_begin_turn() {
   status_effect::process();
 }
 
-void simulation::process_end_turn() {
-  EndTurnStep* end_step = static_cast<EndTurnStep*>(s_current_step);
+void simulation::process_end_turn(const void* buffer, size_t buffer_len) {
+  EndTurnStep end_step;
+  deserialize(buffer, buffer_len, end_step);
 
-  Player* player = player::get_player(end_step->m_player);
+  Player* player = player::get_player(end_step.get_player());
   if (!player) return;
 
   if (player->m_ai_type == AI_TYPE::BARBARIAN) {
-    barbarians::pillage_and_plunder(end_step->m_player);
+    barbarians::pillage_and_plunder(end_step.get_player());
   }
 
-  phase_queued_movement(end_step->m_player); 
+  phase_queued_movement(end_step.get_player()); 
   player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }
 
-  std::cout << std::endl << "Active player is " << end_step->m_next_player << std::endl;
-  NotificationVector events = notification::get_player_notifications(end_step->m_next_player);
+  std::cout << std::endl << "Active player is " << end_step.get_next_player() << std::endl;
+  NotificationVector events = notification::get_player_notifications(end_step.get_next_player());
   for (size_t i = 0; i < events.size(); ++i) {
     std::cout << notification::to_string(events[i]) << std::endl;
   }
