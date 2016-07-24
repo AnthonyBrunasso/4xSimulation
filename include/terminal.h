@@ -4,10 +4,6 @@
 #include <vector>
 #include <string>
 
-#include "terminal.h"
-
-struct Step;
-
 namespace terminal {
   void initialize();
   void kill();
