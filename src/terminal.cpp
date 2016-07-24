@@ -566,7 +566,6 @@ void terminal::add_query(
 bool terminal::parse_input(const std::string& input) {
   NETWORK_TYPE command = NETWORK_TYPE::UNKNOWN;
   char buffer[256];
-  memset(buffer, 0, sizeof(buffer));
 
   // Get input until we've created a valid step
   std::cout << "Executing: " << input << std::endl;

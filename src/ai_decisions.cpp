@@ -26,7 +26,6 @@ char s_ai_buffer[BUFFER_LEN];
 
 template<typename T>
 size_t SimulateStep(const T& step) {
-  memset(s_ai_buffer, 0, sizeof(s_ai_buffer));
   size_t bytes = serialize(s_ai_buffer, BUFFER_LEN, step);
   simulation::process_step_from_ai(s_ai_buffer, bytes);
   return bytes;

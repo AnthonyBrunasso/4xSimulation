@@ -8,6 +8,7 @@ def WriteDeclPOD(output_fn, struct_info):
   output_fn('struct {}'.format(struct_info.name))
   output_fn('{')
   output_fn('public:')
+  output_fn('{}();'.format(struct_info.name))
   for field_name, field_info in struct_info.members.items():
     AccessDecl(output_fn, struct_info, field_info)
     
@@ -70,3 +71,10 @@ def SerializerImpl(output_fn, struct_info):
   output_fn('  memcpy(&out_msg, buffer, sizeof(out_msg));')
   output_fn('  return sizeof(out_msg);')
   output_fn('}')
+  
+  output_fn('{}::{}()'.format(struct_info.name, struct_info.name))
+  output_fn('{')
+  output_fn('  char* members = (char*)this+sizeof(_m_type);')
+  output_fn('  memset(members, 0, sizeof({})-sizeof(_m_type));'.format(struct_info.name))
+  output_fn('}')
+  
