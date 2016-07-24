@@ -2,6 +2,7 @@
 
 #include "Vector3.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
