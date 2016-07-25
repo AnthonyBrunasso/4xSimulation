@@ -102,7 +102,7 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
     return NOOP_EVALUATION;
   }
 
-  AIState* state = p->m_ai_state;
+  std::shared_ptr<AIState> state = p->m_ai_state;
   if (!state) {
     std::cout << p->m_name << " has no ai state. This is probably a bug." << std::endl;
     return NOOP_EVALUATION;

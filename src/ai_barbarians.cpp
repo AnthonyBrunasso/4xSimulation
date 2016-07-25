@@ -75,6 +75,6 @@ void barbarians::set_player_id(uint32_t player_id) {
   // Get the player and build its state object
   Player* p = player::get_player(player_id);
   if (!p) return;
-  p->m_ai_state = new AIState();
+  p->m_ai_state = std::make_shared<AIState>();
 }
 

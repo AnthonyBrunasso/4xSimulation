@@ -47,12 +47,6 @@ Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_typ
   m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
 }
 
-Player::~Player() {
-  if (m_ai_state) {
-    delete m_ai_state;
-  }
-}
-
 bool Player::OwnsCity(uint32_t id) const {
   return m_cities.find(id) != m_cities.end();
 }

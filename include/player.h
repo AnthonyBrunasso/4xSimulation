@@ -7,6 +7,7 @@
 #include <string>
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include "game_types.h"
 
 class Unit;
@@ -21,7 +22,6 @@ struct Improvement;
 class Player {
 public:
   Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_type);
-  ~Player();
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
@@ -51,7 +51,7 @@ public:
   SCIENCE_TYPE m_research;
   AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
-  AIState* m_ai_state;
+  std::shared_ptr<AIState> m_ai_state;
 };
 
 namespace player {

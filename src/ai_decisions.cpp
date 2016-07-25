@@ -315,7 +315,7 @@ void UnitDecision::operator()(uint32_t player_id) {
     return;
   }
 
-  AIState* state = p->m_ai_state;
+  std::shared_ptr<AIState> state = p->m_ai_state;
   for (auto& order : state->m_orders) {
     execute_order(order, player_id);
   }
