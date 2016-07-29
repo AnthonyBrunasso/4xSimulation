@@ -12,6 +12,8 @@ namespace terminal {
     const std::string& help,
     std::function<bool(const std::vector<std::string>&)> operation);
     
-  bool parse_input(const std::string& input);
-  void record_steps(const std::string& filename);
+  std::vector<std::string> tokenize(const std::string& input);
+  bool is_query(const std::vector<std::string> &);
+  bool run_query(const std::vector<std::string> &);
+  bool run_step(const std::vector<std::string> &, bool& game_over);
 }

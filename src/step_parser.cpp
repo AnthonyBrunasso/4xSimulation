@@ -38,8 +38,8 @@ namespace {
     size_t bytes_written = 0;
 
     if (tokens[0] == "quit") {
-      operation = NETWORK_TYPE::QUITSTEP;
-      return 0;
+      QuitStep quit;
+      bytes_written = serialize(buffer, buffer_len, quit);
     }
 
     else if (tokens[0] == "begin_turn") {

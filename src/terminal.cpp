@@ -43,7 +43,6 @@ namespace terminal  {
   typedef std::unordered_map<std::string, std::function<bool(const std::vector<std::string>&)> > CommandMap;
   std::vector<std::string> s_help_list;
   CommandMap s_query_map;
-  std::fstream s_target_file;
 
   bool execute_queries(const std::vector<std::string>& tokens);
   void execute_help();
@@ -563,37 +562,39 @@ void terminal::add_query(
   std::sort(s_help_list.begin(), s_help_list.end());
 }
 
-bool terminal::parse_input(const std::string& input) {
+std::vector<std::string> terminal::tokenize(const std::string& input) {
+
+  std::cout << "Tokenizing: " << input << std::endl;
+  std::vector<std::string> tokens = step_parser::split_to_tokens(input);
+
+  return std::move(tokens);
+}
+
+bool terminal::is_query(const std::vector<std::string> & tokens) {
+  auto operation = s_query_map.find(tokens[0]);
+  return operation != s_query_map.end();
+}
+
+bool terminal::run_query(const std::vector<std::string> & tokens) {
+  return execute_queries(tokens);
+}
+
+bool terminal::run_step(const std::vector<std::string> & tokens, bool& game_over) {
   NETWORK_TYPE command = NETWORK_TYPE::UNKNOWN;
   char buffer[256];
 
-  // Get input until we've created a valid step
-  std::cout << "Executing: " << input << std::endl;
-    
-  std::vector<std::string> tokens = step_parser::split_to_tokens(input);
-  // Execute any valid queries based on the tokens, if 
-  // tokens make a query continue to next iteration.
-  if (execute_queries(tokens)) return true;
-
   // See if a command is ready
   size_t bytes = step_parser::parse(tokens, command, buffer, 256);
+
+  if (!bytes) return false;
+
   // Process the step
   simulation::process_step(buffer, bytes);
 
-  // If a valid step and not a quit, save the command to file.
-  if (command != NETWORK_TYPE::UNKNOWN 
-    && command != NETWORK_TYPE::QUITSTEP) {
-    s_target_file << input << std::endl; 
-  } 
-  return command != NETWORK_TYPE::QUITSTEP;
-}
+  game_over = command == NETWORK_TYPE::QUITSTEP;
 
-void terminal::record_steps(const std::string& filename) {
-  s_target_file.open(filename, std::ios::out);
+  return true;
 }
 
 void terminal::kill() {
-  if (s_target_file.is_open()) {
-    s_target_file.close();
-  }
 }
