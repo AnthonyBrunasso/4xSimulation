@@ -16,4 +16,5 @@ namespace terminal {
   bool is_query(const std::vector<std::string> &);
   bool run_query(const std::vector<std::string> &);
   bool run_step(const std::vector<std::string> &, bool& game_over);
+  size_t step_to_bytes(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len);
 }

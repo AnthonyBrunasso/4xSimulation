@@ -596,5 +596,10 @@ bool terminal::run_step(const std::vector<std::string> & tokens, bool& game_over
   return true;
 }
 
+size_t terminal::step_to_bytes(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
+  NETWORK_TYPE operation;
+  return step_parser::parse(tokens, operation, buffer, buffer_len);
+}
+
 void terminal::kill() {
 }
