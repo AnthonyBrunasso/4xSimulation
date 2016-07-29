@@ -33,6 +33,7 @@ int main(int , char* []) {
     }
 
     std::vector<std::string> tokens = terminal::tokenize(input);
+    if (tokens.empty()) continue;
 
     if (terminal::is_query(tokens)) {
       terminal::run_query(tokens);
