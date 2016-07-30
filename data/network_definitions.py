@@ -1,9 +1,10 @@
 from cpp_ext import GetVector3i, SetVector3i, GetString, SetString, GetBool, SetBool
-from type_decl import Struct, Field, TypeInfo
-bool = TypeInfo('bool', storage_type='uint32_t', storage_count=1, getter=GetBool, setter=SetBool)
-v3i = TypeInfo('vector3i', access_type="sf::Vector3i", storage_type='int', storage_count=3, getter=GetVector3i, setter=SetVector3i)
-s32 = TypeInfo('int32_t')
-u32 = TypeInfo('uint32_t')
+from type_decl import Struct, Field, TypeInfo, Ctor
+
+bool = TypeInfo('bool', storage_type='uint32_t', storage_count=1, initial_value=Ctor('false'), getter=GetBool, setter=SetBool)
+v3i = TypeInfo('vector3i', access_type="sf::Vector3i", storage_type='int', storage_count=3, initial_value='{0,0,0}', getter=GetVector3i, setter=SetVector3i)
+s32 = TypeInfo('int32_t', initial_value=Ctor('-1'))
+u32 = TypeInfo('uint32_t', initial_value=Ctor('0xffffffff'))
 string = TypeInfo('string32', access_type="std::string", storage_type='char', storage_count=32, getter=GetString, setter=SetString)
 
 first_struct = Struct('AllTypesTestStruct', [
@@ -12,6 +13,11 @@ first_struct = Struct('AllTypesTestStruct', [
 (s32, 'count'),
 (u32, 'player'),
 (string, 'name'),
+])
+
+container_struct = Struct('ContainerStruct', [
+(TypeInfo('AllTypesTestStruct'), 'member'),
+(u32, 'extra'),
 ])
 
 spawn_step = Struct('SpawnStep')

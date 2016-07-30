@@ -1,5 +1,7 @@
 
-structs = {}
+structs = []
+
+Ctor = lambda init: '({})'.format(init)
 
 class StructInfo:
   def __init__(self, name):
@@ -8,12 +10,13 @@ class StructInfo:
     self.type = None
 
 class FieldInfo:
-  def __init__(self, parent, storage_type, access_type, field_name, count):
+  def __init__(self, parent, storage_type, access_type, field_name, count, initial_value):
     self.parent = parent
     self.storage_type = storage_type
     self.access_type = access_type
     self.name = field_name
     self.storage_count = count
+    self.initial_value = initial_value
     self.accessor = None
     
 class AccessorInfo:
@@ -22,7 +25,7 @@ class AccessorInfo:
     self.setter = setter
 
 class TypeInfo:
-  def __init__(self, type_name, access_type=None, storage_type=None, storage_count=1, getter=None, setter=None):
+  def __init__(self, type_name, access_type=None, storage_type=None, storage_count=1, initial_value=Ctor(''), getter=None, setter=None):
     self.name = type_name
     if access_type is not None:
       self.access_type = access_type
@@ -34,14 +37,14 @@ class TypeInfo:
       self.storage_type = type_name
       
     self.storage_count = storage_count
+    self.initial_value = initial_value
     self.getter = getter
     self.setter = setter
 
 def Struct(name, members={}):
   global structs
-  if not name in structs:
-    structs[name] = StructInfo(name)
-  struct_info = structs[name]
+  struct_info = StructInfo(name)
+  structs.append(struct_info)
   for type, name in members:
     Field(struct_info, type, name) 
   return struct_info
@@ -51,7 +54,7 @@ def CustomField(parent, storage_type, access_type, field_name, count=1):
   return parent.members[field_name]
   
 def Field(parent, type, field_name):
-  field = FieldInfo(parent, type.storage_type, type.access_type, field_name, type.storage_count)
+  field = FieldInfo(parent, type.storage_type, type.access_type, field_name, type.storage_count, type.initial_value)
   if type.getter and type.setter:
     Accessor(field, type.getter, type.setter)
   parent.members[field_name] = field

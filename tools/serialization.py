@@ -10,7 +10,7 @@ import author
 def NetworkEnum():
   NETWORK = "NETWORK"
   
-  for i, struct in enumerate(type_decl.structs.values()):
+  for i, struct in enumerate(type_decl.structs):
     typename = store.add_gametype(NETWORK, struct.name, i+1)
     struct.type = typename
     
@@ -26,12 +26,13 @@ if __name__ == "__main__":
     author.WriteDeclHeaders(writer)
     author.TypeAccessDecl(writer)
     author.MiscDecl(writer)
+    author.ForwardDecl(writer, type_decl.structs)
     
-    for name, struct in type_decl.structs.items():
+    for struct in type_decl.structs:
       author.WriteDeclPOD(writer, struct)
 
     writer('')
-    for name, struct in type_decl.structs.items():
+    for struct in type_decl.structs:
       author.SerializerDecl(writer, struct)
     author.MessageSizeTemplate(writer, type_decl.structs)
   
@@ -41,9 +42,9 @@ if __name__ == "__main__":
     author.WriteImplHeaders(writer, 'network_types.h')
     
     author.TypeAccessImpl(writer)
-    for name, struct in type_decl.structs.items():
+    for struct in type_decl.structs:
       author.ChecksumMemberOffsetImpl(writer, struct)
     author.ChecksumImpl(writer, type_decl.structs)
-    for name, struct in type_decl.structs.items():
+    for struct in type_decl.structs:
       author.WriteImplPOD(writer, struct)
   

@@ -53,6 +53,10 @@ def MiscDecl(output_fn):
   output_fn('constexpr size_t largest_message();')
   output_fn('')
 
+def ForwardDecl(output_fn, structs):
+  for struct in structs:
+    output_fn('struct {};'.format(struct.name))
+    
 def TypeAccessImpl(output_fn):
   output_fn('std::vector<uint64_t> s_allOffsets;')
   output_fn('')
@@ -86,8 +90,8 @@ def ChecksumMemberOffsetImpl(output_fn, struct_info):
 def ChecksumImpl(output_fn, structs):
   output_fn('size_t checksum()')
   output_fn('{')
-  for name, struct in structs.items():
-    output_fn('  {}::MemberOffsets();'.format(name))
+  for struct in structs:
+    output_fn('  {}::MemberOffsets();'.format(struct.name))
   output_fn('  size_t seed = 0;')
   output_fn('  for (auto i : s_allOffsets) {')
   output_fn('    hash_combine(seed, i * 2654435761);')
@@ -129,7 +133,7 @@ constexpr size_t bytes()
 }""")
   output_fn('constexpr size_t largest_message() {')
   output_fn('  return bytes<int')
-  for name, struct in structs.items():
+  for struct in structs:
     output_fn('    ,{}'.format(struct.name))
   output_fn('  >();')
   output_fn('}')
@@ -154,8 +158,14 @@ def SerializerImpl(output_fn, struct_info):
   output_fn('}')
   
   output_fn('{}::{}()'.format(struct_info.name, struct_info.name))
+  index = 0
+  for field_name, field_info in struct_info.members.items():
+    if index:
+      chr = ','
+    else:
+      chr = ':'
+    index += 1
+    output_fn('{} m_{}{}'.format(chr, field_name, field_info.initial_value))
   output_fn('{')
-  output_fn('  char* members = (char*)this+sizeof(_m_type);')
-  output_fn('  memset(members, 0, sizeof({})-sizeof(_m_type));'.format(struct_info.name))
   output_fn('}')
   
