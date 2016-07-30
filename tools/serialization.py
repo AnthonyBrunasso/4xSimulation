@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     author.WriteDeclHeaders(writer)
     author.TypeAccessDecl(writer)
-    author.ChecksumAccessDecl(writer)
+    author.MiscDecl(writer)
     
     for name, struct in type_decl.structs.items():
       author.WriteDeclPOD(writer, struct)
@@ -33,7 +33,8 @@ if __name__ == "__main__":
     writer('')
     for name, struct in type_decl.structs.items():
       author.SerializerDecl(writer, struct)
-    
+    author.MessageSizeTemplate(writer, type_decl.structs)
+  
   with open('../src/network_types.cpp', 'w') as f:
     writer = lambda text: f.write(text+'\n')
     
@@ -45,3 +46,4 @@ if __name__ == "__main__":
     author.ChecksumImpl(writer, type_decl.structs)
     for name, struct in type_decl.structs.items():
       author.WriteImplPOD(writer, struct)
+  

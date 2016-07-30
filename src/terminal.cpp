@@ -16,6 +16,7 @@
 #include "terrain_yield.h"
 #include "random.h"
 #include "science.h"
+#include "network_types.h"
 
 #include <algorithm>
 #include <iostream>
@@ -581,10 +582,11 @@ bool terminal::run_query(const std::vector<std::string> & tokens) {
 
 bool terminal::run_step(const std::vector<std::string> & tokens, bool& game_over) {
   NETWORK_TYPE command = NETWORK_TYPE::UNKNOWN;
-  char buffer[256];
+  const size_t BUFFER_LEN = largest_message();
+  char buffer[BUFFER_LEN];
 
   // See if a command is ready
-  size_t bytes = step_parser::parse(tokens, command, buffer, 256);
+  size_t bytes = step_parser::parse(tokens, command, buffer, BUFFER_LEN);
 
   if (!bytes) return false;
 

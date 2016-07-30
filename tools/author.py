@@ -41,14 +41,16 @@ def WriteDeclHeaders(output_fn):
 def WriteImplHeaders(output_fn, header):
   output_fn('#include "{}"'.format(header))
   output_fn('#include <cstring>')
+  output_fn('#include <algorithm>')
   output_fn('')
   
 def TypeAccessDecl(output_fn):
   output_fn('NETWORK_TYPE read_type(const void* buffer, size_t bytes_available);')
   output_fn('')
   
-def ChecksumAccessDecl(output_fn):
+def MiscDecl(output_fn):
   output_fn('size_t get_checksum();')
+  output_fn('constexpr size_t largest_message();')
   output_fn('')
 
 def TypeAccessImpl(output_fn):
@@ -98,6 +100,40 @@ def ChecksumImpl(output_fn, structs):
   output_fn('  return check;')
   output_fn('}')
 
+def MessageSizeTemplate(output_fn, structs):
+  output_fn("""template <typename... Args>
+struct MaxStructSize;
+
+template <typename First, typename... Args>
+struct MaxStructSize<First, Args...>
+{
+  constexpr static size_t bytes()
+  {
+    return std::max(sizeof(First), MaxStructSize<Args...>::bytes());
+  }
+};
+
+template <>
+struct MaxStructSize<>
+{
+  constexpr static size_t bytes()
+  {
+    return 0;
+  }
+};
+
+template <typename... Args>
+constexpr size_t bytes()
+{
+  return MaxStructSize<Args...>::bytes();
+}""")
+  output_fn('constexpr size_t largest_message() {')
+  output_fn('  return bytes<int')
+  for name, struct in structs.items():
+    output_fn('    ,{}'.format(struct.name))
+  output_fn('  >();')
+  output_fn('}')
+  
 def SerializerDecl(output_fn, struct_info):
   output_fn('size_t serialize(void* buffer, size_t buffer_size, const {}& net_msg);'.format(struct_info.name))
   output_fn('size_t deserialize(const void* buffer, size_t bytes_available, {}& out_msg);'.format(struct_info.name))
