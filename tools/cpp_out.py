@@ -25,3 +25,6 @@ def AccessSetImpl(output_fn, struct_info, field_info):
   else:
     field_info.accessor.setter(lambda f: output_fn('  '+f), struct_info, field_info)
   output_fn('}')
+
+def OffsetOfMember(output_fn, struct_info, field_info):
+  output_fn('offsetof({}, m_{}),'.format(struct_info.name, field_info.name))

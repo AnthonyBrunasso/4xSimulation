@@ -25,7 +25,8 @@ if __name__ == "__main__":
 
     author.WriteDeclHeaders(writer)
     author.TypeAccessDecl(writer)
-
+    author.ChecksumAccessDecl(writer)
+    
     for name, struct in type_decl.structs.items():
       author.WriteDeclPOD(writer, struct)
 
@@ -39,5 +40,8 @@ if __name__ == "__main__":
     author.WriteImplHeaders(writer, 'network_types.h')
     
     author.TypeAccessImpl(writer)
+    for name, struct in type_decl.structs.items():
+      author.ChecksumMemberOffsetImpl(writer, struct)
+    author.ChecksumImpl(writer, type_decl.structs)
     for name, struct in type_decl.structs.items():
       author.WriteImplPOD(writer, struct)

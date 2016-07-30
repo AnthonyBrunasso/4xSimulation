@@ -1,4 +1,4 @@
-from cpp_out import AccessDecl, MemberDecl, AccessGetImpl, AccessSetImpl
+from cpp_out import AccessDecl, MemberDecl, AccessGetImpl, AccessSetImpl, OffsetOfMember
 
 def WriteDeclPOD(output_fn, struct_info):
   # for member_type, member_name in struct_info.members.items():
@@ -12,6 +12,8 @@ def WriteDeclPOD(output_fn, struct_info):
   for field_name, field_info in struct_info.members.items():
     AccessDecl(output_fn, struct_info, field_info)
     
+  output_fn('')
+  output_fn('static void MemberOffsets();')
   output_fn('')
   output_fn('private:')
   output_fn(' '.join(['NETWORK_TYPE _m_type = {', 'NETWORK_TYPE::'+struct_info.type, '};']))
@@ -44,8 +46,14 @@ def WriteImplHeaders(output_fn, header):
 def TypeAccessDecl(output_fn):
   output_fn('NETWORK_TYPE read_type(const void* buffer, size_t bytes_available);')
   output_fn('')
+  
+def ChecksumAccessDecl(output_fn):
+  output_fn('size_t get_checksum();')
+  output_fn('')
 
 def TypeAccessImpl(output_fn):
+  output_fn('std::vector<uint64_t> s_allOffsets;')
+  output_fn('')
   output_fn("""NETWORK_TYPE read_type(const void* buffer, size_t bytes_available) {
   if (bytes_available < sizeof(NETWORK_TYPE)) return NETWORK_TYPE::UNKNOWN;
 
@@ -53,7 +61,43 @@ def TypeAccessImpl(output_fn):
   return *ref;
 }
   """)
+  output_fn("""template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+  """)
   
+def ChecksumMemberOffsetImpl(output_fn, struct_info):
+  output_fn('void {}::MemberOffsets()'.format(struct_info.name))
+  output_fn('{')
+  output_fn('  std::vector<uint64_t> offsets = {')
+  for field_name, field_info in struct_info.members.items():
+    OffsetOfMember(lambda s: output_fn('    '+s), struct_info, field_info)
+  output_fn('  };')
+  output_fn('  for (auto i : offsets) {')
+  output_fn('    s_allOffsets.push_back(i);')
+  output_fn('  }')
+  output_fn('}')
+
+def ChecksumImpl(output_fn, structs):
+  output_fn('size_t checksum()')
+  output_fn('{')
+  for name, struct in structs.items():
+    output_fn('  {}::MemberOffsets();'.format(name))
+  output_fn('  size_t seed = 0;')
+  output_fn('  for (auto i : s_allOffsets) {')
+  output_fn('    hash_combine(seed, i * 2654435761);')
+  output_fn('  }')
+  output_fn('  return seed;')
+  output_fn('}')
+  output_fn('size_t get_checksum()')
+  output_fn('{')
+  output_fn('  static size_t check = checksum();')
+  output_fn('  return check;')
+  output_fn('}')
+
 def SerializerDecl(output_fn, struct_info):
   output_fn('size_t serialize(void* buffer, size_t buffer_size, const {}& net_msg);'.format(struct_info.name))
   output_fn('size_t deserialize(const void* buffer, size_t bytes_available, {}& out_msg);'.format(struct_info.name))
