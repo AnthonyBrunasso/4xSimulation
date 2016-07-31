@@ -38,6 +38,7 @@ def WriteImplHeaders(output_fn, header):
   output_fn('#include "{}"'.format(header))
   output_fn('#include <cstring>')
   output_fn('#include <algorithm>')
+  output_fn('#include <cstddef>')
   output_fn('')
   
 def TypeAccessDecl(output_fn):
