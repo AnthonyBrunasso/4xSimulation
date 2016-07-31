@@ -1,15 +1,11 @@
 from cpp_out import AccessDecl, MemberDecl, AccessGetImpl, AccessSetImpl, OffsetOfMember
 
-def WriteDeclPOD(output_fn, struct_info):
-  # for member_type, member_name in struct_info.members.items():
-    # if member_type not in types and not member_type.endswith('_TYPE'): #TODO: enum support?
-      # raise Exception('Unknown user type: ' + member_type)
-      
+def WriteDeclPOD(output_fn, struct_info):      
   output_fn('struct {}'.format(struct_info.name))
   output_fn('{')
   output_fn('public:')
   output_fn('{}();'.format(struct_info.name))
-  for field_name, field_info in struct_info.members.items():
+  for field_info in struct_info.members:
     AccessDecl(output_fn, struct_info, field_info)
     
   output_fn('')
@@ -17,12 +13,12 @@ def WriteDeclPOD(output_fn, struct_info):
   output_fn('')
   output_fn('private:')
   output_fn(' '.join(['NETWORK_TYPE _m_type = {', 'NETWORK_TYPE::'+struct_info.type, '};']))
-  for field_name, field_info in struct_info.members.items():
+  for field_info in struct_info.members:
     MemberDecl(output_fn, struct_info, field_info)
   output_fn('};')
 
 def WriteImplPOD(output_fn, struct_info):
-  for field_name, field_info in struct_info.members.items():
+  for field_info in struct_info.members:
     AccessGetImpl(output_fn, struct_info, field_info)
     AccessSetImpl(output_fn, struct_info, field_info)
   SerializerImpl(output_fn, struct_info)
@@ -79,7 +75,7 @@ def ChecksumMemberOffsetImpl(output_fn, struct_info):
   output_fn('void {}::MemberOffsets()'.format(struct_info.name))
   output_fn('{')
   output_fn('  std::vector<uint64_t> offsets = {')
-  for field_name, field_info in struct_info.members.items():
+  for field_info in struct_info.members:
     OffsetOfMember(lambda s: output_fn('    '+s), struct_info, field_info)
   output_fn('  };')
   output_fn('  for (auto i : offsets) {')
@@ -159,13 +155,13 @@ def SerializerImpl(output_fn, struct_info):
   
   output_fn('{}::{}()'.format(struct_info.name, struct_info.name))
   index = 0
-  for field_name, field_info in struct_info.members.items():
+  for field_info in struct_info.members:
     if index:
       chr = ','
     else:
       chr = ':'
     index += 1
-    output_fn('{} m_{}{}'.format(chr, field_name, field_info.initial_value))
+    output_fn('{} m_{}{}'.format(chr, field_info.name, field_info.initial_value))
   output_fn('{')
   output_fn('}')
   

@@ -5,7 +5,7 @@ Ctor = lambda init: '({})'.format(init)
 
 class StructInfo:
   def __init__(self, name):
-    self.members = {}
+    self.members = []
     self.name = name
     self.type = None
 
@@ -41,7 +41,7 @@ class TypeInfo:
     self.getter = getter
     self.setter = setter
 
-def Struct(name, members={}):
+def Struct(name, members=[]):
   global structs
   struct_info = StructInfo(name)
   structs.append(struct_info)
@@ -50,14 +50,15 @@ def Struct(name, members={}):
   return struct_info
   
 def CustomField(parent, storage_type, access_type, field_name, count=1):
-  parent.members[field_name] = FieldInfo(parent, storage_type, access_type, field_name, count)
-  return parent.members[field_name]
+  field_info = FieldInfo(parent, storage_type, access_type, field_name, count)
+  parent.members.append(field_info)
+  return field_info
   
 def Field(parent, type, field_name):
   field = FieldInfo(parent, type.storage_type, type.access_type, field_name, type.storage_count, type.initial_value)
   if type.getter and type.setter:
     Accessor(field, type.getter, type.setter)
-  parent.members[field_name] = field
+  parent.members.append(field)
   return field
   
 def Accessor(parent, getter, setter):
