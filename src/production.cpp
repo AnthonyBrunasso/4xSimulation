@@ -56,6 +56,10 @@ namespace production {
     return static_cast<CONSTRUCTION_TYPE>(type_id);
   }
 
+  float remains(ConstructionOrder* order) {
+    return required(order->m_type) - order->m_production;
+  }
+
   float required(CONSTRUCTION_TYPE type) {
     switch (type) {
     case CONSTRUCTION_TYPE::GRANARY:
@@ -262,6 +266,11 @@ void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
   }
 
   m_state.EraseConstruction(type_id);
+}
+
+CONSTRUCTION_TYPE ConstructionQueueFIFO::Current() {
+  if (m_queue.empty()) return CONSTRUCTION_TYPE::UNKNOWN;
+  return m_queue.front()->m_type;
 }
 
 void ConstructionQueueFIFO::Abort(size_t offset) {

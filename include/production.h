@@ -11,12 +11,14 @@
 
 class City;
 class ConstructionQueueFIFO;
+class ConstructionOrder;
 struct TerrainYield;
 
 namespace production {
   typedef std::function<void(CONSTRUCTION_TYPE)> UnitCreationCallback;
 
   CONSTRUCTION_TYPE id(uint32_t);
+  float remains(ConstructionOrder*);
   float required(CONSTRUCTION_TYPE type_id);
   float required_to_purchase(CONSTRUCTION_TYPE type_id);
   float yield_from_sale(CONSTRUCTION_TYPE type_id);
@@ -81,10 +83,12 @@ public:
   std::vector<CONSTRUCTION_TYPE> Complete() const;
   std::vector<CONSTRUCTION_TYPE> Incomplete() const;
   std::vector<CONSTRUCTION_TYPE> Queue() const;
+
   bool Has(CONSTRUCTION_TYPE type_id) const;
   void Add(CONSTRUCTION_TYPE type_id);
   void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
   void Sell(CONSTRUCTION_TYPE type_id);
+  CONSTRUCTION_TYPE Current();
 
   void Abort(size_t offset);
   void Move(size_t src, size_t dest);
