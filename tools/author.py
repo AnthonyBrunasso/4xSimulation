@@ -37,7 +37,6 @@ def WriteDeclHeaders(output_fn):
 def WriteImplHeaders(output_fn, header):
   output_fn('#include "{}"'.format(header))
   output_fn('#include <cstring>')
-  output_fn('#include <algorithm>')
   output_fn('#include <cstddef>')
   output_fn('')
   
@@ -102,6 +101,10 @@ def ChecksumImpl(output_fn, structs):
   output_fn('}')
 
 def MessageSizeTemplate(output_fn, structs):
+  output_fn("""constexpr size_t const_max(size_t l, size_t r) {
+  return l>r?l:r;
+}
+""")
   output_fn("""template <typename... Args>
 struct MaxStructSize;
 
@@ -110,7 +113,7 @@ struct MaxStructSize<First, Args...>
 {
   constexpr static size_t bytes()
   {
-    return std::max(sizeof(First), MaxStructSize<Args...>::bytes());
+    return const_max(sizeof(First), MaxStructSize<Args...>::bytes());
   }
 };
 
