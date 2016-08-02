@@ -37,7 +37,9 @@ public:
   float GetPopulation() const;
   float FoodForSustain() const;
   float FoodForGrowth() const;
+
   float GetTurnsForGrowth() const;
+  float GetTurnsForProduction() const;
 
   bool IsConstructing() const;
 

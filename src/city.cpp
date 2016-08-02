@@ -174,6 +174,14 @@ float City::GetTurnsForGrowth() const {
   return std::ceil((FoodForGrowth() - m_food) / t.m_food);
 }
 
+float City::GetTurnsForProduction() const {
+  if (GetConstruction()->Count() == 0) return 0.0;
+  TerrainYield t = DumpYields();
+  float remains = production::remains(GetConstruction()->m_queue.front());
+  
+  return std::ceil(remains / t.m_production);
+}
+
 bool City::IsConstructing() const {
   return GetConstruction()->Count() != 0;
 }
