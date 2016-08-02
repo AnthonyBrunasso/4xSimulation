@@ -12,13 +12,24 @@
 class City;
 class ConstructionQueueFIFO;
 class ConstructionOrder;
+class ConstructionState;
 struct TerrainYield;
+
+typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
+typedef std::list<ConstructionOrder*> ConstructionList;
 
 namespace production {
   typedef std::function<void(CONSTRUCTION_TYPE)> UnitCreationCallback;
 
   CONSTRUCTION_TYPE id(uint32_t);
+
+  const char*name(ConstructionOrder*);
+  float current(ConstructionOrder*);
   float remains(ConstructionOrder*);
+  float required(ConstructionOrder*);
+  float apply(ConstructionOrder*, float amount_available);
+  bool completed(ConstructionOrder*);
+
   float required(CONSTRUCTION_TYPE type_id);
   float required_to_purchase(CONSTRUCTION_TYPE type_id);
   float yield_from_sale(CONSTRUCTION_TYPE type_id);
@@ -28,25 +39,6 @@ namespace production {
   ConstructionQueueFIFO* get_production(uint32_t production_id);
   void sub_create(const UnitCreationCallback&);
 }
-
-class ConstructionOrder;
-
-typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
-typedef std::list<ConstructionOrder*> ConstructionList;
-
-class ConstructionOrder
-{
-public:
-  explicit ConstructionOrder(CONSTRUCTION_TYPE type_id);
-  ConstructionOrder() = delete;
-
-  float ApplyProduction(float production);
-
-  bool IsComplete();
-
-  CONSTRUCTION_TYPE m_type;
-  float m_production;
-};
 
 class ConstructionState
 {

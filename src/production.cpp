@@ -12,6 +12,15 @@
 #include <algorithm>
 #include <cmath>
 
+class ConstructionOrder
+{
+public:
+  explicit ConstructionOrder(CONSTRUCTION_TYPE type_id);
+
+  CONSTRUCTION_TYPE m_type;
+  float m_production;
+};
+
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;
   CreationCallbackVector s_creationCallbacks;
@@ -56,8 +65,36 @@ namespace production {
     return static_cast<CONSTRUCTION_TYPE>(type_id);
   }
 
-  float remains(ConstructionOrder* order) {
-    return required(order->m_type) - order->m_production;
+  const char*name(ConstructionOrder* co) {
+    return get_construction_name(co->m_type);
+  }
+
+  float current(ConstructionOrder* co) {
+    return co->m_production;
+  }
+
+  float remains(ConstructionOrder* co) {
+    return required(co->m_type) - co->m_production;
+  }
+
+  float required(ConstructionOrder* co) {
+    return required(co->m_type);
+  }
+
+  float apply(ConstructionOrder* co, float amount_available) {
+    float required = production::required(co);
+    float current = co->m_production;
+
+    float usedProduction = std::min(amount_available, required - current);
+    //std::cout << "used production: " << usedProduction << std::endl;
+
+    co->m_production += usedProduction;
+    //std::cout << "current production " << current << " / " << required << std::endl;
+    return amount_available - usedProduction;
+  }
+
+  bool completed(ConstructionOrder* co) {
+    return co->m_production >= required(co->m_type);
   }
 
   float required(CONSTRUCTION_TYPE type) {
@@ -122,21 +159,6 @@ ConstructionOrder::ConstructionOrder(CONSTRUCTION_TYPE type_id)
 {
 }
 
-float ConstructionOrder::ApplyProduction(float production) {
-  float required = production::required(m_type);
-  
-  float usedProduction = std::min(production, required - m_production);
-  //std::cout << "used production: " << usedProduction << std::endl;
-  
-  m_production += usedProduction;
-  //std::cout << "current production " << m_production << " / " << required << std::endl;
-  return production - usedProduction;
-}
-
-bool ConstructionOrder::IsComplete() {
-  return m_production >= production::required(m_type);
-}
-
 ConstructionState::ConstructionState() {
 }
 
@@ -181,7 +203,7 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
     return false;
   }
 
-  return itFind->second->IsComplete();
+  return production::completed(itFind->second);
 }
 
 std::vector<CONSTRUCTION_TYPE> ConstructionState::GetComplete() const {
@@ -252,7 +274,7 @@ void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id, City* parent) {
   }
 
   ConstructionOrder* order = m_state.GetConstruction(type_id);
-  order->ApplyProduction(9999.f);
+  production::apply(order, 9999.f);
 }
 
 void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
@@ -325,8 +347,8 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
   m_stockpile += t.m_production;
   while (m_queue.size() > 0) {
     ConstructionOrder* order = m_queue.front();
-    m_stockpile = order->ApplyProduction(m_stockpile);
-    if (order->IsComplete()) {
+    m_stockpile = production::apply(order, m_stockpile);
+    if (production::completed(order)) {
       ConstructionOrder* completed = m_queue.front();
       std::cout << "Construction completed: " << get_construction_name(completed->m_type) << std::endl;
       m_queue.pop_front();
@@ -372,7 +394,7 @@ std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
   }
   out << "    --Buildings--" << std::endl;
   for (auto construction : state.m_constructions) {
-    if (!construction.second->IsComplete()) {
+    if (!production::completed(construction.second)) {
       continue;
     }
     out << "      " << get_construction_name(construction.second->m_type) << " is completed." << std::endl;
