@@ -27,6 +27,7 @@ namespace production {
   float current(ConstructionOrder*);
   float remains(ConstructionOrder*);
   float required(ConstructionOrder*);
+  float turns(ConstructionOrder*);
   float apply(ConstructionOrder*, float amount_available);
   bool completed(ConstructionOrder*);
 
@@ -50,7 +51,7 @@ public:
   ConstructionState(const ConstructionState&) = delete;
   ConstructionState& operator=(const ConstructionState&) = delete;
 
-  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id);
+  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id);
   bool EraseConstruction(CONSTRUCTION_TYPE type_id);
   bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
   std::vector<CONSTRUCTION_TYPE> GetComplete() const;
@@ -66,7 +67,7 @@ private:
 class ConstructionQueueFIFO
 {
 public:
-  explicit ConstructionQueueFIFO(uint32_t cityId);
+  explicit ConstructionQueueFIFO(uint32_t city_id);
   ConstructionQueueFIFO(ConstructionQueueFIFO&&) = default;
 
   ConstructionQueueFIFO(const ConstructionQueueFIFO&) = delete;
@@ -90,7 +91,7 @@ public:
   void MutateYield(TerrainYield&) const;
   void Simulate(City* parent, TerrainYield&);
 
-  uint32_t m_cityId;
+  uint32_t m_city_id;
   ConstructionList m_queue;
   ConstructionState m_state;
   // When nothing is queued, the city can store limited production for future work

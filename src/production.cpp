@@ -15,9 +15,14 @@
 class ConstructionOrder
 {
 public:
-  explicit ConstructionOrder(CONSTRUCTION_TYPE type_id);
+  explicit ConstructionOrder(CONSTRUCTION_TYPE type_id, uint32_t city_id)
+    : m_type(type_id)
+    , m_city_id(city_id)
+    , m_production(0.0) 
+  {}
 
   CONSTRUCTION_TYPE m_type;
+  uint32_t m_city_id;
   float m_production;
 };
 
@@ -79,6 +84,14 @@ namespace production {
 
   float required(ConstructionOrder* co) {
     return required(co->m_type);
+  }
+
+  float turns(ConstructionOrder* co) {
+    City* c = city::get_city(co->m_city_id);
+    if (!c) return 0.0;
+    TerrainYield t = c->DumpYields();
+
+    return std::ceil(production::remains(co) / t.m_production);
   }
 
   float apply(ConstructionOrder* co, float amount_available) {
@@ -153,12 +166,6 @@ namespace production {
   }
 }
 
-ConstructionOrder::ConstructionOrder(CONSTRUCTION_TYPE type_id)
-: m_type(type_id)
-, m_production(0.f)
-{
-}
-
 ConstructionState::ConstructionState() {
 }
 
@@ -168,9 +175,9 @@ ConstructionState::~ConstructionState() {
   }
 }
 
-ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id) {
+ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id) {
   if (!production::construction_is_unique(type_id)) {
-    return new ConstructionOrder(type_id);
+    return new ConstructionOrder(type_id, city_id);
   }
   
   uint32_t type = static_cast<uint32_t>(type_id);
@@ -182,7 +189,7 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id)
 
   std::cout << "New unique construction: " << get_construction_name(type_id) << std::endl;
 
-  ConstructionOrder* newOrder = new ConstructionOrder(type_id);
+  ConstructionOrder* newOrder = new ConstructionOrder(type_id, city_id);
   m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder));
   
   return newOrder;
@@ -224,8 +231,8 @@ std::vector<CONSTRUCTION_TYPE> ConstructionState::GetIncomplete() const {
   return std::move(incomplete);
 }
 
-ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t cityId)
-: m_cityId(cityId)
+ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t city_id)
+: m_city_id(city_id)
 , m_stockpile(0.f)
 {
   
@@ -258,7 +265,7 @@ void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
     return;
   }
 
-  ConstructionOrder* order = m_state.GetConstruction(type_id);
+  ConstructionOrder* order = m_state.GetConstruction(type_id, m_city_id);
   m_queue.push_back(order);
 }
 
@@ -273,7 +280,7 @@ void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id, City* parent) {
     return;
   }
 
-  ConstructionOrder* order = m_state.GetConstruction(type_id);
+  ConstructionOrder* order = m_state.GetConstruction(type_id, parent->m_id);
   production::apply(order, 9999.f);
 }
 
@@ -328,7 +335,7 @@ size_t ConstructionQueueFIFO::Count() const {
 }
 
 TerrainYield ConstructionQueueFIFO::DumpYields() const {
-  City* city = city::get_city(m_cityId);
+  City* city = city::get_city(m_city_id);
   return city->DumpYields();
 }
 
@@ -371,20 +378,20 @@ void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
 std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   out << "    Production: (stockpile " << fifo.m_stockpile << ")" << std::endl;
   out << fifo.m_state;
-  if (fifo.m_queue.empty()) {
-    return out;
-  }
-  TerrainYield t = fifo.DumpYields();
+  if (fifo.m_queue.empty()) return out;
+
   out << "    --Queued--" << std::endl;
-  auto it = fifo.m_queue.cbegin();
-  uint32_t turns = 0;
-  for (size_t i = 0; i < fifo.m_queue.size(); ++i, ++it) {
-    turns += static_cast<uint32_t>(ceil((production::required((*it)->m_type)-(*it)->m_production)/t.m_production));
+  float turns = 0.0;
+  for (auto co : fifo.m_queue) {
+    turns += production::turns(co);
     out << "        ";
-    out << i << ") " << get_construction_name((*it)->m_type) << ": " << (*it)->m_production << "/" << production::required((*it)->m_type)
-        << " (" << turns << " turns)";
+    out << production::name(co) << ": "
+      << production::current(co)
+      << "/" << production::required(co)
+      << " (" << turns << " turns)";
     out << std::endl;
   }
+
   return out;
 }
 
