@@ -42,8 +42,7 @@ public:
 
   bool IsConstructing() const;
 
-  ConstructionQueueFIFO* GetConstruction() const;
-  void Purchase(CONSTRUCTION_TYPE t);
+  ConstructionQueueFIFO* GetProductionQueue() const;
 
   uint32_t m_id;
   sf::Vector3i m_location;

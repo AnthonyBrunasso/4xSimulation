@@ -94,7 +94,7 @@ void Construct::operator()(uint32_t player_id) {
     if (!city->IsConstructing()) {
       std::cout << current->m_name << " beginning construction of: " << get_construction_name(m_production_type) <<
         " in city: " << city->m_id << std::endl;
-      city->GetConstruction()->Add(m_production_type);
+      production_queue::add(city->GetProductionQueue(), m_production_type);
     }
   }
 }

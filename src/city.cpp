@@ -93,7 +93,7 @@ void City::Simulate(TerrainYield& t) {
   m_damage = std::max(0.f, m_damage-3.f);
 
   // Normal city functions
-  GetConstruction()->Simulate(this, t);
+  production_queue::simulate(GetProductionQueue(), t);
   m_food += t.m_food;
   m_experience += t.m_experience;
   std::cout << format::city(*this);
@@ -119,10 +119,10 @@ TerrainYield City::DumpYields(bool log) const {
 }
 
 void City::MutateYield(TerrainYield& yields) const {
-  float bonusFood = 2.f + (GetConstruction()->Has(CONSTRUCTION_TYPE::GRANARY)?2.0f:0.0f);
+  float bonusFood = 2.f;
   yields.m_food += bonusFood;
   yields.m_experience += 1.f;
-  GetConstruction()->MutateYield(yields);
+  yields += production_queue::yield(GetProductionQueue());
 }
 
 size_t City::GetHarvestCount() const {
@@ -175,15 +175,11 @@ float City::GetTurnsForGrowth() const {
 }
 
 bool City::IsConstructing() const {
-  return GetConstruction()->Count() != 0;
+  return !GetProductionQueue()->m_queue.empty();
 }
 
-ConstructionQueueFIFO* City::GetConstruction() const {
+ConstructionQueueFIFO* City::GetProductionQueue() const {
   return production::get_production(m_production_id);
-}
-
-void City::Purchase(CONSTRUCTION_TYPE t) {
-  GetConstruction()->Purchase(t, this);
 }
 
 float city::food_required_by_population(float population) {
@@ -295,7 +291,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
     n.m_id = id;
     events.push_back(n);
   }
-  if (c->GetConstruction()->Count() == 0) {
+  if (!c->IsConstructing()) {
     Notification n;
     n.m_event_type = NOTIFICATION_TYPE::CITY_PRODUCTION;
     n.m_id = id;

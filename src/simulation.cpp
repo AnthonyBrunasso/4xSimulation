@@ -243,12 +243,12 @@ namespace simulation {
     }
     CONSTRUCTION_TYPE t(production::id(construction_step.get_production_id()));
 
-    if (!construction_step.get_cheat()) {
-      city->GetConstruction()->Add(t);
+    if (construction_step.get_cheat()) {
+      production_queue::purchase(city->GetProductionQueue(), t);
       return;
     }
- 
-    city->Purchase(production::id(construction_step.get_production_id()));
+
+    production_queue::add(city->GetProductionQueue(), t);
   }
 
   void execute_colonize(const void* buffer, size_t buffer_len) {
@@ -619,11 +619,11 @@ namespace simulation {
         return ss.str();
       }
       player->m_gold -= cost;
-      city->Purchase(t);
+      production_queue::purchase(city->GetProductionQueue(), t);
       return "Purchase made.";
     }
 
-    std::vector<CONSTRUCTION_TYPE> available = city->GetConstruction()->Incomplete();
+    std::vector<CONSTRUCTION_TYPE> available = production_queue::incomplete(city->GetProductionQueue());
     ss << "City (" << city->m_id << ") available purchases: " << std::endl;
     for (size_t i = 0; i < available.size(); ++i) {
       CONSTRUCTION_TYPE t(available[i]);
@@ -654,13 +654,13 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(sell_step.get_city());
     if(!city) return "Invalid City";
-    std::vector<CONSTRUCTION_TYPE> completed = city->GetConstruction()->Complete();
+    std::vector<CONSTRUCTION_TYPE> completed = production_queue::complete(city->GetProductionQueue());
     if (sell_step.get_production_id() != 0) {
       CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(sell_step.get_production_id()));
       for (size_t i = 0; i < completed.size(); ++i) {
         if (completed[i] == t) {
           player->m_gold += production::yield_from_sale(completed[i]);
-          city->GetConstruction()->Sell(t);
+          production_queue::sell(city->GetProductionQueue(), t);
           return "Sale made.";
         }
       }
@@ -752,7 +752,7 @@ namespace simulation {
     City* city = city::get_city(abort_step.get_city());
     if (!city) return "Invalid City";
     if (!player->OwnsCity(city->m_id)) return "Player doesn't own city.";
-    city->GetConstruction()->Abort(abort_step.get_index());
+    production_queue::remove(city->GetProductionQueue(), abort_step.get_index());
     return "Removing...";
   }
 

@@ -13,6 +13,28 @@
 #include <algorithm>
 #include <cmath>
 
+typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
+class ConstructionState
+{
+public:
+  ConstructionState();
+  ~ConstructionState();
+  ConstructionState(ConstructionState&&) = default;
+
+  ConstructionState(const ConstructionState&) = delete;
+  ConstructionState& operator=(const ConstructionState&) = delete;
+
+  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id);
+  bool EraseConstruction(CONSTRUCTION_TYPE type_id);
+  bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
+
+private:
+  friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
+
+  ConstructionUMap m_constructions;
+};
+std::ostream& operator<<(std::ostream&, const ConstructionState&);
+
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;
   CreationCallbackVector s_creationCallbacks;
@@ -28,13 +50,17 @@ namespace production {
       return;
     }
     
-    delete itFind->second;
+    ConstructionQueueFIFO* cq = itFind->second;
+    delete cq->m_state;
+    delete cq;
     s_production_queues.erase(itFind);
   }
   
   uint32_t create(uint32_t city_id) {
     uint32_t queue_id = unique_id::generate();
-    s_production_queues[queue_id] = new ConstructionQueueFIFO(city_id);
+    ConstructionQueueFIFO* cq = new ConstructionQueueFIFO(city_id);
+    cq->m_state = new ConstructionState();
+    s_production_queues[queue_id] = cq;
     city::sub_raze_complete(production_cleanup);
     return queue_id;
   }
@@ -131,7 +157,10 @@ namespace production {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
 
-  void spawn_unit(CONSTRUCTION_TYPE type_id, City* city) {
+  void spawn_unit(CONSTRUCTION_TYPE type_id, uint32_t city_id) {
+    City* city = city::get_city(city_id);
+    if (!city) return;
+
     uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
@@ -150,6 +179,152 @@ namespace production {
       return;
     }
     player::add_unit(city->m_owner_id, unit_id);
+  }
+}
+
+namespace production_queue {
+  std::vector<CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO* cq) {
+    std::vector<CONSTRUCTION_TYPE> constructed;
+    for_each_construction_type([cq, &constructed](CONSTRUCTION_TYPE t) {
+      if (!cq->m_state->IsConstructed(t)) return;
+      constructed.push_back(t);
+    });
+    return std::move(constructed);
+  }
+
+  std::vector<CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO* cq) {
+    std::vector<CONSTRUCTION_TYPE> incomplete;
+    for_each_construction_type([cq, &incomplete](CONSTRUCTION_TYPE t) {
+      if (cq->m_state->IsConstructed(t)) return;
+      incomplete.push_back(t);
+    });
+    return std::move(incomplete);
+  }
+
+  std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO* cq) {
+    std::vector<CONSTRUCTION_TYPE> queue;
+    for (auto& q : cq->m_queue) {
+      queue.push_back(q->m_type);
+    }
+
+    return std::move(queue);
+  }
+
+  CONSTRUCTION_TYPE front(const ConstructionQueueFIFO* cq) {
+    if (cq->m_queue.empty()) return CONSTRUCTION_TYPE::UNKNOWN;
+    return cq->m_queue.front()->m_type;
+  }
+
+  bool built(const ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
+    return cq->m_state->IsConstructed(type_id);
+  }
+
+  TerrainYield yield(const ConstructionQueueFIFO* cq) {
+    TerrainYield ty;
+    ty.m_production = 1.f;
+
+    if (built(cq, CONSTRUCTION_TYPE::FORGE)) {
+      ty.m_production += 1.5f;
+    }
+    if (built(cq, CONSTRUCTION_TYPE::FACTORY)) {
+      ty.m_production += 10.0f;
+    }
+    if (built(cq, CONSTRUCTION_TYPE::GRANARY)) {
+      ty.m_food += 2.0f;
+    }
+
+    return ty;
+  }
+
+  void add(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
+    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+      std::cout << "Construction Add on unknown type" << std::endl;
+      return;
+    }
+
+    ConstructionOrder* order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
+    cq->m_queue.push_back(order);
+  }
+
+  void move(ConstructionQueueFIFO* cq, size_t src, size_t dest) {
+    if (src >= cq->m_queue.size()) {
+      std::cout << "Invalid source index, list swap aborted" << std::endl;
+      return;
+    }
+
+    if (dest >= cq->m_queue.size()) {
+      std::cout << "Invalid destination index, list swap aborted" << std::endl;
+      return;
+    }
+
+    std::list<ConstructionOrder*>::iterator itFrom = cq->m_queue.begin();
+    std::advance(itFrom, src);
+    ConstructionOrder* order = *itFrom;
+    cq->m_queue.erase(itFrom);
+
+    std::list<ConstructionOrder*>::iterator itTo = cq->m_queue.begin();
+    std::advance(itTo, dest);
+    cq->m_queue.insert(itTo, order);
+  }
+
+  void remove(ConstructionQueueFIFO* cq, size_t offset) {
+    if (offset >= cq->m_queue.size()) return;
+    std::list<ConstructionOrder*>::iterator itr = cq->m_queue.begin();
+    std::advance(itr, offset);
+    cq->m_queue.erase(itr);
+  }
+
+  void purchase(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
+    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+      std::cout << "Construction purchase on unknown type" << std::endl;
+      return;
+    }
+    
+    if (!production::construction_is_unique(type_id)) {
+      production::spawn_unit(type_id, cq->m_city_id);
+      return;
+    }
+
+    ConstructionOrder* order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
+    production::apply(order, 9999.f);
+  }
+
+  void sell(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
+    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+      std::cout << "Construction sale on unknown type" << std::endl;
+      return;
+    }
+
+    if (!production::construction_is_unique(type_id)) {
+      return;
+    }
+
+    cq->m_state->EraseConstruction(type_id);
+  }
+
+  void simulate(ConstructionQueueFIFO* cq, TerrainYield& t) {
+    cq->m_stockpile += t.m_production;
+    while (cq->m_queue.size() > 0) {
+      ConstructionOrder* order = cq->m_queue.front();
+      cq->m_stockpile = production::apply(order, cq->m_stockpile);
+      if (production::completed(order)) {
+        ConstructionOrder* completed = cq->m_queue.front();
+        std::cout << "Construction completed: " << get_construction_name(completed->m_type) << std::endl;
+        cq->m_queue.pop_front();
+        if (!production::construction_is_unique(order->m_type)) {
+          // Unit spawn
+          production::spawn_unit(completed->m_type, cq->m_city_id);
+          delete completed;
+        }
+      }
+      if (cq->m_stockpile < 1.f) {
+        break;
+      }
+    }
+
+    // Limit the city's reserve when no construction orders are given
+    //  The yield may have increased due to completed construction
+    cq->m_stockpile = std::min(cq->m_stockpile, t.m_production);
   }
 }
 
@@ -200,24 +375,6 @@ bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
   return production::completed(itFind->second);
 }
 
-std::vector<CONSTRUCTION_TYPE> ConstructionState::GetComplete() const {
-  std::vector<CONSTRUCTION_TYPE> constructed;
-  for_each_construction_type([this, &constructed] (CONSTRUCTION_TYPE t) {
-    if (!IsConstructed(t)) return;
-    constructed.push_back(t);
-  });
-  return std::move(constructed);
-}
-
-std::vector<CONSTRUCTION_TYPE> ConstructionState::GetIncomplete() const {
-  std::vector<CONSTRUCTION_TYPE> incomplete;
-  for_each_construction_type([this, &incomplete] (CONSTRUCTION_TYPE t) {
-    if (IsConstructed(t)) return;
-    incomplete.push_back(t);
-  });
-  return std::move(incomplete);
-}
-
 ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t city_id)
 : m_city_id(city_id)
 , m_stockpile(0.f)
@@ -225,146 +382,9 @@ ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t city_id)
   
 }
 
-std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Complete() const {
-  return std::move(m_state.GetComplete());
-}
-
-std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Incomplete() const {
-  return std::move(m_state.GetIncomplete());
-}
-
-std::vector<CONSTRUCTION_TYPE> ConstructionQueueFIFO::Queue() const {
-  std::vector<CONSTRUCTION_TYPE> queue;
-  for (auto& q : m_queue) {
-    queue.push_back(q->m_type);
-  }
-
-  return std::move(queue);
-}
-
-bool ConstructionQueueFIFO::Has(CONSTRUCTION_TYPE type_id) const {
-  return m_state.IsConstructed(type_id);
-}
-
-void ConstructionQueueFIFO::Add(CONSTRUCTION_TYPE type_id) {
-  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
-    std::cout << "Construction Add on unknown type" << std::endl;
-    return;
-  }
-
-  ConstructionOrder* order = m_state.GetConstruction(type_id, m_city_id);
-  m_queue.push_back(order);
-}
-
-void ConstructionQueueFIFO::Purchase(CONSTRUCTION_TYPE type_id, City* parent) {
-  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
-    std::cout << "Construction purchase on unknown type" << std::endl;
-    return;
-  }
-
-  if (!production::construction_is_unique(type_id)) {
-    production::spawn_unit(type_id, parent);
-    return;
-  }
-
-  ConstructionOrder* order = m_state.GetConstruction(type_id, parent->m_id);
-  production::apply(order, 9999.f);
-}
-
-void ConstructionQueueFIFO::Sell(CONSTRUCTION_TYPE type_id) {
-  if (type_id == CONSTRUCTION_TYPE::UNKNOWN) { 
-    std::cout << "Construction sale on unknown type" << std::endl;
-    return;
-  }
-  
-  if (!production::construction_is_unique(type_id)) {
-    return;
-  }
-
-  m_state.EraseConstruction(type_id);
-}
-
-CONSTRUCTION_TYPE ConstructionQueueFIFO::Current() {
-  if (m_queue.empty()) return CONSTRUCTION_TYPE::UNKNOWN;
-  return m_queue.front()->m_type;
-}
-
-void ConstructionQueueFIFO::Abort(size_t offset) {
-  if (offset >= m_queue.size()) return;
-  std::list<ConstructionOrder*>::iterator itr = m_queue.begin();
-  std::advance(itr, offset);
-  m_queue.erase(itr);
-}
-
-void ConstructionQueueFIFO::Move(size_t src, size_t dest) { 
-  if (src >= m_queue.size()) {
-    std::cout << "Invalid source index, list swap aborted" << std::endl;
-    return;
-  }
-
-  if (dest >= m_queue.size()) {
-    std::cout << "Invalid destination index, list swap aborted" << std::endl;
-    return;
-  }
-
-  std::list<ConstructionOrder*>::iterator itFrom = m_queue.begin();
-  std::advance(itFrom, src);
-  ConstructionOrder* order = *itFrom;
-  m_queue.erase(itFrom);
-
-  std::list<ConstructionOrder*>::iterator itTo = m_queue.begin();
-  std::advance(itTo, dest);
-  m_queue.insert(itTo, order);
-}
-
-size_t ConstructionQueueFIFO::Count() const {
-  return m_queue.size();
-}
-
-TerrainYield ConstructionQueueFIFO::DumpYields() const {
-  City* city = city::get_city(m_city_id);
-  return city->DumpYields();
-}
-
-void ConstructionQueueFIFO::MutateYield(TerrainYield& t) const {
- float yield = 1.f;
-  if (Has(CONSTRUCTION_TYPE::FORGE)) {
-    yield += 1.5f;
-  }
-  if (Has(CONSTRUCTION_TYPE::FACTORY)) {
-    yield += 10.0f;
-  }
-  t.m_production += yield;
-}
-
-void ConstructionQueueFIFO::Simulate(City* parent, TerrainYield& t) {
-  m_stockpile += t.m_production;
-  while (m_queue.size() > 0) {
-    ConstructionOrder* order = m_queue.front();
-    m_stockpile = production::apply(order, m_stockpile);
-    if (production::completed(order)) {
-      ConstructionOrder* completed = m_queue.front();
-      std::cout << "Construction completed: " << get_construction_name(completed->m_type) << std::endl;
-      m_queue.pop_front();
-      if (!production::construction_is_unique(order->m_type)) {
-        // Unit spawn
-        production::spawn_unit(completed->m_type, parent);
-        delete completed;
-      }
-    }
-    if (m_stockpile < 1.f) {
-      return;
-    }
-  }
-  
-  // Limit the city's reserve when no construction orders are given
-  //  The yield may have increased due to completed construction
-  m_stockpile = std::min(m_stockpile, t.m_production);
-}
-
 std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
   out << "    Production: (stockpile " << fifo.m_stockpile << ")" << std::endl;
-  out << fifo.m_state;
+  out << *fifo.m_state;
   if (fifo.m_queue.empty()) return out;
 
   out << "    --Queued--" << std::endl;

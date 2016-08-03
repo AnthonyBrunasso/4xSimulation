@@ -15,7 +15,6 @@ class ConstructionOrder;
 class ConstructionState;
 struct TerrainYield;
 
-typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
 typedef std::list<ConstructionOrder*> ConstructionList;
 
 namespace production {
@@ -41,28 +40,22 @@ namespace production {
   void sub_create(const UnitCreationCallback&);
 }
 
-class ConstructionState
-{
-public:
-  ConstructionState();
-  ~ConstructionState();
-  ConstructionState(ConstructionState&&) = default;
+namespace production_queue {
+  std::vector<CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO*);
+  std::vector<CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO*);
+  std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO*);
+  
+  CONSTRUCTION_TYPE front(const ConstructionQueueFIFO*);
+  bool built(const ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  TerrainYield yield(const ConstructionQueueFIFO*);
 
-  ConstructionState(const ConstructionState&) = delete;
-  ConstructionState& operator=(const ConstructionState&) = delete;
-
-  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id);
-  bool EraseConstruction(CONSTRUCTION_TYPE type_id);
-  bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
-  std::vector<CONSTRUCTION_TYPE> GetComplete() const;
-  std::vector<CONSTRUCTION_TYPE> GetIncomplete() const;
-
-private:
-  friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
-
-  ConstructionUMap m_constructions;
-};
-
+  void add(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  void move(ConstructionQueueFIFO*, size_t, size_t);
+  void remove(ConstructionQueueFIFO*, size_t);
+  void purchase(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  void sell(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  void simulate(ConstructionQueueFIFO*, TerrainYield& t);
+}
 
 class ConstructionQueueFIFO
 {
@@ -73,31 +66,12 @@ public:
   ConstructionQueueFIFO(const ConstructionQueueFIFO&) = delete;
   ConstructionQueueFIFO& operator=(const ConstructionQueueFIFO&) = delete;
 
-  std::vector<CONSTRUCTION_TYPE> Complete() const;
-  std::vector<CONSTRUCTION_TYPE> Incomplete() const;
-  std::vector<CONSTRUCTION_TYPE> Queue() const;
-
-  bool Has(CONSTRUCTION_TYPE type_id) const;
-  void Add(CONSTRUCTION_TYPE type_id);
-  void Purchase(CONSTRUCTION_TYPE type_id, City* parent);
-  void Sell(CONSTRUCTION_TYPE type_id);
-  CONSTRUCTION_TYPE Current();
-
-  void Abort(size_t offset);
-  void Move(size_t src, size_t dest);
-  size_t Count() const;
-
-  TerrainYield DumpYields() const;
-  void MutateYield(TerrainYield&) const;
-  void Simulate(City* parent, TerrainYield&);
-
   uint32_t m_city_id;
   ConstructionList m_queue;
-  ConstructionState m_state;
+  ConstructionState* m_state;
   // When nothing is queued, the city can store limited production for future work
   float m_stockpile;
 };
 
 std::ostream& operator<<(std::ostream&, const ConstructionQueueFIFO&);
-std::ostream& operator<<(std::ostream&, const ConstructionState&);
 
