@@ -1,4 +1,4 @@
-#include "units.h"
+#include "unit.h"
 
 #include "unique_id.h"
 #include "tile.h"
@@ -20,7 +20,7 @@ namespace {
   SubMap s_create_subs;
 }
 
-uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
+uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
   Player* player = player::get_player(player_id);
   if (!player) {
     return 0;
@@ -49,11 +49,11 @@ uint32_t units::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32
   return id;
 }
 
-void units::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+void unit::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
   s_create_subs.push_back(sub);
 }
 
-void units::destroy(uint32_t id) {
+void unit::destroy(uint32_t id) {
   Unit* unit = get_unit(id);
   if (!unit) {
     return;
@@ -64,15 +64,15 @@ void units::destroy(uint32_t id) {
     sub(unit->m_location, id);
   }
 
-  s_units.erase(unit->m_unique_id);
+  s_units.erase(unit->m_id);
   delete unit;
 }
 
-void units::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+void unit::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
   s_destroy_subs.push_back(sub);
 }
 
-Unit* units::get_unit(uint32_t id) {
+Unit* unit::get_unit(uint32_t id) {
   if (s_units.find(id) == s_units.end()) {
     return nullptr;
   }
@@ -80,13 +80,13 @@ Unit* units::get_unit(uint32_t id) {
   return s_units[id];
 }
 
-void units::for_each_unit(std::function<void(const Unit& unit)> operation) {
+void unit::for_each_unit(std::function<void(const Unit& unit)> operation) {
   for (auto unit : s_units) {
     operation(*unit.second);
   }
 }
 
-void units::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
+void unit::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
   Unit* unit = get_unit(id);
   if (!unit) {
     return;
@@ -96,14 +96,14 @@ void units::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
   std::cout << "Path size: " << unit->m_path.size() << std::endl;
 }
 
-void units::replenish_actions() {
+void unit::replenish_actions() {
   std::cout << "Replentish action points" << std::endl;
   for (auto unit : s_units) {
     unit.second->m_action_points = unit.second->m_max_actions;
   }
 }
 
-bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
+bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
   Unit* attacker = get_unit(attacker_id);
   Unit* defender = get_unit(defender_id);
 
@@ -140,7 +140,7 @@ bool units::combat(uint32_t attacker_id, uint32_t defender_id) {
   return result;
 }
 
-void units::damage(uint32_t receiver_id, float amount) {
+void unit::damage(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return;
 
@@ -152,7 +152,7 @@ void units::damage(uint32_t receiver_id, float amount) {
   }
 }
 
-void units::heal(uint32_t receiver_id, float amount) {
+void unit::heal(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return;
   CombatStats* stats = unit_definitions::get(receiver->m_unit_type);
@@ -161,13 +161,13 @@ void units::heal(uint32_t receiver_id, float amount) {
   receiver->m_combat_stats.m_health = new_health;
 }
 
-void units::change_direction(uint32_t id, const sf::Vector3i& target) {
+void unit::change_direction(uint32_t id, const sf::Vector3i& target) {
   Unit* u = get_unit(id);
   if (!u) return;
   u->m_direction = target - u->m_location;
 }
 
-void units::clear() {
+void unit::clear() {
   for (auto unit : s_units) {
     delete unit.second;
   }

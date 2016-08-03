@@ -2,10 +2,10 @@
 
 #include "city.h"
 #include "tile.h"
-#include "units.h"
+#include "unit.h"
 #include "player.h"
 #include "combat.h"
-#include "improvements.h"
+#include "improvement.h"
 #include "resources.h"
 #include "status_effect.h"
 #include "Vector2.hpp"

@@ -53,7 +53,7 @@ std::string format::tile(const Tile& tile) {
 std::string format::unit(const Unit& unit) {
   std::stringstream ss;
 
-  ss << "unique id: " << unit.m_unique_id << std::endl
+  ss << "unique id: " << unit.m_id << std::endl
      << " unit name: " << get_unit_name(unit.m_unit_type) << std::endl
      << " location: " << format::vector3(unit.m_location) << std::endl
      << " actions: " << unit.m_action_points << std::endl
@@ -152,7 +152,7 @@ std::string format::resource(const Resource& resource) {
 std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 
-  ss << "Unique id: " << improvement.m_unique_id << std::endl;
+  ss << "Unique id: " << improvement.m_id << std::endl;
   ss << " resource: " << get_resource_name(improvement.m_resource.m_type) << std::endl;
   ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;

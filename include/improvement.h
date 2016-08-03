@@ -12,7 +12,7 @@ enum class IMPROVEMENT_TYPE;
 struct Improvement {
   Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type);
 
-  uint32_t m_unique_id;
+  uint32_t m_id;
   Resource m_resource;
   IMPROVEMENT_TYPE m_type;
   // This is the player that owns this resource

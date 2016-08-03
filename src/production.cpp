@@ -3,7 +3,7 @@
 #include "production_detail.h"
 #include "city.h"
 #include "player.h"
-#include "units.h"
+#include "unit.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 
@@ -164,16 +164,16 @@ namespace production {
     uint32_t unit_id;
     switch (type_id) {
     case CONSTRUCTION_TYPE::SCOUT:
-      unit_id = units::create(UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
+      unit_id = unit::create(UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::RANGE:
-      unit_id = units::create(UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
+      unit_id = unit::create(UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::MELEE:
-      unit_id = units::create(UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
+      unit_id = unit::create(UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
       break;
     case CONSTRUCTION_TYPE::WORKER:
-      unit_id = units::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
+      unit_id = unit::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
       break;
     default:
       return;

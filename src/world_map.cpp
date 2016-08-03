@@ -2,11 +2,11 @@
 
 #include "search.h"
 #include "tile.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
 #include "unique_id.h"
 #include "format.h"
-#include "improvements.h"
+#include "improvement.h"
 #include "tile_costs.h"
 #include "player.h"
 #include "ai_barbarians.h"
@@ -131,11 +131,11 @@ namespace {
 
     // Check if this tile already contains a resource improvement.
     for (auto id : tile->m_unit_ids) {
-      Unit* unit = units::get_unit(id);
+      Unit* unit = unit::get_unit(id);
       if (!unit) continue;
       if (unit->m_unit_type == UNIT_TYPE::WORKER) {
         // Get the player and check that the player owns this unit.
-        if (player->OwnsUnit(unit->m_unique_id)) {
+        if (player->OwnsUnit(unit->m_id)) {
           return true;
         }
       }
@@ -147,9 +147,9 @@ namespace {
   }
 
   void subscribe_to_events() {
-    units::sub_create(unit_create);
+    unit::sub_create(unit_create);
     city::sub_create(city_create);
-    units::sub_destroy(unit_destroy);
+    unit::sub_destroy(unit_destroy);
     city::sub_raze_complete(city_raze);
     improvement::sub_create(improvement_create);
     improvement::sub_destroy(improvement_destroy);
@@ -255,7 +255,7 @@ bool world_map::add_unit(const sf::Vector3i& location, uint32_t unit_id) {
 }
 
 uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
-  Unit* unit = units::get_unit(unit_id);
+  Unit* unit = unit::get_unit(unit_id);
   if (!unit) {
     return 0;
   }
@@ -269,16 +269,16 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
       return moved;
     }
     // Remove unit from it's current standing place
-    remove_unit(unit->m_location, unit->m_unique_id);
+    remove_unit(unit->m_location, unit->m_id);
     // Move it to new tile
-    std::cout << "Unit " << unit->m_unique_id << " (id) moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
+    std::cout << "Unit " << unit->m_id << " (id) moved from: " << format::vector3(unit->m_location) << " to: " << format::vector3(unit->m_path[0]) << std::endl;
     sf::Vector3i difference = unit->m_path[0] - unit->m_location;
     unit->m_direction = difference;
     unit->m_location = unit->m_path[0];
     Player* player = player::get_player(unit->m_owner_id);
     if (next->m_discover_bonus) {
       next->m_discover_bonus = false;
-      std::cout << " Unit " << unit->m_unique_id << " discovered a magical relic! Your civilization gains 50 gold." << std::endl;
+      std::cout << " Unit " << unit->m_id << " discovered a magical relic! Your civilization gains 50 gold." << std::endl;
       if (player) {
         player->m_gold += 50.f;
       }
@@ -290,7 +290,7 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
       };
       search::bfs(unit->m_location, 2, world_map::get_map(), fp);
     }
-    next->m_unit_ids.push_back(unit->m_unique_id);
+    next->m_unit_ids.push_back(unit->m_id);
     // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
     unit->m_path.erase(unit->m_path.begin());
     ++moved;

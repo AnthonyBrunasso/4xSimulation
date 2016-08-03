@@ -122,7 +122,7 @@ void Explore::operator()(uint32_t player_id) {
     sf::Vector3i coord = get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
     MoveStep move_step;
-    move_step.set_unit_id(unit.m_unique_id);
+    move_step.set_unit_id(unit.m_id);
     move_step.set_destination(coord);
     move_step.set_player(player_id);
     move_step.set_immediate(true);
@@ -131,8 +131,8 @@ void Explore::operator()(uint32_t player_id) {
 }
 
 bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
-  Unit* tu = units::get_unit(target_id);
+  Unit* su = unit::get_unit(unit_id);
+  Unit* tu = unit::get_unit(target_id);
   if (!su || !tu) {
     if (!tu) std::cout << "Target is gone id: " << target_id << std::endl;
     return false; 
@@ -169,8 +169,8 @@ void approach(uint32_t unit_id,
 
 
 bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
-  Unit* tu = units::get_unit(target_id);
+  Unit* su = unit::get_unit(unit_id);
+  Unit* tu = unit::get_unit(target_id);
   if (!su || !tu) {
     if (!tu) std::cout << "Target unit is gone id: " << target_id << std::endl;
     return false; 
@@ -183,7 +183,7 @@ bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
 }
 
 bool approach_city(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
+  Unit* su = unit::get_unit(unit_id);
   City* tc = city::get_city(target_id);
   if (!su || !tc) {
     if (!tc) std::cout << "Target city is gone id: " << target_id << std::endl;
@@ -195,7 +195,7 @@ bool approach_city(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
 }
 
 bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
+  Unit* su = unit::get_unit(unit_id);
   Improvement* ti = improvement::get_improvement(target_id);
   if (!su || !ti) {
     if (!ti) std::cout << "Target improvement is gone id: " << target_id << std::endl;
@@ -217,7 +217,7 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
 }
 
 bool wander(uint32_t unit_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
+  Unit* su = unit::get_unit(unit_id);
   if (!su) {
     return false;
   }
@@ -234,7 +234,7 @@ bool wander(uint32_t unit_id, uint32_t player_id) {
 }
 
 bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = units::get_unit(unit_id);
+  Unit* su = unit::get_unit(unit_id);
   Improvement* ti = improvement::get_improvement(target_id);
   if (!su || !ti) {
     if (!ti) std::cout << "Target improvement is gone id: " << target_id << std::endl;

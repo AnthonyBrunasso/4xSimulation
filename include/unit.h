@@ -13,7 +13,7 @@ class Unit {
 public:
   Unit(uint32_t unique_id, UNIT_TYPE UNIT_TYPE) 
     : m_unit_type(UNIT_TYPE)
-    , m_unique_id(unique_id)
+    , m_id(unique_id)
     , m_location()
     , m_path()
     , m_max_actions(3)
@@ -25,7 +25,7 @@ public:
     , m_direction(util::get_direction(DIRECTION_TYPE::EAST)){};
 
   UNIT_TYPE m_unit_type;
-  uint32_t m_unique_id;
+  uint32_t m_id;
   sf::Vector3i m_location;
   // Current path the unit is on, size is 0 if the unit is not moving
   std::vector<sf::Vector3i> m_path;
@@ -39,7 +39,7 @@ public:
   sf::Vector3i m_direction;
 };
 
-namespace units {
+namespace unit {
   uint32_t create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);

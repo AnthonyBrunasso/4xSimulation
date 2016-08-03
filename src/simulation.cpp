@@ -1,7 +1,7 @@
 #include "simulation.h"
 
 #include "search.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
 #include "format.h"
 #include "world_map.h"
@@ -11,7 +11,7 @@
 #include "production.h"
 #include "unit_definitions.h"
 #include "unique_id.h"
-#include "improvements.h"
+#include "improvement.h"
 #include "game_types.h"
 #include "terrain_yield.h"
 #include "ai_barbarians.h"
@@ -57,7 +57,7 @@ namespace simulation {
     UnitMovementVector still_moving;
     for (auto unit_id : units_to_move) {
       // Make sure the unit continues to exist
-      Unit* unit = units::get_unit(unit_id);
+      Unit* unit = unit::get_unit(unit_id);
       if (!unit) {
         std::cout << "Dropping dead unit " << unit_id << " (id) from movement. " << std::endl;
         continue;
@@ -100,7 +100,7 @@ namespace simulation {
             // If this player doesn't own the unit return true.
             if (!current->OwnsUnit(id)) {
               // Get that unit
-              Unit* other = units::get_unit(id);
+              Unit* other = unit::get_unit(id);
               // Already discovered the player.
               if (current->DiscoveredPlayer(other->m_owner_id)) return false;
               Player* found_player = player::get_player(other->m_owner_id);
@@ -130,31 +130,31 @@ namespace simulation {
 
   void update_combat() {
     for (auto pair : s_units_to_fight) {
-      Unit* unit = units::get_unit(pair.first);
+      Unit* unit = unit::get_unit(pair.first);
       if (!unit) {
         continue;
       }
 
-      Unit* defender = units::get_unit(pair.second);
+      Unit* defender = unit::get_unit(pair.second);
       if (!defender) {
         continue;
       }
 
       if (!unit->m_action_points) {
-        std::cout << "Unit " << unit->m_unique_id << " (id) is too exhausted to initiate combat. " << std::endl;
+        std::cout << "Unit " << unit->m_id << " (id) is too exhausted to initiate combat. " << std::endl;
         continue;
       }
 
       // Attacker faces defender on combat initiation.
-      units::change_direction(pair.first, defender->m_location);
+      unit::change_direction(pair.first, defender->m_location);
 
       // If combat occurs deplete action points from the initiator
-      if (units::combat(pair.first, pair.second)) {
+      if (unit::combat(pair.first, pair.second)) {
         unit->m_action_points = 0;
       }
 
       // Defender turns to face attacker after combat.
-      units::change_direction(pair.second, unit->m_location);
+      unit::change_direction(pair.second, unit->m_location);
     }
 
     // Attacks should all complete in a single step?
@@ -203,7 +203,7 @@ namespace simulation {
   }
 
   void phase_restore_actions() {
-    units::replenish_actions();
+    unit::replenish_actions();
     auto replentish_cities = [](City& c) {
       c.m_defenses_used = false;
     };
@@ -283,11 +283,11 @@ namespace simulation {
     std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(location) << std::endl;
     Tile* t = world_map::get_tile(location);
     for (auto uid : t->m_unit_ids) {
-      Unit* u = units::get_unit(uid);
+      Unit* u = unit::get_unit(uid);
       if (!u) continue;
       // Consume the unit that built the city.
       if (u->m_unit_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
-        units::destroy(u->m_unique_id);
+        unit::destroy(u->m_id);
         break;
       }
     }
@@ -313,7 +313,7 @@ namespace simulation {
     uint32_t unit_id = 0;
     for (; i < tile->m_unit_ids.size(); ++i) {
       unit_id = tile->m_unit_ids[i];
-      unit = units::get_unit(unit_id);
+      unit = unit::get_unit(unit_id);
       if (!unit) continue;
       if (!unit->m_action_points) continue;
       if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
@@ -346,7 +346,7 @@ namespace simulation {
       uint32_t id = improvement::create(res, impv, location, pid);
 
       if (id) {
-        Unit* u = units::get_unit(unit_id);
+        Unit* u = unit::get_unit(unit_id);
         if (!u) { 
           std::cout << "unit no longer exists." << std::endl;
           return;
@@ -471,7 +471,7 @@ namespace simulation {
     KillStep kill_step;
     deserialize(buffer, buffer_len, kill_step);
 
-    units::destroy(kill_step.get_unit_id());
+    unit::destroy(kill_step.get_unit_id());
     std::cout << kill_step.get_unit_id() << " (id) has been slain." << std::endl;
   }
 
@@ -481,7 +481,7 @@ namespace simulation {
 
     Player* player = player::get_player(pillage_step.get_player());
     if (!player) return "Invalid player";
-    Unit* unit = units::get_unit(pillage_step.get_unit());
+    Unit* unit = unit::get_unit(pillage_step.get_unit());
     if (!unit) return "Invalid unit";
     Tile* tile = world_map::get_tile(unit->m_location);
     if (!tile) return "Invalid tile";
@@ -490,9 +490,9 @@ namespace simulation {
       Improvement* improvement = improvement::get_improvement(impId);
       if (!improvement) continue;
       if (improvement->m_owner_id == unit->m_owner_id) continue;
-      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_unique_id << "!" << std::endl;
-      improvement::destroy(improvement->m_unique_id);
-      units::heal(unit->m_unique_id, 6.f);
+      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_id << "!" << std::endl;
+      improvement::destroy(improvement->m_id);
+      unit::heal(unit->m_id, 6.f);
       unit->m_action_points = 0;
     }
     return "";
@@ -506,7 +506,7 @@ namespace simulation {
     if (!player) return "Invalid player";
     Tile* tile = world_map::get_tile(spawn_step.get_location());
     if (!tile) return "Invalid location";
-    units::create(static_cast<UNIT_TYPE>(spawn_step.get_unit_type()), spawn_step.get_location(), spawn_step.get_player());
+    unit::create(static_cast<UNIT_TYPE>(spawn_step.get_unit_type()), spawn_step.get_location(), spawn_step.get_player());
     return "Unit created";
   }
 
@@ -522,7 +522,7 @@ namespace simulation {
       return true;
     };
     Player* player = player::get_player(move_step.get_player());
-    Unit* unit = units::get_unit(unitId);
+    Unit* unit = unit::get_unit(unitId);
     if (!player) {
       std::cout << "Invalid player" << std::endl;
       return nullptr;
@@ -553,7 +553,7 @@ namespace simulation {
       }
     }
     // Set path
-    units::set_path(unit->m_unique_id, path);
+    unit::set_path(unit->m_id, path);
     return unit;
   }
 
@@ -594,12 +594,12 @@ namespace simulation {
 
     if (move_step.get_immediate()) {
       UnitMovementVector units_to_move;
-      units_to_move.push_back(unit->m_unique_id);
+      units_to_move.push_back(unit->m_id);
       while (step_move(units_to_move, unit->m_owner_id)) {
       }
     }
     // Queue it for continued movement, unit will remove itself if it is done moving
-    s_units_to_move.push_back(unit->m_unique_id);
+    s_units_to_move.push_back(unit->m_id);
   }
 
   std::string execute_purchase(const void* buffer, size_t buffer_len) {
@@ -683,9 +683,9 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(siege_step.get_city());
     if(!city) return "Invalid City";
-    Unit* unit = units::get_unit(siege_step.get_unit());
+    Unit* unit = unit::get_unit(siege_step.get_unit());
     if (!unit) return "Invalid Unit";
-    if (!player->OwnsUnit(unit->m_unique_id)) return "Player doesn't own unit";
+    if (!player->OwnsUnit(unit->m_id)) return "Player doesn't own unit";
     Tile* tile = world_map::get_tile(city->m_location);
     if (!tile) return "Invalid City Location";
     if (unit->m_action_points == 0) return "Unit is exhausted.";
@@ -761,7 +761,7 @@ namespace simulation {
     UnitStatsStep stats_step;
     deserialize(buffer, buffer_len, stats_step);
 
-    Unit* unit = units::get_unit(stats_step.get_unit_id());
+    Unit* unit = unit::get_unit(stats_step.get_unit_id());
     if (!unit) {
       return;
     }
@@ -778,7 +778,7 @@ namespace simulation {
 
     Player* player = player::get_player(city_defense_step.get_player());
     if(!player) return "Invalid Player";
-    Unit* unit = units::get_unit(city_defense_step.get_unit());
+    Unit* unit = unit::get_unit(city_defense_step.get_unit());
     if(!unit) return "Invalid Unit";
     uint32_t cityId = 0;
     auto find_defending_city = [player, &cityId](const City& city) {
@@ -792,8 +792,8 @@ namespace simulation {
     City* city = city::get_city(cityId);
     if(!city) return "No valid city found";
     city->m_defenses_used = true;
-    std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_unique_id << std::endl;
-    units::damage(unit->m_unique_id, 4.f);
+    std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_id << std::endl;
+    unit::damage(unit->m_id, 4.f);
     
     return "";
   }
@@ -811,7 +811,7 @@ void simulation::start() {
 }
 
 void simulation::kill() {
-  units::clear();
+  unit::clear();
   city::clear();
   science::shutdown();
 }

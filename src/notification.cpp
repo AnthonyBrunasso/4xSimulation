@@ -1,7 +1,7 @@
 #include "notification.h"
 #include "game_types.h"
 #include "player.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
 #include <sstream>
 
@@ -20,7 +20,7 @@ namespace notification {
       if (u.m_path.empty() && u.m_action_points > 0) {
         Notification n;
         n.m_event_type = NOTIFICATION_TYPE::UNIT_IDLE;
-        n.m_id = u.m_unique_id;
+        n.m_id = u.m_id;
         events.push_back(n);
       }
     });

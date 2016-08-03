@@ -265,7 +265,7 @@ namespace terminal  {
 
     terminal::add_query("units", "units", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      units::for_each_unit([](const Unit& unit) {
+      unit::for_each_unit([](const Unit& unit) {
         std::cout << format::unit(unit) << std::endl;
       });
       return true;
@@ -273,7 +273,7 @@ namespace terminal  {
 
     terminal::add_query("unit", "unit <unitId>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(2, tokens);
-      Unit* unit = units::get_unit(std::stoul(tokens[1]));
+      Unit* unit = unit::get_unit(std::stoul(tokens[1]));
       if (!unit) {
         std::cout << "id: " << tokens[1] << " does not exist" << std::endl;
         return true;

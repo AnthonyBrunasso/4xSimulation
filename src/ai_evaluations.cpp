@@ -6,9 +6,9 @@
 #include "tile.h"
 #include "search.h"
 #include "world_map.h"
-#include "units.h"
+#include "unit.h"
 #include "hex.h"
-#include "improvements.h"
+#include "improvement.h"
 
 #include <iostream>
 
@@ -133,7 +133,7 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
       }
      
       // Otherwise just go towards it.
-      state->add_order(owned_unit.m_unique_id, unit.m_unique_id, order);
+      state->add_order(owned_unit.m_id, unit.m_id, order);
       return true;
     };
 
@@ -150,7 +150,7 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
         order = AI_ORDER_TYPE::PILLAGE_IMPROVEMENT;
       }
 
-      state->add_order(owned_unit.m_unique_id, i.m_unique_id, order);
+      state->add_order(owned_unit.m_id, i.m_id, order);
       return true;
     };
    
@@ -161,7 +161,7 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
       }
 
       // Attacking cities not implemented yet. Approach it.
-      state->add_order(owned_unit.m_unique_id, c.m_id, AI_ORDER_TYPE::APPROACH_CITY);
+      state->add_order(owned_unit.m_id, c.m_id, AI_ORDER_TYPE::APPROACH_CITY);
       return true;
     };
     // Approach or attack the found unit up to 4 range.
@@ -179,7 +179,7 @@ float UnitEvaluation::operator()(uint32_t player_id, float threshold) {
     }
 
     // Otherwise wander.
-    state->add_order(owned_unit.m_unique_id, 0, AI_ORDER_TYPE::WANDER);
+    state->add_order(owned_unit.m_id, 0, AI_ORDER_TYPE::WANDER);
   };
 
   player::for_each_player_unit(player_id, check_proximity);

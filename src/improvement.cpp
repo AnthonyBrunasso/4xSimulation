@@ -1,4 +1,4 @@
-#include "improvements.h"
+#include "improvement.h"
 
 #include "unique_id.h"
 #include "util.h"
@@ -52,7 +52,7 @@ void improvement::initialize() {
 }
 
 Improvement::Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type) 
-  : m_unique_id(unique_id)
+  : m_id(unique_id)
   , m_resource(res)
   , m_type(type)
   , m_owner_id(unique_id::INVALID_ID)

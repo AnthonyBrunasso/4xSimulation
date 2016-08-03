@@ -321,7 +321,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
       Notification n;
       n.m_event_type = NOTIFICATION_TYPE::CITY_DEFENSE;
       n.m_id = c->m_id;
-      n.m_other_id = u.m_unique_id;
+      n.m_other_id = u.m_id;
       events.push_back(n);
       return true;
     }

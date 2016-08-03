@@ -1,7 +1,7 @@
 #include "player.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
-#include "improvements.h"
+#include "improvement.h"
 
 #include <iostream>
 #include <vector>
@@ -22,7 +22,7 @@ Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_typ
     , m_ai_state(nullptr)
 {
   // Remove unit when notified
-  units::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
+  unit::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
     if (!this->OwnsUnit(id)) {
       return;
     }
@@ -175,7 +175,7 @@ void player::for_each_player_unit(uint32_t player_id, std::function<void(Unit& u
     return;
   }
   for (auto u : player->m_units) {
-    Unit* unit = units::get_unit(u);
+    Unit* unit = unit::get_unit(u);
     if (!unit) {
       continue;
     }

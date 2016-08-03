@@ -3,9 +3,9 @@
 #include "hex.h"
 #include "tile.h"
 #include "format.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
-#include "improvements.h"
+#include "improvement.h"
 #include "resources.h"
 
 #include <algorithm>
@@ -206,7 +206,7 @@ bool search::bfs_units(const sf::Vector3i& start,
     if (tile.m_unit_ids.empty()) return false;
     bool result = false;
     for (auto id : tile.m_unit_ids) {
-      Unit* unit = units::get_unit(id);
+      Unit* unit = unit::get_unit(id);
       if (!unit) continue;
       result |= comparator(*unit); 
     }

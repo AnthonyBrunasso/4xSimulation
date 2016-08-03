@@ -2,7 +2,7 @@
 
 #include "format.h"
 #include "tile.h"
-#include "units.h"
+#include "unit.h"
 #include "city.h"
 #include "world_map.h"
 #include "search.h"
@@ -21,7 +21,7 @@ namespace {
 
   void spread_units(Tile& tile, std::vector<uint32_t>& units) {
     for (auto u : tile.m_unit_ids) {
-      if (!units::get_unit(u)) continue;
+      if (!unit::get_unit(u)) continue;
       units.push_back(u);
     }
   }
@@ -52,7 +52,7 @@ namespace {
 
     void per_turn() override {
       for (auto id : m_units) {
-        Unit* u = units::get_unit(id);
+        Unit* u = unit::get_unit(id);
         if (!u) continue;
         u->m_action_points = 0;
       }
@@ -80,7 +80,7 @@ namespace {
 
     void per_turn() override {
       for (auto u : m_units) {
-        Unit* unit = units::get_unit(u);
+        Unit* unit = unit::get_unit(u);
         if (!unit) continue;
         if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
         // Workers get depleted action points per turn.

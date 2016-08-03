@@ -3,7 +3,7 @@
 #include "tile.h"
 #include "world_map.h"
 #include "util.h"
-#include "units.h"
+#include "unit.h"
 #include "search.h"
 #include "player.h"
 #include "world_map.h"
@@ -43,7 +43,7 @@ namespace {
     for (auto id : tile->m_unit_ids) {
       // Rain ze fire.
       std::cout << "Casting " << get_magic_name(type) << " upon unit " << id << std::endl;
-      units::damage(id, dmg);
+      unit::damage(id, dmg);
     }
   }
 }
