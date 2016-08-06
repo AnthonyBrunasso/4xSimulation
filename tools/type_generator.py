@@ -7,7 +7,7 @@ def generate_gametype(game_type, object_types, target_file):
   type_name = game_type.upper() + "_TYPE"
   param_name = game_type.lower()
   # Give all generated enums an unknown at id 0.
-  object_types.append(["Unknown", 0, "UNKNOWN"])
+  object_types.insert(0, ["Unknown", 0, "UNKNOWN"])
 
   # Declare enum.
   target_file.write("""\nenum class %(type_name)s {\n""" % {
@@ -50,6 +50,16 @@ def generate_gametype(game_type, object_types, target_file):
   'enum' : str(type_name + "::" + otype[2])}) 
   target_file.write("  };\n")
   target_file.write("  for (auto type : enums) operation(type);\n}\n")
+
+  target_file.write("\ninline const char** get_{0}_names() {{\n".format(param_name))
+  target_file.write("  static const char* items[] = {\n");
+  for otype in object_types:
+    target_file.write("""    %(enum)s,\n""" % {
+      'enum' : str('"' + otype[0] + '"')})
+  target_file.write("  };\n")
+  target_file.write("  return items;\n}\n");
+
+  target_file.write("\ninline unsigned int get_{0}_count() {{ return {1}; }}\n".format(param_name, len(object_types)))
 
 def write_file(name):
   target_file = open(name, 'w')
