@@ -43,7 +43,7 @@ namespace unit {
   uint32_t create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
-  void destroy(uint32_t entity_id);
+  bool destroy(uint32_t entity_id);
   // Subscribe to destruction of a unit
   void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   Unit* get_unit(uint32_t id);
@@ -55,7 +55,8 @@ namespace unit {
   void replenish_actions();
 
   bool combat(uint32_t attacker_id, uint32_t defender_id);
-  void damage(uint32_t receiver_id, float amount);
+  // Returns false of the unit damaged is still alive, true if it died.
+  bool damage(uint32_t receiver_id, float amount);
   void heal(uint32_t receiver_id, float amount);
 
   // Changes directoin towards target, doesn't normalize direction.

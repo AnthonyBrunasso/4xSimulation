@@ -53,10 +53,10 @@ void unit::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
   s_create_subs.push_back(sub);
 }
 
-void unit::destroy(uint32_t id) {
+bool unit::destroy(uint32_t id) {
   Unit* unit = get_unit(id);
   if (!unit) {
-    return;
+    return false;
   }
 
   // Notify all subscribers of unit death with its location and unique id
@@ -66,6 +66,7 @@ void unit::destroy(uint32_t id) {
 
   s_units.erase(unit->m_id);
   delete unit;
+  return true;
 }
 
 void unit::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
@@ -140,16 +141,18 @@ bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
   return result;
 }
 
-void unit::damage(uint32_t receiver_id, float amount) {
+bool unit::damage(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
-  if(!receiver) return;
+  if(!receiver) return false;
 
   float damage_delt = std::min(amount, receiver->m_combat_stats.m_health);
   receiver->m_combat_stats.m_health -= damage_delt;
   if (receiver->m_combat_stats.m_health == 0) {
     std::cout << "Unit " << receiver_id << " received lethal damage." << std::endl;
-    destroy(receiver_id);
+    return destroy(receiver_id);
   }
+
+  return false;
 }
 
 void unit::heal(uint32_t receiver_id, float amount) {

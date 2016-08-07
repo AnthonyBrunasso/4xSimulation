@@ -43,7 +43,8 @@ namespace {
     for (auto id : tile->m_unit_ids) {
       // Rain ze fire.
       std::cout << "Casting " << get_magic_name(type) << " upon unit " << id << std::endl;
-      unit::damage(id, dmg);
+      // If a unit died, jump out since tile->m_unit_ids will mutate.
+      if (unit::damage(id, dmg)) break;
     }
   }
 }
