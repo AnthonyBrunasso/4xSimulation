@@ -33,6 +33,7 @@ public:
   bool RemoveHarvest(sf::Vector3i& );
   void RemoveAllHarvest();
 
+  float MaxHealth() const;
   float IdleWorkers() const;
   float GetPopulation() const;
   float FoodForSustain() const;

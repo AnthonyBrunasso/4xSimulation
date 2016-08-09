@@ -61,7 +61,7 @@ bool City::SetSpecialization(TERRAIN_TYPE type) {
 void City::Siege(float damage) {
   m_damage += damage;
   std::cout << "This city (" << m_id << ") has taken " << m_damage << " damage." << std::endl;
-  if (m_damage > GetPopulation()*10.f) {
+  if (m_damage > MaxHealth()) {
     std::cout << "This city (" << m_id << ") has begun to burn to the ground." << std::endl;
     m_razing = true;
     city::notify_raze_init(*this);
@@ -148,6 +148,10 @@ void City::RemoveAllHarvest() {
   for (size_t i = 0; i < m_yield_tiles.size(); ++i) {
     terrain_yield::remove_harvest(m_yield_tiles[i]);
   }
+}
+
+float City::MaxHealth() const {
+  return GetPopulation()*10.f;
 }
 
 float City::IdleWorkers() const {
