@@ -415,3 +415,7 @@ uint32_t step_parser::get_active_player_id() {
   return s_active_player;
 }
 
+void step_parser::set_active_player_id(uint32_t player_id) {
+  s_active_player = player_id;
+}
+
