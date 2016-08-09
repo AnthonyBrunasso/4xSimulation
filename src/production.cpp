@@ -200,7 +200,22 @@ namespace production_queue {
     });
     return std::move(incomplete);
   }
-
+  
+  std::vector<CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO* cq) {
+    std::vector<CONSTRUCTION_TYPE> incomplete;
+    std::vector<CONSTRUCTION_TYPE> queued = queue(cq);
+    for_each_construction_type([cq, &queued, &incomplete](CONSTRUCTION_TYPE t) {
+      if (production::construction_is_unique(t)) {
+        if (cq->m_state->IsConstructed(t)) return;
+        auto itFind = std::find(queued.begin(), queued.end(), t);
+        if (itFind != queued.end()) return;
+      }
+      
+      incomplete.push_back(t);
+    });
+    return std::move(incomplete);
+  }
+  
   std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO* cq) {
     std::vector<CONSTRUCTION_TYPE> queue;
     for (auto& q : cq->m_queue) {

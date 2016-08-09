@@ -43,6 +43,7 @@ namespace production {
 namespace production_queue {
   std::vector<CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO*);
   std::vector<CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO*);
+  std::vector<CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO*);
   std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO*);
   
   CONSTRUCTION_TYPE front(const ConstructionQueueFIFO*);
