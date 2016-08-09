@@ -21,24 +21,10 @@ make
 cd src
 ./4xSimulation
 ```
-### Multiplayer
-```sh
-source host_server.sh
-```
+### Multiplayer (requires python3)
+python binary_network_server.py
 
-Clients can use netcat to connect to the with with any of the following to input commands:
-* nc 127.0.0.1 1200
-* nc 127.0.0.1 1201
-* nc 127.0.0.1 1202
-* nc 127.0.0.1 1203
-
-Netcat to the game history port, and pipe the data to the ./4xsim executable:
-* nc 127.0.0.1 4000 | ./4xsim
-* nc 127.0.0.1 4001 | ./4xsim
-* nc 127.0.0.1 4002 | ./4xsim
-* nc 127.0.0.1 4003 | ./4xsim
-
-Each listen socket is only valid for one connection. See the shell script for how to restart a new listen socket.
+The server will bind to all network adapters, so you should be able to connect to 127.0.0.1 port 4000 for local play, or use a local area network address with port 4000.
 
 ### Replay
 ```sh
