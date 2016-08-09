@@ -743,8 +743,21 @@ namespace simulation {
     s_units_to_fight.push_back(std::pair<uint32_t, uint32_t>(attack_step.get_attacker_id(), attack_step.get_defender_id()));
   }
 
-  std::string execute_abort(const void* buffer, size_t buffer_len) {
-    AbortStep abort_step;
+  std::string execute_production_move(const void* buffer, size_t buffer_len) {
+    ProductionMoveStep move_step;
+    deserialize(buffer, buffer_len, move_step);
+
+    Player* player = player::get_player(move_step.get_player());
+    if (!player) return "Invalid Player";
+    City* city = city::get_city(move_step.get_city());
+    if (!city) return "Invalid City";
+    if (!player->OwnsCity(city->m_id)) return "Player doesn't own city.";
+    production_queue::move(city->GetProductionQueue(), move_step.get_source_index(), move_step.get_destination_index());
+    return "Production move completed.";
+  }
+
+  std::string execute_production_abort(const void* buffer, size_t buffer_len) {
+    ProductionAbortStep abort_step;
     deserialize(buffer, buffer_len, abort_step);
     
     Player* player = player::get_player(abort_step.get_player());
@@ -836,8 +849,11 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
   case NETWORK_TYPE::ATTACKSTEP:
     execute_attack(buffer, buffer_len);
     break;
-  case NETWORK_TYPE::ABORTSTEP:
-    std::cout << execute_abort(buffer, buffer_len) << std::endl;
+  case NETWORK_TYPE::PRODUCTIONABORTSTEP:
+    std::cout << execute_production_abort(buffer, buffer_len) << std::endl;
+    break;
+  case NETWORK_TYPE::PRODUCTIONMOVESTEP:
+    std::cout << execute_production_move(buffer, buffer_len) << std::endl;
     break;
   case NETWORK_TYPE::COLONIZESTEP:
     execute_colonize(buffer, buffer_len);

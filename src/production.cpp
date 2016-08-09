@@ -259,12 +259,14 @@ namespace production_queue {
 
     std::list<ConstructionOrder*>::iterator itFrom = cq->m_queue.begin();
     std::advance(itFrom, src);
-    ConstructionOrder* order = *itFrom;
-    cq->m_queue.erase(itFrom);
 
     std::list<ConstructionOrder*>::iterator itTo = cq->m_queue.begin();
     std::advance(itTo, dest);
-    cq->m_queue.insert(itTo, order);
+
+    std::swap(*itFrom, *itTo);
+
+    std::cout << "Swap completed " << std::endl;
+    std::cout << *cq << std::endl;
   }
 
   void remove(ConstructionQueueFIFO* cq, size_t offset) {

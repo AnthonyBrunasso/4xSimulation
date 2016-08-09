@@ -474,7 +474,6 @@ namespace terminal  {
     std::cout << "  tile_resource <resourceType> <x> <y> <z> [1<quantity>]" << std::endl;
     std::cout << "  quit" << std::endl;
     std::cout << "Player Commands: " << std::endl;
-    std::cout << "  abort <cityId> <constructionIndex>" << std::endl;
     std::cout << "  attack <attacker unitId> <defender unitId>" << std::endl;
     std::cout << "  city_defense <unitId>" << std::endl;
     std::cout << "  cast <magicType> <x> <y> <z>" << std::endl;
@@ -486,6 +485,8 @@ namespace terminal  {
     std::cout << "  improve <resourceType> <improvementType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  pillage <uintId>" << std::endl;
+    std::cout << "  production_abort <cityId> <constructionIndex>" << std::endl;
+    std::cout << "  production_move <cityId> <sourceIndex> <destinationIndex>" << std::endl;
     std::cout << "  purchase <cityId> [constructionType]" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  sell <cityId> [constructionType]" << std::endl;

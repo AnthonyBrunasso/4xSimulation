@@ -65,12 +65,20 @@ namespace {
       CHECK_VALID(2, tokens);
       s_active_player = std::stoul(tokens[1]);
     }
-    else if (tokens[0] == "abort") {
-      AbortStep abort_step;
+    else if (tokens[0] == "production_abort") {
+      ProductionAbortStep abort_step;
       abort_step.set_player(s_active_player);
       abort_step.set_city(std::stoul(tokens[1]));
       abort_step.set_index(std::stoul(tokens[2]));
       bytes_written = serialize(buffer, buffer_len, abort_step);
+    }
+    else if (tokens[0] == "production_move") {
+      ProductionMoveStep move_step;
+      move_step.set_player(s_active_player);
+      move_step.set_city(std::stoul(tokens[1]));
+      move_step.set_source_index(std::stoul(tokens[2]));
+      move_step.set_destination_index(std::stoul(tokens[3]));
+      bytes_written = serialize(buffer, buffer_len, move_step);
     }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);

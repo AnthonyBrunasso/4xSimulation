@@ -113,10 +113,16 @@ Struct('PillageStep', [
 (u32, 'player'),
 (u32, 'unit'),
 ])
-Struct('AbortStep', [
+Struct('ProductionAbortStep', [
 (u32, 'player'),
 (u32, 'city'),
 (u32, 'index'),
+])
+Struct('ProductionMoveStep', [
+(u32, 'player'),
+(u32, 'city'),
+(u32, 'source_index'),
+(u32, 'destination_index'),
 ])
 Struct('SiegeStep', [
 (u32, 'player'),
