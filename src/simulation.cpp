@@ -162,13 +162,18 @@ namespace simulation {
   }
 
   void phase_city_growth() {
-    auto city_func = [](City& cityInstance, Player& player) { 
+    std::vector<uint32_t> razed;
+    auto city_func = [&razed](City& cityInstance, Player& player) { 
       TerrainYield t = cityInstance.DumpYields();
       std::cout << t << std::endl;
       cityInstance.Simulate(t);
       player.m_gold += t.m_gold;
       player.m_science += t.m_science;
       player.m_magic += t.m_magic;
+
+      if (cityInstance.GetPopulation() <= 0.0) {
+        razed.push_back(cityInstance.m_id);
+      }
     };
     auto player_func = [city_func](Player& player) {
       player::for_each_player_city(player.m_id,
@@ -177,6 +182,10 @@ namespace simulation {
     // Important: for_each_player is an ordered std::set
     // We must process players in order for consistent simulation results
     player::for_each_player(player_func);
+
+    for (auto r : razed) {
+      city::raze(r);
+    }
   }
 
   void phase_science_progression() {

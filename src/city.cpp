@@ -81,10 +81,7 @@ void City::Simulate(TerrainYield& t) {
       m_food = city::food_required_by_population(GetPopulation()-1);
       std::cout << "City shrinks, food: " << m_food << std::endl;
     }
-    else {
-      std::cout << "Raze called" << std::endl;
-      city::raze(m_id);
-    }
+    
     // City may be deleted above
     return;
   }
@@ -225,6 +222,7 @@ void city::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
 }
 
 void city::raze(uint32_t id) {
+  std::cout << "raze called " << id << std::endl;
   auto findIt = s_cities.find(id);
   if (findIt == s_cities.end()) {
     return;
