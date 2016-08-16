@@ -27,9 +27,10 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   }
 
   uint32_t id = unique_id::generate();
-  Unit* unit = new Unit(id, unit_type);
+  Unit* unit = new Unit(id);
   unit->m_location = location;
   unit->m_owner_id = player_id;
+  unit->m_unit_type = unit_type;
   
   // Apply unit specific stats if they exist.
   CombatStats* stats = unit_definitions::get(unit_type);

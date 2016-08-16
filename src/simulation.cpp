@@ -723,16 +723,15 @@ namespace simulation {
     AddPlayerStep player_step;
     deserialize(buffer, buffer_len, player_step);
 
-    uint32_t player_id = player::create(player_step.get_ai_type(), player_step.get_name());
-    if (player_step.get_ai_type() != AI_TYPE::UNKNOWN) {
-      switch (player_step.get_ai_type()) {
-        case AI_TYPE::BARBARIAN:
-          barbarians::set_player_id(player_id);
-          break;
-        case AI_TYPE::UNKNOWN:
-        default:
-          break;
-      }
+    switch (player_step.get_ai_type()) {
+      case AI_TYPE::BARBARIAN:
+        barbarians::set_player_id(player::create_ai());
+        break;
+      case AI_TYPE::HUMAN:
+        player::create_human(player_step.get_name());
+      case AI_TYPE::UNKNOWN:
+      default:
+        break;
     }
   }
 

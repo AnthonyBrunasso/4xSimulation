@@ -11,8 +11,8 @@
 
 class Unit {
 public:
-  Unit(uint32_t unique_id, UNIT_TYPE UNIT_TYPE) 
-    : m_unit_type(UNIT_TYPE)
+  explicit Unit(uint32_t unique_id) 
+    : m_unit_type(UNIT_TYPE::UNKNOWN)
     , m_id(unique_id)
     , m_location()
     , m_path()

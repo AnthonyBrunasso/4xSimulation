@@ -6,9 +6,8 @@
 #include <iostream>
 #include <vector>
 
-Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_type)
+Player::Player(uint32_t id)
     : m_id(id)
-    , m_name(name)
     , m_cities()
     , m_units() 
     , m_improvements()
@@ -16,35 +15,11 @@ Player::Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_typ
     , m_turn_state(TURN_TYPE::TURNACTIVE)
     , m_gold(0.0f)
     , m_science(0.0f)
-    , m_magic(magic) // Players should start with some magic
+    , m_magic(10.0) // Players should start with some magic
     , m_research(SCIENCE_TYPE::AGRICULTURE)
-    , m_ai_type(ai_type)
+    , m_ai_type(AI_TYPE::UNKNOWN)
     , m_ai_state(nullptr)
 {
-  // Remove unit when notified
-  unit::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
-    if (!this->OwnsUnit(id)) {
-      return;
-    }
-    this->m_units.erase(id);
-  });
-
-  city::sub_raze_complete([this](const sf::Vector3i /*location*/, uint32_t id) {
-
-    if (!this->OwnsCity(id)) {
-      return;
-    }
-    this->m_cities.erase(id);
-  });
-
-  improvement::sub_destroy([this](const sf::Vector3i /*location*/, uint32_t id) {
-    if (!this->OwnsImprovement(id)) {
-      return;
-    }
-    this->m_improvements.erase(id);
-  });
-
-  m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
 }
 
 bool Player::OwnsCity(uint32_t id) const {
@@ -72,14 +47,54 @@ bool Player::DiscoveredScience(SCIENCE_TYPE st) const {
   return m_discovered_science.find(id) != m_discovered_science.end();
 }
 
-namespace {
+namespace player {
   // List of players, player at index 0 will be player 1 ... index N player N - 1
   std::vector<Player*> s_players;
+
+  void init(Player* p) {
+    if (!p) return;
+
+    // Remove unit when notified
+    unit::sub_destroy([p](const sf::Vector3i /*location*/, uint32_t id) {
+      if (!p->OwnsUnit(id)) {
+        return;
+      }
+      p->m_units.erase(id);
+    });
+
+    city::sub_raze_complete([p](const sf::Vector3i /*location*/, uint32_t id) {
+
+      if (!p->OwnsCity(id)) {
+        return;
+      }
+      p->m_cities.erase(id);
+    });
+
+    improvement::sub_destroy([p](const sf::Vector3i /*location*/, uint32_t id) {
+      if (!p->OwnsImprovement(id)) {
+        return;
+      }
+      p->m_improvements.erase(id);
+    });
+
+    p->m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
+    s_players.push_back(p);
+  }
 }
 
-uint32_t player::create(AI_TYPE ai_type, const std::string& name) {
+uint32_t player::create_human(const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
-  s_players.push_back(new Player(playerId, name, 10.0f, ai_type));
+  Player* p = new Player(playerId);
+  p->m_ai_type = AI_TYPE::HUMAN;
+  init(p);
+  return playerId;
+}
+
+uint32_t player::create_ai() {
+  uint32_t playerId = static_cast<uint32_t>(s_players.size());
+  Player* p = new Player(playerId);
+  p->m_ai_type = AI_TYPE::BARBARIAN;
+  init(p);
   return playerId;
 }
 

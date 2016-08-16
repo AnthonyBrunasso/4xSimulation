@@ -21,7 +21,7 @@ struct Improvement;
 
 class Player {
 public:
-  Player(uint32_t id, const std::string& name, float magic, AI_TYPE ai_type);
+  explicit Player(uint32_t id);
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
@@ -55,7 +55,8 @@ public:
 };
 
 namespace player {
-  uint32_t create(AI_TYPE ai_type, const std::string& name);
+  uint32_t create_human(const std::string& name);
+  uint32_t create_ai();
   Player* get_player(uint32_t i);
   size_t get_count();
   ResourceUMap get_resources(uint32_t player_id);
