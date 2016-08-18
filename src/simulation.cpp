@@ -21,6 +21,7 @@
 #include "status_effect.h"
 #include "notification.h"
 #include "network_types.h"
+#include "scenario.h"
 
 #include <iostream>
 #include <algorithm>
@@ -969,6 +970,9 @@ void simulation::process_begin_turn() {
 
   phase_restore_actions();
   status_effect::process();
+
+  // Run scenarios
+  scenario::process();
 }
 
 void simulation::process_end_turn(const void* buffer, size_t buffer_len) {

@@ -18,6 +18,7 @@ SCIENCE      = "SCIENCE"
 MAGIC        = "MAGIC"
 STATUS       = "STATUS"
 NOTIFICATION = "NOTIFICATION"
+SCENARIO     = "SCENARIO"
 
 # Resources to generate when running type_generator.py
 add_gametype(RESOURCE, 'Luxury_Gold', 1)
@@ -110,3 +111,7 @@ add_gametype(NOTIFICATION, "City_Production", 4)
 add_gametype(NOTIFICATION, "City_Specialize", 5)
 add_gametype(NOTIFICATION, "Unit_Idle", 6)
 add_gametype(NOTIFICATION, "Science_Idle", 7)
+
+add_gametype(SCENARIO, "Disease", 1)
+add_gametype(SCENARIO, "Monster", 2)
+add_gametype(SCENARIO, "Arena", 3)
