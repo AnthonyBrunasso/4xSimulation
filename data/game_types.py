@@ -29,6 +29,7 @@ add_gametype(RESOURCE, 'Cattle', 5)
 add_gametype(RESOURCE, 'Deer', 6)
 add_gametype(RESOURCE, 'Fish', 7)
 add_gametype(RESOURCE, 'Stone', 8)
+add_gametype(RESOURCE, 'Sheep', 9)
 
 add_gametype(IMPROVEMENT, 'Mine', 1)
 add_gametype(IMPROVEMENT, 'Pasture', 2)
