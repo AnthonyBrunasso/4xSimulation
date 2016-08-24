@@ -30,7 +30,7 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   Unit* unit = new Unit(id);
   unit->m_location = location;
   unit->m_owner_id = player_id;
-  unit->m_unit_type = unit_type;
+  unit->m_type = unit_type;
   
   // Apply unit specific stats if they exist.
   CombatStats* stats = unit_definitions::get(unit_type);
@@ -159,7 +159,7 @@ bool unit::damage(uint32_t receiver_id, float amount) {
 void unit::heal(uint32_t receiver_id, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return;
-  CombatStats* stats = unit_definitions::get(receiver->m_unit_type);
+  CombatStats* stats = unit_definitions::get(receiver->m_type);
   if (!stats) return;
   float new_health = std::min(receiver->m_combat_stats.m_health+amount, stats->m_health);
   receiver->m_combat_stats.m_health = new_health;

@@ -54,7 +54,7 @@ std::string format::unit(const Unit& unit) {
   std::stringstream ss;
 
   ss << "unique id: " << unit.m_id << std::endl
-     << " unit name: " << get_unit_name(unit.m_unit_type) << std::endl
+     << " unit name: " << get_unit_name(unit.m_type) << std::endl
      << " location: " << format::vector3(unit.m_location) << std::endl
      << " actions: " << unit.m_action_points << std::endl
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl

@@ -296,7 +296,7 @@ namespace simulation {
       Unit* u = unit::get_unit(uid);
       if (!u) continue;
       // Consume the unit that built the city.
-      if (u->m_unit_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
+      if (u->m_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
         unit::destroy(u->m_id);
         break;
       }
@@ -326,11 +326,11 @@ namespace simulation {
       unit = unit::get_unit(unit_id);
       if (!unit) continue;
       if (!unit->m_action_points) continue;
-      if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
+      if (unit->m_type != UNIT_TYPE::WORKER) continue;
       break;
     }
 
-    if (!unit || unit->m_unit_type != UNIT_TYPE::WORKER) { 
+    if (!unit || unit->m_type != UNIT_TYPE::WORKER) {
       std::cout << "No worker is available to improve the tile" << std::endl;
       return;
     }

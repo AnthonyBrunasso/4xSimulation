@@ -99,7 +99,7 @@ namespace {
       for (auto u : m_units) {
         Unit* unit = unit::get_unit(u);
         if (!unit) continue;
-        if (unit->m_unit_type != UNIT_TYPE::WORKER) continue;
+        if (unit->m_type != UNIT_TYPE::WORKER) continue;
         // Workers get depleted action points per turn.
         unit->m_action_points = 0;
       }

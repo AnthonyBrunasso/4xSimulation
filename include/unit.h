@@ -12,7 +12,7 @@
 class Unit {
 public:
   explicit Unit(uint32_t unique_id) 
-    : m_unit_type(UNIT_TYPE::UNKNOWN)
+    : m_type(UNIT_TYPE::UNKNOWN)
     , m_id(unique_id)
     , m_location()
     , m_path()
@@ -24,7 +24,7 @@ public:
     // Random start direction? 
     , m_direction(util::get_direction(DIRECTION_TYPE::EAST)){};
 
-  UNIT_TYPE m_unit_type;
+  UNIT_TYPE m_type;
   uint32_t m_id;
   sf::Vector3i m_location;
   // Current path the unit is on, size is 0 if the unit is not moving
