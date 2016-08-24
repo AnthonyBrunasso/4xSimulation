@@ -1,6 +1,7 @@
 #include "scenario.h"
 
 #include "game_types.h"
+#include "scenario_monster.h"
 
 #include <algorithm>
 #include <vector>
@@ -12,6 +13,16 @@ namespace scenario {
 
 void scenario::start(SCENARIO_TYPE type) {
   if (std::find(s_running.begin(), s_running.end(), type) != s_running.end()) return;
+  switch(type) {
+    case SCENARIO_TYPE::DISEASE:
+    case SCENARIO_TYPE::MONSTER:
+      scenario_monster::start();
+      break;
+    case SCENARIO_TYPE::ARENA:
+    default:
+      break;
+  }
+
   s_running.push_back(type);
 }
 
@@ -21,6 +32,7 @@ void scenario::process() {
     switch(t) {
       case SCENARIO_TYPE::DISEASE:
       case SCENARIO_TYPE::MONSTER:
+        scenario_monster::process();
       case SCENARIO_TYPE::ARENA:
       default:
         break;

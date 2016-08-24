@@ -103,6 +103,7 @@ add_gametype(MAGIC, "Magic_Missle", 2)
 add_gametype(STATUS, "Resist_Modifiers", 1);
 add_gametype(STATUS, "Stasis", 2);
 add_gametype(STATUS, "Constructing_Improvement", 3);
+add_gametype(STATUS, "Summoning_Monster", 4);
 
 add_gametype(NOTIFICATION, "City_Starving", 1)
 add_gametype(NOTIFICATION, "City_Defense", 2)

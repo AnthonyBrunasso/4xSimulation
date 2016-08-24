@@ -39,6 +39,23 @@ namespace {
     spread_units(tile, units);
     spread_city(tile, cities);
   }
+
+  class SummoningMonster : public StatusEffect {
+  public:
+    SummoningMonster(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+        StatusEffect(id, type, location) {
+      m_turns = 2; 
+      m_current_turn = 2;
+    };
+
+    void end_turn() override {
+      std::cout << "MONSTER GRRRRRRRR" << std::endl;
+    }
+
+    void spread(Tile& /*tile*/) override {
+
+    }
+  };
   
   // Status effect implementations, maybe these should be moved to another file.
   class StasisEffect : public StatusEffect {
@@ -142,6 +159,9 @@ uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
     break;
   case STATUS_TYPE::CONSTRUCTING_IMPROVEMENT:
     e = new ConstructingEffect(id, type, location);
+    break;
+  case STATUS_TYPE::SUMMONING_MONSTER:
+    e = new SummoningMonster(id, type, location);
     break;
   case STATUS_TYPE::RESIST_MODIFIERS:
   case STATUS_TYPE::UNKNOWN:
@@ -267,7 +287,7 @@ void status_effect::process() {
   }
 
   // Decrement the current turn for all status effects.
-  for (auto effect : s_status) {
+  for (auto& effect : s_status) {
     StatusEffect* e = effect.second;
     if (!e) continue;
     --e->m_current_turn;
