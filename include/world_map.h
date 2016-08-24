@@ -14,6 +14,7 @@ namespace world_map {
 
   void build(sf::Vector3i start, uint32_t size);
   bool load_file(const std::string& name);
+  bool write_file(const char*);
   void for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation);
 
   bool remove_unit(const sf::Vector3i& location, uint32_t unit_id);

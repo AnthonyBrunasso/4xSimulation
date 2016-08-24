@@ -205,16 +205,40 @@ bool world_map::load_file(const std::string& name) {
   for (const auto& coord : coords) {
     auto& tile = s_map[coord];
     if (!inputFile.good()) {
-      std::cout << "Bailed on map read, file data < map tile count" << std::endl;
+      std::cout << "map tiles, file data < map tile count" << std::endl;
       return false;
     }
 
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
+
     TERRAIN_TYPE terrain_type = static_cast<TERRAIN_TYPE>(*data);
     tile.m_terrain_type = terrain_type;
     tile.m_path_cost = tile_costs::get(terrain_type);
   }
+
+  // read seperator
+  inputFile.read(data, BLOCK_SIZE);
+
+  // process any map resources
+  for (const auto& coord : coords) {
+    auto& tile = s_map[coord];
+    if (!inputFile.good()) {
+      std::cout << "map resources, file data < map tile count" << std::endl;
+      return false;
+    }
+
+    memset(data, 0, sizeof(data));
+    inputFile.read(data, BLOCK_SIZE);
+
+    RESOURCE_TYPE resource_type = static_cast<RESOURCE_TYPE>(*data);
+    if (resource_type == RESOURCE_TYPE::UNKNOWN) continue;
+
+    tile.m_resources.push_back(Resource(resource_type));
+  }
+
+  // read seperator
+  inputFile.read(data, BLOCK_SIZE);
 
   // read eof
   inputFile.read(data, 1);
@@ -223,6 +247,36 @@ bool world_map::load_file(const std::string& name) {
     std::cout << "Bailed on map read, file data > map tile count" << std::endl;
     return false;
   }
+
+  return true;
+}
+
+bool world_map::write_file(const char* name) {
+  std::ofstream out(name, std::ios::out);
+  const size_t BLOCK_SIZE = 4;
+  char seperator[] = { 0,0,0,0 };
+
+  std::vector<sf::Vector3i> coords;
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
+  for (auto& coord : coords) {
+    auto& tile = s_map[coord];
+    uint32_t type = static_cast<uint32_t>(tile.m_terrain_type);
+    out.write(reinterpret_cast<const char*>(&type), BLOCK_SIZE);
+  }
+
+  out.write(seperator, BLOCK_SIZE);
+
+  for (auto& coord : coords) {
+    auto& tile = s_map[coord];
+    uint32_t resource_type = 0;
+    if (tile.m_resources.size()) {
+      resource_type = static_cast<uint32_t>(tile.m_resources.front().m_type);
+    }
+
+    out.write(reinterpret_cast<const char*>(&resource_type), BLOCK_SIZE);
+  }
+
+  out.write(seperator, BLOCK_SIZE);
 
   return true;
 }
