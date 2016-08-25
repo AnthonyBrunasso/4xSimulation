@@ -345,7 +345,7 @@ namespace simulation {
       return;
     }
     Resource& res = tile->m_resources[i];
-    auto impv(static_cast<IMPROVEMENT_TYPE>(improve_step.get_improvement_type()));
+    IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
     if (!improvement::satisfies_requirements(res.m_type, impv, location)) {
       return;
     }

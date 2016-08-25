@@ -26,7 +26,6 @@ Field(spawn_step, v3i, 'location')
 Field(spawn_step, u32, 'player')
 
 Struct('ImproveStep', [
-(u32, 'improvement_type'),
 (v3i, 'location'),
 (u32, 'resource'),
 (u32, 'player'), 

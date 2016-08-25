@@ -174,7 +174,7 @@ namespace {
       bytes_written = serialize(buffer, buffer_len, harvest_step);
     }
     else if (tokens[0] == "improve") {
-      CHECK(6, tokens);
+      CHECK(5, tokens);
       ImproveStep improve_step;
       if (std::isdigit(tokens[1][0])) {
         improve_step.set_resource(std::stoul(tokens[1]));
@@ -182,13 +182,7 @@ namespace {
       else {
         improve_step.set_resource(util::enum_to_uint(get_resource_type(tokens[1])));
       }
-      if (std::isdigit(tokens[2][0])) {
-        improve_step.set_improvement_type(std::stoul(tokens[2]));
-      }
-      else {
-        improve_step.set_improvement_type(util::enum_to_uint(get_improvement_type(tokens[2])));
-      }
-      improve_step.set_location(util::str_to_vector3(tokens[3], tokens[4], tokens[5]));
+      improve_step.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       improve_step.set_player(s_active_player);
       bytes_written = serialize(buffer, buffer_len, improve_step);
     }

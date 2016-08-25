@@ -482,7 +482,7 @@ namespace terminal  {
     std::cout << "  end_turn" << std::endl;
     std::cout << "  grant <scienceType>" << std::endl;
     std::cout << "  harvest <x> <y> <z>" << std::endl;
-    std::cout << "  improve <resourceType> <improvementType> <x> <y> <z>" << std::endl;
+    std::cout << "  improve <resourceType> <x> <y> <z>" << std::endl;
     std::cout << "  move <unitId> <x> <y> <z>" << std::endl;
     std::cout << "  pillage <uintId>" << std::endl;
     std::cout << "  production_abort <cityId> <constructionIndex>" << std::endl;
