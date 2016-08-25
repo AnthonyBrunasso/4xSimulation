@@ -45,6 +45,7 @@ namespace improvement {
   void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   ValidResourceVector resource_requirements(IMPROVEMENT_TYPE type);
+  IMPROVEMENT_TYPE resource_improvement(RESOURCE_TYPE resource);
 
   void for_each_improvement(
       std::function<void(const Improvement& improvement)> operation);

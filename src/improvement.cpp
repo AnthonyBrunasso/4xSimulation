@@ -12,6 +12,7 @@ namespace {
   typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
   typedef std::vector<std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> > Requirements;
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
+  typedef std::unordered_map<uint32_t, uint32_t> ResourceImprovementMap;
   typedef std::vector<std::uint32_t> ValidResourceVector;
   typedef std::unordered_map<uint32_t, ValidResourceVector> ImprovementResourcesMap;
   ImprovementResourcesMap s_impvResources;
@@ -19,36 +20,23 @@ namespace {
   SubMap s_destroy_subs;
   SubMap s_create_subs;
   RequirementMap s_creation_requirements;
+  ResourceImprovementMap s_resource_improvements;
 }
 
 void improvement::initialize() {
-  ValidResourceVector mining = { 
-    util::enum_to_uint(RESOURCE_TYPE::LUXURY_GOLD),
-    util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_IRON),
-    util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_COAL),
-  };
-  ValidResourceVector pasture = {
-    util::enum_to_uint(RESOURCE_TYPE::CATTLE),
-  };
-  ValidResourceVector camp = {
-    util::enum_to_uint(RESOURCE_TYPE::DEER),
-  };
-  ValidResourceVector quarry = {
-    util::enum_to_uint(RESOURCE_TYPE::STONE),
-  };
-  ValidResourceVector fish_boats = {
-    util::enum_to_uint(RESOURCE_TYPE::FISH),
-  };
-  ValidResourceVector plantation = {
-    util::enum_to_uint(RESOURCE_TYPE::LUXURY_SUGAR),
-  };
-  
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::MINE)] = mining;
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE)] = pasture;
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::CAMP)] = camp;
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::PLANTATION)] = plantation;
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::QUARRY)] = quarry;
-  s_impvResources[util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS)] = fish_boats;
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::LUXURY_GOLD)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::LUXURY_SUGAR)] = util::enum_to_uint(IMPROVEMENT_TYPE::PLANTATION);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_IRON)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_COAL)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::CATTLE)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::DEER)] = util::enum_to_uint(IMPROVEMENT_TYPE::CAMP);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::FISH)] = util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STONE)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::SHEEP)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
+
+  for (auto& res : s_resource_improvements) {
+    s_impvResources[res.second].push_back(res.first);
+  }
 }
 
 Improvement::Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type) 
@@ -132,6 +120,10 @@ ValidResourceVector improvement::resource_requirements(IMPROVEMENT_TYPE type) {
   }
 
   return itFind->second;
+}
+
+IMPROVEMENT_TYPE improvement::resource_improvement(RESOURCE_TYPE resource) {
+  return util::uint_to_enum<IMPROVEMENT_TYPE>(s_resource_improvements[util::enum_to_uint(resource)]);
 }
 
 Improvement* improvement::get_improvement(uint32_t id) {
