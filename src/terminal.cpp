@@ -489,6 +489,7 @@ namespace terminal  {
     std::cout << "  production_move <cityId> <sourceIndex> <destinationIndex>" << std::endl;
     std::cout << "  purchase <cityId> [constructionType]" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
+    std::cout << "  scenario <scenarioType>" << std::endl;
     std::cout << "  sell <cityId> [constructionType]" << std::endl;
     std::cout << "  siege <cityId> <unitId>" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;

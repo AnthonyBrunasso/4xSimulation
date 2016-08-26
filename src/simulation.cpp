@@ -720,6 +720,12 @@ namespace simulation {
     status_effect::create(status_step.get_type(), status_step.get_location());
   }
 
+  void execute_scenario(const void* buffer, size_t buffer_len) {
+    ScenarioStep scenario_step;
+    deserialize(buffer, buffer_len, scenario_step);
+    scenario::start(scenario_step.get_type());
+  }
+
   void execute_add_player(const void* buffer, size_t buffer_len) {
     AddPlayerStep player_step;
     deserialize(buffer, buffer_len, player_step);
@@ -929,7 +935,10 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
   case NETWORK_TYPE::STATUSSTEP:
     execute_status(buffer, buffer_len);
     break;
-   default:
+  case NETWORK_TYPE::SCENARIOSTEP:
+    execute_scenario(buffer, buffer_len);
+    break;
+  default:
     break;
   }
 

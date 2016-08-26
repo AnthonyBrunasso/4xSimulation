@@ -146,4 +146,7 @@ Struct('StatusStep', [
 (TypeInfo('STATUS_TYPE'), 'type'),
 (v3i, 'location'),
 ])
+Struct('ScenarioStep', [
+(TypeInfo('SCENARIO_TYPE'), 'type'),
+])
 Struct('QuitStep', [])

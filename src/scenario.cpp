@@ -12,6 +12,7 @@ namespace scenario {
 }
 
 void scenario::start(SCENARIO_TYPE type) {
+  std::cout << "Starting scenario: " << get_scenario_name(type) << std::endl;
   if (std::find(s_running.begin(), s_running.end(), type) != s_running.end()) return;
   switch(type) {
     case SCENARIO_TYPE::DISEASE:

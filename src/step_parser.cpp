@@ -348,6 +348,13 @@ namespace {
       bytes_written = serialize(buffer, buffer_len, status);
     }
 
+    else if (tokens[0] == "scenario") {
+      CHECK(2, tokens);
+      ScenarioStep scenario;
+      scenario.set_type(get_scenario_type(tokens[1]));
+      bytes_written = serialize(buffer, buffer_len, scenario);
+    }
+
     else {
       std::cout << "Unrecognized step: " << format::vector(tokens) << std::endl;
       return 0;
