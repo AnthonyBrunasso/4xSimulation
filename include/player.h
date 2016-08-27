@@ -56,7 +56,7 @@ public:
 
 namespace player {
   uint32_t create_human(const std::string& name);
-  uint32_t create_ai();
+  uint32_t create_ai(AI_TYPE type);
   Player* get_player(uint32_t i);
   size_t get_count();
   ResourceUMap get_resources(uint32_t player_id);

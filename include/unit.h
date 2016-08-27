@@ -9,6 +9,8 @@
 #include <functional>
 #include <vector>
 
+static uint32_t INVALID_PLAYER = 0xffffffff;
+
 class Unit {
 public:
   explicit Unit(uint32_t unique_id) 
@@ -18,7 +20,7 @@ public:
     , m_path()
     , m_max_actions(3)
     , m_action_points(m_max_actions)
-    , m_owner_id(0xffffffff)
+    , m_owner_id(INVALID_PLAYER)
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1)
     // Random start direction? 

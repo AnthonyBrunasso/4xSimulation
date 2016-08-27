@@ -86,14 +86,16 @@ uint32_t player::create_human(const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
   p->m_ai_type = AI_TYPE::HUMAN;
+  p->m_name = name;
   init(p);
   return playerId;
 }
 
-uint32_t player::create_ai() {
+uint32_t player::create_ai(AI_TYPE type) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
-  p->m_ai_type = AI_TYPE::BARBARIAN;
+  p->m_ai_type = type;
+  p->m_name = get_ai_name(type);
   init(p);
   return playerId;
 }

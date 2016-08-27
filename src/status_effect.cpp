@@ -6,6 +6,7 @@
 #include "city.h"
 #include "world_map.h"
 #include "search.h"
+#include "unit.h"
 
 #include <iostream>
 #include <map>

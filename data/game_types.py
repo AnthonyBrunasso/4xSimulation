@@ -48,6 +48,7 @@ add_gametype(UNIT, 'Scout'  , 1)
 add_gametype(UNIT, 'Archer' , 2)
 add_gametype(UNIT, 'Phalanx', 3)
 add_gametype(UNIT, 'Worker' , 4)
+add_gametype(UNIT, 'Monster', 5)
 
 add_gametype(BUILDING, 'Town', 1)
 
@@ -61,6 +62,7 @@ add_gametype(CONSTRUCTION, 'Worker' , 8)
 
 add_gametype(AI, "Barbarian", 1)
 add_gametype(AI, "Human"    , 2)
+add_gametype(AI, "Monster"  , 3)
 
 add_gametype(TURN, 'TurnActive'    , 1)
 add_gametype(TURN, 'TurnCompleted' , 2)

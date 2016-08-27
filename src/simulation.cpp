@@ -732,7 +732,7 @@ namespace simulation {
 
     switch (player_step.get_ai_type()) {
       case AI_TYPE::BARBARIAN:
-        barbarians::set_player_id(player::create_ai());
+        barbarians::set_player_id(player::create_ai(player_step.get_ai_type()));
         break;
       case AI_TYPE::HUMAN:
         player::create_human(player_step.get_name());
