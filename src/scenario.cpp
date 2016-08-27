@@ -34,6 +34,7 @@ void scenario::process() {
       case SCENARIO_TYPE::DISEASE:
       case SCENARIO_TYPE::MONSTER:
         scenario_monster::process();
+        break;
       case SCENARIO_TYPE::ARENA:
       default:
         break;
@@ -47,6 +48,7 @@ void scenario::debug_print(SCENARIO_TYPE type) {
       case SCENARIO_TYPE::DISEASE:
       case SCENARIO_TYPE::MONSTER:
         scenario_monster::debug_print();
+        break;
       case SCENARIO_TYPE::ARENA:
       default:
         break;
