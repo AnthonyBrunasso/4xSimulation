@@ -55,11 +55,10 @@ namespace player {
     if (!p) return;
 
     // Remove unit when notified
-    unit::sub_destroy([p](const sf::Vector3i /*location*/, uint32_t id) {
-      if (!p->OwnsUnit(id)) {
-        return;
-      }
-      p->m_units.erase(id);
+    unit::sub_destroy([p](UnitFatality* uf) {
+      if (p->m_id != uf->m_dead->m_owner_id) return;
+
+      p->m_units.erase(uf->m_dead->m_id);
     });
 
     city::sub_raze_complete([p](const sf::Vector3i /*location*/, uint32_t id) {

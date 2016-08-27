@@ -14,9 +14,10 @@
 
 namespace {
   typedef std::unordered_map<uint32_t, Unit*> UnitMap;
-  typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
+  typedef std::vector<std::function<void(Unit*)> > SubMap;
+  typedef std::vector<std::function<void(UnitFatality*)> > DestroySubMap;
   UnitMap s_units;
-  SubMap s_destroy_subs;
+  DestroySubMap s_destroy_subs;
   SubMap s_create_subs;
 }
 
@@ -43,26 +44,31 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   player::add_unit(player_id, id);
   std::cout << "Created unit id " << id << ", entity type: " << get_unit_name(unit_type) << std::endl;
 
-  for (auto sub : s_create_subs) {
-    sub(location, id);
+  for (auto& sub : s_create_subs) {
+    sub(unit);
   }
 
   return id;
 }
 
-void unit::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+void unit::sub_create(std::function<void(Unit*)> sub) {
   s_create_subs.push_back(sub);
 }
 
-bool unit::destroy(uint32_t id) {
-  Unit* unit = get_unit(id);
+bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id)
+{
+  Unit* unit = get_unit(dead_id);
   if (!unit) {
     return false;
   }
 
+  UnitFatality uf(unit);
+  uf.m_opponent = player::get_player(opponent_id);
+  uf.m_attacking = unit::get_unit(attacking_id);
+
   // Notify all subscribers of unit death with its location and unique id
-  for (auto sub : s_destroy_subs) {
-    sub(unit->m_location, id);
+  for (auto& sub : s_destroy_subs) {
+    sub(&uf);
   }
 
   s_units.erase(unit->m_id);
@@ -70,7 +76,7 @@ bool unit::destroy(uint32_t id) {
   return true;
 }
 
-void unit::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
+void unit::sub_destroy(std::function<void(UnitFatality*)> sub) {
   s_destroy_subs.push_back(sub);
 }
 
@@ -131,26 +137,29 @@ bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
   // If attacker or defender died, kill them
   if (defender->m_combat_stats.m_health == 0) {
     std::cout << "defending unit " << defender_id << " (id) destroyed in combat." << std::endl;
-    destroy(defender_id);
+    destroy(defender_id, attacker_id, attacker->m_owner_id);
   }
 
   if (attacker->m_combat_stats.m_health == 0) {
     std::cout << "attacking unit " << attacker_id << " (id) destroyed in combat." << std::endl;
-    destroy(attacker_id);
+    destroy(attacker_id, defender_id, defender->m_owner_id);
   }
 
   return result;
 }
 
-bool unit::damage(uint32_t receiver_id, float amount) {
+bool unit::damage(uint32_t receiver_id, uint32_t source_player, float amount) {
   Unit* receiver = get_unit(receiver_id);
   if(!receiver) return false;
+
+  Player* source = player::get_player(source_player);
+  if (!source) return false;
 
   float damage_delt = std::min(amount, receiver->m_combat_stats.m_health);
   receiver->m_combat_stats.m_health -= damage_delt;
   if (receiver->m_combat_stats.m_health == 0) {
     std::cout << "Unit " << receiver_id << " received lethal damage." << std::endl;
-    return destroy(receiver_id);
+    return destroy(receiver_id, unique_id::INVALID_ID, source_player);
   }
 
   return false;

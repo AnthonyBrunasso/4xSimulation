@@ -27,12 +27,12 @@ namespace {
   void set_improvement_requirements();
   void set_city_requirements();
 
-  void unit_create(const sf::Vector3i& location, uint32_t id) {
-    world_map::add_unit(location, id);
+  void unit_create(Unit* u) {
+    world_map::add_unit(u->m_location, u->m_id);
   } 
 
-  void unit_destroy(const sf::Vector3i& location, uint32_t id) {
-    world_map::remove_unit(location, id);
+  void unit_destroy(UnitFatality* uf) {
+    world_map::remove_unit(uf->m_dead->m_location, uf->m_dead->m_id);
   }
 
   void city_create(const sf::Vector3i& location, uint32_t id) {

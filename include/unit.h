@@ -4,13 +4,13 @@
 #include "Vector3.hpp"
 #include "combat.h"
 #include "util.h"
+#include "unique_id.h"
 
 #include <cstdint>
 #include <functional>
 #include <vector>
 
-static uint32_t INVALID_PLAYER = 0xffffffff;
-
+class Player;
 class Unit {
 public:
   explicit Unit(uint32_t unique_id) 
@@ -20,7 +20,7 @@ public:
     , m_path()
     , m_max_actions(3)
     , m_action_points(m_max_actions)
-    , m_owner_id(INVALID_PLAYER)
+    , m_owner_id(unique_id::INVALID_PLAYER)
     // 1 health, 1 attack, 1 range by default
     , m_combat_stats(1, 1, 1)
     // Random start direction? 
@@ -41,13 +41,28 @@ public:
   sf::Vector3i m_direction;
 };
 
+struct UnitFatality
+{
+  explicit UnitFatality(Unit* dead_unit)
+    : m_dead(dead_unit)
+    , m_opponent(nullptr)
+    , m_attacking(nullptr)
+  {
+
+  }
+
+  Unit* m_dead;
+  Player* m_opponent;
+  Unit* m_attacking;
+};
+
 namespace unit {
   uint32_t create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
-  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
-  bool destroy(uint32_t entity_id);
+  void sub_create(std::function<void(Unit*)> sub);
+  bool destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_player_id);
   // Subscribe to destruction of a unit
-  void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_destroy(std::function<void(UnitFatality*)> sub);
   Unit* get_unit(uint32_t id);
   void for_each_unit(std::function<void(const Unit& unit)> operation);
 
@@ -58,7 +73,7 @@ namespace unit {
 
   bool combat(uint32_t attacker_id, uint32_t defender_id);
   // Returns false of the unit damaged is still alive, true if it died.
-  bool damage(uint32_t receiver_id, float amount);
+  bool damage(uint32_t receiver_id, uint32_t source_player, float amount);
   void heal(uint32_t receiver_id, float amount);
 
   // Changes directoin towards target, doesn't normalize direction.

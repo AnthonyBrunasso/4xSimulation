@@ -298,7 +298,7 @@ namespace simulation {
       if (!u) continue;
       // Consume the unit that built the city.
       if (u->m_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
-        unit::destroy(u->m_id);
+        unit::destroy(u->m_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
         break;
       }
     }
@@ -482,7 +482,7 @@ namespace simulation {
     KillStep kill_step;
     deserialize(buffer, buffer_len, kill_step);
 
-    unit::destroy(kill_step.get_unit_id());
+    unit::destroy(kill_step.get_unit_id(), unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
     std::cout << kill_step.get_unit_id() << " (id) has been slain." << std::endl;
   }
 
@@ -822,7 +822,7 @@ namespace simulation {
     if(!city) return "No valid city found";
     city->m_defenses_used = true;
     std::cout << "Keeeerrrthunk. The city " << cityId << " has attacked unit " << unit->m_id << std::endl;
-    unit::damage(unit->m_id, 4.f);
+    unit::damage(unit->m_id, player->m_id, 4.f);
     
     return "";
   }
