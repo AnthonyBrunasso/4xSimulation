@@ -2,8 +2,50 @@
 #include "player.h"
 #include "city.h"
 #include "unit.h"
+#include <unordered_map>
+
+namespace scenario_arena
+{
+  typedef std::unordered_map<uint32_t, uint32_t> PlayerScore;
+  PlayerScore s_player_score;
+  bool s_active;
+
+  uint32_t score(UNIT_TYPE ut);
+  void dead_unit(UnitFatality* uf);
+};
+
+uint32_t scenario_arena::score(UNIT_TYPE ut)
+{
+  switch(ut)
+  {
+  case UNIT_TYPE::MONSTER:
+    return 5;
+  default:
+    break;
+  }
+
+  return 1;
+}
+
+void scenario_arena::dead_unit(UnitFatality* uf)
+{
+  // Don't score units that didn't have an opposing player
+  if (!uf->m_opponent) return;
+
+  s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
+}
+
+bool scenario_arena::active() {
+  return s_active;
+}
+
+uint32_t scenario_arena::get_score(uint32_t player_id) {
+  return s_player_score[player_id];
+}
 
 void scenario_arena::start() {
+  unit::sub_destroy(dead_unit);
+  s_active = true;
 }
 
 void scenario_arena::process() {
