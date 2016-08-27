@@ -17,6 +17,7 @@
 #include "random.h"
 #include "science.h"
 #include "network_types.h"
+#include "scenario.h"
 
 #include <algorithm>
 #include <iostream>
@@ -438,6 +439,12 @@ namespace terminal  {
         std::cout << format::effect(effect) << std::endl;
       });
       return true;
+    });
+
+    terminal::add_query("scenario_debug", "scenario_debug <scenario_type>", [](const std::vector<std::string>& tokens) -> bool {
+        CHECK_VALID(2, tokens);
+        scenario::debug_print(get_scenario_type(tokens[1]));
+        return true;
     });
   }
 

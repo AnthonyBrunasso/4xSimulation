@@ -40,3 +40,16 @@ void scenario::process() {
     }
   }
 }
+
+void scenario::debug_print(SCENARIO_TYPE type) {
+  for (auto t : s_running) {
+    switch(t) {
+      case SCENARIO_TYPE::DISEASE:
+      case SCENARIO_TYPE::MONSTER:
+        scenario_monster::debug_print();
+      case SCENARIO_TYPE::ARENA:
+      default:
+        break;
+    }
+  }
+}
