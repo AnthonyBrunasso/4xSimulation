@@ -29,6 +29,7 @@
 
 # Project folders
 projects/
+build/
 
 # Vim swap files
 *.swp
