@@ -2,6 +2,8 @@
 
 #include "Vector3.hpp"
 #include "game_types.h"
+#include "simulation.h"
+#include "network_types.h"
 
 #include <string>
 #include <cstdint>
@@ -21,5 +23,12 @@ namespace util {
   template <class ENUM>
   ENUM uint_to_enum(uint32_t id) {
     return static_cast<ENUM>(id);
+  }
+
+  template<typename T>
+  size_t simulate_step(const T& step, char* buffer, size_t buffer_len=256) {
+    size_t bytes = serialize(buffer, buffer_len, step);
+    simulation::process_step_from_ai(buffer, bytes);
+    return bytes;
   }
 }

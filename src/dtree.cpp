@@ -9,15 +9,15 @@ DTree::~DTree() {
 }
 
 // Run this decision with the given player. 
-void DTree::make_decision(uint32_t player_id) {
+void DTree::make_decision(uint32_t id) {
   if (!m_root) {
     return;
   }
 
-  recurse(player_id, m_root);
+  recurse(id, m_root);
 }
 
-void DTree::recurse(uint32_t player_id, DNode* node) {
+void DTree::recurse(uint32_t id, DNode* node) {
   if (!node) return;
 
   Decision* decision = node->m_decision;
@@ -25,12 +25,12 @@ void DTree::recurse(uint32_t player_id, DNode* node) {
   float threshold = node->m_threshold;
 
   if (decision) {
-    (*decision)(player_id);
+    (*decision)(id);
   }
 
   float result = NOOP_EVALUATION;
   if (evaluation) {
-    result = (*evaluation)(player_id, threshold);
+    result = (*evaluation)(id, threshold);
   }
 
   // If no evaluation was made stop recursing here, the AI is either
@@ -41,11 +41,11 @@ void DTree::recurse(uint32_t player_id, DNode* node) {
 
   // Recurse right if the result was greater than the threshold.
   if (result > threshold && node->m_right) {
-    recurse(player_id, node->m_right);
+    recurse(id, node->m_right);
   }
   // Recurse left otherwise.
   else if (node->m_left) {
-    recurse(player_id, node->m_left);
+    recurse(id, node->m_left);
   }
 }
 

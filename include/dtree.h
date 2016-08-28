@@ -10,7 +10,7 @@ class Decision {
 public:
   virtual ~Decision() {};
 
-  virtual void operator()(uint32_t /*player_id*/) {};
+  virtual void operator()(uint32_t /*id*/) {};
 };
 
 // An AI evaluation is used to determine what branch down the decision tree the AI 
@@ -20,7 +20,7 @@ class Evaluation {
 public:
   virtual ~Evaluation() {};
 
-  virtual float operator()(uint32_t /*player_id*/, float /*threshold*/) { return NOOP_EVALUATION; };
+  virtual float operator()(uint32_t /*id*/, float /*threshold*/) { return NOOP_EVALUATION; };
 };
 
 struct DNode {
@@ -50,11 +50,11 @@ public:
   ~DTree();
 
   // Run this decision with the given player. 
-  void make_decision(uint32_t player_id);
+  void make_decision(uint32_t id);
 
 private:
   // Recurse down the tree for a decision.
-  void recurse(uint32_t player_id, DNode* node);
+  void recurse(uint32_t id, DNode* node);
 
   DNode* m_root;
 };

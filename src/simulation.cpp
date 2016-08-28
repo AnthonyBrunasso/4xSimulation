@@ -15,6 +15,7 @@
 #include "game_types.h"
 #include "terrain_yield.h"
 #include "ai_barbarians.h"
+#include "ai_monster.h"
 #include "science.h"
 #include "magic.h"
 #include "custom_math.h"
@@ -993,6 +994,10 @@ void simulation::process_end_turn(const void* buffer, size_t buffer_len) {
 
   if (player->m_ai_type == AI_TYPE::BARBARIAN) {
     barbarians::pillage_and_plunder(end_step.get_player());
+  }
+
+  if (player->m_ai_type == AI_TYPE::MONSTER) {
+    monster::execute_turn(end_step.get_player());
   }
 
   phase_queued_movement(end_step.get_player()); 
