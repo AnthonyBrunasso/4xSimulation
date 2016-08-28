@@ -45,8 +45,8 @@ namespace {
   public:
     SummoningMonster(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
         StatusEffect(id, type, location) {
-      m_turns = 2; 
-      m_current_turn = 2;
+      m_turns = 20; 
+      m_current_turn = 20;
     };
 
     void end_turn() override {

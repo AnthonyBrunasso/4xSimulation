@@ -20,7 +20,12 @@ void scenario_monster::start() {
   }
   sf::Vector3i loc(0, 0, 0);
   auto summon_monster = [loc]() {
-    unit::create(UNIT_TYPE::MONSTER, loc, s_monster_id);
+    uint32_t id = unit::create(UNIT_TYPE::MONSTER, loc, s_monster_id);
+    // Get the monster and apply its channeled power to health and attack :O.
+    Unit* u = unit::get_unit(id);
+    if (!u) return;
+    u->m_combat_stats.m_health = s_channeled_power;
+    u->m_combat_stats.m_attack = s_channeled_power / 2.0f;
   };
   status_effect::inject_end(summon_monster);
   status_effect::create(STATUS_TYPE::SUMMONING_MONSTER, loc);
