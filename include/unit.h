@@ -18,13 +18,12 @@ public:
     , m_id(unique_id)
     , m_location()
     , m_path()
-    , m_max_actions(3)
-    , m_action_points(m_max_actions)
+    , m_action_points(0)
     , m_owner_id(unique_id::INVALID_PLAYER)
-    // 1 health, 1 attack, 1 range by default
-    , m_combat_stats(1, 1, 1)
     // Random start direction? 
-    , m_direction(util::get_direction(DIRECTION_TYPE::EAST)){};
+    , m_direction(util::get_direction(DIRECTION_TYPE::EAST))
+  {
+  };
 
   UNIT_TYPE m_type;
   uint32_t m_id;
@@ -32,7 +31,6 @@ public:
   // Current path the unit is on, size is 0 if the unit is not moving
   std::vector<sf::Vector3i> m_path;
   // Number of actions available for the unit, simulation will dictate this value
-  uint32_t m_max_actions;
   uint32_t m_action_points;
   uint32_t m_owner_id;
 

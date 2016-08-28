@@ -38,6 +38,7 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   if (stats) {
     unit->m_combat_stats = *stats;
   }
+  unit->m_action_points = unit->m_combat_stats.m_action_points;
 
   // Add the unit to storage and the world map.
   s_units[id] = unit;
@@ -107,7 +108,7 @@ void unit::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
 void unit::replenish_actions() {
   std::cout << "Replentish action points" << std::endl;
   for (auto unit : s_units) {
-    unit.second->m_action_points = unit.second->m_max_actions;
+    unit.second->m_action_points = unit.second->m_combat_stats.m_action_points;
   }
 }
 

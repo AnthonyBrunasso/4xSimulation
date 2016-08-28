@@ -14,19 +14,19 @@ namespace {
 void unit_definitions::initialize() {
   // Scout
   s_definitions[util::enum_to_uint(UNIT_TYPE::SCOUT)] =
-    CombatStats(5.f, 1.f, 1.f);  // 5 health, 1 attack, 1 range.
+    CombatStats(3, 5.f, 1.f, 1.f);  // 5 health, 1 attack, 1 range.
 
   // Archer
   s_definitions[util::enum_to_uint(UNIT_TYPE::ARCHER)] =
-    CombatStats(10.f, 3.f, 2.f); // 10 health, 3 attack, 2 range.
+    CombatStats(2, 10.f, 3.f, 2.f); // 10 health, 3 attack, 2 range.
 
   // Phalanx
   s_definitions[util::enum_to_uint(UNIT_TYPE::PHALANX)] =
-    CombatStats(13.f, 3.f, 1.f); // 13 health, 3 attack, 1 range.
+    CombatStats(2, 13.f, 3.f, 1.f); // 13 health, 3 attack, 1 range.
 
   // Worker
   s_definitions[util::enum_to_uint(UNIT_TYPE::WORKER)] = 
-    CombatStats(5.f, 0.f, 0.f);  // 5 health, 0 attack, 0 range.
+    CombatStats(2, 5.f, 0.f, 0.f);  // 5 health, 0 attack, 0 range.
 }
 
 CombatStats* unit_definitions::get(UNIT_TYPE id) {
