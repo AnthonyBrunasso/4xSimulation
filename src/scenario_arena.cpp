@@ -33,6 +33,10 @@ void scenario_arena::dead_unit(UnitFatality* uf)
   if (!uf->m_opponent) return;
 
   s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
+
+  if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
+    unit::create(UNIT_TYPE::ARCHER, uf->m_dead->m_location, uf->m_opponent->m_id);
+  }
 }
 
 bool scenario_arena::active() {
