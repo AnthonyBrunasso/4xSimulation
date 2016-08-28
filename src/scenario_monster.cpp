@@ -26,6 +26,7 @@ void scenario_monster::start() {
     if (!u) return;
     u->m_combat_stats.m_health = s_channeled_power;
     u->m_combat_stats.m_attack = s_channeled_power / 2.0f;
+    u->m_combat_stats.m_range = 2;
   };
   status_effect::inject_end(summon_monster);
   status_effect::create(STATUS_TYPE::SUMMONING_MONSTER, loc);
