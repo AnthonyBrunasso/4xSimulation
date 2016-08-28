@@ -356,3 +356,19 @@ Tile* world_map::get_tile(sf::Vector3i location) {
 
   return &s_map[location];
 }
+
+uint32_t world_map::tile_owner(const Tile& tile) {
+  City* city = city::get_city(tile.m_city_id);
+  if (city) {
+    return city->m_owner_id;
+  }
+
+  for (size_t i = 0; i < tile.m_unit_ids.size(); ++i) {
+    Unit* u = unit::get_unit(tile.m_unit_ids[i]);
+    if (u) {
+      return u->m_owner_id;
+    }
+  }
+
+  return unique_id::INVALID_PLAYER;
+}

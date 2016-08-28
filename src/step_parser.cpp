@@ -217,6 +217,7 @@ namespace {
       move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       move_step.set_player(s_active_player);
       move_step.set_immediate(true);
+      move_step.set_require_ownership(true);
       bytes_written = serialize(buffer, buffer_len, move_step);
     }
     else if (tokens[0] == "pillage") {
@@ -233,6 +234,7 @@ namespace {
       move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       move_step.set_player(s_active_player);
       move_step.set_immediate(false);
+      move_step.set_require_ownership(true);
       bytes_written = serialize(buffer, buffer_len, move_step);
     }
 

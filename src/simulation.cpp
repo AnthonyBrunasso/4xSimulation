@@ -524,15 +524,21 @@ namespace simulation {
   Unit* generate_path(MoveStep& move_step) {
     bool avoid_city = move_step.get_avoid_city();
     bool avoid_unit = move_step.get_avoid_unit();
+    bool require_ownership = move_step.get_require_ownership();
     sf::Vector3i destination = move_step.get_destination();
     uint32_t unitId = move_step.get_unit_id();
+    uint32_t player_id = move_step.get_player();
 
-    auto find_tiles = [avoid_city, avoid_unit](const Tile& tile) -> bool {
+    auto find_tiles = [avoid_city, avoid_unit, require_ownership, player_id](const Tile& tile) -> bool {
       if (avoid_city && tile.m_city_id) return false;
       if (avoid_unit && !tile.m_unit_ids.empty()) return false;
+      if (require_ownership) {
+        uint32_t owner = world_map::tile_owner(tile);
+        return owner == unique_id::INVALID_PLAYER || owner == player_id;
+      }
       return true;
     };
-    Player* player = player::get_player(move_step.get_player());
+    Player* player = player::get_player(player_id);
     Unit* unit = unit::get_unit(unitId);
     if (!player) {
       std::cout << "Invalid player" << std::endl;

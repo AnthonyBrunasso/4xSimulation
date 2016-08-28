@@ -47,6 +47,7 @@ Struct('MoveStep', [
 (bool, 'immediate'),
 (bool, 'avoid_unit'),
 (bool, 'avoid_city'),
+(bool, 'require_ownership'),
 ])
 Struct('PurchaseStep', [
 (u32, 'player'),
