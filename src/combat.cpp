@@ -67,7 +67,7 @@ bool combat::calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attac
   // Attacker and defender are facing *nearly* the same direction, this is a backstab.
   if (cmath::dot(attacker->m_direction, defender->m_direction) > 0) {
     std::cout << attacker->m_id << " backstabs " << defender->m_id << std::endl;
-    attacker_modifier.m_attack_modifier = 1.5f;
+    attacker_modifier.m_attack_modifier = 2.5f;
   }
 
   return true;

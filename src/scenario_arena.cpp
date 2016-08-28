@@ -44,13 +44,15 @@ uint32_t scenario_arena::get_score(uint32_t player_id) {
 }
 
 void scenario_arena::start() {
+  if (s_active) return;
+
   unit::sub_destroy(dead_unit);
   s_active = true;
 }
 
 void scenario_arena::process() {
   auto city_func = [](City& cityInstance, Player& player) {
-    unit::create(UNIT_TYPE::ARCHER, cityInstance.m_location, player.m_id);
+    unit::create(UNIT_TYPE::PHALANX, cityInstance.m_location, player.m_id);
   };
   auto player_func = [city_func](Player& player) {
     player::for_each_player_city(player.m_id,
