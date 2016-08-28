@@ -6,6 +6,7 @@
 #include "hex.h"
 #include "combat.h"
 #include "unit_definitions.h"
+#include "custom_math.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -127,12 +128,14 @@ bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
 
   // Get distance between characters
   uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
+  bool is_backstab = cmath::dot(attacker->m_direction, defender->m_direction) > 0;
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
   bool result = combat::engage(
     attacker->m_combat_stats, 
     attack_mod, 
     defender->m_combat_stats, 
-    defend_mod, 
+    defend_mod,
+    is_backstab,
     distance);
 
   // If attacker or defender died, kill them

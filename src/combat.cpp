@@ -2,7 +2,6 @@
 
 #include "hex.h"
 #include "unit.h"
-#include "custom_math.h"
 
 #include <cmath>
 #include <algorithm>
@@ -13,11 +12,16 @@ bool combat::engage(CombatStats& attack_stats,
   const Modifier& attack_modifier, 
   CombatStats& defend_stats, 
   const Modifier& defend_modifier,
+  bool is_backstab,
   uint32_t distance) {
 
   float attacker_health = attack_stats.m_health * attack_modifier.m_health_modifier;
-  const float attacker_attack = attack_stats.m_attack * attack_modifier.m_attack_modifier;
+  float attacker_attack = is_backstab ? attack_stats.m_backstab : attack_stats.m_attack;
   const float attacker_range = attack_stats.m_range * attack_modifier.m_range_modifier;
+  attacker_attack *= attack_modifier.m_attack_modifier;
+  if (is_backstab) {
+    std::cout << "Attack is a BACKSTAB!" << std::endl;
+  }
 
   float defender_health = defend_stats.m_health * defend_modifier.m_health_modifier;
   const float defender_attack = defend_stats.m_attack * defend_modifier.m_attack_modifier;
@@ -48,14 +52,14 @@ bool combat::engage(CombatStats& attack_stats,
   return true;
 }
 
-bool combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, uint32_t distance) {
+bool combat::engage(CombatStats& attack_stats, CombatStats& defend_stats, bool is_backstab, uint32_t distance) {
   Modifier modifier;
 
   modifier.m_health_modifier = 1.0f;
   modifier.m_attack_modifier = 1.0f;
   modifier.m_range_modifier = 1.0f;
 
-  return engage(attack_stats, modifier, defend_stats, modifier, distance);
+  return engage(attack_stats, modifier, defend_stats, modifier, is_backstab, distance);
 }
 
 bool combat::calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attacker_modifier, Modifier& defender_modifier) {
@@ -63,18 +67,6 @@ bool combat::calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attac
 
   attacker_modifier.reset();
   defender_modifier.reset();
-
-  // Attacker and defender are facing *nearly* the same direction, this is a backstab.
-  if (cmath::dot(attacker->m_direction, defender->m_direction) > 0) {
-    std::cout << attacker->m_id << " backstabs " << defender->m_id << std::endl;
-    if (attacker->m_combat_stats.m_range <= 1) {
-      attacker_modifier.m_attack_modifier = 3.f;
-    }
-    else {
-      attacker_modifier.m_attack_modifier = 2.f;
-    }
-    
-  }
 
   return true;
 }
