@@ -8,7 +8,7 @@
 #include "tile.h"
 #include "player.h"
 #include "city.h"
-#include "simulation.h"
+#include "ai_shared.h"
 #include "Vector3.hpp"
 #include "format.h"
 #include "game_types.h"
@@ -54,7 +54,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   spawn_step.set_unit_type(util::enum_to_uint(UNIT_TYPE::WORKER));
   spawn_step.set_location(new_home);
   spawn_step.set_player(player_id);
-  util::simulate_step_from_ai(spawn_step, s_ai_buffer, BUFFER_LEN);
+  ai_shared::simulate_step(spawn_step, s_ai_buffer, BUFFER_LEN);
 
   // Preemptively get the id of the city that will be created in the colonize step.
   uint32_t city_id = unique_id::get_next();
@@ -62,7 +62,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   ColonizeStep colonize_step;
   colonize_step.set_location(new_home);
   colonize_step.set_player(player_id);
-  util::simulate_step_from_ai(colonize_step, s_ai_buffer, BUFFER_LEN);
+  ai_shared::simulate_step(colonize_step, s_ai_buffer, BUFFER_LEN);
 
   // TEMPORARY: Construct the barbarian and uber forge.
   ConstructionStep forge;
@@ -71,7 +71,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   forge.set_player(player_id);
   // Give it to them immediately.
   forge.set_cheat(true);
-  util::simulate_step_from_ai(forge, s_ai_buffer, BUFFER_LEN);
+  ai_shared::simulate_step(forge, s_ai_buffer, BUFFER_LEN);
 }
 
 void EmpireConstruct::operator()(uint32_t player_id) {
@@ -92,17 +92,6 @@ void EmpireConstruct::operator()(uint32_t player_id) {
   }
 }
 
-sf::Vector3i get_random_coord() {
-  sf::Vector3i coord = game_random::cube_coord(6);
-  std::cout << format::vector3(coord) << std::endl;
-  Tile* tile = world_map::get_tile(coord);
-  while (!tile) {
-    coord = game_random::cube_coord(6);
-    tile = world_map::get_tile(coord); 
-  }
-  return coord;
-}
-
 void EmpireExplore::operator()(uint32_t player_id) {
   Player* current = player::get_player(player_id);
   if (!current) {
@@ -112,138 +101,15 @@ void EmpireExplore::operator()(uint32_t player_id) {
 
   std::cout << current->m_name << " exploring." << std::endl;
   player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
-    sf::Vector3i coord = get_random_coord();
+    sf::Vector3i coord = ai_shared::get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
     MoveStep move_step;
     move_step.set_unit_id(unit.m_id);
     move_step.set_destination(coord);
     move_step.set_player(player_id);
     move_step.set_immediate(true);
-    util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
+    ai_shared::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
   });
-}
-
-bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  Unit* tu = unit::get_unit(target_id);
-  if (!su || !tu) {
-    if (!tu) std::cout << "Target is gone id: " << target_id << std::endl;
-    return false; 
-  }
-
-  // Don't attempt an attack if out of action points.
-  if (!su->m_action_points) {
-    std::cout << "No action points to attack" << std::endl;
-    // Return true, decision is a success, just out of action points.
-    return true;
-  }
-  
-  AttackStep attack_step;
-  attack_step.set_attacker_id(unit_id);
-  attack_step.set_defender_id(target_id);
-  attack_step.set_player(player_id);
-  util::simulate_step_from_ai(attack_step, s_ai_buffer, BUFFER_LEN);
-  return true;
-}
-
-void approach(uint32_t unit_id, 
-    uint32_t player_id, 
-    const sf::Vector3i& start, 
-    const sf::Vector3i& location) {
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_player(player_id);
-  move_step.set_destination(location);
-  move_step.set_immediate(true);
-  move_step.set_avoid_city(true);
-  move_step.set_avoid_unit(true);
-  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
-}
-
-
-bool approach_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  Unit* tu = unit::get_unit(target_id);
-  if (!su || !tu) {
-    if (!tu) std::cout << "Target unit is gone id: " << target_id << std::endl;
-    return false; 
-  }
-
-  approach(unit_id, player_id, su->m_location, tu->m_location);
-  // Try to attack the unit.
-  attack_unit(unit_id, target_id, player_id);
-  return true;
-}
-
-bool approach_city(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  City* tc = city::get_city(target_id);
-  if (!su || !tc) {
-    if (!tc) std::cout << "Target city is gone id: " << target_id << std::endl;
-    return false; 
-  }
-
-  approach(unit_id, player_id, su->m_location, tc->m_location);
-  return true;
-}
-
-bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  Improvement* ti = improvement::get_improvement(target_id);
-  if (!su || !ti) {
-    if (!ti) std::cout << "Target improvement is gone id: " << target_id << std::endl;
-    return false; 
-  }
-
-  // Don't attempt an attack if out of action points.
-  if (!su->m_action_points) {
-    // Return true, decision is a success, just out of action points.
-    return true;
-  }
- 
-  PillageStep pillage_step;
-  
-  pillage_step.set_player(player_id);
-  pillage_step.set_unit(unit_id);
-  util::simulate_step_from_ai(pillage_step, s_ai_buffer, BUFFER_LEN);
-  return true;
-}
-
-bool wander(uint32_t unit_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  if (!su) {
-    return false;
-  }
-
-  // Move to the improvement.
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_destination(get_random_coord());
-  move_step.set_player(player_id);
-  move_step.set_immediate(true);
-  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
-
-  return true;
-}
-
-bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
-  Unit* su = unit::get_unit(unit_id);
-  Improvement* ti = improvement::get_improvement(target_id);
-  if (!su || !ti) {
-    if (!ti) std::cout << "Target improvement is gone id: " << target_id << std::endl;
-    return false; 
-  } 
-
-  // Move to the improvement.
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_destination(ti->m_location);
-  move_step.set_player(player_id);
-  move_step.set_immediate(true);
-  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
-  // Try to pillage it.
-  pillage_improvement(unit_id, target_id, player_id);
-  return true;
 }
 
 UnitOrder reevaluate_order(uint32_t /*unit_id*/, uint32_t /*player_id*/) {
@@ -263,12 +129,12 @@ void execute_order(const UnitOrder& decision, uint32_t player_id) {
   // Reevaluation can occur if a unit tries to attack a unit that no longer exists.
   switch (decision.m_order) {
   case AI_ORDER_TYPE::ATTACK_UNIT:
-    if (!attack_unit(uid, tid, player_id)) {
+    if (!ai_shared::attack_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
   case AI_ORDER_TYPE::APPROACH_UNIT:
-    if (!approach_unit(uid, tid, player_id)) {
+    if (!ai_shared::approach_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
@@ -276,22 +142,22 @@ void execute_order(const UnitOrder& decision, uint32_t player_id) {
     std::cout << "Attack City not yet implemented." << std::endl;
     break;
   case AI_ORDER_TYPE::APPROACH_CITY:
-    if (!approach_city(uid, tid, player_id)) {
+    if (!ai_shared::approach_city(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
   case AI_ORDER_TYPE::PILLAGE_IMPROVEMENT:
-    if (!pillage_improvement(uid, tid, player_id)) {
+    if (!ai_shared::pillage_improvement(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
   case AI_ORDER_TYPE::WANDER:
-    if (!wander(uid, player_id)) {
+    if (!ai_shared::wander(uid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
   case AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
-    if (!approach_improvement(uid, player_id, player_id)) {
+    if (!ai_shared::approach_improvement(uid, player_id)) /* TODO: player_id != improvement_id */ {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
   case AI_ORDER_TYPE::UNKNOWN:
