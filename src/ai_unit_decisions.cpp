@@ -37,7 +37,7 @@ void UnitWander::operator()(uint32_t unit_id) {
   move_step.set_destination(unit_decisions::get_random_coord());
   move_step.set_player(su->m_owner_id);
   move_step.set_immediate(true);
-  util::simulate_step(move_step, unit_decisions::s_unit_buffer);
+  util::simulate_step_from_ai(move_step, unit_decisions::s_unit_buffer);
 }
 
 void UnitFight::operator()(uint32_t unit_id) {

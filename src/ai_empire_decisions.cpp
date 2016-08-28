@@ -54,7 +54,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   spawn_step.set_unit_type(util::enum_to_uint(UNIT_TYPE::WORKER));
   spawn_step.set_location(new_home);
   spawn_step.set_player(player_id);
-  util::simulate_step(spawn_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(spawn_step, s_ai_buffer, BUFFER_LEN);
 
   // Preemptively get the id of the city that will be created in the colonize step.
   uint32_t city_id = unique_id::get_next();
@@ -62,7 +62,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   ColonizeStep colonize_step;
   colonize_step.set_location(new_home);
   colonize_step.set_player(player_id);
-  util::simulate_step(colonize_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(colonize_step, s_ai_buffer, BUFFER_LEN);
 
   // TEMPORARY: Construct the barbarian and uber forge.
   ConstructionStep forge;
@@ -71,7 +71,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   forge.set_player(player_id);
   // Give it to them immediately.
   forge.set_cheat(true);
-  util::simulate_step(forge, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(forge, s_ai_buffer, BUFFER_LEN);
 }
 
 void EmpireConstruct::operator()(uint32_t player_id) {
@@ -119,7 +119,7 @@ void EmpireExplore::operator()(uint32_t player_id) {
     move_step.set_destination(coord);
     move_step.set_player(player_id);
     move_step.set_immediate(true);
-    util::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+    util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
   });
 }
 
@@ -142,7 +142,7 @@ bool attack_unit(uint32_t unit_id, uint32_t target_id, uint32_t player_id) {
   attack_step.set_attacker_id(unit_id);
   attack_step.set_defender_id(target_id);
   attack_step.set_player(player_id);
-  util::simulate_step(attack_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(attack_step, s_ai_buffer, BUFFER_LEN);
   return true;
 }
 
@@ -157,7 +157,7 @@ void approach(uint32_t unit_id,
   move_step.set_immediate(true);
   move_step.set_avoid_city(true);
   move_step.set_avoid_unit(true);
-  util::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
 }
 
 
@@ -205,7 +205,7 @@ bool pillage_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_i
   
   pillage_step.set_player(player_id);
   pillage_step.set_unit(unit_id);
-  util::simulate_step(pillage_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(pillage_step, s_ai_buffer, BUFFER_LEN);
   return true;
 }
 
@@ -221,7 +221,7 @@ bool wander(uint32_t unit_id, uint32_t player_id) {
   move_step.set_destination(get_random_coord());
   move_step.set_player(player_id);
   move_step.set_immediate(true);
-  util::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
 
   return true;
 }
@@ -240,7 +240,7 @@ bool approach_improvement(uint32_t unit_id, uint32_t target_id, uint32_t player_
   move_step.set_destination(ti->m_location);
   move_step.set_player(player_id);
   move_step.set_immediate(true);
-  util::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  util::simulate_step_from_ai(move_step, s_ai_buffer, BUFFER_LEN);
   // Try to pillage it.
   pillage_improvement(unit_id, target_id, player_id);
   return true;
