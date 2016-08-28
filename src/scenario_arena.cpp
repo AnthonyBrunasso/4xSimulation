@@ -35,7 +35,10 @@ void scenario_arena::dead_unit(UnitFatality* uf)
   s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
 
   if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
-    unit::create(UNIT_TYPE::ARCHER, uf->m_dead->m_location, uf->m_opponent->m_id);
+    auto& spawn_fn = [uf](const City& c) {
+      unit::create(UNIT_TYPE::ARCHER, c.m_location, uf->m_opponent->m_id);
+    };
+    player::for_each_player_city(uf->m_opponent->m_id, spawn_fn);
   }
 }
 
