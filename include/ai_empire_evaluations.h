@@ -3,23 +3,28 @@
 #include "dtree.h"
 
 class EmpireColonize : public Evaluation {
+public:
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 
 class EmpireProduce : public Evaluation {
+public:
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 
 class EmpireUnits : public Evaluation {
+public:
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 
 // Checks if any cities have been discover.
 class EmpireCities : public Evaluation {
+public:
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 
 class EmpireUnitOrder : public Evaluation {
+public:
   virtual float operator()(uint32_t player_id, float threshold) override;
 };
 

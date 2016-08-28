@@ -7,6 +7,7 @@
 #include "world_map.h"
 #include "format.h"
 #include "ai_shared.h"
+#include "search.h"
 
 #include <iostream>
 
@@ -25,9 +26,25 @@ void UnitFight::operator()(uint32_t unit_id) {
   // Find nearest unit and attack it.
   Unit* u = unit::get_unit(unit_id);
   if (!u) return;
-
-  auto attack = [](const Unit& unit) {
+  
+  uint32_t found_id = 0;; 
+  auto found = [&found_id, &u](const Unit& unit) {
+    if (u->m_owner_id != unit.m_owner_id) {
+      found_id = unit.m_id; 
+      return true;
+    }
+    return false;
   };
+
+  search::bfs_units(u->m_location, 4, world_map::get_map(), found);
+
+  if (found_id) {
+    // Awkwardly this will try to attack as well.
+    if (ai_shared::approach_unit(unit_id, found_id)) return;
+  }
+
+  // Otherwise just wander
+  unit_decisions::get_wander()(unit_id);
 }
 
 UnitWander& unit_decisions::get_wander() {
