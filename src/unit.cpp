@@ -6,7 +6,6 @@
 #include "hex.h"
 #include "combat.h"
 #include "unit_definitions.h"
-#include "custom_math.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -108,8 +107,11 @@ void unit::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
 
 void unit::replenish_actions() {
   std::cout << "Replentish action points" << std::endl;
-  for (auto unit : s_units) {
-    unit.second->m_action_points = unit.second->m_combat_stats.m_action_points;
+  for (auto& member : s_units) {
+    Unit* unit = member.second;
+    CombatStats* stats = unit_definitions::get(unit->m_type);
+    if (!stats) return;
+    unit->m_action_points = stats->m_action_points;
   }
 }
 
@@ -121,22 +123,12 @@ bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
     return false;
   }
   
-  Modifier attack_mod, defend_mod;
-  combat::calculate_modifiers(attacker, defender, attack_mod, defend_mod);
-
   std::cout << "Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
 
-  // Get distance between characters
-  uint32_t distance = hex::cube_distance(attacker->m_location, defender->m_location);
-  bool is_backstab = cmath::dot(attacker->m_direction, defender->m_direction) > 0;
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
   bool result = combat::engage(
-    attacker->m_combat_stats, 
-    attack_mod, 
-    defender->m_combat_stats, 
-    defend_mod,
-    is_backstab,
-    distance);
+    attacker, 
+    defender);
 
   // If attacker or defender died, kill them
   if (defender->m_combat_stats.m_health == 0) {

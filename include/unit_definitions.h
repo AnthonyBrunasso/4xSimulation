@@ -1,9 +1,10 @@
 #pragma once
 
 #include "game_types.h"
-#include "combat.h"
 
 #include <functional>
+
+class CombatStats;
 
 // Unit definitions will contain some initial stats for certain types of unit.
 namespace unit_definitions {

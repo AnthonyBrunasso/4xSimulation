@@ -501,7 +501,7 @@ namespace terminal  {
     std::cout << "  siege <cityId> <unitId>" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;
     std::cout << "  status <statusType> <x> <y> <z>" << std::endl;
-    // Modifies the stats of a unit
+    
     std::cout << std::endl;
     std::cout << "Queries: " << std::endl;
     for (auto help : s_help_list) {

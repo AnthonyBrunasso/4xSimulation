@@ -147,16 +147,10 @@ namespace simulation {
         continue;
       }
 
-      // Attacker faces defender on combat initiation.
-      unit::change_direction(pair.first, defender->m_location);
-
       // If combat occurs deplete action points from the initiator
       if (unit::combat(pair.first, pair.second)) {
         unit->m_action_points = 0;
       }
-
-      // Defender turns to face attacker after combat.
-      unit::change_direction(pair.second, unit->m_location);
     }
 
     // Attacks should all complete in a single step?

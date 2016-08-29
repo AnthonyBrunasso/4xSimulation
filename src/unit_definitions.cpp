@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include "combat.h"
 #include "util.h"
 #include "game_types.h"
 

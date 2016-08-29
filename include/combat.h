@@ -2,7 +2,8 @@
 
 #include <cstdint>
 
-struct CombatStats {
+class CombatStats {
+public:
   CombatStats()
     : m_action_points(3)
     , m_health(1.f)
@@ -24,30 +25,10 @@ struct CombatStats {
   float m_range;
 };
 
-struct Modifier {
-  void reset() { 
-    m_health_modifier = 1.0f;
-    m_attack_modifier = 1.0f;
-    m_range_modifier = 1.0f;
-  };
-
-  float m_health_modifier;
-  float m_attack_modifier;
-  float m_range_modifier;
-};
-
 class Unit;
 
 namespace combat {
-  bool engage(CombatStats& attack_stats, 
-    const Modifier& attack_modifier, 
-    CombatStats& defend_stats, 
-    const Modifier& defend_modifer,
-    bool is_backstab,
-    uint32_t distance);
-
-  // Calls above function with all modifers equal to 1.0
-  bool engage(CombatStats& attack_stats, CombatStats& defend_stats, bool is_backstab, uint32_t distance);
-
-  bool calculate_modifiers(Unit* attacker, Unit* defender, Modifier& attacker_modifier, Modifier& defender_modifier);
+  bool engage(
+    Unit* attacker,
+    Unit* defender);
 }
