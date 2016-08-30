@@ -17,19 +17,23 @@ void unit_definitions::initialize() {
 
   // Scout
   s_definitions[util::enum_to_uint(UNIT_TYPE::SCOUT)] =
-    CombatStats(3, 18.f, 7.f, 17.f, 1.f); 
+    CombatStats(3, 19.f, 11.f, 19.f, 1.f); 
 
   // Archer
   s_definitions[util::enum_to_uint(UNIT_TYPE::ARCHER)] =
-    CombatStats(2, 22.f, 11.f, 19.f, 2.f);
+    CombatStats(2, 26.f, 13.f, 23.f, 2.f);
 
   // Phalanx
   s_definitions[util::enum_to_uint(UNIT_TYPE::PHALANX)] =
-    CombatStats(2, 36.f, 13.f, 29.f, 1.f);
+    CombatStats(2, 49.f, 17.f, 37.f, 1.f);
 
   // Worker
   s_definitions[util::enum_to_uint(UNIT_TYPE::WORKER)] = 
-    CombatStats(2, 26.f, 0.f, 0.f, 0.f);
+    CombatStats(2, 38.f, 0.f, 0.f, 0.f);
+
+  // Wizard
+  s_definitions[util::enum_to_uint(UNIT_TYPE::WIZARD)] =
+    CombatStats(2, 18.f, 7.f, 7.f, 1.f);
 }
 
 CombatStats* unit_definitions::get(UNIT_TYPE id) {

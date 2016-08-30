@@ -49,6 +49,7 @@ add_gametype(UNIT, 'Archer' , 2)
 add_gametype(UNIT, 'Phalanx', 3)
 add_gametype(UNIT, 'Worker' , 4)
 add_gametype(UNIT, 'Monster', 5)
+add_gametype(UNIT, 'Wizard', 6)
 
 add_gametype(BUILDING, 'Town', 1)
 

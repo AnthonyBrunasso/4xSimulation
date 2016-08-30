@@ -16,12 +16,13 @@
 # 809	811	821	823	827	829	839	853	857	859
 # 863	877	881	883	887	907	911	919	929	937
 # 941	947	953	967	971	977	983	991	997	
+import math
 
 # test stats
-dmg_segments = set([7.0, 11.0, 13.0, 17.0, 19.0, 29.0])
-dmg_names = ["scout hit", "archer hit", "phalanx hit", "scout backstab", "archer backstab", "phalanx backstab"]
-health_segments = [18.0, 22.0, 26.0, 41.0]
-health_names = ["scout", "archer", "worker", "phalanx"]
+dmg_segments = [7.0, 11.0, 13.0, 17.0, 19.0, 23.0, 37.0]
+dmg_names = ["wizard all", "scout hit", "archer hit", "phalanx hit", "scout backstab", "archer backstab", "phalanx backstab"]
+health_segments = [18.0, 19.0,  26.0, 38.0, 49.0]
+health_names = ["wizard", "scout", "archer", "worker", "phalanx"]
 
 remainder_segments = set()
 hit_range = set()
@@ -36,3 +37,6 @@ for d, dname in zip(dmg_segments, dmg_names):
     print(hname, h, d, hits, remainder)
     if hits > 1:
       remainder_segments.add(remainder)
+      
+print('hit range', hit_range)
+print('remainders', remainder_segments - set(dmg_segments))
