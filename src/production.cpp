@@ -136,9 +136,11 @@ namespace production {
     case CONSTRUCTION_TYPE::FACTORY :
       return 60.f;
     case CONSTRUCTION_TYPE::SCOUT :
-      return 10.f;
+      return 15.f;
     case CONSTRUCTION_TYPE::WORKER :
       return 20.f;
+    case CONSTRUCTION_TYPE::CASTER:
+      return 40;
     case CONSTRUCTION_TYPE::UNKNOWN :
     default:
       return 1000.f;
@@ -174,6 +176,9 @@ namespace production {
       break;
     case CONSTRUCTION_TYPE::WORKER:
       unit_id = unit::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
+      break;
+    case CONSTRUCTION_TYPE::CASTER:
+      unit_id = unit::create(UNIT_TYPE::WIZARD, city->m_location, city->m_owner_id);
       break;
     default:
       return;

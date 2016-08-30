@@ -60,6 +60,7 @@ add_gametype(CONSTRUCTION, 'Melee'  , 4)
 add_gametype(CONSTRUCTION, 'Factory', 5)
 add_gametype(CONSTRUCTION, 'Scout'  , 6)
 add_gametype(CONSTRUCTION, 'Worker' , 8)
+add_gametype(CONSTRUCTION, 'Caster', 10)
 
 add_gametype(AI, "Barbarian", 1)
 add_gametype(AI, "Human"    , 2)
