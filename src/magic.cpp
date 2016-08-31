@@ -32,20 +32,20 @@ namespace {
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   RequirementMap s_requirements;
 
-  void damage_units(uint32_t casting_player, MAGIC_TYPE type, const sf::Vector3i& location) {
-    Tile* tile = world_map::get_tile(location);
-    if (!tile) {
-      std::cout << get_magic_name(type) << " targeted invalid location." << std::endl;
-      return;
-    }
-  
+  bool damage_units(uint32_t casting_player, MAGIC_TYPE type, const Tile& tile) {
     float dmg = s_magic_stats[util::enum_to_uint(type)].m_damage;
-    for (auto id : tile->m_unit_ids) {
+    for (auto id : tile.m_unit_ids) {
       // Rain ze fire.
       std::cout << "Casting " << get_magic_name(type) << " upon unit " << id << std::endl;
       // If a unit died, jump out since tile->m_unit_ids will mutate.
       if (unit::damage(id, casting_player, dmg)) break;
     }
+
+    return false;
+  }
+
+  void aoe_damage(uint32_t casting_player, MAGIC_TYPE type, const Tile& origin) {
+    search::bfs(origin.m_location, 1, world_map::get_map(), std::bind(damage_units, casting_player, type, std::placeholders::_1));
   }
 }
 
@@ -118,12 +118,18 @@ void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& locati
     }
   }
 
+  Tile* tile = world_map::get_tile(location);
+  if (!tile) {
+    std::cout << get_magic_name(type) << " targeted invalid location." << std::endl;
+    return;
+  }
+
   switch (type) {
     case MAGIC_TYPE::FIREBALL:
-      damage_units(player_id, type, location);
+      aoe_damage(player_id, type, *tile);
       break;
     case MAGIC_TYPE::MAGIC_MISSLE:
-      damage_units(player_id, type, location);
+      damage_units(player_id, type, *tile);
       break;
     case MAGIC_TYPE::UNKNOWN:
       std::cout << "Unkown spell type casted from player_id: " << player_id << std::endl;
