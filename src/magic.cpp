@@ -50,12 +50,12 @@ namespace {
 }
 
 void magic::initialize() {
-  uint32_t id = util::enum_to_uint(MAGIC_TYPE::FIREBALL);
+  uint32_t fb_id = util::enum_to_uint(MAGIC_TYPE::FIREBALL);
   // Fireball does 5 whopping damage! Woah!
-  s_magic_stats[id] = Spell(5.0f, 2.0f, MAGIC_TYPE::FIREBALL);
+  s_magic_stats[fb_id] = Spell(5.0f, 2.0f, MAGIC_TYPE::FIREBALL);
 
-  id = util::enum_to_uint(MAGIC_TYPE::MAGIC_MISSLE);
-  s_magic_stats[id] = Spell(3.0f, 0.5f, MAGIC_TYPE::MAGIC_MISSLE);
+  uint32_t mm_id = util::enum_to_uint(MAGIC_TYPE::MAGIC_MISSLE);
+  s_magic_stats[mm_id] = Spell(3.0f, 0.5f, MAGIC_TYPE::MAGIC_MISSLE);
 
   // Magic missles must come from a city.
   auto missle_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
@@ -70,10 +70,27 @@ void magic::initialize() {
       return true;
     }
 
+    std::cout << "A city is required within two tiles to cast magic missile" << std::endl;
     return false;
   };
 
-  s_requirements[id].push_back(missle_requirements);
+  auto fireball_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
+    auto find_wizard = [player_id](const Unit& u) {
+      if (u.m_owner_id != player_id) return false;
+      if (u.m_type != UNIT_TYPE::WIZARD) return false;
+      return true;
+    };
+
+    if (search::bfs_units(location, 3, world_map::get_map(), find_wizard)) {
+      return true;
+    }
+
+    std::cout << "A city is required within three tiles to cast fireball" << std::endl;
+    return false;
+  };
+
+  s_requirements[mm_id].push_back(missle_requirements);
+  s_requirements[fb_id].push_back(fireball_requirements);
 }
 
 void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& location, bool cheat/*=false*/) {
