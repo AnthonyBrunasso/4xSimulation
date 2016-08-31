@@ -3,11 +3,14 @@
 #include "city.h"
 #include "unit.h"
 #include <unordered_map>
+#include <list>
 
 namespace scenario_arena
 {
   typedef std::unordered_map<uint32_t, uint32_t> PlayerScore;
   PlayerScore s_player_score;
+  typedef std::list<std::pair<uint32_t, uint32_t> > SpawnQueue;
+  SpawnQueue s_spawn_list;
   bool s_active;
 
   uint32_t score(UNIT_TYPE ut);
@@ -34,9 +37,15 @@ void scenario_arena::dead_unit(UnitFatality* uf)
 
   s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
 
-  if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
+  if ((s_player_score[uf->m_opponent->m_id] & (16 - 1)) == 0) {
+    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(UNIT_TYPE::WIZARD)));
+  }
+  else if ((s_player_score[uf->m_opponent->m_id] & (8 - 1)) == 0) {
+    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(UNIT_TYPE::ARCHER)));
+  }
+  else if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
     auto& spawn_fn = [uf](const City& c) {
-      unit::create(UNIT_TYPE::ARCHER, c.m_location, uf->m_opponent->m_id);
+      unit::create(UNIT_TYPE::SCOUT, c.m_location, uf->m_opponent->m_id);
     };
     player::for_each_player_city(uf->m_opponent->m_id, spawn_fn);
   }
@@ -59,12 +68,21 @@ void scenario_arena::start() {
 
 void scenario_arena::process() {
   auto city_func = [](City& cityInstance, Player& player) {
+    for (SpawnQueue::iterator it = s_spawn_list.begin(); it != s_spawn_list.end(); ++it) {
+      if (it->first != player.m_id) continue;
+      
+      unit::create(util::uint_to_enum<UNIT_TYPE>(it->second), cityInstance.m_location, player.m_id);
+      s_spawn_list.erase(it);
+      return;
+    }
+
     unit::create(UNIT_TYPE::PHALANX, cityInstance.m_location, player.m_id);
   };
   auto player_func = [city_func](Player& player) {
     player::for_each_player_city(player.m_id,
       [city_func, &player](City& c) { city_func(c, player); });
   };
+
   // Important: for_each_player is an ordered std::set
   // We must process players in order for consistent simulation results
   player::for_each_player(player_func);
