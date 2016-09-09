@@ -44,7 +44,7 @@ void scenario_arena::dead_unit(UnitFatality* uf)
     s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(UNIT_TYPE::ARCHER)));
   }
   else if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
-    auto& spawn_fn = [uf](const City& c) {
+    const auto& spawn_fn = [uf](const City& c) {
       unit::create(UNIT_TYPE::SCOUT, c.m_location, uf->m_opponent->m_id);
     };
     player::for_each_player_city(uf->m_opponent->m_id, spawn_fn);
