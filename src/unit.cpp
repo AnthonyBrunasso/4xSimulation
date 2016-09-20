@@ -123,7 +123,7 @@ bool unit::combat(uint32_t attacker_id, uint32_t defender_id) {
     return false;
   }
   
-  std::cout << "Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
+  std::cout << "--Unit " << attacker_id << " vs. Unit " << defender_id << std::endl;
 
   // Engage in combat with no modifiers, will have to add some logic to come up with modifiers here
   bool result = combat::engage(
