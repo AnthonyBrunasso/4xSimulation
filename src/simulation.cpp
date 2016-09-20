@@ -697,6 +697,7 @@ namespace simulation {
     Unit* unit = unit::get_unit(siege_step.get_unit());
     if (!unit) return "Invalid Unit";
     if (!player->OwnsUnit(unit->m_id)) return "Player doesn't own unit";
+    if (city->m_owner_id == player->m_id) return "Can't siege your own city";
     Tile* tile = world_map::get_tile(city->m_location);
     if (!tile) return "Invalid City Location";
     if (unit->m_action_points == 0) return "Unit is exhausted.";
