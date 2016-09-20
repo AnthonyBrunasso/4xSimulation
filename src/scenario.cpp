@@ -3,6 +3,7 @@
 #include "game_types.h"
 #include "scenario_monster.h"
 #include "scenario_arena.h"
+#include "scenario_citylife.h"
 
 #include <algorithm>
 #include <vector>
@@ -22,6 +23,9 @@ void scenario::start(SCENARIO_TYPE type) {
       break;
     case SCENARIO_TYPE::ARENA:
       scenario_arena::start();
+      break;
+    case SCENARIO_TYPE::CITYLIFE:
+      scenario_citylife::start();
     default:
       break;
   }
@@ -39,6 +43,8 @@ void scenario::process() {
         break;
       case SCENARIO_TYPE::ARENA:
         scenario_arena::process();
+      case SCENARIO_TYPE::CITYLIFE:
+        scenario_citylife::process();
       default:
         break;
     }
@@ -53,6 +59,7 @@ void scenario::debug_print(SCENARIO_TYPE type) {
         scenario_monster::debug_print();
         break;
       case SCENARIO_TYPE::ARENA:
+      case SCENARIO_TYPE::CITYLIFE:
       default:
         break;
     }

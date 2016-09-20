@@ -23,6 +23,7 @@
 #include "notification.h"
 #include "network_types.h"
 #include "scenario.h"
+#include "scenario_citylife.h"
 
 #include <iostream>
 #include <algorithm>
@@ -157,16 +158,9 @@ namespace simulation {
     s_units_to_fight.clear();
   }
 
-  void phase_city_growth() {
+  void phase_city_raze() {
     std::vector<uint32_t> razed;
-    auto city_func = [&razed](City& cityInstance, Player& player) { 
-      TerrainYield t = cityInstance.DumpYields();
-      std::cout << t << std::endl;
-      cityInstance.Simulate(t);
-      player.m_gold += t.m_gold;
-      player.m_science += t.m_science;
-      player.m_magic += t.m_magic;
-
+    auto city_func = [&razed](City& cityInstance, Player& player)  {
       if (cityInstance.GetPopulation() <= 0.0) {
         razed.push_back(cityInstance.m_id);
       }
@@ -182,6 +176,24 @@ namespace simulation {
     for (auto r : razed) {
       city::raze(r);
     }
+  }
+
+  void phase_city_growth() {
+    auto city_func = [](City& cityInstance, Player& player) { 
+      TerrainYield t = cityInstance.DumpYields();
+      std::cout << t << std::endl;
+      cityInstance.Simulate(t);
+      player.m_gold += t.m_gold;
+      player.m_science += t.m_science;
+      player.m_magic += t.m_magic;
+    };
+    auto player_func = [city_func](Player& player) {
+      player::for_each_player_city(player.m_id,
+        [city_func, &player](City& c) { city_func(c, player); });
+    };
+    // Important: for_each_player is an ordered std::set
+    // We must process players in order for consistent simulation results
+    player::for_each_player(player_func);
   }
 
   void phase_science_progression() {
@@ -961,7 +973,10 @@ void simulation::process_begin_turn() {
   }
 
   // Apply changes
-  phase_city_growth();
+  if (scenario_citylife::active()) {
+    phase_city_growth();
+    phase_city_raze();
+  }
   phase_science_progression();
   phase_diplomatic_progression();
   phase_spawn_units();
