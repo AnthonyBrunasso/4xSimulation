@@ -25,7 +25,7 @@ void unit_definitions::initialize() {
 
   // Phalanx
   s_definitions[util::enum_to_uint(UNIT_TYPE::PHALANX)] =
-    CombatStats(2, 49.f, 17.f, 37.f, 1.f);
+    CombatStats(2, 48.f, 17.f, 37.f, 1.f);
 
   // Worker
   s_definitions[util::enum_to_uint(UNIT_TYPE::WORKER)] = 
