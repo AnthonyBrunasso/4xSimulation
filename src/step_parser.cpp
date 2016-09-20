@@ -353,7 +353,13 @@ namespace {
     else if (tokens[0] == "scenario") {
       CHECK(2, tokens);
       ScenarioStep scenario;
-      scenario.set_type(get_scenario_type(tokens[1]));
+      if (std::isdigit(tokens[1][0])) {
+        scenario.set_type(util::uint_to_enum<SCENARIO_TYPE>(std::stoul(tokens[1])));
+      }
+      // Else treat it as a the name of what needs to be spawned.
+      else {
+        scenario.set_type(get_scenario_type(tokens[1]));
+      }
       bytes_written = serialize(buffer, buffer_len, scenario);
     }
 

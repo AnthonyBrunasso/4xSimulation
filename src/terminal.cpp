@@ -475,6 +475,7 @@ namespace terminal  {
     std::cout << "  begin_turn" << std::endl;
     std::cout << "  join <name> [<aiType>]" << std::endl;
     std::cout << "  kill <unitId>" << std::endl;
+    std::cout << "  scenario <scenarioType>" << std::endl;
     std::cout << "  spawn <unitType> <x> <y> <z>" << std::endl;
     std::cout << "  stats <unitId> <health> <attack> <range>"<< std::endl;
     std::cout << "  tile_cost <x> <y> <z> <cost>" << std::endl;
@@ -496,7 +497,6 @@ namespace terminal  {
     std::cout << "  production_move <cityId> <sourceIndex> <destinationIndex>" << std::endl;
     std::cout << "  purchase <cityId> [constructionType]" << std::endl;
     std::cout << "  queue_move <unitId> <x> <y> <z>" << std::endl;
-    std::cout << "  scenario <scenarioType>" << std::endl;
     std::cout << "  sell <cityId> [constructionType]" << std::endl;
     std::cout << "  siege <cityId> <unitId>" << std::endl;
     std::cout << "  specialize <cityId> <terrain_type>" << std::endl;
