@@ -108,6 +108,8 @@ void EmpireExplore::operator()(uint32_t player_id) {
     move_step.set_destination(coord);
     move_step.set_player(player_id);
     move_step.set_immediate(true);
+    move_step.set_avoid_city(true);
+    move_step.set_avoid_unit(true);
     ai_shared::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
   });
 }

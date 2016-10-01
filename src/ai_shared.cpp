@@ -111,6 +111,8 @@ bool ai_shared::wander(uint32_t unit_id) {
   move_step.set_destination(get_random_coord());
   move_step.set_player(su->m_owner_id);
   move_step.set_immediate(true);
+  move_step.set_avoid_city(true);
+  move_step.set_avoid_unit(true);
   simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
 
   return true;
@@ -130,6 +132,8 @@ bool ai_shared::approach_improvement(uint32_t unit_id, uint32_t target_id) {
   move_step.set_destination(ti->m_location);
   move_step.set_player(su->m_owner_id);
   move_step.set_immediate(true);
+  move_step.set_avoid_city(true);
+  move_step.set_avoid_city(true);
   simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
   // Try to pillage it.
   pillage_improvement(unit_id, target_id);
