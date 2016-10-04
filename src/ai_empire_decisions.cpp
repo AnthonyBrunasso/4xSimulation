@@ -185,6 +185,49 @@ void EmpireUnitDecisions::operator()(uint32_t player_id) {
   state->m_orders.clear();
 }
 
+void EmpireEndTurn::operator()(uint32_t player_id) {
+  Player* p = player::get_player(player_id);
+  if (!p) {
+    std::cout << "Invalid player id. Unit decision." << std::endl;
+    return;
+  }
+
+  std::shared_ptr<AIState>& state = p->m_ai_state;
+  state->m_micro_done = true;
+}
+
+void EmpireFortifyUnit::operator()(uint32_t player_id) {
+  // no-op for now.
+  std::cout << "Would have fortified this unit: " << m_state->m_idle_units.back() << std::endl;
+}
+
+void EmpireApproach::operator()(uint32_t player_id) {
+  Unit* u = unit::get_unit(m_state->m_idle_units.back());
+  if (!u) return;
+
+  ai_shared::approach(m_state->m_idle_units.back(), m_state->m_target_location);
+  std::cout << "Unit: " << m_state->m_idle_units.back() << " approaching location: " << format::vector3(m_state->m_target_location) 
+    << "from: " << format::vector3(u->m_location) << std::endl;
+}
+
+void EmpireAttack::operator()(uint32_t player_id) {
+  ai_shared::attack_unit(m_state->m_idle_units.back(), m_state->m_threats.back());
+}
+
+ void EmpireSiege::operator()(uint32_t player_id) {
+  ai_shared::attack_city(m_state->m_idle_units.back(), m_state->m_target_city);
+}
+
+void EmpirePillage::operator()(uint32_t player_id){
+  ai_shared::pillage_improvement(m_state->m_idle_units.back(), m_state->m_pillage_targets.back());
+  std::cout << "Unit: " << m_state->m_idle_units.back() << " pillaging improvement: " << m_state->m_pillage_targets.back() << std::endl;
+}
+
+void EmpireWander::operator()(uint32_t player_id) {
+  ai_shared::wander(m_state->m_idle_units.back());
+  std::cout << "Unit: " << m_state->m_idle_units.back() << " wandering..." << std::endl;
+}
+
 namespace empire_decisions {
   EmpireSettle s_empire_settle;
   EmpireConstruct s_empire_construct(CONSTRUCTION_TYPE::MELEE);
@@ -206,4 +249,39 @@ EmpireExplore& empire_decisions::get_explore() {
 
 EmpireUnitDecisions& empire_decisions::get_unit_decisions() {
   return s_empire_unit_decisions;
+}
+
+EmpireEndTurn& empire_decisions::decide_endturn() {
+  static EmpireEndTurn s_end_turn;
+  return s_end_turn;
+}
+
+EmpireFortifyUnit& empire_decisions::decide_fortify() {
+  static EmpireFortifyUnit s_fortify;
+  return s_fortify;
+}
+
+EmpireApproach& empire_decisions::decide_approach() {
+  static EmpireApproach s_approach;
+  return s_approach;
+}
+
+EmpireAttack& empire_decisions::decide_attack() {
+  static EmpireAttack s_attack;
+  return s_attack;
+}
+
+EmpireSiege& empire_decisions::decide_siege() {
+  static EmpireSiege s_siege;
+  return s_siege;
+}
+
+EmpirePillage& empire_decisions::decide_pillage() {
+  static EmpirePillage s_pillage;
+  return s_pillage;
+}
+
+EmpireWander& empire_decisions::decide_wander() {
+  static EmpireWander s_wander;
+  return s_wander;
 }

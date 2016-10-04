@@ -38,7 +38,20 @@ bool ai_shared::attack_unit(uint32_t unit_id, uint32_t target_id) {
 
 }
 
-void ai_shared::approach(uint32_t unit_id, const sf::Vector3i& start, const sf::Vector3i& location) {
+bool ai_shared::attack_city(uint32_t unit_id, uint32_t city_id)
+{
+  Unit* u = unit::get_unit(unit_id);
+  if (!u) return false;
+
+  SiegeStep siege_step;
+  siege_step.set_city(city_id);
+  siege_step.set_player(u->m_owner_id);
+  siege_step.set_unit(u->m_id);
+  simulate_step(siege_step, s_ai_buffer, BUFFER_LEN);
+  return true;
+}
+
+void ai_shared::approach(uint32_t unit_id, const sf::Vector3i& location) {
   Unit* u = unit::get_unit(unit_id);
   if (!u) return;
   MoveStep move_step;
@@ -59,7 +72,7 @@ bool ai_shared::approach_unit(uint32_t unit_id, uint32_t target_id) {
     return false; 
   }
 
-  approach(unit_id, su->m_location, tu->m_location);
+  approach(unit_id, tu->m_location);
   // Try to attack the unit.
   attack_unit(unit_id, target_id);
   return true;
@@ -73,7 +86,7 @@ bool ai_shared::approach_city(uint32_t unit_id, uint32_t target_id) {
     return false; 
   }
 
-  approach(unit_id, su->m_location, tc->m_location);
+  approach(unit_id, tc->m_location);
   return true;
 }
 

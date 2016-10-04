@@ -28,9 +28,45 @@ public:
   virtual void operator()(uint32_t player_id) override;
 };
 
+class EmpireEndTurn : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpireFortifyUnit : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpireApproach : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpireAttack : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpireSiege : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpirePillage : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
+class EmpireWander : public Decision {
+  virtual void operator()(uint32_t player_id) override;
+};
+
 namespace empire_decisions {
   EmpireSettle& get_settle();
   EmpireConstruct& get_construct();
   EmpireExplore& get_explore();
   EmpireUnitDecisions& get_unit_decisions();
+
+  EmpireEndTurn& decide_endturn();
+  EmpireFortifyUnit& decide_fortify();
+  EmpireApproach& decide_approach();
+  EmpireAttack& decide_attack();
+  EmpireSiege& decide_siege();
+  EmpirePillage& decide_pillage();
+  EmpireWander& decide_wander();
 }

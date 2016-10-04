@@ -1,11 +1,23 @@
 #include "dtree.h"
+#include "ai_state.h"
+#include <iostream>
+
+void track_node(DNode* node, std::vector<DNode*>& node_vector) {
+  if (!node) return;
+  track_node(node->m_right, node_vector);
+  track_node(node->m_left, node_vector);
+  node_vector.push_back(node);
+}
 
 DTree::DTree(DNode* root) :
    m_root(root) {
 }
 
 DTree::~DTree() {
-  delete_node(m_root);
+}
+
+void DTree::track_nodes(std::vector<DNode*>& nodes) {
+  track_node(m_root, nodes);
 }
 
 // Run this decision with the given player. 
@@ -23,14 +35,20 @@ void DTree::recurse(uint32_t id, DNode* node) {
   Decision* decision = node->m_decision;
   Evaluation* evaluation = node->m_evaluation;
   float threshold = node->m_threshold;
-
+  
   if (decision) {
+    decision->m_state = m_state;
     (*decision)(id);
   }
 
   float result = NOOP_EVALUATION;
   if (evaluation) {
+    evaluation->m_state = m_state;
     result = (*evaluation)(id, threshold);
+
+    if (result == NOOP_EVALUATION) {
+      std::cout << "Eval ended in NOOP" << std::endl;
+    }
   }
 
   // If no evaluation was made stop recursing here, the AI is either
@@ -47,11 +65,4 @@ void DTree::recurse(uint32_t id, DNode* node) {
   else if (node->m_left) {
     recurse(id, node->m_left);
   }
-}
-
-void DTree::delete_node(DNode* node) {
-  if (!node) return;
-  delete_node(node->m_left);
-  delete_node(node->m_right);
-  delete node;
 }

@@ -1,6 +1,7 @@
 #include "ai_barbarians.h"
 
 #include "ai_empire_trees.h"
+#include "ai_state.h"
 #include "player.h"
 #include "dtree.h"
 #include "game_types.h"
@@ -23,11 +24,20 @@ void barbarians::destroy() {
 
 // Lets the barbarians execute their turn. 
 void barbarians::pillage_and_plunder(uint32_t player_id) {
-  for (auto id : s_player_ids) {
-    if (id == player_id) {
-      empire_trees::get_primitive_macro().make_decision(id);
-      empire_trees::get_primitive_micro().make_decision(id);
-    }
+  Player* p = player::get_player(player_id);
+  if (!p) return;
+
+  if (!p->m_ai_state) return;
+
+  std::cout << "Process turn for barbarian " << player_id << std::endl;
+  std::cout << "Barbarian macro is active" << std::endl;
+  empire_trees::get_primitive_macro().make_decision(player_id);
+  
+  p->m_ai_state->m_micro_done = false;
+  while (!p->m_ai_state->m_micro_done) {
+    TurnState t;
+    std::cout << "Barbarian micro is active" << std::endl;
+    empire_trees::get_primitive_micro(&t).make_decision(player_id);
   }
 }
 

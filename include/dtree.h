@@ -2,7 +2,9 @@
 
 #include <cstdint>
 #include <cfloat>
+#include <vector>
 
+struct TurnState;
 const float NOOP_EVALUATION = FLT_MAX;
 
 // An AI decision is an action an AI takes. Attacking a unit, colonizing, etc.
@@ -11,6 +13,7 @@ public:
   virtual ~Decision() {};
 
   virtual void operator()(uint32_t /*id*/) {};
+  TurnState* m_state;
 };
 
 // An AI evaluation is used to determine what branch down the decision tree the AI 
@@ -21,6 +24,7 @@ public:
   virtual ~Evaluation() {};
 
   virtual float operator()(uint32_t /*id*/, float /*threshold*/) { return NOOP_EVALUATION; };
+  TurnState* m_state;
 };
 
 struct DNode {
@@ -44,14 +48,13 @@ struct DNode {
 class DTree {
 public:
   DTree(DNode* root);
-
-  // Recursively deletes the nodes in this tree.
-  void delete_node(DNode* node);
   ~DTree();
 
-  // Run this decision with the given player. 
+  void track_nodes(std::vector<DNode*>& nodes);
+  // Run this decision with the given player.
   void make_decision(uint32_t id);
 
+  TurnState* m_state;
 private:
   // Recurse down the tree for a decision.
   void recurse(uint32_t id, DNode* node);

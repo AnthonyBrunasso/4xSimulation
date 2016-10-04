@@ -1,7 +1,7 @@
 #pragma once
 
 #include "game_types.h"
-
+#include "Vector3.hpp"
 #include <vector>
 
 // Order to be issued to unit.
@@ -28,5 +28,16 @@ public:
 
   void add_order(uint32_t unit_id, uint32_t target_id, AI_ORDER_TYPE order);
 
+  bool m_micro_done;
   std::vector<UnitOrder> m_orders;
 };
+
+struct TurnState
+{
+  std::vector<uint32_t> m_idle_units;
+  std::vector<uint32_t> m_threats;
+  uint32_t m_target_city;
+  std::vector<uint32_t> m_pillage_targets;
+  sf::Vector3i m_target_location;
+};
+

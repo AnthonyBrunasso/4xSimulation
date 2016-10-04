@@ -2,7 +2,9 @@
 
 #include <iostream>
 
-AIState::AIState() {
+AIState::AIState()
+: m_micro_done(false)
+{
 
 }
 

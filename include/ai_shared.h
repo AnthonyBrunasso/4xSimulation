@@ -6,8 +6,9 @@
 #include <Vector3.hpp>
 
 namespace ai_shared {
-  void approach(uint32_t unit_id, const sf::Vector3i& start, const sf::Vector3i& location); 
+  void approach(uint32_t unit_id, const sf::Vector3i& location); 
   bool attack_unit(uint32_t unit_id, uint32_t target_id);
+  bool attack_city(uint32_t unit_id, uint32_t city_id);
   bool approach_unit(uint32_t unit_id, uint32_t target_id);
   bool approach_city(uint32_t unit_id, uint32_t target_id);
   bool pillage_improvement(uint32_t unit_id, uint32_t target_id);

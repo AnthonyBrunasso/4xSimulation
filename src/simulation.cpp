@@ -1,5 +1,6 @@
 #include "simulation.h"
 
+#include "ai_empire_trees.h"
 #include "search.h"
 #include "unit.h"
 #include "city.h"
@@ -575,6 +576,10 @@ namespace simulation {
         path.pop_back();
       }
     }
+    if (player->m_ai_type != AI_TYPE::HUMAN && path.empty()) {
+      unit->m_action_points = 0;
+      std::cout << "AI attempted an empty path: unit exhausted." << std::endl;
+    }
     // Set path
     unit::set_path(unit->m_id, path);
     return unit;
@@ -856,6 +861,7 @@ void simulation::kill() {
   unit::clear();
   city::clear();
   science::shutdown();
+  empire_trees::shutdown();
 }
 
 uint32_t simulation::get_turn() {
