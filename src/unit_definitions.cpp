@@ -27,7 +27,7 @@ void unit_definitions::initialize() {
 
   // Phalanx
   add(any_enum(fbs::UNIT_TYPE::PHALANX),
-    CombatStats(2, 48.f, 17.f, 37.f, 1.f));
+    CombatStats(2, 47.f, 17.f, 37.f, 1.f));
 
   // Worker
   add(any_enum(fbs::UNIT_TYPE::WORKER),
