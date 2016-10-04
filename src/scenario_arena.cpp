@@ -46,6 +46,8 @@ void scenario_arena::dead_unit(UnitFatality* uf)
   s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
 
   if ((s_player_score[uf->m_opponent->m_id] & (16 - 1)) == 0) {
+    Player* m_victor = player::get_player(uf->m_attacking->m_owner_id);
+    m_victor->m_magic += 10.f;
     s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, any_enum(fbs::UNIT_TYPE::WIZARD)));
   }
   else if ((s_player_score[uf->m_opponent->m_id] & (8 - 1)) == 0) {

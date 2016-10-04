@@ -56,10 +56,10 @@ namespace {
 void magic::initialize() {
   uint32_t fb_id = any_enum(fbs::MAGIC_TYPE::FIREBALL);
   // Fireball does 5 whopping damage! Woah!
-  s_magic_stats[fb_id] = Spell(5.0f, 2.0f, fbs::MAGIC_TYPE::FIREBALL);
+  s_magic_stats[fb_id] = Spell(7.0f, 2.0f, fbs::MAGIC_TYPE::FIREBALL);
 
   uint32_t mm_id = any_enum(fbs::MAGIC_TYPE::MAGIC_MISSILE);
-  s_magic_stats[mm_id] = Spell(3.0f, 0.5f, fbs::MAGIC_TYPE::MAGIC_MISSILE);
+  s_magic_stats[mm_id] = Spell(26.0f, 1.0f, fbs::MAGIC_TYPE::MAGIC_MISSILE);
 
   // Magic missles must come from a city.
   auto missle_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
@@ -89,7 +89,7 @@ void magic::initialize() {
       return true;
     }
 
-    std::cout << "A city is required within three tiles to cast fireball" << std::endl;
+    std::cout << "A wizard is required within three tiles to cast fireball" << std::endl;
     return false;
   };
 
