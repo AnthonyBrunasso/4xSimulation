@@ -70,12 +70,19 @@ void magic::initialize() {
     };
 
     // Dfs for for a city within two tiles of the target location.
-    if (search::bfs_cities(location, 2, world_map::get_map(), find_city)) {
-      return true;
+    if (!search::bfs_cities(location, 2, world_map::get_map(), find_city)) {
+      std::cout << "A city is required within two tiles to cast magic missile" << std::endl;
+      return false;
     }
 
-    std::cout << "A city is required within two tiles to cast magic missile" << std::endl;
-    return false;
+    Tile* tile = world_map::get_tile(location);
+    if (!tile) return false;
+    if (tile->m_unit_ids.empty()) {
+      std::cout << "No valid target on location" << std::endl;
+      return false;
+    }
+
+    return true;
   };
 
   auto fireball_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
