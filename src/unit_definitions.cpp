@@ -15,27 +15,27 @@ namespace {
 }
 
 void unit_definitions::initialize() {
-  // CombatStats: movement, health, attack, backstab, range
+  // CombatStats: movement, vision, health, attack, backstab, range
 
   // Scout
   add(any_enum(fbs::UNIT_TYPE::SCOUT),
-    CombatStats(3, 19.f, 11.f, 19.f, 1.f)); 
+    CombatStats(3, 3, 19.f, 11.f, 19.f, 1.f)); 
 
   // Archer
   add(any_enum(fbs::UNIT_TYPE::ARCHER),
-    CombatStats(2, 26.f, 13.f, 23.f, 2.f));
+    CombatStats(2, 2, 26.f, 13.f, 23.f, 2.f));
 
   // Phalanx
   add(any_enum(fbs::UNIT_TYPE::PHALANX),
-    CombatStats(2, 47.f, 17.f, 37.f, 1.f));
+    CombatStats(2, 1, 47.f, 17.f, 37.f, 1.f));
 
   // Worker
   add(any_enum(fbs::UNIT_TYPE::WORKER),
-    CombatStats(2, 38.f, 0.f, 0.f, 0.f));
+    CombatStats(2, 1, 38.f, 0.f, 0.f, 0.f));
 
   // Wizard
   add(any_enum(fbs::UNIT_TYPE::WIZARD),
-    CombatStats(2, 18.f, 7.f, 7.f, 1.f));
+    CombatStats(2, 2, 18.f, 7.f, 7.f, 1.f));
 }
 
 void unit_definitions::reset() {

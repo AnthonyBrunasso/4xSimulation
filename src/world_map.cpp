@@ -329,7 +329,7 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
         player->m_discovered_tiles.insert(&t);
         return false;
       };
-      search::bfs(unit->m_location, 2, world_map::get_map(), fp);
+      search::bfs(unit->m_location, unit->m_combat_stats.m_vision, world_map::get_map(), fp);
     }
     next->m_unit_ids.push_back(unit->m_id);
     // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented

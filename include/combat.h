@@ -11,14 +11,16 @@ public:
     , m_backstab(0.f)
     , m_range(0.f) {};
 
-  CombatStats(uint32_t action_points, float health, float attack, float backstab, float range) 
+  CombatStats(uint32_t action_points, uint32_t vision, float health, float attack, float backstab, float range) 
     : m_action_points(action_points)
+    , m_vision(vision)
     , m_health(health)
     , m_attack(attack)
     , m_backstab(backstab)
     , m_range(range) {};
 
   uint32_t m_action_points;
+  uint32_t m_vision;
   float m_health;
   float m_attack;
   float m_backstab;

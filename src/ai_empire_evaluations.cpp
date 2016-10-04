@@ -251,7 +251,7 @@ float ThreatenedVsAvailable::operator()(uint32_t player_id, float threshold) {
   for (uint32_t unit_id : m_state->m_idle_units) {
     Unit* u = unit::get_unit(unit_id);
     if (!u) continue;
-    search::bfs_units(u->m_location, 2, world_map::get_map(), [&threatened, u, this](const Unit& other) {
+    search::bfs_units(u->m_location, u->m_combat_stats.m_vision, world_map::get_map(), [&threatened, u, this](const Unit& other) {
       if (u->m_owner_id != other.m_owner_id) {
         threatened.push_back(u->m_id);
         m_state->m_threats.push_back(other.m_id);

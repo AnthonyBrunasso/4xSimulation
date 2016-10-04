@@ -133,7 +133,7 @@ namespace simulation {
           // Search every tile.
           return false;
         };
-        search::bfs(unit->m_location, 3, world_map::get_map(), found_other);
+        search::bfs(unit->m_location, unit->m_combat_stats.m_vision, world_map::get_map(), found_other);
         movement = true;
         unit->m_action_points -= moved;
 
