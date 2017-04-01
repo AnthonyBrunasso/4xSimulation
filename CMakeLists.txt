@@ -1,3 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
+set(FLATBUFFERS_BUILD_TESTS OFF)
+set(FLATBUFFERS_BUILD_FLATHASH OFF)
 add_subdirectory("flatbuffers")
 add_subdirectory("src")
