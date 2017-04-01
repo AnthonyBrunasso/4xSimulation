@@ -27,6 +27,8 @@
 #include "scenario_citylife.h"
 #include "tile_costs.h"
 
+#include "step_generated.h"
+
 #include <iostream>
 #include <algorithm>
 

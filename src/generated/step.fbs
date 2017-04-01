@@ -1,0 +1,18 @@
+
+namespace fbs;
+
+struct v3i
+{
+  x: short;
+  y: short;
+  z: short;
+}
+
+table SpawnStep
+{
+  unit_type: uint;
+  location: v3i;
+  player: uint;
+}
+
+
