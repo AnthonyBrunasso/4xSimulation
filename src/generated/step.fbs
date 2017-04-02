@@ -15,4 +15,4 @@ table SpawnStep
   player: uint;
 }
 
-
+root_type SpawnStep;

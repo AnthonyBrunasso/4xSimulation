@@ -4,6 +4,8 @@
 #include "format.h"
 #include "network_types.h"
 
+#include "step_generated.h"
+
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -306,17 +308,48 @@ namespace {
     else if (tokens[0] == "spawn") {
       CHECK(5, tokens);
       SpawnStep spawn;
+      flatbuffers::FlatBufferBuilder builder;
+      fbs::SpawnStepBuilder ss1(builder);
+      fbs::SpawnStepT ss2;
 
       // If first character in string is a number treat it as an id.
       if (std::isdigit(tokens[1][0])) {
         spawn.set_unit_type(std::stoul(tokens[1]));
+        ss1.add_unit_type(std::stoul(tokens[1]));
+        ss2.unit_type = std::stoul(tokens[1]);
       }
-      // Else treat it as a the name of what needs to be spawned.
+      // Else treat it as the name of what needs to be spawned.
       else {
         spawn.set_unit_type(util::enum_to_uint(get_unit_type(tokens[1])));
+        ss1.add_unit_type(util::enum_to_uint(get_unit_type(tokens[1])));
+        ss2.unit_type = util::enum_to_uint(get_unit_type(tokens[1]));
       }
       spawn.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
       spawn.set_player(s_active_player);
+
+      auto location= fbs::v3i(std::stoul(tokens[2]), std::stoul(tokens[3]), std::stoul(tokens[4]));
+      ss1.add_location(&location);
+      ss1.add_player(s_active_player);
+      ss2.location.reset(new fbs::v3i(std::stoul(tokens[2]), std::stoul(tokens[3]), std::stoul(tokens[4])));
+
+      fbs::FinishSpawnStepBuffer(builder,ss1.Finish());
+      std::cout << "ss2: player " << ss2.player << " unit_type " << ss2.unit_type << std::endl;
+      flatbuffers::FlatBufferBuilder builder2;
+      fbs::FinishSpawnStepBuffer(builder2, fbs::SpawnStep::Pack(builder2, &ss2));
+
+      const flatbuffers::FlatBufferBuilder& readBuilder = builder2;
+      auto mystep = fbs::GetSpawnStep(readBuilder.GetBufferPointer());
+      fbs::SpawnStepT myobj;
+      mystep->UnPackTo(&myobj);
+      std::cout << "player " << myobj.player << " unit_type " << myobj.unit_type 
+          << " location: " << myobj.location->x() << " " << myobj.location->y() << myobj.location->z() << std::endl;
+      
+      if (readBuilder.GetSize() > buffer_len) {
+          std::cout << "Ran out of network buffer. :(" << std::endl;
+          return 0;
+      }
+
+      std::memcpy(buffer, readBuilder.GetBufferPointer(), builder.GetSize());
       bytes_written = serialize(buffer, buffer_len, spawn);
     }
 
