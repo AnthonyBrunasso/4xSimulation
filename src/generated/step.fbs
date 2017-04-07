@@ -1,6 +1,11 @@
 
 namespace fbs;
 
+enum AI_TYPE:uint { AI_BARBARIAN, AI_HUMAN, AI_MONSTER }
+enum MAGIC_TYPE:uint { MAGIC_FIREBALL, MAGIC_MAGIC_MISSILE }
+enum STATUS_TYPE:uint { STATUS_RESIST_MODIFIERS, STATUS_STASIS, STATUS_CONSTRUCTING_IMPROVEMENT, STATUS_SUMMONING_MONSTER }
+enum SCENARIO_TYPE:uint { SCENARIO_DISEASE, SCENARIO_MONSTER, SCENARIO_ARENA, SCENARIO_CITYLIFE }
+
 struct v3i
 {
   x: short;
@@ -15,4 +20,194 @@ table SpawnStep
   player: uint;
 }
 
-root_type SpawnStep;
+table ImproveStep
+{
+  location: v3i;
+  resource: uint;
+  player: uint;
+}
+
+table ColonizeStep
+{
+  location: v3i;
+  player: uint;
+}
+
+table ConstructionStep
+{
+  city_id: uint;
+  production_id: uint;
+  cheat: bool;
+  player: uint;
+}
+
+table MoveStep
+{
+  unit_id: uint;
+  destination: v3i;
+  player: uint;
+  immediate: bool;
+  avoid_unit: bool;
+  avoid_city: bool;
+  require_ownership: bool;
+}
+
+table PurchaseStep
+{
+  player: uint;
+  production: uint;
+  city: uint;
+}
+
+table SellStep
+{
+  player: uint;
+  city: uint;
+  production_id: uint;
+}
+
+table AddPlayerStep
+{
+  name: string;
+  ai_type: AI_TYPE;
+}
+
+table AttackStep
+{
+  attacker_id: uint;
+  defender_id: uint;
+  player: uint;
+}
+
+table KillStep
+{
+  unit_id: uint;
+}
+
+table UnitStatsStep
+{
+  unit_id: uint;
+  health: uint;
+  attack: uint;
+  range: uint;
+}
+
+table TileMutatorStep
+{
+  destination: v3i;
+  movement_cost: uint;
+}
+
+table ResourceMutatorStep
+{
+  destination: v3i;
+  type: uint;
+  quantity: uint;
+}
+
+table EndTurnStep
+{
+  player: uint;
+  next_player: uint;
+}
+
+table HarvestStep
+{
+  player: uint;
+  destination: v3i;
+}
+
+table SpecializeStep
+{
+  city_id: uint;
+  terrain_type: uint;
+  player: uint;
+}
+
+table BarbarianStep
+{
+  player: uint;
+}
+
+table BeginStep
+{
+  activate_player: uint;
+}
+
+table CityDefenseStep
+{
+  player: uint;
+  unit: uint;
+}
+
+table PillageStep
+{
+  player: uint;
+  unit: uint;
+}
+
+table ProductionAbortStep
+{
+  player: uint;
+  city: uint;
+  index: uint;
+}
+
+table ProductionMoveStep
+{
+  player: uint;
+  city: uint;
+  source_index: uint;
+  destination_index: uint;
+}
+
+table SiegeStep
+{
+  player: uint;
+  unit: uint;
+  city: uint;
+}
+
+table GrantStep
+{
+  player: uint;
+  science: uint;
+}
+
+table MagicStep
+{
+  player: uint;
+  location: v3i;
+  type: MAGIC_TYPE;
+  cheat: bool;
+}
+
+table ResearchStep
+{
+  player: uint;
+  science: uint;
+}
+
+table StatusStep
+{
+  type: STATUS_TYPE;
+  location: v3i;
+}
+
+table ScenarioStep
+{
+  type: SCENARIO_TYPE;
+}
+
+table QuitStep
+{
+}
+
+union StepUnion { SpawnStep, QuitStep }
+
+table AnyStep
+{
+  step: StepUnion;
+}
+
+root_type AnyStep;

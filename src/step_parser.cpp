@@ -310,7 +310,9 @@ namespace {
       SpawnStep spawn;
       flatbuffers::FlatBufferBuilder builder;
       fbs::SpawnStepBuilder ss1(builder);
-      fbs::SpawnStepT ss2;
+      fbs::AnyStepT ss3;
+      ss3.step.Set(fbs::SpawnStepT());
+      fbs::SpawnStepT& ss2 = *ss3.step.AsSpawnStep();
 
       // If first character in string is a number treat it as an id.
       if (std::isdigit(tokens[1][0])) {
@@ -332,17 +334,20 @@ namespace {
       ss1.add_player(s_active_player);
       ss2.location.reset(new fbs::v3i(std::stoul(tokens[2]), std::stoul(tokens[3]), std::stoul(tokens[4])));
 
-      fbs::FinishSpawnStepBuffer(builder,ss1.Finish());
+      //fbs::FinishSpawnStepBuffer(builder,ss1.Finish());
       std::cout << "ss2: player " << ss2.player << " unit_type " << ss2.unit_type << std::endl;
       flatbuffers::FlatBufferBuilder builder2;
-      fbs::FinishSpawnStepBuffer(builder2, fbs::SpawnStep::Pack(builder2, &ss2));
-
+      //fbs::FinishSpawnStepBuffer(builder2, fbs::SpawnStep::Pack(builder2, &ss2));
+      fbs::FinishAnyStepBuffer(builder2, fbs::AnyStep::Pack(builder2, &ss3));
       const flatbuffers::FlatBufferBuilder& readBuilder = builder2;
-      auto mystep = fbs::GetSpawnStep(readBuilder.GetBufferPointer());
-      fbs::SpawnStepT myobj;
-      mystep->UnPackTo(&myobj);
+      //auto mystep = fbs::GetSpawnStep(readBuilder.GetBufferPointer());
+      auto mystep = fbs::GetAnyStep(readBuilder.GetBufferPointer());
+      fbs::AnyStepT unionObj;
+      mystep->UnPackTo(&unionObj);
+      fbs::SpawnStepT& myobj = *unionObj.step.AsSpawnStep();
+      //mystep->UnPackTo(&myobj);
       std::cout << "player " << myobj.player << " unit_type " << myobj.unit_type 
-          << " location: " << myobj.location->x() << " " << myobj.location->y() << myobj.location->z() << std::endl;
+          << " location: " << myobj.location->x() << " " << myobj.location->y() << " " << myobj.location->z() << std::endl;
       
       if (readBuilder.GetSize() > buffer_len) {
           std::cout << "Ran out of network buffer. :(" << std::endl;
