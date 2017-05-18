@@ -978,11 +978,8 @@ void simulation::process_begin_turn() {
     return;
   }
 
-  // Apply changes
-  if (scenario_citylife::active()) {
-    phase_city_growth();
-    phase_city_raze();
-  }
+  phase_city_growth();
+  phase_city_raze();
   phase_science_progression();
   phase_diplomatic_progression();
   phase_spawn_units();
