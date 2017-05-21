@@ -18,5 +18,9 @@ namespace scenario_citylife {
   {
 
   }
+
+  void reset() {
+    s_active = false;
+  }
 }
 

@@ -70,4 +70,6 @@ namespace status_effect {
   void for_each_effect(std::function<void(const StatusEffect& effect)> operation);
 
   void process(); 
+
+  void reset();
 }

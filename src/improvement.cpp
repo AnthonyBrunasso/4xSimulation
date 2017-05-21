@@ -140,3 +140,15 @@ void improvement::for_each_improvement(
   }
 }
 
+void improvement::reset() {
+  for (auto& i : s_improvements) {
+    delete i.second;
+  }
+  s_improvements.clear();
+  s_impvResources.clear();
+  s_destroy_subs.clear();
+  s_create_subs.clear();
+  s_creation_requirements.clear();
+  s_resource_improvements.clear();
+}
+

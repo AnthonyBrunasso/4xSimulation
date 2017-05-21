@@ -49,3 +49,8 @@ uint32_t scenario_monster::get_monster_id() {
 void scenario_monster::debug_print() {
   std::cout << "Monster has generated " << s_channeled_power << " power." << std::endl;
 }
+
+void scenario_monster::reset() {
+  s_monster_id = INVALID_MONSTER_ID;
+  s_channeled_power = 0;
+}

@@ -337,10 +337,15 @@ void city::for_each_city(std::function<void(City& )> operation) {
   }
 }
 
-void city::clear() {
+void city::reset() {
   for (auto it = s_cities.begin(); it != s_cities.end(); ++it) {
     delete it->second;
   }
   s_cities.clear();
+
+  s_raze_init_subs.clear();
+  s_raze_complete_subs.clear();
+  s_create_subs.clear();
+  s_creation_requirements.clear();
 }
 

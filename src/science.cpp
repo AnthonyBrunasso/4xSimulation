@@ -125,13 +125,13 @@ namespace science {
     return normal_exponent(depth-4);
   }
 
-  void shutdown() {
-    ScienceNodeMap::iterator it = s_tower_of_babylon.begin();
-    for(; it != s_tower_of_babylon.end(); ++it) {
-      delete it->second;
+  void reset() {
+    for (auto& s : s_tower_of_babylon) {
+      delete s.second;
     }
-    // Burn baby burn
+
     s_tower_of_babylon.clear();
+    s_edges.clear();
   }
 };
 
@@ -144,4 +144,3 @@ bool ScienceNode::Researched(uint32_t player_id) {
   if (!player) return false;
   return player->DiscoveredScience(m_type);
 }
-

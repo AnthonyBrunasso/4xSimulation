@@ -8,4 +8,6 @@ namespace scenario_monster {
   uint32_t get_monster_id();
 
   void debug_print();
+
+  void reset();
 }

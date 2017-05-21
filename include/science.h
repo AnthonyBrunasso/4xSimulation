@@ -20,7 +20,7 @@ public:
 
 namespace science {
   void initialize();
-  void shutdown();
+  void reset();
 
   ScienceNode* Science(SCIENCE_TYPE);
   ScienceNode* Science(uint32_t);

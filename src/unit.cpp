@@ -176,10 +176,12 @@ void unit::change_direction(uint32_t id, const sf::Vector3i& target) {
   u->m_direction = target - u->m_location;
 }
 
-void unit::clear() {
-  for (auto unit : s_units) {
+void unit::reset() {
+  for (auto& unit : s_units) {
     delete unit.second;
   }
   
   s_units.clear();
+  s_destroy_subs.clear();
+  s_create_subs.clear();
 }

@@ -185,6 +185,15 @@ namespace production {
     }
     player::add_unit(city->m_owner_id, unit_id);
   }
+
+  void reset() {
+    s_creationCallbacks.clear();
+    for (auto& q : s_production_queues) {
+      delete q.second->m_state;
+      delete q.second;
+    }
+    s_production_queues.clear();
+  }
 }
 
 namespace production_queue {

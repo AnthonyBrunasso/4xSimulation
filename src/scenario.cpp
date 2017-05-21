@@ -33,6 +33,24 @@ void scenario::start(SCENARIO_TYPE type) {
   s_running.push_back(type);
 }
 
+void scenario::reset() {
+  for (auto t : s_running) {
+      switch (t) {
+      case SCENARIO_TYPE::DISEASE:
+      case SCENARIO_TYPE::MONSTER:
+          scenario_monster::reset();
+          break;
+      case SCENARIO_TYPE::ARENA:
+          scenario_arena::reset();
+      case SCENARIO_TYPE::CITYLIFE:
+          scenario_citylife::reset();
+      default:
+          break;
+      }
+  }
+  s_running.clear();
+}
+
 void scenario::process() {
   std::cout << "Running scenario logc." << std::endl;
   for (auto t : s_running) {

@@ -26,4 +26,6 @@ namespace world_map {
 
   Tile* get_tile(sf::Vector3i location);
   uint32_t tile_owner(const Tile& tile);
+
+  void reset();
 }

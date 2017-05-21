@@ -5,7 +5,7 @@
 
 namespace barbarians {
   void initialize();
-  void destroy();
+  void reset();
   // Lets the barbarians execute their turn. 
   void pillage_and_plunder(uint32_t player_id);
   // Set the barbarians player id.

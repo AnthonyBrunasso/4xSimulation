@@ -10,4 +10,6 @@ namespace tile_costs {
 
   uint32_t get(TERRAIN_TYPE id);
   void set(TERRAIN_TYPE id, uint32_t cost);
+
+  void reset();
 }

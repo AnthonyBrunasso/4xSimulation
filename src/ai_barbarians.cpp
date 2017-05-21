@@ -18,8 +18,8 @@ void barbarians::initialize() {
 
 }
 
-void barbarians::destroy() {
- 
+void barbarians::reset() {
+  s_player_ids.clear();
 }
 
 // Lets the barbarians execute their turn. 

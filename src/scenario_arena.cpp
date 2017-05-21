@@ -88,3 +88,9 @@ void scenario_arena::process() {
   player::for_each_player(player_func);
 }
 
+void scenario_arena::reset() {
+  s_player_score.clear();
+  s_spawn_list.clear();
+  s_active = false;
+}
+

@@ -61,6 +61,8 @@ namespace player {
   size_t get_count();
   ResourceUMap get_resources(uint32_t player_id);
 
+  void reset();
+
   void add_city(uint32_t player_id, uint32_t city_id);
   void add_unit(uint32_t player_id, uint32_t unit_id);
   void add_improvement(uint32_t player_id, uint32_t improvement_id);

@@ -38,6 +38,8 @@ namespace production {
   uint32_t create(uint32_t city_id);
   ConstructionQueueFIFO* get_production(uint32_t production_id);
   void sub_create(const UnitCreationCallback&);
+
+  void reset();
 }
 
 namespace production_queue {

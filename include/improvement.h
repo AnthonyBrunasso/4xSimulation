@@ -50,4 +50,6 @@ namespace improvement {
   void for_each_improvement(
       std::function<void(const Improvement& improvement)> operation);
   Improvement* get_improvement(uint32_t id);
+
+  void reset();
 }

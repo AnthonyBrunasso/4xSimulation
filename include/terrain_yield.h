@@ -32,4 +32,6 @@ namespace terrain_yield {
   TerrainYield get_base_yield(TERRAIN_TYPE type);
   TerrainYield get_specialization_yield(TERRAIN_TYPE type);
   TerrainYield get_resource_yield(RESOURCE_TYPE);
+
+  void reset();
 }

@@ -29,3 +29,6 @@ void tile_costs::set(TERRAIN_TYPE id, uint32_t cost) {
   s_costs[key] = cost;
 }
 
+void tile_costs::reset() {
+  s_costs.clear();
+}

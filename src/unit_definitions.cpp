@@ -36,6 +36,10 @@ void unit_definitions::initialize() {
     CombatStats(2, 18.f, 7.f, 7.f, 1.f);
 }
 
+void unit_definitions::reset() {
+  s_definitions.clear();
+}
+
 CombatStats* unit_definitions::get(UNIT_TYPE id) {
   uint32_t uint_id = util::enum_to_uint(id);
   if (s_definitions.find(uint_id) == s_definitions.end()) {

@@ -12,3 +12,7 @@ uint32_t unique_id::generate() {
 uint32_t unique_id::get_next() {
   return s_unique_id;
 }
+
+void unique_id::reset() {
+  s_unique_id = unique_id::INVALID_ID + 1;
+}

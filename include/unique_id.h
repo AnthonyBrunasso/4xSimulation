@@ -10,4 +10,6 @@ namespace unique_id {
   uint32_t generate();
   // Gets the next valid id that will be used when generate is called.
   uint32_t get_next();
+
+  void reset();
 }

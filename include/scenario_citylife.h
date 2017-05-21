@@ -6,4 +6,5 @@ namespace scenario_citylife {
 
   void start();
   void process();
+  void reset();
 }

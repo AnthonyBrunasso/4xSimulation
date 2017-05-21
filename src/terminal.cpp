@@ -442,9 +442,14 @@ namespace terminal  {
     });
 
     terminal::add_query("scenario_debug", "scenario_debug <scenario_type>", [](const std::vector<std::string>& tokens) -> bool {
-        CHECK_VALID(2, tokens);
-        scenario::debug_print(get_scenario_type(tokens[1]));
-        return true;
+      CHECK_VALID(2, tokens);
+      scenario::debug_print(get_scenario_type(tokens[1]));
+      return true;
+    });
+
+    terminal::add_query("reset", "reset", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      simulation::reset();
     });
   }
 

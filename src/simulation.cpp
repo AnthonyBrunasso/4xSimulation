@@ -25,6 +25,7 @@
 #include "network_types.h"
 #include "scenario.h"
 #include "scenario_citylife.h"
+#include "tile_costs.h"
 
 #include <iostream>
 #include <algorithm>
@@ -493,6 +494,31 @@ namespace simulation {
     std::cout << kill_step.get_unit_id() << " (id) has been slain." << std::endl;
   }
 
+  void reset() {
+    s_units_to_move.clear();
+    s_units_to_fight.clear();
+    s_current_turn = 0;
+
+    player::reset();
+    unit::reset();
+    city::reset();
+    magic::reset();
+    status_effect::reset();
+    world_map::reset();
+    production::reset();
+    science::reset();
+    barbarians::reset();
+    improvement::reset();
+    terrain_yield::reset();
+    tile_costs::reset();
+    unique_id::reset();
+    unit_definitions::reset();
+    scenario::reset();
+
+    // Restart the simulation after everything is reset
+    simulation::start();
+  }
+
   std::string execute_pillage(const void* buffer, size_t buffer_len) {
     PillageStep pillage_step;
     deserialize(buffer, buffer_len, pillage_step);
@@ -858,9 +884,9 @@ void simulation::start() {
 }
 
 void simulation::kill() {
-  unit::clear();
-  city::clear();
-  science::shutdown();
+  unit::reset();
+  city::reset();
+  science::reset();
   empire_trees::shutdown();
 }
 

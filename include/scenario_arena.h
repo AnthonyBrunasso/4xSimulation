@@ -7,4 +7,6 @@ namespace scenario_arena {
 
   void start();
   void process();
+
+  void reset();
 }

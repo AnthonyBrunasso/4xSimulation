@@ -126,6 +126,13 @@ ResourceUMap player::get_resources(uint32_t player_id) {
   return player_resources;
 }
 
+void player::reset() {
+  for (auto& player : s_players) {
+    delete player;
+  }
+  s_players.clear();
+}
+
 void player::add_city(uint32_t player_id, uint32_t city_id) {
   Player* player = get_player(player_id);
   if (!player) {

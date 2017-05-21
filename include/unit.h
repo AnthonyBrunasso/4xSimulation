@@ -77,5 +77,5 @@ namespace unit {
   // Changes directoin towards target, doesn't normalize direction.
   void change_direction(uint32_t id, const sf::Vector3i& target);
 
-  void clear();
+  void reset();
 }

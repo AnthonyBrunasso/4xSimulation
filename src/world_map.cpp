@@ -372,3 +372,8 @@ uint32_t world_map::tile_owner(const Tile& tile) {
 
   return unique_id::INVALID_PLAYER;
 }
+
+void world_map::reset() {
+  s_map.clear();
+  s_map_size = 0;
+}

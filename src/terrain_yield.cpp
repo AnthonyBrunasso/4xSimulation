@@ -282,3 +282,7 @@ TerrainYield terrain_yield::get_resource_yield(RESOURCE_TYPE type) {
   return base;
 }
 
+void terrain_yield::reset() {
+  s_terrain_yield.clear();
+}
+

@@ -12,6 +12,8 @@ namespace simulation {
   void start();
   void kill();
 
+  void reset();
+
   uint32_t get_turn();
   
   void process_step(const void* buffer, size_t buffer_len);

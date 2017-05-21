@@ -294,3 +294,13 @@ void status_effect::process() {
     --e->m_current_turn;
   } 
 }
+
+void status_effect::reset() {
+  for (auto& s : s_status) {
+    delete s.second;  
+  }
+  s_status.clear();
+
+  s_create_subs.clear();
+  s_destroy_subs.clear();
+}

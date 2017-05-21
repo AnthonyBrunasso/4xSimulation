@@ -93,6 +93,11 @@ void magic::initialize() {
   s_requirements[fb_id].push_back(fireball_requirements);
 }
 
+void magic::reset() {
+  s_magic_stats.clear();
+  s_requirements.clear();
+}
+
 void magic::cast(uint32_t player_id, MAGIC_TYPE type, const sf::Vector3i& location, bool cheat/*=false*/) {
   uint32_t utype = util::enum_to_uint(type);
   float magic_cost = s_magic_stats[utype].m_cost;

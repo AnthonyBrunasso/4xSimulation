@@ -10,6 +10,7 @@ class CombatStats;
 namespace unit_definitions {
   // This function will contain prebuilt unit definitions.
   void initialize();
+  void reset();
   CombatStats* get(UNIT_TYPE id);
   void add(UNIT_TYPE id, const CombatStats& stats);
 

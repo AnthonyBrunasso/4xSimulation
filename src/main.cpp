@@ -51,7 +51,7 @@ int main(int , char* []) {
   s_target_file.close();
   terminal::kill();
   simulation::kill();
-  barbarians::destroy();
+  barbarians::reset();
 
   return 0;
 }

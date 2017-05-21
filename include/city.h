@@ -76,5 +76,5 @@ namespace city {
   void do_notifications(uint32_t city_id, NotificationVector& events);
   void for_each_city(std::function<void(City& )> operation);
 
-  void clear();
+  void reset();
 }
