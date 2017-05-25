@@ -4,6 +4,7 @@
 #include "scenario_monster.h"
 #include "scenario_arena.h"
 #include "scenario_citylife.h"
+#include "scenario_faceoff.h"
 
 #include <algorithm>
 #include <vector>
@@ -20,6 +21,9 @@ void scenario::start(SCENARIO_TYPE type) {
     case SCENARIO_TYPE::DISEASE:
     case SCENARIO_TYPE::MONSTER:
       scenario_monster::start();
+      break;
+    case SCENARIO_TYPE::FACEOFF:
+      scenario_faceoff::start();
       break;
     case SCENARIO_TYPE::ARENA:
       scenario_arena::start();
