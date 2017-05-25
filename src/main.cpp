@@ -20,6 +20,9 @@ int main(int , char* []) {
   // Initialize queries
   terminal::initialize();
   s_target_file.open("last_run", std::ios::out);
+  if (!s_target_file.good()) {
+    std::cout << "last_run failed to open, replay will not be saved." << std::endl;
+  }
   // Enter interactive mode
   std::string input;
   bool game_over = false;
