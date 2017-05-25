@@ -30,6 +30,7 @@ void scenario::start(SCENARIO_TYPE type) {
       break;
     case SCENARIO_TYPE::CITYLIFE:
       scenario_citylife::start();
+      break;
     default:
       break;
   }
@@ -38,20 +39,11 @@ void scenario::start(SCENARIO_TYPE type) {
 }
 
 void scenario::reset() {
-  for (auto t : s_running) {
-      switch (t) {
-      case SCENARIO_TYPE::DISEASE:
-      case SCENARIO_TYPE::MONSTER:
-          scenario_monster::reset();
-          break;
-      case SCENARIO_TYPE::ARENA:
-          scenario_arena::reset();
-      case SCENARIO_TYPE::CITYLIFE:
-          scenario_citylife::reset();
-      default:
-          break;
-      }
-  }
+  scenario_monster::reset();
+  scenario_faceoff::reset();
+  scenario_arena::reset();
+  scenario_citylife::reset();
+
   s_running.clear();
 }
 
@@ -80,6 +72,7 @@ void scenario::debug_print(SCENARIO_TYPE type) {
       case SCENARIO_TYPE::MONSTER:
         scenario_monster::debug_print();
         break;
+      case SCENARIO_TYPE::FACEOFF:
       case SCENARIO_TYPE::ARENA:
       case SCENARIO_TYPE::CITYLIFE:
       default:

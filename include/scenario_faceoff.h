@@ -7,4 +7,5 @@ namespace scenario_faceoff {
 
   void start();
   void process();
+  void reset();
 }

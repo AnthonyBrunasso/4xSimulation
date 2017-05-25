@@ -75,3 +75,9 @@ void scenario_faceoff::process() {
   // No special rules 
 }
 
+void scenario_faceoff::reset() {
+  s_player_score.clear();
+  s_active = false;
+}
+
+
