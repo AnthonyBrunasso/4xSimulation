@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <unordered_map>
 
-#include "network_types.h"
 #include "tile.h"
 #include "player.h"
 #include "city.h"

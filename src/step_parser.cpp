@@ -2,7 +2,6 @@
 
 #include "util.h"
 #include "format.h"
-#include "network_types.h"
 
 #include "step_generated.h"
 
@@ -75,9 +74,8 @@ namespace step_parser {
 
     else if (tokens[0] == "end_turn") {
       CHECK_VALID(1, tokens);
-      flatbuffers::Offset<fbs::EndTurnStep> end_turn = fbs::CreateEndTurnStep(GetFBB(), s_active_player, s_active_player);
-      EndTurnStep end_turn_step;
-      copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn.Union());
+      flatbuffers::Offset<fbs::EndTurnStep> end_turn_step = fbs::CreateEndTurnStep(GetFBB(), s_active_player, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn_step.Union());
 
       if (player::get_count()) {
         ++s_active_player;

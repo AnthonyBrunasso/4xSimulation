@@ -1,7 +1,6 @@
 #pragma once
 
 #include "simulation.h"
-#include "network_types.h"
 
 #include <Vector3.hpp>
 

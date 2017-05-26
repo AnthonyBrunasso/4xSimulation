@@ -22,7 +22,6 @@
 #include "custom_math.h"
 #include "status_effect.h"
 #include "notification.h"
-#include "network_types.h"
 #include "scenario.h"
 #include "scenario_citylife.h"
 #include "tile_costs.h"

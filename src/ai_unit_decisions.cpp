@@ -3,7 +3,6 @@
 #include "unit.h"
 #include "util.h"
 #include "random.h"
-#include "network_types.h"
 #include "world_map.h"
 #include "format.h"
 #include "ai_shared.h"

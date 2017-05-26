@@ -16,7 +16,6 @@
 #include "terrain_yield.h"
 #include "random.h"
 #include "science.h"
-#include "network_types.h"
 #include "scenario.h"
 
 #include <algorithm>
@@ -595,7 +594,7 @@ bool terminal::run_query(const std::vector<std::string> & tokens) {
 }
 
 bool terminal::run_step(const std::vector<std::string> & tokens, bool& game_over) {
-  const size_t BUFFER_LEN = largest_message();
+  const size_t BUFFER_LEN = 512;
   char buffer[BUFFER_LEN];
 
   // See if a command is ready
