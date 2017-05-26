@@ -757,7 +757,7 @@ namespace simulation {
   }
 
   void execute_status(const fbs::StatusStep* status_step) {
-    uint32_t type = status_step->type();
+    fbs::STATUS_TYPE type = status_step->type();
     sf::Vector3i location = get_v3i(status_step->location());
     status_effect::create((STATUS_TYPE)type, location);
   }
@@ -770,10 +770,10 @@ namespace simulation {
     fbs::AI_TYPE ai_type = add_player_step->ai_type();
     const flatbuffers::String* name = add_player_step->name();
     switch (ai_type) {
-      case fbs::AI_TYPE::AI_TYPE_AI_BARBARIAN:
+      case fbs::AI_TYPE::AI_BARBARIAN:
         player::create_ai((AI_TYPE)ai_type);
         break;
-      case fbs::AI_TYPE::AI_TYPE_AI_HUMAN:
+      case fbs::AI_TYPE::AI_HUMAN:
         player::create_human(name->str());
       default:
         break;
@@ -907,90 +907,90 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
 
   // Process the step
   switch (t) {
-    case fbs::StepUnion_QuitStep:
+    case fbs::StepUnion::QuitStep:
     s_game_over = true;
     break;
-  case fbs::StepUnion_BeginStep:
+    case fbs::StepUnion::BeginStep:
     process_begin_turn();
     break;
-  case fbs::StepUnion_EndTurnStep:
+    case fbs::StepUnion::EndTurnStep:
     process_end_turn(root->step_as_EndTurnStep());
     break;
-  case fbs::StepUnion_AttackStep:
+    case fbs::StepUnion::AttackStep:
     execute_attack(root->step_as_AttackStep());
     break;
-  case fbs::StepUnion_ProductionAbortStep:
+    case fbs::StepUnion::ProductionAbortStep:
     std::cout << execute_production_abort(root->step_as_ProductionAbortStep()) << std::endl;
     break;
-  case fbs::StepUnion_ProductionMoveStep:
+    case fbs::StepUnion::ProductionMoveStep:
     std::cout << execute_production_move(root->step_as_ProductionMoveStep()) << std::endl;
     break;
-  case fbs::StepUnion_ColonizeStep:
+    case fbs::StepUnion::ColonizeStep:
     execute_colonize(root->step_as_ColonizeStep());
     break;
-  case fbs::StepUnion_ConstructionStep:
+    case fbs::StepUnion::ConstructionStep:
     execute_construction(root->step_as_ConstructionStep());
     break;
-  case fbs::StepUnion_GrantStep:
+    case fbs::StepUnion::GrantStep:
     execute_grant(root->step_as_GrantStep());
     break;
-  case fbs::StepUnion_HarvestStep:
+    case fbs::StepUnion::HarvestStep:
     execute_harvest(root->step_as_HarvestStep());
     break;
-  case fbs::StepUnion_ImproveStep:
+    case fbs::StepUnion::ImproveStep:
     execute_improve(root->step_as_ImproveStep());
     break;
-  case fbs::StepUnion_TileMutatorStep:
+    case fbs::StepUnion::TileMutatorStep:
     execute_tile_mutator(root->step_as_TileMutatorStep());
     break;
-  case fbs::StepUnion_ResourceMutatorStep:
+    case fbs::StepUnion::ResourceMutatorStep:
     execute_resource_mutator(root->step_as_ResourceMutatorStep());
     break;
-  case fbs::StepUnion_KillStep:
+    case fbs::StepUnion::KillStep:
     execute_kill(root->step_as_KillStep());
     break;
-  case fbs::StepUnion_MoveStep:
+    case fbs::StepUnion::MoveStep:
     execute_move(root->step_as_MoveStep());
     break;
-  case fbs::StepUnion_PillageStep:
+    case fbs::StepUnion::PillageStep:
     std::cout << execute_pillage(root->step_as_PillageStep()) << std::endl;;
     break;
-  case fbs::StepUnion_PurchaseStep:
+    case fbs::StepUnion::PurchaseStep:
     std::cout << execute_purchase(root->step_as_PurchaseStep()) << std::endl;
     break;
-  case fbs::StepUnion_ResearchStep:
+    case fbs::StepUnion::ResearchStep:
     std::cout << execute_research(root->step_as_ResearchStep()) << std::endl;
     break;
-  case fbs::StepUnion_SpecializeStep:
+    case fbs::StepUnion::SpecializeStep:
     execute_specialize(root->step_as_SpecializeStep());
     break;
-  case fbs::StepUnion_SellStep:
+    case fbs::StepUnion::SellStep:
     std::cout << execute_sell(root->step_as_SellStep()) << std::endl;
     break;
-  case fbs::StepUnion_SiegeStep:
+    case fbs::StepUnion::SiegeStep:
     std::cout << execute_siege(root->step_as_SiegeStep()) << std::endl;
     break;
-  case fbs::StepUnion_SpawnStep:
+    case fbs::StepUnion::SpawnStep:
     std::cout << execute_spawn(root->step_as_SpawnStep()) << std::endl;
     break;
-  case fbs::StepUnion_AddPlayerStep:
+    case fbs::StepUnion::AddPlayerStep:
     execute_add_player(root->step_as_AddPlayerStep());
     return; // Special case, adding a player does not have output
-  case fbs::StepUnion_UnitStatsStep:
+    case fbs::StepUnion::UnitStatsStep:
     execute_modify_stats(root->step_as_UnitStatsStep());
     return; // Modifying stats also does not have output
-  case fbs::StepUnion_BarbarianStep:
+    case fbs::StepUnion::BarbarianStep:
     return;
-  case fbs::StepUnion_CityDefenseStep:
+    case fbs::StepUnion::CityDefenseStep:
     std::cout << execute_city_defense(root->step_as_CityDefenseStep()) << std::endl;
     return;
-  case fbs::StepUnion_MagicStep:
+    case fbs::StepUnion::MagicStep:
     execute_magic(root->step_as_MagicStep());
     break;
-  case fbs::StepUnion_StatusStep:
+    case fbs::StepUnion::StatusStep:
     execute_status(root->step_as_StatusStep());
     break;
-  case fbs::StepUnion_ScenarioStep:
+    case fbs::StepUnion::ScenarioStep:
     execute_scenario(root->step_as_ScenarioStep());
     break;
   default:

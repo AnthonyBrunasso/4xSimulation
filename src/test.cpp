@@ -71,7 +71,7 @@ int main(int argc, char** )
 
     fbs::v3i temp(3, 4, 5);
     flatbuffers::Offset<fbs::SpawnStep> off = fbs::CreateSpawnStep(b, 1, &temp, 0);
-    flatbuffers::Offset<fbs::AnyStep> any = fbs::CreateAnyStep(b, fbs::StepUnion_SpawnStep, off.Union());
+    flatbuffers::Offset<fbs::AnyStep> any = fbs::CreateAnyStep(b, fbs::StepUnion::SpawnStep, off.Union());
     FinishAnyStepBuffer(b, any);
 
     printf("Traditional CreateSpawnStep call\n");

@@ -55,7 +55,7 @@ namespace step_parser {
       flatbuffers::Offset<fbs::AnyStep> anystep = fbs::CreateAnyStep(GetFBB(), step_type, step);
       fbs::FinishAnyStepBuffer(GetFBB(), anystep);
       if (GetFBB().GetSize() > buffer_len) {
-        std::cout << "FlatBufferBuilder exceeded network buffer!! StepType: " << step_type << std::endl;
+        std::cout << "FlatBufferBuilder exceeded network buffer!! StepType: " << (uint32_t)step_type << std::endl;
         return;
       }
 
@@ -64,20 +64,20 @@ namespace step_parser {
 
     if (tokens[0] == "quit") {
       flatbuffers::Offset<fbs::QuitStep> quit = fbs::CreateQuitStep(GetFBB());
-      copy_to_netbuffer(fbs::StepUnion_QuitStep, quit.Union());
+      copy_to_netbuffer(fbs::StepUnion::QuitStep, quit.Union());
     }
 
     else if (tokens[0] == "begin_turn") {
       CHECK_VALID(1, tokens);
       flatbuffers::Offset<fbs::BeginStep> begin = fbs::CreateBeginStep(GetFBB(), s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_BeginStep, begin.Union());
+      copy_to_netbuffer(fbs::StepUnion::BeginStep, begin.Union());
     }
 
     else if (tokens[0] == "end_turn") {
       CHECK_VALID(1, tokens);
       flatbuffers::Offset<fbs::EndTurnStep> end_turn = fbs::CreateEndTurnStep(GetFBB(), s_active_player, s_active_player);
       EndTurnStep end_turn_step;
-      copy_to_netbuffer(fbs::StepUnion_EndTurnStep, end_turn.Union());
+      copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn.Union());
 
       if (player::get_count()) {
         ++s_active_player;
@@ -93,40 +93,40 @@ namespace step_parser {
       uint32_t city_id = std::stoul(tokens[1]);
       uint32_t index = std::stoul(tokens[2]);
       flatbuffers::Offset<fbs::ProductionAbortStep> abort_step = fbs::CreateProductionAbortStep(GetFBB(), s_active_player, city_id, index);
-      copy_to_netbuffer(fbs::StepUnion_ProductionAbortStep, abort_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ProductionAbortStep, abort_step.Union());
     }
     else if (tokens[0] == "production_move") {
       uint32_t city_id = (std::stoul(tokens[1]));
       uint32_t src_index = (std::stoul(tokens[2]));
       uint32_t dst_index = (std::stoul(tokens[3]));
       flatbuffers::Offset<fbs::ProductionMoveStep> move_step = fbs::CreateProductionMoveStep(GetFBB(), s_active_player, city_id, src_index, dst_index);
-      copy_to_netbuffer(fbs::StepUnion_ProductionMoveStep, move_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ProductionMoveStep, move_step.Union());
     }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);
       uint32_t attacker_id = (std::stoul(tokens[1]));
       uint32_t defender_id = (std::stoul(tokens[2]));
       flatbuffers::Offset<fbs::AttackStep> attack_step = fbs::CreateAttackStep(GetFBB(), attacker_id, defender_id, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_AttackStep, attack_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::AttackStep, attack_step.Union());
     }
 
     else if (tokens[0] == "barbarians") {
       CHECK_VALID(1, tokens);
       flatbuffers::Offset<fbs::BarbarianStep> barb_step = fbs::CreateBarbarianStep(GetFBB(), s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_BarbarianStep, barb_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::BarbarianStep, barb_step.Union());
     }
 
     else if (tokens[0] == "city_defense") {
       CHECK_VALID(2, tokens);
       uint32_t unit_id = (std::stoul(tokens[1]));
       flatbuffers::Offset<fbs::CityDefenseStep> defense_step = fbs::CreateCityDefenseStep(GetFBB(), s_active_player, unit_id);
-      copy_to_netbuffer(fbs::StepUnion_CityDefenseStep, defense_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::CityDefenseStep, defense_step.Union());
     }
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
       fbs::v3i location = str_to_v3i(tokens[1], tokens[2], tokens[3]);
       flatbuffers::Offset<fbs::ColonizeStep> colonize_step = fbs::CreateColonizeStep(GetFBB(), &location, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_ColonizeStep, colonize_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ColonizeStep, colonize_step.Union());
     }
     else if (tokens[0] == "construct") {
       CHECK(3, tokens);
@@ -143,7 +143,7 @@ namespace step_parser {
         cheat = true;
       }
       flatbuffers::Offset<fbs::ConstructionStep> construction_step = fbs::CreateConstructionStep(GetFBB(), city_id, construction_id, cheat, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_ConstructionStep, construction_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ConstructionStep, construction_step.Union());
     }
 
     else if (tokens[0] == "tile_cost") {
@@ -151,7 +151,7 @@ namespace step_parser {
       fbs::v3i dest = str_to_v3i(tokens[1], tokens[2], tokens[3]);
       uint32_t movement_cost = (std::stoul(tokens[4]));
       flatbuffers::Offset<fbs::TileMutatorStep> tile_mutator_step = fbs::CreateTileMutatorStep(GetFBB(), &dest, movement_cost);
-      copy_to_netbuffer(fbs::StepUnion_TileMutatorStep, tile_mutator_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::TileMutatorStep, tile_mutator_step.Union());
     }
 
     else if (tokens[0] == "tile_resource") {
@@ -171,7 +171,7 @@ namespace step_parser {
         quantity = (std::stoul(tokens[5]));
       }
       flatbuffers::Offset<fbs::ResourceMutatorStep> resource_mutator = fbs::CreateResourceMutatorStep(GetFBB(), &dest, type_id, quantity);
-      copy_to_netbuffer(fbs::StepUnion_ResourceMutatorStep, resource_mutator.Union());
+      copy_to_netbuffer(fbs::StepUnion::ResourceMutatorStep, resource_mutator.Union());
     }
 
     else if (tokens[0] == "grant") {
@@ -182,13 +182,13 @@ namespace step_parser {
         science_id = (std::stoul(tokens[1]));
       }
       flatbuffers::Offset<fbs::GrantStep> grant_step = fbs::CreateGrantStep(GetFBB(), s_active_player, science_id);
-      copy_to_netbuffer(fbs::StepUnion_GrantStep, grant_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::GrantStep, grant_step.Union());
     }
     else if (tokens[0] == "harvest") {
       CHECK(4, tokens);
       fbs::v3i dest = str_to_v3i(tokens[1], tokens[2], tokens[3]);
       flatbuffers::Offset<fbs::HarvestStep> harvest_step = fbs::CreateHarvestStep(GetFBB(), s_active_player, &dest);
-      copy_to_netbuffer(fbs::StepUnion_HarvestStep, harvest_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::HarvestStep, harvest_step.Union());
     }
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
@@ -201,7 +201,7 @@ namespace step_parser {
       }
       fbs::v3i dest = str_to_v3i(tokens[2], tokens[3], tokens[4]);
       flatbuffers::Offset<fbs::ImproveStep> improve_step = fbs::CreateImproveStep(GetFBB(), &dest, resource_id, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_ImproveStep, improve_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ImproveStep, improve_step.Union());
     }
 
     else if (tokens[0] == "join") {
@@ -217,13 +217,13 @@ namespace step_parser {
       }
       flatbuffers::Offset<flatbuffers::String> name = GetFBB().CreateString(tokens[1].c_str(), tokens[1].size());
       flatbuffers::Offset<fbs::AddPlayerStep> add_player_step = fbs::CreateAddPlayerStep(GetFBB(), name, (fbs::AI_TYPE)ai_type); 
-      copy_to_netbuffer(fbs::StepUnion_AddPlayerStep, add_player_step.Union()); 
+      copy_to_netbuffer(fbs::StepUnion::AddPlayerStep, add_player_step.Union()); 
     } 
     else if (tokens[0] == "kill") {
       CHECK_VALID(2, tokens);
       uint32_t unit_id = (std::stoul(tokens[1]));
       flatbuffers::Offset<fbs::KillStep> kill_step = fbs::CreateKillStep(GetFBB(), unit_id);
-      copy_to_netbuffer(fbs::StepUnion_KillStep, kill_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::KillStep, kill_step.Union());
     }
 
     else if (tokens[0] == "move") {
@@ -233,13 +233,13 @@ namespace step_parser {
       bool immediate = (true);
       bool require_ownership = (true);
       flatbuffers::Offset<fbs::MoveStep> move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, s_active_player, immediate, false, false, require_ownership);
-      copy_to_netbuffer(fbs::StepUnion_MoveStep, move_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::MoveStep, move_step.Union());
     }
     else if (tokens[0] == "pillage") {
       CHECK_VALID(2, tokens);
       uint32_t unit_id = (std::stoul(tokens[1]));
       flatbuffers::Offset<fbs::PillageStep> pillage_step = fbs::CreatePillageStep(GetFBB(), s_active_player, unit_id);
-      copy_to_netbuffer(fbs::StepUnion_PillageStep, pillage_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::PillageStep, pillage_step.Union());
     }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
@@ -250,7 +250,7 @@ namespace step_parser {
       bool avoid_city = false;
       bool require_ownership = (true);
       flatbuffers::Offset<fbs::MoveStep> move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, s_active_player, immediate, avoid_unit, avoid_city, require_ownership);
-      copy_to_netbuffer(fbs::StepUnion_MoveStep, move_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::MoveStep, move_step.Union());
     }
 
     else if (tokens[0] == "purchase") {
@@ -266,7 +266,7 @@ namespace step_parser {
         }
       }
       flatbuffers::Offset<fbs::PurchaseStep> purchase_step = fbs::CreatePurchaseStep(GetFBB(), s_active_player, production_id, city_id);
-      copy_to_netbuffer(fbs::StepUnion_PurchaseStep, purchase_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::PurchaseStep, purchase_step.Union());
     }
 
     else if (tokens[0] == "research") {
@@ -276,7 +276,7 @@ namespace step_parser {
         science_id = (std::stoul(tokens[1]));
       }
       flatbuffers::Offset<fbs::ResearchStep> research_step = fbs::CreateResearchStep(GetFBB(), s_active_player, science_id);
-      copy_to_netbuffer(fbs::StepUnion_ResearchStep, research_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ResearchStep, research_step.Union());
     }
     
     else if (tokens[0] == "sell") {
@@ -292,7 +292,7 @@ namespace step_parser {
         }
       }
       flatbuffers::Offset<fbs::SellStep> sell_step = fbs::CreateSellStep(GetFBB(), s_active_player, city_id, production_id);
-      copy_to_netbuffer(fbs::StepUnion_SellStep, sell_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::SellStep, sell_step.Union());
     }
 
     else if (tokens[0] == "siege") {
@@ -300,7 +300,7 @@ namespace step_parser {
       uint32_t city_id = (std::stoul(tokens[1]));
       uint32_t unit_id = (std::stoul(tokens[2]));
       flatbuffers::Offset<fbs::SiegeStep> siege_step = fbs::CreateSiegeStep(GetFBB(), s_active_player, unit_id, city_id);
-      copy_to_netbuffer(fbs::StepUnion_SiegeStep, siege_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::SiegeStep, siege_step.Union());
     }
     else if (tokens[0] == "specialize") {
       CHECK(3, tokens);
@@ -313,7 +313,7 @@ namespace step_parser {
         terrain_type = (util::enum_to_uint(get_terrain_type(tokens[2])));
       }
       flatbuffers::Offset<fbs::SpecializeStep> specialize_step = fbs::CreateSpecializeStep(GetFBB(), city_id, terrain_type, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_SpecializeStep, specialize_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::SpecializeStep, specialize_step.Union());
     }
 
     else if (tokens[0] == "spawn") {
@@ -330,7 +330,7 @@ namespace step_parser {
       fbs::v3i unitLoc = str_to_v3i(tokens[2], tokens[3], tokens[4]);
 
       flatbuffers::Offset<fbs::SpawnStep> spawn_step  = fbs::CreateSpawnStep(GetFBB(), unit_type, &unitLoc, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion_SpawnStep, spawn_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::SpawnStep, spawn_step.Union());
     }
 
     else if (tokens[0] == "stats") {
@@ -340,7 +340,7 @@ namespace step_parser {
       uint32_t attack = (std::stoul(tokens[3]));
       uint32_t range = (std::stoul(tokens[4]));
       flatbuffers::Offset<fbs::UnitStatsStep> unit_stats_step = fbs::CreateUnitStatsStep(GetFBB(), unit_id, health, attack, range);
-      copy_to_netbuffer(fbs::StepUnion_UnitStatsStep, unit_stats_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::UnitStatsStep, unit_stats_step.Union());
     }
 
     else if (tokens[0] == "cast") {
@@ -352,7 +352,7 @@ namespace step_parser {
         cheat = true;
       }
       flatbuffers::Offset<fbs::MagicStep> magic_step = fbs::CreateMagicStep(GetFBB(), s_active_player, &location, magic_type, cheat);
-      copy_to_netbuffer(fbs::StepUnion_MagicStep, magic_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::MagicStep, magic_step.Union());
     }
 
     else if (tokens[0] == "status") {
@@ -360,7 +360,7 @@ namespace step_parser {
       fbs::STATUS_TYPE status_type = (fbs::STATUS_TYPE)(get_status_type(tokens[1]));
       fbs::v3i location = str_to_v3i(tokens[2], tokens[3], tokens[4]);
       flatbuffers::Offset<fbs::StatusStep> status_step = fbs::CreateStatusStep(GetFBB(), status_type, &location);
-      copy_to_netbuffer(fbs::StepUnion_StatusStep, status_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::StatusStep, status_step.Union());
     }
 
     else if (tokens[0] == "scenario") {
@@ -374,7 +374,7 @@ namespace step_parser {
         scenario_type = (get_scenario_type(tokens[1]));
       }
       flatbuffers::Offset<fbs::ScenarioStep> scenario_step = fbs::CreateScenarioStep(GetFBB(), (fbs::SCENARIO_TYPE)scenario_type);
-      copy_to_netbuffer(fbs::StepUnion_ScenarioStep, scenario_step.Union());
+      copy_to_netbuffer(fbs::StepUnion::ScenarioStep, scenario_step.Union());
     }
 
     else {

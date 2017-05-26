@@ -21,6 +21,7 @@ function(fourx_compile_flatbuffers_schema_to_cpp SRC_FBS)
   add_custom_command(
     OUTPUT ${GEN_HEADER}
     COMMAND "${FLATBUFFERS_FLATC_EXECUTABLE}" -c --no-includes 
+            --no-prefix --scoped-enums
             -o "${SRC_FBS_DIR}"
             "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FBS}"
     DEPENDS flatc)
