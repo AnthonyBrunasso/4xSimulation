@@ -15,6 +15,7 @@ namespace fbs {
 namespace simulation {
   void start();
   void kill();
+  bool game_over();
 
   void reset();
 

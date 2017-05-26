@@ -41,6 +41,8 @@ namespace simulation {
 
   // Used to count turns and index into player array
   uint32_t s_current_turn = 0;
+  // Set when the game ends
+  bool s_game_over = false;
 
   // Order of operations that should be checked after a step
   bool step_move(UnitMovementVector& units_to_move, uint32_t player_id);
@@ -868,6 +870,7 @@ namespace simulation {
 }
 
 void simulation::start() {
+  s_game_over = false;
   // Magic numbers
   sf::Vector3i start;
   world_map::build(start, 10);
@@ -883,6 +886,10 @@ void simulation::kill() {
   city::reset();
   science::reset();
   empire_trees::shutdown();
+}
+
+bool simulation::game_over() {
+  return s_game_over;
 }
 
 uint32_t simulation::get_turn() {
@@ -901,6 +908,7 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
   // Process the step
   switch (t) {
     case fbs::StepUnion_QuitStep:
+    s_game_over = true;
     break;
   case fbs::StepUnion_BeginStep:
     process_begin_turn();

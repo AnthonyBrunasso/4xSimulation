@@ -599,19 +599,20 @@ bool terminal::run_step(const std::vector<std::string> & tokens, bool& game_over
   char buffer[BUFFER_LEN];
 
   // See if a command is ready
-  size_t bytes = step_parser::parse(tokens, game_over, buffer, BUFFER_LEN);
+  size_t bytes = step_parser::parse(tokens, buffer, BUFFER_LEN);
 
   if (!bytes) return false;
 
   // Process the step
   simulation::process_step(buffer, bytes);
 
+  game_over = simulation::game_over();
+
   return true;
 }
 
 size_t terminal::step_to_bytes(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
-  bool game_over = false;
-  return step_parser::parse(tokens, game_over, buffer, buffer_len);
+  return step_parser::parse(tokens, buffer, buffer_len);
 }
 
 void terminal::kill() {

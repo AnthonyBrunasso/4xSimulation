@@ -43,10 +43,10 @@ namespace step_parser {
 }
 
   uint32_t s_active_player = 0;
-  size_t parse_tokens(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len);
+  size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len);
   void bad_arguments(const std::vector<std::string>& tokens);
 
-  size_t parse_tokens(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len) {
+  size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
     GetFBB().Clear();
     if (!tokens.size()) {
       return 0;
@@ -65,7 +65,6 @@ namespace step_parser {
     if (tokens[0] == "quit") {
       flatbuffers::Offset<fbs::QuitStep> quit = fbs::CreateQuitStep(GetFBB());
       copy_to_netbuffer(fbs::StepUnion_QuitStep, quit.Union());
-      game_over = true;
     }
 
     else if (tokens[0] == "begin_turn") {
@@ -411,10 +410,10 @@ std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
   return std::move(tokens);
 }
 
-size_t step_parser::parse(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len) {
+size_t step_parser::parse(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
   try
   {
-    return parse_tokens(tokens, game_over, buffer, buffer_len);
+    return parse_tokens(tokens, buffer, buffer_len);
   }
   catch(const std::exception&e ) 
   {
