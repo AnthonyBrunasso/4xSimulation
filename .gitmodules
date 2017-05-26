@@ -1,3 +1,0 @@
-[submodule "flatbuffers"]
-	path = flatbuffers
-	url = git@github.com:rufeooo/flatbuffers.git
