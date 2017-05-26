@@ -156,18 +156,6 @@ int main(int argc, char** )
           << foo->location()->z() << " "
           << std::endl;
       print_stats();
-      /*std::cout << unpackSpawn.new_field << " "
-          << unpackSpawn.extra_field << " ";
-      if (unpackSpawn.extra_struct)
-      {
-        std::cout << unpackSpawn.extra_struct->x() << " "
-            << unpackSpawn.extra_struct->y() << " "
-            << unpackSpawn.extra_struct->z() << " ";
-      }
-      else
-      {
-          std::cout << "Extra struct was not populated." << std::endl;
-      }*/
     }
 }
 

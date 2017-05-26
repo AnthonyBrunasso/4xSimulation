@@ -13,32 +13,23 @@ struct v3i
   z: short;
 }
 
-struct e3i
-{
-  x: byte;
-  y: byte;
-  z: byte;
-}
-
 table SpawnStep
 {
   unit_type: uint;
   location: v3i (native_inline);
   player: uint;
-  new_field: uint;
-  extra_field: uint;
 }
 
 table ImproveStep
 {
-  location: v3i;
+  location: v3i (native_inline);
   resource: uint;
   player: uint;
 }
 
 table ColonizeStep
 {
-  location: v3i;
+  location: v3i (native_inline);
   player: uint;
 }
 
@@ -53,7 +44,7 @@ table ConstructionStep
 table MoveStep
 {
   unit_id: uint;
-  destination: v3i;
+  destination: v3i (native_inline);
   player: uint;
   immediate: bool;
   avoid_unit: bool;
@@ -103,13 +94,13 @@ table UnitStatsStep
 
 table TileMutatorStep
 {
-  destination: v3i;
+  destination: v3i (native_inline);
   movement_cost: uint;
 }
 
 table ResourceMutatorStep
 {
-  destination: v3i;
+  destination: v3i (native_inline);
   type: uint;
   quantity: uint;
 }
@@ -123,7 +114,7 @@ table EndTurnStep
 table HarvestStep
 {
   player: uint;
-  destination: v3i;
+  destination: v3i (native_inline);
 }
 
 table SpecializeStep
@@ -186,7 +177,7 @@ table GrantStep
 table MagicStep
 {
   player: uint;
-  location: v3i;
+  location: v3i (native_inline);
   type: MAGIC_TYPE;
   cheat: bool;
 }
@@ -200,7 +191,7 @@ table ResearchStep
 table StatusStep
 {
   type: STATUS_TYPE;
-  location: v3i;
+  location: v3i (native_inline);
 }
 
 table ScenarioStep
