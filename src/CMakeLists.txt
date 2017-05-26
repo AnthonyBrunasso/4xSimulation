@@ -33,7 +33,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
 add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
 add_executable(4xsim ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
+add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
 target_link_libraries(4xtest flatbuffers)
 
 target_link_libraries(4xsim 4xlib)
