@@ -13,7 +13,20 @@ if(NOT FLATBUFFERS_FLATC_EXECUTABLE)
     set(FLATBUFFERS_FLATC_EXECUTABLE $<TARGET_FILE:flatc>)
   MESSAGE( "Set flatbuffers executable." )                                                                    
 endif()                                                                                                       
-compile_flatbuffers_schema_to_cpp(generated/step.fbs)  
+# Make our own builder
+# unused flags, for now: --gen-object-api --gen-mutable
+function(fourx_compile_flatbuffers_schema_to_cpp SRC_FBS)
+  get_filename_component(SRC_FBS_DIR ${SRC_FBS} PATH)
+  string(REGEX REPLACE "\\.fbs$" "_generated.h" GEN_HEADER ${SRC_FBS})
+  add_custom_command(
+    OUTPUT ${GEN_HEADER}
+    COMMAND "${FLATBUFFERS_FLATC_EXECUTABLE}" -c --no-includes 
+            -o "${SRC_FBS_DIR}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FBS}"
+    DEPENDS flatc)
+endfunction()
+
+fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs)  
 # Add the output path to the include directories
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 

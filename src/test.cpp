@@ -81,6 +81,9 @@ int main(int argc, char** )
     // Note: You pay an extra allocation
     // The struct has already performed endian conversions etc
     // Whereas the buffer builder + tables perform such conversions
+    //
+    // Requires flatc compiler flags for generating the object api
+    // and generating mutable objects.
     // 
     //fbs::AnyStepT root;
     //printf("AnyStepT created on stack\n");
