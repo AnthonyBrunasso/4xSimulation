@@ -12,7 +12,21 @@
 #include <algorithm>
 #include <iterator>
 
-namespace {
+namespace step_parser {
+
+  flatbuffers::FlatBufferBuilder& GetFBB() {
+    static flatbuffers::FlatBufferBuilder builder;
+    return builder;
+  }
+
+  void FBBToBuffer(void* buffer) {
+      std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
+  }
+
+  fbs::v3i str_to_v3i(const std::string& x_str, const std::string& y_str, const std::string& z_str) {
+    fbs::v3i v3i(std::stoi(x_str), std::stoi(y_str), std::stoi(z_str));
+    return v3i;
+  }
 
 #define CHECK(arg_count, tokens) { \
   if (tokens.size() < arg_count) { \
@@ -29,38 +43,47 @@ namespace {
 }
 
   uint32_t s_active_player = 0;
-  size_t parse_tokens(const std::vector<std::string>& tokens, NETWORK_TYPE& operation, void* buffer, size_t buffer_len);
+  size_t parse_tokens(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len);
   void bad_arguments(const std::vector<std::string>& tokens);
 
-  size_t parse_tokens(const std::vector<std::string>& tokens, NETWORK_TYPE& operation, void* buffer, size_t buffer_len) {
-    operation = NETWORK_TYPE::UNKNOWN;
+  size_t parse_tokens(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len) {
+    GetFBB().Clear();
     if (!tokens.size()) {
       return 0;
     }
-    size_t bytes_written = 0;
+    auto copy_to_netbuffer = [buffer, buffer_len] (fbs::StepUnion step_type, const flatbuffers::Offset<void>& step) {
+      flatbuffers::Offset<fbs::AnyStep> anystep = fbs::CreateAnyStep(GetFBB(), step_type, step);
+      fbs::FinishAnyStepBuffer(GetFBB(), anystep);
+      if (GetFBB().GetSize() > buffer_len) {
+        std::cout << "FlatBufferBuilder exceeded network buffer!! StepType: " << step_type << std::endl;
+        return;
+      }
+
+      FBBToBuffer(buffer);
+    };
 
     if (tokens[0] == "quit") {
-      QuitStep quit;
-      bytes_written = serialize(buffer, buffer_len, quit);
+      flatbuffers::Offset<fbs::QuitStep> quit = fbs::CreateQuitStep(GetFBB());
+      copy_to_netbuffer(fbs::StepUnion_QuitStep, quit.Union());
+      game_over = true;
     }
 
     else if (tokens[0] == "begin_turn") {
       CHECK_VALID(1, tokens);
-      BeginStep begin_step;
-      begin_step.set_active_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, begin_step);
+      flatbuffers::Offset<fbs::BeginStep> begin = fbs::CreateBeginStep(GetFBB(), s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_BeginStep, begin.Union());
     }
 
     else if (tokens[0] == "end_turn") {
       CHECK_VALID(1, tokens);
+      flatbuffers::Offset<fbs::EndTurnStep> end_turn = fbs::CreateEndTurnStep(GetFBB(), s_active_player, s_active_player);
       EndTurnStep end_turn_step;
-      end_turn_step.set_player(s_active_player);
-      end_turn_step.set_next_player(s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_EndTurnStep, end_turn.Union());
+
       if (player::get_count()) {
         ++s_active_player;
         s_active_player = s_active_player % player::get_count();
       }
-      bytes_written = serialize(buffer, buffer_len, end_turn_step);
     }
 
     else if (tokens[0] == "active_player") {
@@ -68,337 +91,291 @@ namespace {
       s_active_player = std::stoul(tokens[1]);
     }
     else if (tokens[0] == "production_abort") {
-      ProductionAbortStep abort_step;
-      abort_step.set_player(s_active_player);
-      abort_step.set_city(std::stoul(tokens[1]));
-      abort_step.set_index(std::stoul(tokens[2]));
-      bytes_written = serialize(buffer, buffer_len, abort_step);
+      uint32_t city_id = std::stoul(tokens[1]);
+      uint32_t index = std::stoul(tokens[2]);
+      flatbuffers::Offset<fbs::ProductionAbortStep> abort_step = fbs::CreateProductionAbortStep(GetFBB(), s_active_player, city_id, index);
+      copy_to_netbuffer(fbs::StepUnion_ProductionAbortStep, abort_step.Union());
     }
     else if (tokens[0] == "production_move") {
-      ProductionMoveStep move_step;
-      move_step.set_player(s_active_player);
-      move_step.set_city(std::stoul(tokens[1]));
-      move_step.set_source_index(std::stoul(tokens[2]));
-      move_step.set_destination_index(std::stoul(tokens[3]));
-      bytes_written = serialize(buffer, buffer_len, move_step);
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t src_index = (std::stoul(tokens[2]));
+      uint32_t dst_index = (std::stoul(tokens[3]));
+      flatbuffers::Offset<fbs::ProductionMoveStep> move_step = fbs::CreateProductionMoveStep(GetFBB(), s_active_player, city_id, src_index, dst_index);
+      copy_to_netbuffer(fbs::StepUnion_ProductionMoveStep, move_step.Union());
     }
     else if (tokens[0] == "attack") {
       CHECK_VALID(3, tokens);
-      AttackStep attack_step;
-      attack_step.set_attacker_id(std::stoul(tokens[1]));
-      attack_step.set_defender_id(std::stoul(tokens[2]));
-      attack_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, attack_step);
+      uint32_t attacker_id = (std::stoul(tokens[1]));
+      uint32_t defender_id = (std::stoul(tokens[2]));
+      flatbuffers::Offset<fbs::AttackStep> attack_step = fbs::CreateAttackStep(GetFBB(), attacker_id, defender_id, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_AttackStep, attack_step.Union());
     }
 
     else if (tokens[0] == "barbarians") {
       CHECK_VALID(1, tokens);
-      BarbarianStep barbarian_step;
-      barbarian_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, barbarian_step);
+      flatbuffers::Offset<fbs::BarbarianStep> barb_step = fbs::CreateBarbarianStep(GetFBB(), s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_BarbarianStep, barb_step.Union());
     }
 
     else if (tokens[0] == "city_defense") {
       CHECK_VALID(2, tokens);
-      CityDefenseStep city_defense_step;
-      city_defense_step.set_player(s_active_player);
-      city_defense_step.set_unit(std::stoul(tokens[1]));
-      bytes_written = serialize(buffer, buffer_len, city_defense_step);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      flatbuffers::Offset<fbs::CityDefenseStep> defense_step = fbs::CreateCityDefenseStep(GetFBB(), s_active_player, unit_id);
+      copy_to_netbuffer(fbs::StepUnion_CityDefenseStep, defense_step.Union());
     }
     else if (tokens[0] == "colonize") {
       CHECK(4, tokens);
-      ColonizeStep colonize_step;
-      colonize_step.set_location(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
-      colonize_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, colonize_step);
+      fbs::v3i location = str_to_v3i(tokens[1], tokens[2], tokens[3]);
+      flatbuffers::Offset<fbs::ColonizeStep> colonize_step = fbs::CreateColonizeStep(GetFBB(), &location, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_ColonizeStep, colonize_step.Union());
     }
     else if (tokens[0] == "construct") {
       CHECK(3, tokens);
-      ConstructionStep construction_step;
-      construction_step.set_city_id(std::stoul(tokens[1]));
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t construction_id = 0;
+      bool cheat = false;
       if (std::isdigit(tokens[2][0])) {
-        construction_step.set_production_id(std::stoul(tokens[2]));
+        construction_id = (std::stoul(tokens[2]));
       }
       else {
-        construction_step.set_production_id(util::enum_to_uint(get_construction_type(tokens[2])));
+        construction_id = (util::enum_to_uint(get_construction_type(tokens[2])));
       }
-      construction_step.set_player(s_active_player);
       if (tokens.size() > 3) {
-        construction_step.set_cheat(true);
+        cheat = true;
       }
-      bytes_written = serialize(buffer, buffer_len, construction_step);
+      flatbuffers::Offset<fbs::ConstructionStep> construction_step = fbs::CreateConstructionStep(GetFBB(), city_id, construction_id, cheat, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_ConstructionStep, construction_step.Union());
     }
 
     else if (tokens[0] == "tile_cost") {
       CHECK(5, tokens);
-      TileMutatorStep tile_mutator;
-      tile_mutator.set_destination(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
-      tile_mutator.set_movement_cost(std::stoul(tokens[4]));
-      bytes_written = serialize(buffer, buffer_len, tile_mutator);
+      fbs::v3i dest = str_to_v3i(tokens[1], tokens[2], tokens[3]);
+      uint32_t movement_cost = (std::stoul(tokens[4]));
+      flatbuffers::Offset<fbs::TileMutatorStep> tile_mutator_step = fbs::CreateTileMutatorStep(GetFBB(), &dest, movement_cost);
+      copy_to_netbuffer(fbs::StepUnion_TileMutatorStep, tile_mutator_step.Union());
     }
 
     else if (tokens[0] == "tile_resource") {
       CHECK(5, tokens);
-      ResourceMutatorStep resource_mutator;
-      
-      ResourceMutatorStep* resource_mutator_step = new ResourceMutatorStep();
+      uint32_t type_id = 0;
+
       if (std::isdigit(tokens[1][0])) {
-        resource_mutator.set_type(std::stoul(tokens[1]));
+        type_id = (std::stoul(tokens[1]));
       }
       else {
-        resource_mutator.set_type(util::enum_to_uint(get_resource_type(tokens[1])));
+        type_id = (util::enum_to_uint(get_resource_type(tokens[1])));
       }
-      resource_mutator.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      resource_mutator.set_quantity(1);
+
+      fbs::v3i dest = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
+      uint32_t quantity = 1;
       if (tokens.size() == 6) {
-        resource_mutator.set_quantity(std::stoul(tokens[5]));
+        quantity = (std::stoul(tokens[5]));
       }
-      bytes_written = serialize(buffer, buffer_len, resource_mutator);
+      flatbuffers::Offset<fbs::ResourceMutatorStep> resource_mutator = fbs::CreateResourceMutatorStep(GetFBB(), &dest, type_id, quantity);
+      copy_to_netbuffer(fbs::StepUnion_ResourceMutatorStep, resource_mutator.Union());
     }
 
     else if (tokens[0] == "grant") {
       CHECK_VALID(2, tokens);
-      GrantStep grant_step;
 
-      grant_step.set_player(s_active_player);
-      grant_step.set_science(static_cast<uint32_t>(get_science_type(tokens[1])));
-      if (grant_step.get_science() == 0) {
-        grant_step.set_science(std::stoul(tokens[1]));
+      uint32_t science_id = (static_cast<uint32_t>(get_science_type(tokens[1])));
+      if (science_id == 0) {
+        science_id = (std::stoul(tokens[1]));
       }
-      bytes_written = serialize(buffer, buffer_len, grant_step);
+      flatbuffers::Offset<fbs::GrantStep> grant_step = fbs::CreateGrantStep(GetFBB(), s_active_player, science_id);
+      copy_to_netbuffer(fbs::StepUnion_GrantStep, grant_step.Union());
     }
-    
     else if (tokens[0] == "harvest") {
       CHECK(4, tokens);
-      HarvestStep harvest_step;
-      harvest_step.set_destination(util::str_to_vector3(tokens[1], tokens[2], tokens[3]));
-      harvest_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, harvest_step);
+      fbs::v3i dest = str_to_v3i(tokens[1], tokens[2], tokens[3]);
+      flatbuffers::Offset<fbs::HarvestStep> harvest_step = fbs::CreateHarvestStep(GetFBB(), s_active_player, &dest);
+      copy_to_netbuffer(fbs::StepUnion_HarvestStep, harvest_step.Union());
     }
     else if (tokens[0] == "improve") {
       CHECK(5, tokens);
-      ImproveStep improve_step;
+      uint32_t resource_id;
       if (std::isdigit(tokens[1][0])) {
-        improve_step.set_resource(std::stoul(tokens[1]));
+        resource_id = std::stoul(tokens[1]);
       }
       else {
-        improve_step.set_resource(util::enum_to_uint(get_resource_type(tokens[1])));
+        resource_id = (util::enum_to_uint(get_resource_type(tokens[1])));
       }
-      improve_step.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      improve_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, improve_step);
+      fbs::v3i dest = str_to_v3i(tokens[2], tokens[3], tokens[4]);
+      flatbuffers::Offset<fbs::ImproveStep> improve_step = fbs::CreateImproveStep(GetFBB(), &dest, resource_id, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_ImproveStep, improve_step.Union());
     }
 
     else if (tokens[0] == "join") {
       CHECK(2, tokens);
-      AddPlayerStep player_step;
-      player_step.set_name(tokens[1]);
-      player_step.set_ai_type(AI_TYPE::HUMAN);
+      AI_TYPE ai_type = (AI_TYPE::HUMAN);
       if (tokens.size() == 3) {
         if (std::isdigit(tokens[2][0])) {
-          player_step.set_ai_type(util::uint_to_enum<AI_TYPE>(std::stoul(tokens[2])));
+          ai_type = util::uint_to_enum<AI_TYPE>(std::stoul(tokens[2]));
         }
         else {
-          player_step.set_ai_type(get_ai_type(tokens[2]));
+          ai_type = (get_ai_type(tokens[2]));
         }
       }
-      bytes_written = serialize(buffer, buffer_len, player_step);
-    }
-
+      flatbuffers::Offset<flatbuffers::String> name = GetFBB().CreateString(tokens[1].c_str(), tokens[1].size());
+      flatbuffers::Offset<fbs::AddPlayerStep> add_player_step = fbs::CreateAddPlayerStep(GetFBB(), name, (fbs::AI_TYPE)ai_type); 
+      copy_to_netbuffer(fbs::StepUnion_AddPlayerStep, add_player_step.Union()); 
+    } 
     else if (tokens[0] == "kill") {
       CHECK_VALID(2, tokens);
-      KillStep kill_step;
-      kill_step.set_unit_id(std::stoul(tokens[1]));
-      bytes_written = serialize(buffer, buffer_len, kill_step);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      flatbuffers::Offset<fbs::KillStep> kill_step = fbs::CreateKillStep(GetFBB(), unit_id);
+      copy_to_netbuffer(fbs::StepUnion_KillStep, kill_step.Union());
     }
 
     else if (tokens[0] == "move") {
       CHECK_VALID(5, tokens);
-      MoveStep move_step;
-      move_step.set_unit_id(std::stoul(tokens[1]));
-      move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      move_step.set_player(s_active_player);
-      move_step.set_immediate(true);
-      move_step.set_require_ownership(true);
-      bytes_written = serialize(buffer, buffer_len, move_step);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      fbs::v3i dest = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
+      bool immediate = (true);
+      bool require_ownership = (true);
+      flatbuffers::Offset<fbs::MoveStep> move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, s_active_player, immediate, false, false, require_ownership);
+      copy_to_netbuffer(fbs::StepUnion_MoveStep, move_step.Union());
     }
     else if (tokens[0] == "pillage") {
       CHECK_VALID(2, tokens);
-      PillageStep pillage_step;
-      pillage_step.set_player(s_active_player);
-      pillage_step.set_unit(std::stoul(tokens[1]));
-      bytes_written = serialize(buffer, buffer_len, pillage_step);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      flatbuffers::Offset<fbs::PillageStep> pillage_step = fbs::CreatePillageStep(GetFBB(), s_active_player, unit_id);
+      copy_to_netbuffer(fbs::StepUnion_PillageStep, pillage_step.Union());
     }
     else if (tokens[0] == "queue_move") {
       CHECK_VALID(5, tokens);
-      MoveStep move_step;
-      move_step.set_unit_id(std::stoul(tokens[1]));
-      move_step.set_destination(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      move_step.set_player(s_active_player);
-      move_step.set_immediate(false);
-      move_step.set_require_ownership(true);
-      bytes_written = serialize(buffer, buffer_len, move_step);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      fbs::v3i dest = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
+      bool immediate = (false);
+      bool avoid_unit = false;
+      bool avoid_city = false;
+      bool require_ownership = (true);
+      flatbuffers::Offset<fbs::MoveStep> move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, s_active_player, immediate, avoid_unit, avoid_city, require_ownership);
+      copy_to_netbuffer(fbs::StepUnion_MoveStep, move_step.Union());
     }
 
     else if (tokens[0] == "purchase") {
       CHECK(2, tokens);
-      PurchaseStep purchase_step;
-      purchase_step.set_player(s_active_player);
-      purchase_step.set_city(std::stoul(tokens[1]));
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t production_id = 0;
       if (tokens.size() > 2) {
         if (std::isdigit(tokens[2][0])) {
-          purchase_step.set_production(std::stoul(tokens[2]));
+          production_id = (std::stoul(tokens[2]));
         }
         else {
-          purchase_step.set_production(util::enum_to_uint(get_construction_type(tokens[2])));
+          production_id = (util::enum_to_uint(get_construction_type(tokens[2])));
         }
       }
-      bytes_written = serialize(buffer, buffer_len, purchase_step);
+      flatbuffers::Offset<fbs::PurchaseStep> purchase_step = fbs::CreatePurchaseStep(GetFBB(), s_active_player, production_id, city_id);
+      copy_to_netbuffer(fbs::StepUnion_PurchaseStep, purchase_step.Union());
     }
 
     else if (tokens[0] == "research") {
       CHECK_VALID(2, tokens);
-      ResearchStep research_step;
-      research_step.set_player(s_active_player);
-      research_step.set_science(static_cast<uint32_t>(get_science_type(tokens[1])));
-      if (research_step.get_science() == 0) {
-        research_step.set_science(std::stoul(tokens[1]));
+      uint32_t science_id = (static_cast<uint32_t>(get_science_type(tokens[1])));
+      if (science_id == 0) {
+        science_id = (std::stoul(tokens[1]));
       }
-      bytes_written = serialize(buffer, buffer_len, research_step);
+      flatbuffers::Offset<fbs::ResearchStep> research_step = fbs::CreateResearchStep(GetFBB(), s_active_player, science_id);
+      copy_to_netbuffer(fbs::StepUnion_ResearchStep, research_step.Union());
     }
     
     else if (tokens[0] == "sell") {
       CHECK(2, tokens);
-      SellStep sell_step;
-      sell_step.set_city(std::stoul(tokens[1]));
-      sell_step.set_player(s_active_player);
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t production_id = 0;
       if (tokens.size() > 2) {
         if (std::isdigit(tokens[2][0])) {
-          sell_step.set_production_id(std::stoul(tokens[2]));
+          production_id = (std::stoul(tokens[2]));
         }
         else {
-          sell_step.set_production_id(util::enum_to_uint(get_construction_type(tokens[2])));
+          production_id = (util::enum_to_uint(get_construction_type(tokens[2])));
         }
       }
-      bytes_written = serialize(buffer, buffer_len, sell_step);
+      flatbuffers::Offset<fbs::SellStep> sell_step = fbs::CreateSellStep(GetFBB(), s_active_player, city_id, production_id);
+      copy_to_netbuffer(fbs::StepUnion_SellStep, sell_step.Union());
     }
 
     else if (tokens[0] == "siege") {
       CHECK_VALID(3, tokens);
-      SiegeStep siege_step;
-      siege_step.set_city(std::stoul(tokens[1]));
-      siege_step.set_unit(std::stoul(tokens[2]));
-      siege_step.set_player(s_active_player);
-      bytes_written = serialize(buffer, buffer_len, siege_step);
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t unit_id = (std::stoul(tokens[2]));
+      flatbuffers::Offset<fbs::SiegeStep> siege_step = fbs::CreateSiegeStep(GetFBB(), s_active_player, unit_id, city_id);
+      copy_to_netbuffer(fbs::StepUnion_SiegeStep, siege_step.Union());
     }
     else if (tokens[0] == "specialize") {
       CHECK(3, tokens);
-      SpecializeStep specialize_step;
-      specialize_step.set_player(s_active_player);
-      specialize_step.set_city_id(std::stoul(tokens[1]));
+      uint32_t city_id = (std::stoul(tokens[1]));
+      uint32_t terrain_type = 0;
       if (std::isdigit(tokens[2][0])) {
-        specialize_step.set_terrain_type(std::stoul(tokens[2]));
+        terrain_type = (std::stoul(tokens[2]));
       }
       else {
-        specialize_step.set_terrain_type(util::enum_to_uint(get_terrain_type(tokens[2])));
+        terrain_type = (util::enum_to_uint(get_terrain_type(tokens[2])));
       }
-      bytes_written = serialize(buffer, buffer_len, specialize_step);
+      flatbuffers::Offset<fbs::SpecializeStep> specialize_step = fbs::CreateSpecializeStep(GetFBB(), city_id, terrain_type, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_SpecializeStep, specialize_step.Union());
     }
 
     else if (tokens[0] == "spawn") {
       CHECK(5, tokens);
-      SpawnStep spawn;
-      flatbuffers::FlatBufferBuilder builder;
-      fbs::SpawnStepBuilder ss1(builder);
-      fbs::AnyStepT ss3;
-      ss3.step.Set(fbs::SpawnStepT());
-      fbs::SpawnStepT& ss2 = *ss3.step.AsSpawnStep();
-
+      uint32_t unit_type;
       // If first character in string is a number treat it as an id.
       if (std::isdigit(tokens[1][0])) {
-        spawn.set_unit_type(std::stoul(tokens[1]));
-        ss1.add_unit_type(std::stoul(tokens[1]));
-        ss2.unit_type = std::stoul(tokens[1]);
+        unit_type = std::stoul(tokens[1]);
       }
       // Else treat it as the name of what needs to be spawned.
       else {
-        spawn.set_unit_type(util::enum_to_uint(get_unit_type(tokens[1])));
-        ss1.add_unit_type(util::enum_to_uint(get_unit_type(tokens[1])));
-        ss2.unit_type = util::enum_to_uint(get_unit_type(tokens[1]));
+        unit_type = util::enum_to_uint(get_unit_type(tokens[1]));
       }
-      spawn.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      spawn.set_player(s_active_player);
+      fbs::v3i unitLoc = str_to_v3i(tokens[2], tokens[3], tokens[4]);
 
-      auto location= fbs::v3i(std::stoul(tokens[2]), std::stoul(tokens[3]), std::stoul(tokens[4]));
-      ss1.add_location(&location);
-      ss1.add_player(s_active_player);
-      ss2.location.reset(new fbs::v3i(std::stoul(tokens[2]), std::stoul(tokens[3]), std::stoul(tokens[4])));
-
-      //fbs::FinishSpawnStepBuffer(builder,ss1.Finish());
-      std::cout << "ss2: player " << ss2.player << " unit_type " << ss2.unit_type << std::endl;
-      flatbuffers::FlatBufferBuilder builder2;
-      //fbs::FinishSpawnStepBuffer(builder2, fbs::SpawnStep::Pack(builder2, &ss2));
-      fbs::FinishAnyStepBuffer(builder2, fbs::AnyStep::Pack(builder2, &ss3));
-      const flatbuffers::FlatBufferBuilder& readBuilder = builder2;
-      //auto mystep = fbs::GetSpawnStep(readBuilder.GetBufferPointer());
-      auto mystep = fbs::GetAnyStep(readBuilder.GetBufferPointer());
-      fbs::AnyStepT unionObj;
-      mystep->UnPackTo(&unionObj);
-      fbs::SpawnStepT& myobj = *unionObj.step.AsSpawnStep();
-      //mystep->UnPackTo(&myobj);
-      std::cout << "player " << myobj.player << " unit_type " << myobj.unit_type 
-          << " location: " << myobj.location->x() << " " << myobj.location->y() << " " << myobj.location->z() << std::endl;
-      
-      if (readBuilder.GetSize() > buffer_len) {
-          std::cout << "Ran out of network buffer. :(" << std::endl;
-          return 0;
-      }
-
-      std::memcpy(buffer, readBuilder.GetBufferPointer(), builder.GetSize());
-      bytes_written = serialize(buffer, buffer_len, spawn);
+      flatbuffers::Offset<fbs::SpawnStep> spawn_step  = fbs::CreateSpawnStep(GetFBB(), unit_type, &unitLoc, s_active_player);
+      copy_to_netbuffer(fbs::StepUnion_SpawnStep, spawn_step.Union());
     }
 
     else if (tokens[0] == "stats") {
       CHECK_VALID(5, tokens);
-      UnitStatsStep stats;
-      stats.set_unit_id(std::stoul(tokens[1]));
-      stats.set_health(std::stoul(tokens[2]));
-      stats.set_attack(std::stoul(tokens[3]));
-      stats.set_range(std::stoul(tokens[4]));
-      bytes_written = serialize(buffer, buffer_len, stats);
+      uint32_t unit_id = (std::stoul(tokens[1]));
+      uint32_t health = (std::stoul(tokens[2]));
+      uint32_t attack = (std::stoul(tokens[3]));
+      uint32_t range = (std::stoul(tokens[4]));
+      flatbuffers::Offset<fbs::UnitStatsStep> unit_stats_step = fbs::CreateUnitStatsStep(GetFBB(), unit_id, health, attack, range);
+      copy_to_netbuffer(fbs::StepUnion_UnitStatsStep, unit_stats_step.Union());
     }
 
     else if (tokens[0] == "cast") {
       CHECK(5, tokens);
-      MagicStep magic;
-      magic.set_type(get_magic_type(tokens[1]));
-      magic.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      magic.set_player(s_active_player);
+      fbs::MAGIC_TYPE magic_type = (fbs::MAGIC_TYPE)(get_magic_type(tokens[1]));
+      fbs::v3i location = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
+      bool cheat = false;
       if (tokens.size() > 5) {
-        magic.set_cheat(true);
+        cheat = true;
       }
-      bytes_written = serialize(buffer, buffer_len, magic);
+      flatbuffers::Offset<fbs::MagicStep> magic_step = fbs::CreateMagicStep(GetFBB(), s_active_player, &location, magic_type, cheat);
+      copy_to_netbuffer(fbs::StepUnion_MagicStep, magic_step.Union());
     }
 
     else if (tokens[0] == "status") {
       CHECK(5, tokens);
-      StatusStep status;
-      status.set_type(get_status_type(tokens[1]));
-      status.set_location(util::str_to_vector3(tokens[2], tokens[3], tokens[4]));
-      bytes_written = serialize(buffer, buffer_len, status);
+      fbs::STATUS_TYPE status_type = (fbs::STATUS_TYPE)(get_status_type(tokens[1]));
+      fbs::v3i location = str_to_v3i(tokens[2], tokens[3], tokens[4]);
+      flatbuffers::Offset<fbs::StatusStep> status_step = fbs::CreateStatusStep(GetFBB(), status_type, &location);
+      copy_to_netbuffer(fbs::StepUnion_StatusStep, status_step.Union());
     }
 
     else if (tokens[0] == "scenario") {
       CHECK(2, tokens);
-      ScenarioStep scenario;
+      SCENARIO_TYPE scenario_type;
       if (std::isdigit(tokens[1][0])) {
-        scenario.set_type(util::uint_to_enum<SCENARIO_TYPE>(std::stoul(tokens[1])));
+        scenario_type = (util::uint_to_enum<SCENARIO_TYPE>(std::stoul(tokens[1])));
       }
       // Else treat it as a the name of what needs to be spawned.
       else {
-        scenario.set_type(get_scenario_type(tokens[1]));
+        scenario_type = (get_scenario_type(tokens[1]));
       }
-      bytes_written = serialize(buffer, buffer_len, scenario);
+      flatbuffers::Offset<fbs::ScenarioStep> scenario_step = fbs::CreateScenarioStep(GetFBB(), (fbs::SCENARIO_TYPE)scenario_type);
+      copy_to_netbuffer(fbs::StepUnion_ScenarioStep, scenario_step.Union());
     }
 
     else {
@@ -406,13 +383,12 @@ namespace {
       return 0;
     }
 
-    if (bytes_written == 0) {
+    if (GetFBB().GetSize() == 0) {
       std::cout << "Failure to serialize step" << std::endl;
       return 0;
     }
 
-    operation = read_type(buffer, bytes_written);
-    return bytes_written;
+    return GetFBB().GetSize();
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
@@ -435,10 +411,10 @@ std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
   return std::move(tokens);
 }
 
-size_t step_parser::parse(const std::vector<std::string>& tokens, NETWORK_TYPE& operation, void* buffer, size_t buffer_len) {
+size_t step_parser::parse(const std::vector<std::string>& tokens, bool& game_over, void* buffer, size_t buffer_len) {
   try
   {
-    return parse_tokens(tokens, operation, buffer, buffer_len);
+    return parse_tokens(tokens, game_over, buffer, buffer_len);
   }
   catch(const std::exception&e ) 
   {

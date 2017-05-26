@@ -1,10 +1,10 @@
 
 namespace fbs;
 
-enum AI_TYPE:uint { AI_BARBARIAN, AI_HUMAN, AI_MONSTER }
-enum MAGIC_TYPE:uint { MAGIC_FIREBALL, MAGIC_MAGIC_MISSILE }
-enum STATUS_TYPE:uint { STATUS_RESIST_MODIFIERS, STATUS_STASIS, STATUS_CONSTRUCTING_IMPROVEMENT, STATUS_SUMMONING_MONSTER }
-enum SCENARIO_TYPE:uint { SCENARIO_DISEASE, SCENARIO_MONSTER, SCENARIO_ARENA, SCENARIO_CITYLIFE }
+enum AI_TYPE:uint { AI_UNKNOWN, AI_BARBARIAN, AI_HUMAN, AI_MONSTER }
+enum MAGIC_TYPE:uint { MAGIC_UNKNOWN, MAGIC_FIREBALL, MAGIC_MAGIC_MISSILE }
+enum STATUS_TYPE:uint { STATUS_UNKNOWN, STATUS_RESIST_MODIFIERS, STATUS_STASIS, STATUS_CONSTRUCTING_IMPROVEMENT, STATUS_SUMMONING_MONSTER }
+enum SCENARIO_TYPE:uint { SCENARIO_UNKNOWN, SCENARIO_DISEASE, SCENARIO_MONSTER, SCENARIO_ARENA, SCENARIO_CITYLIFE }
 
 struct v3i
 {
@@ -13,11 +13,20 @@ struct v3i
   z: short;
 }
 
+struct e3i
+{
+  x: byte;
+  y: byte;
+  z: byte;
+}
+
 table SpawnStep
 {
   unit_type: uint;
-  location: v3i;
+  location: v3i (native_inline);
   player: uint;
+  new_field: uint;
+  extra_field: uint;
 }
 
 table ImproveStep
@@ -203,7 +212,37 @@ table QuitStep
 {
 }
 
-union StepUnion { SpawnStep, QuitStep }
+union StepUnion { 
+SpawnStep,
+ImproveStep,
+ColonizeStep,
+ConstructionStep,
+MoveStep,
+PurchaseStep,
+SellStep,
+AddPlayerStep,
+AttackStep,
+KillStep,
+UnitStatsStep,
+TileMutatorStep,
+ResourceMutatorStep,
+EndTurnStep,
+HarvestStep,
+SpecializeStep,
+BarbarianStep,
+BeginStep,
+CityDefenseStep,
+PillageStep,
+ProductionAbortStep,
+ProductionMoveStep,
+SiegeStep,
+GrantStep,
+MagicStep,
+ResearchStep,
+StatusStep,
+ScenarioStep,
+QuitStep
+}
 
 table AnyStep
 {
