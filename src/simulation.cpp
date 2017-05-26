@@ -1000,7 +1000,7 @@ void simulation::process_step(const void* buffer, size_t buffer_len) {
   update_combat();
 }
 
-// Same as regular step, just deletes step on behalf of ai when finished.
+// Same as regular step
 void simulation::process_step_from_ai(const void* buffer, size_t buffer_len) {
   simulation::process_step(buffer, buffer_len);
 }

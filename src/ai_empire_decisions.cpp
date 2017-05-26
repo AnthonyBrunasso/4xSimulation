@@ -1,4 +1,5 @@
 #include "ai_empire_decisions.h"
+#include "ai_shared.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -7,7 +8,6 @@
 #include "tile.h"
 #include "player.h"
 #include "city.h"
-#include "ai_shared.h"
 #include "Vector3.hpp"
 #include "format.h"
 #include "game_types.h"
@@ -19,6 +19,8 @@
 #include "unique_id.h"
 #include "search.h"
 #include "hex.h"
+
+#include "step_generated.h"
 
 const size_t BUFFER_LEN = 256;
 char s_ai_buffer[BUFFER_LEN];
@@ -49,28 +51,26 @@ void EmpireSettle::operator()(uint32_t player_id) {
 
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
   // Create a worker, for now, on that tile then a city
-  SpawnStep spawn_step;
-  spawn_step.set_unit_type(util::enum_to_uint(UNIT_TYPE::WORKER));
-  spawn_step.set_location(new_home);
-  spawn_step.set_player(player_id);
-  ai_shared::simulate_step(spawn_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::SpawnStep> spawn_step;
+  uint32_t unit_type = (util::enum_to_uint(UNIT_TYPE::WORKER));
+  fbs::v3i location(new_home.x, new_home.y, new_home.z);
+  spawn_step = fbs::CreateSpawnStep(ai_shared::GetFBB(), unit_type, &location, player_id);
+  ai_shared::simulate_step(fbs::StepUnion::SpawnStep, spawn_step.Union());
 
   // Preemptively get the id of the city that will be created in the colonize step.
   uint32_t city_id = unique_id::get_next();
 
-  ColonizeStep colonize_step;
-  colonize_step.set_location(new_home);
-  colonize_step.set_player(player_id);
-  ai_shared::simulate_step(colonize_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::ColonizeStep> colonize_step;
+  fbs::v3i loc(new_home.x, new_home.y, new_home.z);
+  colonize_step = fbs::CreateColonizeStep(ai_shared::GetFBB(), &loc, player_id);
+  ai_shared::simulate_step(fbs::StepUnion::ColonizeStep, colonize_step.Union());
 
   // TEMPORARY: Construct the barbarian and uber forge.
-  ConstructionStep forge;
-  forge.set_city_id(city_id);
-  forge.set_production_id(util::enum_to_uint(CONSTRUCTION_TYPE::FORGE));
-  forge.set_player(player_id);
-  // Give it to them immediately.
-  forge.set_cheat(true);
-  ai_shared::simulate_step(forge, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::ConstructionStep> forge;
+  uint32_t production_id = (util::enum_to_uint(CONSTRUCTION_TYPE::FORGE));
+  bool cheat = true;
+  forge = fbs::CreateConstructionStep(ai_shared::GetFBB(), city_id, production_id, cheat, player_id);
+  ai_shared::simulate_step(fbs::StepUnion::ConstructionStep, forge.Union());
 }
 
 void EmpireConstruct::operator()(uint32_t player_id) {
@@ -102,14 +102,16 @@ void EmpireExplore::operator()(uint32_t player_id) {
   player::for_each_player_unit(player_id, [&player_id, &current](Unit& unit) {
     sf::Vector3i coord = ai_shared::get_random_coord();
     std::cout << current->m_name << " going towards " << format::vector3(coord) << std::endl;
-    MoveStep move_step;
-    move_step.set_unit_id(unit.m_id);
-    move_step.set_destination(coord);
-    move_step.set_player(player_id);
-    move_step.set_immediate(true);
-    move_step.set_avoid_city(true);
-    move_step.set_avoid_unit(true);
-    ai_shared::simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+    flatbuffers::Offset<fbs::MoveStep> move_step;
+    uint32_t unit_id = (unit.m_id);
+    fbs::v3i dest(coord.x, coord.y, coord.z);
+    uint32_t player_id = (player_id);
+    bool immediate = true;
+    bool avoid_city = (true);
+    bool avoid_unit = (true);
+    bool require_ownership = true;
+    move_step = fbs::CreateMoveStep(ai_shared::GetFBB(), unit_id, &dest, player_id, immediate, avoid_unit, avoid_city, require_ownership);
+    ai_shared::simulate_step(fbs::StepUnion::MoveStep, move_step.Union());
   });
 }
 

@@ -9,9 +9,24 @@
 #include "world_map.h"
 #include "format.h"
 
+#include "step_generated.h"
+
 namespace ai_shared {
   const size_t BUFFER_LEN = 256;
   char s_ai_buffer[BUFFER_LEN];
+
+  flatbuffers::FlatBufferBuilder& GetFBB() {
+    static flatbuffers::FlatBufferBuilder builder;
+    return builder;
+  }
+}
+
+void ai_shared::simulate_step(fbs::StepUnion step_type, const flatbuffers::Offset<void>& step)
+{
+  flatbuffers::Offset<fbs::AnyStep> anystep = fbs::CreateAnyStep(GetFBB(), step_type, step);
+  fbs::FinishAnyStepBuffer(GetFBB(), anystep);
+  simulation::process_step_from_ai(GetFBB().GetBufferPointer(), GetFBB().GetSize());
+  GetFBB().Clear();
 }
 
 bool ai_shared::attack_unit(uint32_t unit_id, uint32_t target_id) {
@@ -29,13 +44,13 @@ bool ai_shared::attack_unit(uint32_t unit_id, uint32_t target_id) {
     return true;
   }
   
-  AttackStep attack_step;
-  attack_step.set_attacker_id(unit_id);
-  attack_step.set_defender_id(target_id);
-  attack_step.set_player(su->m_owner_id);
-  simulate_step(attack_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::AttackStep> attack_step;
+  uint32_t attacker_id = (unit_id);
+  uint32_t defender_id = (target_id);
+  uint32_t player_id = (su->m_owner_id);
+  attack_step = fbs::CreateAttackStep(GetFBB(), attacker_id, defender_id, player_id);
+  simulate_step(fbs::StepUnion::AttackStep, attack_step.Union());
   return true;
-
 }
 
 bool ai_shared::attack_city(uint32_t unit_id, uint32_t city_id)
@@ -43,25 +58,25 @@ bool ai_shared::attack_city(uint32_t unit_id, uint32_t city_id)
   Unit* u = unit::get_unit(unit_id);
   if (!u) return false;
 
-  SiegeStep siege_step;
-  siege_step.set_city(city_id);
-  siege_step.set_player(u->m_owner_id);
-  siege_step.set_unit(u->m_id);
-  simulate_step(siege_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::SiegeStep> siege_step;
+  uint32_t player_id = (u->m_owner_id);
+  siege_step = fbs::CreateSiegeStep(GetFBB(), player_id, unit_id, city_id);
+  simulate_step(fbs::StepUnion::SiegeStep, siege_step.Union());
   return true;
 }
 
 void ai_shared::approach(uint32_t unit_id, const sf::Vector3i& location) {
   Unit* u = unit::get_unit(unit_id);
   if (!u) return;
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_player(u->m_owner_id);
-  move_step.set_destination(location);
-  move_step.set_immediate(true);
-  move_step.set_avoid_city(true);
-  move_step.set_avoid_unit(true);
-  simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::MoveStep> move_step;
+  uint32_t player_id = (u->m_owner_id);
+  fbs::v3i dest(location.x, location.y, location.z);
+  bool immediate = (true);
+  bool avoid_city = (true);
+  bool avoid_unit = (true);
+  bool require_ownership = (true);
+  move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, player_id, immediate, avoid_unit, avoid_city, require_ownership);
+  simulate_step(fbs::StepUnion::MoveStep, move_step.Union());
 }
 
 bool ai_shared::approach_unit(uint32_t unit_id, uint32_t target_id) {
@@ -104,11 +119,11 @@ bool ai_shared::pillage_improvement(uint32_t unit_id, uint32_t target_id) {
     return true;
   }
  
-  PillageStep pillage_step;
+  flatbuffers::Offset<fbs::PillageStep> pillage_step;
   
-  pillage_step.set_player(su->m_owner_id);
-  pillage_step.set_unit(unit_id);
-  simulate_step(pillage_step, s_ai_buffer, BUFFER_LEN);
+  uint32_t player_id = (su->m_owner_id);
+  pillage_step = fbs::CreatePillageStep(GetFBB(), player_id, unit_id);
+  simulate_step(fbs::StepUnion::PillageStep, pillage_step.Union());
   return true;
 }
 
@@ -119,14 +134,16 @@ bool ai_shared::wander(uint32_t unit_id) {
   }
 
   // Move to the improvement.
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_destination(get_random_coord());
-  move_step.set_player(su->m_owner_id);
-  move_step.set_immediate(true);
-  move_step.set_avoid_city(true);
-  move_step.set_avoid_unit(true);
-  simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::MoveStep> move_step;
+  sf::Vector3i random(get_random_coord());
+  fbs::v3i dest(random.x, random.y, random.z);
+  uint32_t player_id = (su->m_owner_id);
+  bool immediate = (true);
+  bool avoid_city = (true);
+  bool avoid_unit = (true);
+  bool require_ownership = (true);
+  move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, player_id, immediate, avoid_unit, avoid_city, require_ownership);
+  simulate_step(fbs::StepUnion::MoveStep, move_step.Union());
 
   return true;
 }
@@ -140,14 +157,15 @@ bool ai_shared::approach_improvement(uint32_t unit_id, uint32_t target_id) {
   } 
 
   // Move to the improvement.
-  MoveStep move_step;
-  move_step.set_unit_id(unit_id);
-  move_step.set_destination(ti->m_location);
-  move_step.set_player(su->m_owner_id);
-  move_step.set_immediate(true);
-  move_step.set_avoid_city(true);
-  move_step.set_avoid_city(true);
-  simulate_step(move_step, s_ai_buffer, BUFFER_LEN);
+  flatbuffers::Offset<fbs::MoveStep> move_step;
+  fbs::v3i dest(ti->m_location.x, ti->m_location.y, ti->m_location.z);
+  uint32_t player_id = (su->m_owner_id);
+  bool immediate = (true);
+  bool avoid_city = (true);
+  bool avoid_unit = (true);
+  bool require_ownership = (true);
+  move_step = fbs::CreateMoveStep(GetFBB(), unit_id, &dest, player_id, immediate, avoid_unit, avoid_city, require_ownership);
+  simulate_step(fbs::StepUnion::MoveStep, move_step.Union());
   // Try to pillage it.
   pillage_improvement(unit_id, target_id);
   return true;
