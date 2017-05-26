@@ -768,12 +768,14 @@ namespace simulation {
   void execute_add_player(const fbs::AddPlayerStep* add_player_step) {
     fbs::AI_TYPE ai_type = add_player_step->ai_type();
     const flatbuffers::String* name = add_player_step->name();
+    uint32_t player_id = 0;
     switch (ai_type) {
       case fbs::AI_TYPE::AI_BARBARIAN:
-        player::create_ai((AI_TYPE)ai_type);
+        player_id = player::create_ai((AI_TYPE)ai_type);
+        barbarians::set_player_id(player_id);
         break;
       case fbs::AI_TYPE::AI_HUMAN:
-        player::create_human(name->str());
+        player_id = player::create_human(name->str());
       default:
         break;
     }
