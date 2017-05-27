@@ -225,6 +225,20 @@ float Fortified::operator()(uint32_t player_id, float threshold) {
 float ThreatenedVsAvailable::operator()(uint32_t player_id, float threshold) {
   std::cout << "ThreatenedVsAvailable" << std::endl;
   std::vector<uint32_t> threatened;
+  float safe = threshold +1.f;
+  float under_threat = threshold - 1.f;
+
+  Player* player = player::get_player(player_id);
+  if (!player) return safe; 
+  
+  if (player->m_omniscient) {
+    unit::for_each_unit( [this, player_id] (const Unit& u) {
+      if (u.m_owner_id != player_id) {
+        m_state->m_threats.push_back(u.m_id);
+      }
+    });
+    return under_threat;
+  }
 
   for (uint32_t unit_id : m_state->m_idle_units) {
     Unit* u = unit::get_unit(unit_id);
@@ -241,10 +255,10 @@ float ThreatenedVsAvailable::operator()(uint32_t player_id, float threshold) {
 
   if (threatened.size()) {
     m_state->m_idle_units.swap(threatened);
-    return threshold - 1.f;
+    return under_threat;
   }
 
-  return threshold + 1.f;
+  return safe;
 }
 
 float ApproachVsAttack::operator()(uint32_t player_id, float threshold) {

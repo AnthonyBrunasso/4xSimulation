@@ -43,6 +43,8 @@ void barbarians::pillage_and_plunder(uint32_t player_id) {
   while (!p->m_ai_state->m_micro_done) {
     TurnState t;
     empire_trees::get_primitive_micro(&t).make_decision(player_id);
+    // Stop once a noop has occurred
+    if (t.m_noop) break;
   }
 }
 

@@ -48,6 +48,7 @@ void DTree::recurse(uint32_t id, DNode* node) {
 
     if (result == NOOP_EVALUATION) {
       std::cout << "Eval ended in NOOP" << std::endl;
+      m_state->m_noop = true;
     }
   }
 

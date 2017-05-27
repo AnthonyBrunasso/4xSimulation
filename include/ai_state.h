@@ -39,5 +39,6 @@ struct TurnState
   uint32_t m_target_city;
   std::vector<uint32_t> m_pillage_targets;
   sf::Vector3i m_target_location;
+  bool m_noop = false;
 };
 

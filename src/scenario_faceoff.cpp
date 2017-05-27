@@ -43,6 +43,11 @@ void scenario_faceoff::start() {
 
   if (player::get_count() != 2) return;
 
+  // Map may be revealed to players
+  for (size_t i = 0; i < player::get_count(); ++i) {
+    player::set_omniscient(i);
+  }
+
   barbarians::disable_macro_behavior();
   
   std::vector<uint32_t> unit_types = { util::enum_to_uint(UNIT_TYPE::ARCHER),
