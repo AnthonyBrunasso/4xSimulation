@@ -30,11 +30,12 @@
 
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 namespace simulation {
   // Units to move in the current step
-  typedef std::vector<uint32_t> UnitMovementVector;
-  UnitMovementVector s_units_to_move;
+  typedef std::set<uint32_t> UnitMovementSet;
+  UnitMovementSet s_units_to_move;
   // Units to fight in the current step
   std::vector<std::pair<uint32_t, uint32_t> > s_units_to_fight;
 
@@ -44,7 +45,7 @@ namespace simulation {
   bool s_game_over = false;
 
   // Order of operations that should be checked after a step
-  bool step_move(UnitMovementVector& units_to_move, uint32_t player_id);
+  bool step_move(UnitMovementSet& units_to_move, uint32_t player_id);
 
   void step_combat();
 
@@ -64,10 +65,10 @@ namespace simulation {
     return ret;
   }
 
-  bool step_move(UnitMovementVector& units_to_move, uint32_t player_id) {
+  bool step_move(UnitMovementSet& units_to_move, uint32_t player_id) {
     bool movement = false;
 
-    UnitMovementVector still_moving;
+    UnitMovementSet still_moving;
     for (auto unit_id : units_to_move) {
       // Make sure the unit continues to exist
       Unit* unit = unit::get_unit(unit_id);
@@ -78,7 +79,7 @@ namespace simulation {
 
       // Only move units for the given player.
       if (unit->m_owner_id != player_id) {
-        still_moving.push_back(unit_id);
+        still_moving.insert(unit_id);
         continue;
       }
 
@@ -90,7 +91,7 @@ namespace simulation {
 
       // Unit is engaged in movement, but exhausted
       if (!unit->m_action_points) {
-        still_moving.push_back(unit_id);
+        still_moving.insert(unit_id);
         continue;
       }
 
@@ -130,7 +131,7 @@ namespace simulation {
         movement = true;
         unit->m_action_points -= moved;
 
-        still_moving.push_back(unit_id);
+        still_moving.insert(unit_id);
       }
       // else
       // there is an unforseen problem with the unit's path
@@ -637,7 +638,7 @@ namespace simulation {
     //  return;
     //}
     //units::set_path(path_step->m_unit_id, path_step->m_path);
-    //UnitMovementVector units_to_move;
+    //UnitMovementSet units_to_move;
     //units_to_move.push_back(unit->m_unique_id);
     //while (step_move(units_to_move, unit->m_owner_id));
 
@@ -646,20 +647,20 @@ namespace simulation {
   }
 
   void execute_move(const fbs::MoveStep* move_step) {
-    std::cout << "Executing immediate movement " << std::endl;
+    std::cout << "Executing movement step " << std::endl;
     // Just set where the unit needs to move and add it to a list. The actual move will happen in the move phase
 
     Unit* unit = generate_path(move_step);
     if (!unit) return;
 
     if (move_step->immediate()) {
-      UnitMovementVector units_to_move;
-      units_to_move.push_back(unit->m_id);
+      UnitMovementSet units_to_move;
+      units_to_move.insert(unit->m_id);
       while (step_move(units_to_move, unit->m_owner_id)) {
       }
     }
     // Queue it for continued movement, unit will remove itself if it is done moving
-    s_units_to_move.push_back(unit->m_id);
+    s_units_to_move.insert(unit->m_id);
   }
 
   std::string execute_purchase(const fbs::PurchaseStep* purchase_step) {
