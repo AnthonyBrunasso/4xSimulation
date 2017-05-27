@@ -52,6 +52,8 @@ public:
   AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
   std::shared_ptr<AIState> m_ai_state;
+  // Cheat state
+  bool m_omniscient; // Ignores fog of war
 };
 
 namespace player {
@@ -63,6 +65,7 @@ namespace player {
 
   void reset();
 
+  void set_omniscient(uint32_t player_id);
   void add_city(uint32_t player_id, uint32_t city_id);
   void add_unit(uint32_t player_id, uint32_t unit_id);
   void add_improvement(uint32_t player_id, uint32_t improvement_id);

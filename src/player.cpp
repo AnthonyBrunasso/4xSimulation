@@ -19,6 +19,7 @@ Player::Player(uint32_t id)
     , m_research(SCIENCE_TYPE::AGRICULTURE)
     , m_ai_type(AI_TYPE::UNKNOWN)
     , m_ai_state(nullptr)
+    , m_omniscient(false)
 {
 }
 
@@ -131,6 +132,13 @@ void player::reset() {
     delete player;
   }
   s_players.clear();
+}
+
+void player::set_omniscient(uint32_t player_id) {
+  Player* player = get_player(player_id);
+  if (!player) return;
+
+  player->m_omniscient = true;
 }
 
 void player::add_city(uint32_t player_id, uint32_t city_id) {
