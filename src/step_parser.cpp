@@ -74,13 +74,16 @@ namespace step_parser {
 
     else if (tokens[0] == "end_turn") {
       CHECK_VALID(1, tokens);
-      flatbuffers::Offset<fbs::EndTurnStep> end_turn_step = fbs::CreateEndTurnStep(GetFBB(), s_active_player, s_active_player);
-      copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn_step.Union());
 
+      uint32_t current_player = s_active_player;
       if (player::get_count()) {
         ++s_active_player;
         s_active_player = s_active_player % player::get_count();
       }
+      uint32_t next_player = s_active_player;
+
+      flatbuffers::Offset<fbs::EndTurnStep> end_turn_step = fbs::CreateEndTurnStep(GetFBB(), current_player, next_player);
+      copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn_step.Union());
     }
 
     else if (tokens[0] == "active_player") {
