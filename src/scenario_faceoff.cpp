@@ -3,6 +3,7 @@
 #include "player.h"
 #include "city.h"
 #include "unit.h"
+#include "ai_barbarians.h"
 #include <unordered_map>
 #include <list>
 
@@ -42,6 +43,8 @@ void scenario_faceoff::start() {
 
   if (player::get_count() != 2) return;
 
+  barbarians::disable_macro_behavior();
+  
   std::vector<uint32_t> unit_types = { util::enum_to_uint(UNIT_TYPE::ARCHER),
     util::enum_to_uint(UNIT_TYPE::ARCHER),
     util::enum_to_uint(UNIT_TYPE::PHALANX),
