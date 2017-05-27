@@ -592,12 +592,23 @@ namespace simulation {
     std::vector<sf::Vector3i> path = search::path_to(unit->m_location, destination, world_map::get_map(), find_tiles);
     if (!path.empty()) {
       path.erase(path.begin());
-      if (avoid_city && destination_tile->m_city_id) {
+    }
+    while (!path.empty()) {
+      Tile* t = world_map::get_tile(path.back());
+      if (!t) break; // path outside of the world? 
+
+      if (avoid_city && t->m_city_id) {
         path.pop_back();
+        continue;
       }
-      else if (avoid_unit && !destination_tile->m_unit_ids.empty()) {
+
+      if (avoid_unit && !t->m_unit_ids.empty()) {
         path.pop_back();
+        continue;
       }
+
+      // Good destination
+      break;
     }
     if (player->m_ai_type != AI_TYPE::HUMAN && path.empty()) {
       unit->m_action_points = 0;
