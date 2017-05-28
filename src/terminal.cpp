@@ -449,6 +449,7 @@ namespace terminal  {
     terminal::add_query("reset", "reset", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       simulation::reset();
+      return true;
     });
   }
 
