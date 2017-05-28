@@ -7,6 +7,7 @@ file(GLOB sources "*.cpp" "*.c" "../include/*.h")
 set(lib_sources ${sources})
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/terminal.cpp)
+list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/step_parser.cpp)
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
 
 # Request compilation of .fbs files
@@ -33,7 +34,7 @@ fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
 add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
-add_executable(4xsim ${CMAKE_CURRENT_SOURCE_DIR}/terminal.cpp ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+add_executable(4xsim ${CMAKE_CURRENT_SOURCE_DIR}/terminal.cpp ${CMAKE_CURRENT_SOURCE_DIR}/step_parser.cpp ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
 target_link_libraries(4xtest flatbuffers)
 
