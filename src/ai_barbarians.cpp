@@ -1,13 +1,14 @@
 #include "ai_barbarians.h"
 
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <vector>
+
 #include "ai_empire_trees.h"
 #include "ai_state.h"
-#include "player.h"
 #include "dtree.h"
-#include "game_types.h"
-
-#include <iostream>
-#include <vector>
+#include "player.h"
 
 namespace {
   std::vector<uint32_t> s_player_ids;

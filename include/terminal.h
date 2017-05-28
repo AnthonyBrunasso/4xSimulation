@@ -1,8 +1,9 @@
 #pragma once
 
+#include <stddef.h>
 #include <functional>
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace terminal {
   void initialize();

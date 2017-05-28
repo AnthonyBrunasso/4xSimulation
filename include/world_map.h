@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Vector3.hpp"
-
-#include <unordered_map>
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <unordered_map>
 
-class Tile;
+#include "Vector3.hpp"
+#include "tile.h"
 
 namespace world_map {
   typedef std::unordered_map<sf::Vector3i, Tile> TileMap;

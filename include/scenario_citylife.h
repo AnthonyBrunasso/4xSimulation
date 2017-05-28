@@ -1,5 +1,4 @@
 #pragma once
-#include <stdint.h>
 
 namespace scenario_citylife {
   bool active();

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "dtree.h"
+#include <stdint.h>
 
+#include "dtree.h"
 #include "game_types.h"
 
 class EmpireSettle : public Decision {

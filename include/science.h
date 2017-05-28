@@ -1,6 +1,7 @@
 
-#include <vector>
+#include <stdint.h>
 #include <string>
+#include <vector>
 
 enum class SCIENCE_TYPE;
 

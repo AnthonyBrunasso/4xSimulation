@@ -2,8 +2,11 @@
 
 #include <iostream>
 
-#include "status_effect.h"
+#include "Vector3.hpp"
+#include "combat.h"
+#include "game_types.h"
 #include "player.h"
+#include "status_effect.h"
 #include "unit.h"
 
 uint32_t INVALID_MONSTER_ID = 0xffffffff;

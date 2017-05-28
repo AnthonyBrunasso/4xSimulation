@@ -1,17 +1,23 @@
 
 #include "production.h"
-#include "production_detail.h"
-#include "city.h"
-#include "player.h"
-#include "unit.h"
-#include "terrain_yield.h"
-#include "unique_id.h"
 
-#include <vector>
-#include <iostream>
-#include <iterator>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "Vector3.hpp"
+#include "city.h"
+#include "player.h"
+#include "production_detail.h"
+#include "terrain_yield.h"
+#include "unique_id.h"
+#include "unit.h"
 
 typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
 class ConstructionState

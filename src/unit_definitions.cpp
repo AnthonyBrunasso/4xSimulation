@@ -2,10 +2,11 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <utility>
 
 #include "combat.h"
-#include "util.h"
 #include "game_types.h"
+#include "util.h"
 
 namespace {
   typedef std::unordered_map<uint32_t, CombatStats> DefinitionMap;

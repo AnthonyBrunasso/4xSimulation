@@ -1,16 +1,17 @@
 #pragma once
 
-#include "game_types.h"
-#include "Vector3.hpp"
-#include "combat.h"
-#include "util.h"
-#include "unique_id.h"
-
 #include <cstdint>
 #include <functional>
 #include <vector>
 
+#include "Vector3.hpp"
+#include "combat.h"
+#include "game_types.h"
+#include "unique_id.h"
+#include "util.h"
+
 class Player;
+
 class Unit {
 public:
   explicit Unit(uint32_t unique_id) 
@@ -74,7 +75,7 @@ namespace unit {
   bool damage(uint32_t receiver_id, uint32_t source_player, float amount);
   void heal(uint32_t receiver_id, float amount);
 
-  // Changes directoin towards target, doesn't normalize direction.
+  // Changes direction towards target, doesn't normalize direction.
   void change_direction(uint32_t id, const sf::Vector3i& target);
 
   void reset();

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "game_types.h"
-#include "Vector3.hpp"
+#include <stdint.h>
 #include <vector>
+
+#include "Vector3.hpp"
+#include "game_types.h"
 
 // Order to be issued to unit.
 class UnitOrder {

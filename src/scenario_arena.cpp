@@ -1,9 +1,16 @@
 #include "scenario_arena.h"
-#include "player.h"
-#include "city.h"
-#include "unit.h"
-#include <unordered_map>
+
+#include <cstdint>
 #include <list>
+#include <memory>
+#include <unordered_map>
+#include <utility>
+
+#include "city.h"
+#include "game_types.h"
+#include "player.h"
+#include "unit.h"
+#include "util.h"
 
 namespace scenario_arena
 {

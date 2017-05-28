@@ -1,20 +1,24 @@
 #pragma once
 
-#include "city.h"
-#include "tile.h"
-#include "unit.h"
-#include "player.h"
-#include "combat.h"
-#include "improvement.h"
-#include "resources.h"
-#include "status_effect.h"
+#include <stdint.h>
+#include <algorithm>
+#include <set>
+#include <sstream>
+#include <string>
+#include <vector>
+
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
-#include <string>
-#include <sstream>
-#include <vector>
-#include <set>
+class City;
+class CombatStats;
+class Player;
+class ResourceUMap;
+class StatusEffect;
+class Unit;
+class Tile;
+struct Improvement;
+struct Resource;
 
 namespace format {
 

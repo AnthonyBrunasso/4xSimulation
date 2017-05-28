@@ -1,36 +1,42 @@
 #include "simulation.h"
 
+#include <algorithm>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "Vector3.hpp"
+#include "ai_barbarians.h"
 #include "ai_empire_trees.h"
-#include "search.h"
-#include "unit.h"
+#include "ai_monster.h"
 #include "city.h"
+#include "combat.h"
+#include "flatbuffers/flatbuffers.h"
 #include "format.h"
-#include "world_map.h"
+#include "game_types.h"
 #include "hex.h"
-#include "util.h"
+#include "improvement.h"
+#include "magic.h"
+#include "notification.h"
 #include "player.h"
 #include "production.h"
-#include "unit_definitions.h"
-#include "unique_id.h"
-#include "improvement.h"
-#include "game_types.h"
-#include "terrain_yield.h"
-#include "ai_barbarians.h"
-#include "ai_monster.h"
-#include "science.h"
-#include "magic.h"
-#include "custom_math.h"
-#include "status_effect.h"
-#include "notification.h"
+#include "resources.h"
 #include "scenario.h"
-#include "scenario_citylife.h"
-#include "tile_costs.h"
-
+#include "science.h"
+#include "search.h"
+#include "status_effect.h"
 #include "step_generated.h"
-
-#include <iostream>
-#include <algorithm>
-#include <set>
+#include "terrain_yield.h"
+#include "tile.h"
+#include "tile_costs.h"
+#include "unique_id.h"
+#include "unit.h"
+#include "unit_definitions.h"
+#include "util.h"
+#include "world_map.h"
 
 namespace simulation {
   // Units to move in the current step

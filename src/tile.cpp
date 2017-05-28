@@ -1,7 +1,8 @@
 #include "tile.h"
 
-#include "unique_id.h"
 #include <algorithm>
+
+#include "unique_id.h"
 
 Tile::Tile() : 
   m_terrain_type(TERRAIN_TYPE::UNKNOWN)

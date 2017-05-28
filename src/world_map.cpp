@@ -1,23 +1,28 @@
 #include "world_map.h"
 
+#include <ext/alloc_traits.h>
+#include <algorithm>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <utility>
+#include <vector>
+
+#include "ai_barbarians.h"
+#include "city.h"
+#include "format.h"
+#include "game_types.h"
+#include "improvement.h"
+#include "player.h"
+#include "random.h"
+#include "resources.h"
 #include "search.h"
 #include "tile.h"
-#include "unit.h"
-#include "city.h"
-#include "unique_id.h"
-#include "format.h"
-#include "improvement.h"
 #include "tile_costs.h"
-#include "player.h"
-#include "ai_barbarians.h"
-#include "random.h"
-#include "util.h"
-
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <fstream>
-#include <cstring>
+#include "unique_id.h"
+#include "unit.h"
 
 namespace {
   static world_map::TileMap s_map;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "dtree.h"
 
 class EmpireColonize : public Evaluation {

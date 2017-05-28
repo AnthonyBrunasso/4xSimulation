@@ -1,12 +1,7 @@
 #pragma once
 
-#include "Vector3.hpp"
-
 #include <cstddef>
 #include <cstdint>
-#include <vector>
-
-struct Step;
 
 namespace fbs {
   class EndTurnStep;

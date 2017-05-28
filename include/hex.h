@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Vector2.hpp"
-#include "Vector3.hpp"
-
 #include <cstdint>
 #include <vector>
+
+#include "Vector2.hpp"
+#include "Vector3.hpp"
 
 namespace hex
 {

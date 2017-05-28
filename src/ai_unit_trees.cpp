@@ -1,9 +1,10 @@
 #include "ai_unit_trees.h"
 
+#include <memory>
+
 #include "ai_unit_decisions.h"
 #include "ai_unit_evaluations.h"
-
-#include <memory>
+#include "dtree.h"
 
 namespace unit_trees {
   std::unique_ptr<DTree> s_destructive(nullptr); 

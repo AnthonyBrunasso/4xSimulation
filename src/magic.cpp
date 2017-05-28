@@ -1,16 +1,19 @@
 #include "magic.h"
 
-#include "tile.h"
-#include "world_map.h"
-#include "util.h"
-#include "unit.h"
-#include "search.h"
-#include "player.h"
-#include "world_map.h"
-#include "city.h"
-
+#include <cstdint>
+#include <functional>
 #include <iostream>
+#include <string>
 #include <unordered_map>
+#include <vector>
+
+#include "city.h"
+#include "player.h"
+#include "search.h"
+#include "tile.h"
+#include "unit.h"
+#include "util.h"
+#include "world_map.h"
 
 namespace {
   // Compose attributes with different maps. 

@@ -1,14 +1,9 @@
 #include "ai_unit_decisions.h"
 
-#include "unit.h"
-#include "util.h"
-#include "random.h"
-#include "world_map.h"
-#include "format.h"
 #include "ai_shared.h"
 #include "search.h"
-
-#include <iostream>
+#include "unit.h"
+#include "world_map.h"
 
 namespace unit_decisions {
   UnitWander s_wander;

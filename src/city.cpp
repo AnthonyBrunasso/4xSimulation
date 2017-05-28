@@ -1,19 +1,22 @@
 #include "city.h"
-#include "production.h"
+
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <utility>
 
 #include "format.h"
 #include "hex.h"
+#include "production.h"
 #include "search.h"
 #include "terrain_yield.h"
-
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-#include <cmath>
-
 #include "unique_id.h"
-#include "tile.h"
+#include "unit.h"
 #include "util.h"
+#include "world_map.h"
 
 namespace city {
   typedef std::unordered_map<uint32_t, City*> CityMap;

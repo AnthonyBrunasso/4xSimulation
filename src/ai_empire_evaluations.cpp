@@ -1,16 +1,23 @@
 #include "ai_empire_evaluations.h"
 
-#include "player.h"
+#include <cstdint>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+
+#include "Vector3.hpp"
+#include "ai_state.h"
 #include "city.h"
-#include "ai_barbarians.h"
-#include "tile.h"
-#include "search.h"
-#include "world_map.h"
-#include "unit.h"
+#include "combat.h"
+#include "game_types.h"
 #include "hex.h"
 #include "improvement.h"
-
-#include <iostream>
+#include "player.h"
+#include "search.h"
+#include "unit.h"
+#include "world_map.h"
 
 float EmpireColonize::operator()(uint32_t player_id, float threshold) {
   Player* player = player::get_player(player_id);

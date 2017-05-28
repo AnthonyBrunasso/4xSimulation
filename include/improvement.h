@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 
+#include "game_types.h"
 #include "resources.h"
 
 enum class IMPROVEMENT_TYPE;

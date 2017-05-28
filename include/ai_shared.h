@@ -1,8 +1,7 @@
 #pragma once
 
-#include "simulation.h"
-
 #include <Vector3.hpp>
+#include <stdint.h>
 
 namespace flatbuffers {
   class FlatBufferBuilder;

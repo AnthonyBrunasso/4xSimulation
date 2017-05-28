@@ -1,14 +1,15 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
+#include <vector>
+
 #include "Vector3.hpp"
 #include "world_map.h"
 
-#include <cstdint>
-#include <vector>
-#include <functional>
-
-class Unit;
 class City;
+class Tile;
+class Unit;
 struct Improvement;
 struct Resource;
 

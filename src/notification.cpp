@@ -1,9 +1,12 @@
 #include "notification.h"
+
+#include <algorithm>
+#include <sstream>
+
+#include "city.h"
 #include "game_types.h"
 #include "player.h"
 #include "unit.h"
-#include "city.h"
-#include <sstream>
 
 
 namespace notification {

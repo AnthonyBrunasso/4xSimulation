@@ -1,16 +1,15 @@
 #include "unit.h"
 
-#include "unique_id.h"
-#include "tile.h"
-#include "format.h"
-#include "hex.h"
-#include "combat.h"
-#include "unit_definitions.h"
-
-#include <unordered_map>
-#include <iostream>
 #include <algorithm>
+#include <iostream>
+#include <unordered_map>
+#include <utility>
 #include <vector>
+
+#include "combat.h"
+#include "player.h"
+#include "unique_id.h"
+#include "unit_definitions.h"
 
 namespace {
   typedef std::unordered_map<uint32_t, Unit*> UnitMap;

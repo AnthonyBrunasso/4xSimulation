@@ -1,15 +1,20 @@
 #include "step_parser.h"
 
-#include "util.h"
-#include "format.h"
-
-#include "step_generated.h"
-
-#include <cctype>
-#include <iostream>
-#include <sstream>
+#include <ext/alloc_traits.h>
 #include <algorithm>
+#include <cctype>
+#include <cstring>
+#include <exception>
+#include <iostream>
 #include <iterator>
+#include <memory>
+
+#include "flatbuffers/flatbuffers.h"
+#include "format.h"
+#include "game_types.h"
+#include "player.h"
+#include "step_generated.h"
+#include "util.h"
 
 namespace step_parser {
 

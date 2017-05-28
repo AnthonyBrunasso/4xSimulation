@@ -1,6 +1,6 @@
 #include "random.h"
 
-#include <iostream>
+#include <stdlib.h>
 #include <random>
 
 namespace game_random {

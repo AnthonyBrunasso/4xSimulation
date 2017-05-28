@@ -1,26 +1,28 @@
 #include "ai_empire_decisions.h"
-#include "ai_shared.h"
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
-#include "tile.h"
-#include "player.h"
-#include "city.h"
 #include "Vector3.hpp"
+#include "ai_shared.h"
+#include "ai_state.h"
+#include "city.h"
+#include "flatbuffers/flatbuffers.h"
 #include "format.h"
 #include "game_types.h"
-#include "util.h"
-#include "random.h"
-#include "world_map.h"
-#include "city.h"
+#include "player.h"
 #include "production.h"
-#include "unique_id.h"
-#include "search.h"
-#include "hex.h"
-
+#include "random.h"
 #include "step_generated.h"
+#include "tile.h"
+#include "unique_id.h"
+#include "unit.h"
+#include "util.h"
+#include "world_map.h"
 
 const size_t BUFFER_LEN = 256;
 char s_ai_buffer[BUFFER_LEN];

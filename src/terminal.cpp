@@ -1,27 +1,38 @@
 #include "terminal.h"
 
+#include <ext/alloc_traits.h>
+#include <stdint.h>
+#include <algorithm>
+#include <exception>
+#include <iostream>
+#include <set>
+#include <unordered_map>
+#include <utility>
+
+#include "Vector3.hpp"
 #include "city.h"
-#include "production.h"
 #include "format.h"
-#include "tile.h"
-#include "util.h"
-#include "world_map.h"
+#include "game_types.h"
+#include "hex.h"
+#include "improvement.h"
+#include "player.h"
+#include "production.h"
+#include "random.h"
+#include "scenario.h"
+#include "science.h"
 #include "search.h"
 #include "simulation.h"
+#include "status_effect.h"
 #include "step_parser.h"
-#include "hex.h"
-#include "unit_definitions.h"
-#include "game_types.h"
-#include "search.h"
 #include "terrain_yield.h"
-#include "random.h"
-#include "science.h"
-#include "scenario.h"
+#include "tile.h"
+#include "unit.h"
+#include "unit_definitions.h"
+#include "util.h"
+#include "world_map.h"
 
-#include <algorithm>
-#include <iostream>
-#include <unordered_map>
-#include <fstream>
+class CombatStats;
+struct Resource;
 
 namespace terminal  {
 

@@ -1,17 +1,17 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <list>
+#include <stddef.h>
+#include <stdint.h>
 #include <functional>
+#include <iosfwd>
+#include <list>
 #include <vector>
-#include <string>
 
 #include "game_types.h"
 
-class City;
-class ConstructionQueueFIFO;
 class ConstructionOrder;
+class ConstructionQueueFIFO;
 class ConstructionState;
 struct TerrainYield;
 

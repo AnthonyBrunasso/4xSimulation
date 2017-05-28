@@ -1,11 +1,16 @@
 #include "scenario_faceoff.h"
-#include "ai_shared.h"
-#include "player.h"
-#include "city.h"
-#include "unit.h"
-#include "ai_barbarians.h"
+
+#include <stddef.h>
+#include <cstdint>
 #include <unordered_map>
-#include <list>
+#include <vector>
+
+#include "Vector3.hpp"
+#include "ai_barbarians.h"
+#include "game_types.h"
+#include "player.h"
+#include "unit.h"
+#include "util.h"
 
 namespace scenario_faceoff
 {

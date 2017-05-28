@@ -1,17 +1,15 @@
 #include "search.h"
 
-#include "hex.h"
-#include "tile.h"
-#include "format.h"
-#include "unit.h"
-#include "city.h"
-#include "improvement.h"
-#include "resources.h"
-
 #include <algorithm>
-#include <vector>
 #include <queue>
 #include <unordered_map>
+#include <vector>
+
+#include "city.h"
+#include "hex.h"
+#include "improvement.h"
+#include "tile.h"
+#include "unit.h"
 
 namespace {
   // Score struct used in A* pathfinding cost maps.

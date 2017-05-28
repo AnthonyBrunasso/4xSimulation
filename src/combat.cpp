@@ -1,12 +1,13 @@
 #include "combat.h"
 
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+
+#include "Vector3.hpp"
 #include "custom_math.h"
 #include "hex.h"
 #include "unit.h"
-
-#include <cmath>
-#include <algorithm>
-#include <iostream>
 
 // Engaging returns true if combat occurred, false otherwise
 bool combat::engage(

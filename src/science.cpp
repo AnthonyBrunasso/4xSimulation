@@ -1,14 +1,20 @@
 
 #include "science.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <set>
+#include <unordered_map>
+#include <utility>
+
 #include "game_types.h"
 #include "player.h"
-#include <algorithm>
-#include <unordered_map>
-#include <cmath>
-#include <iostream>
 
 namespace science {
   class ScienceEdge;
+
   typedef std::unordered_map<uint32_t, ScienceNode*> ScienceNodeMap;
 
   ScienceNodeMap s_tower_of_babylon;

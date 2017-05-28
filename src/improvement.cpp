@@ -1,11 +1,13 @@
 #include "improvement.h"
 
+#include <iostream>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "Vector3.hpp"
 #include "unique_id.h"
 #include "util.h"
-
-#include <unordered_map>
-#include <vector>
-#include <iostream>
 
 namespace {
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;

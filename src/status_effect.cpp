@@ -1,15 +1,14 @@
 #include "status_effect.h"
 
-#include "format.h"
-#include "tile.h"
-#include "unit.h"
-#include "city.h"
-#include "world_map.h"
-#include "search.h"
-#include "unit.h"
-
 #include <iostream>
 #include <map>
+#include <utility>
+
+#include "city.h"
+#include "search.h"
+#include "tile.h"
+#include "unit.h"
+#include "world_map.h"
 
 namespace {
   // Use this to trigger early status effect termination

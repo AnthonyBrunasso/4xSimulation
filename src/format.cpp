@@ -1,11 +1,18 @@
 #include "format.h"
-#include "city.h"
-#include "production.h"
-#include "terrain_yield.h"
-#include "util.h"
 
+#include "city.h"
+#include "combat.h"
+#include "game_types.h"
 #include "hex.h"
-#include "unique_id.h"
+#include "improvement.h"
+#include "player.h"
+#include "production.h"
+#include "resources.h"
+#include "status_effect.h"
+#include "tile.h"
+#include "terrain_yield.h"
+#include "unit.h"
+#include "util.h"
 
 std::string format::cube_neighbors(const sf::Vector3i& start) {
   hex::CubeNeighbors adj(start);

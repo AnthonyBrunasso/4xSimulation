@@ -1,10 +1,12 @@
 #include "player.h"
-#include "unit.h"
+
+#include <memory>
+#include <vector>
+
+#include "Vector3.hpp"
 #include "city.h"
 #include "improvement.h"
-
-#include <iostream>
-#include <vector>
+#include "unit.h"
 
 Player::Player(uint32_t id)
     : m_id(id)

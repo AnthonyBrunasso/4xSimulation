@@ -1,18 +1,20 @@
 #pragma once
 
-#include "resources.h"
-#include "ai_state.h"
-
-#include <set>
-#include <string>
+#include <stddef.h>
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include "game_types.h"
+#include <set>
+#include <string>
+#include <vector>
 
-class Unit;
+#include "game_types.h"
+#include "resources.h"
+
+class AIState;
 class City;
 class Tile;
+class Unit;
 struct Improvement;
 
 //

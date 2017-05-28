@@ -1,13 +1,13 @@
 #pragma once
 
+#include <stddef.h>
+#include <cstdint>
+#include <functional>
+#include <vector>
+
 #include "Vector3.hpp"
 #include "game_types.h"
 #include "notification.h"
-
-#include <cstdint>
-#include <functional>
-#include <memory>
-#include <vector>
 
 class ConstructionQueueFIFO;
 struct TerrainYield;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "dtree.h"
 
 class UnitWander : public Decision {

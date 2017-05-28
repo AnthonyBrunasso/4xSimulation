@@ -1,11 +1,11 @@
 #include "ai_empire_trees.h"
 
 #include <algorithm>
-#include <memory>
 #include <vector>
 
-#include "ai_empire_evaluations.h"
 #include "ai_empire_decisions.h"
+#include "ai_empire_evaluations.h"
+#include "dtree.h"
 
 namespace empire_trees {
   std::vector<DNode*> s_allocated;

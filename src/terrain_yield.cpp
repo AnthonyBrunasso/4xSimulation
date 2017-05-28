@@ -1,13 +1,22 @@
 
 #include "terrain_yield.h"
-#include "tile.h"
-#include "world_map.h"
+
+#include <stddef.h>
+#include <cstdint>
+#include <functional>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 #include "city.h"
 #include "format.h"
 #include "game_types.h"
-
-#include <unordered_map>
-#include <iostream>
+#include "improvement.h"
+#include "resources.h"
+#include "tile.h"
+#include "world_map.h"
 
 namespace terrain_yield {
   typedef std::unordered_map<sf::Vector3i, uint32_t> YieldMap;

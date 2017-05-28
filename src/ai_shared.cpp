@@ -1,15 +1,21 @@
 #include "ai_shared.h"
 
+#include <stddef.h>
 #include <iostream>
+#include <string>
 
-#include "unit.h"
+#include "Vector3.hpp"
 #include "city.h"
+#include "flatbuffers/flatbuffers.h"
+#include "format.h"
 #include "improvement.h"
 #include "random.h"
-#include "world_map.h"
-#include "format.h"
-
+#include "simulation.h"
 #include "step_generated.h"
+#include "unit.h"
+#include "world_map.h"
+
+class Tile;
 
 namespace ai_shared {
   const size_t BUFFER_LEN = 256;
