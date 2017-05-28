@@ -417,16 +417,7 @@ std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
 }
 
 size_t step_parser::parse(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
-  try
-  {
-    return parse_tokens(tokens, buffer, buffer_len);
-  }
-  catch(const std::exception&e ) 
-  {
-    std::cout << "Exception thrown: " << e.what() << std::endl;
-  }
-  
-  return 0;
+  return parse_tokens(tokens, buffer, buffer_len);
 }
 
 std::string step_parser::get_active_player() {

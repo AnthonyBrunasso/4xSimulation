@@ -474,13 +474,7 @@ namespace terminal  {
       return false;
     }
 
-    try {
-      return operation->second(tokens);
-    }
-    catch(const std::exception& e) {
-      std::cout << "Query failed with exception " << e.what() << std::endl;
-    }
-    return false;
+    return operation->second(tokens);
   }
 
   void execute_help() {
