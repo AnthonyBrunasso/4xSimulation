@@ -42,7 +42,7 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   // Add the unit to storage and the world map.
   s_units[id] = unit;
   player::add_unit(player_id, id);
-  std::cout << "Created unit id " << id << ", entity type: " << get_unit_name(unit_type) << std::endl;
+  std::cout << "Created unit id " << id << ", entity type: " << get_unit_name(unit_type) << ", player: " << player->m_name << std::endl;
 
   for (auto& sub : s_create_subs) {
     sub(unit);

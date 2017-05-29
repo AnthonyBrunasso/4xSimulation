@@ -5,7 +5,7 @@ include_directories("../flatbuffers/include")
 include_directories("../nn_cpp/include")
 
 file(GLOB console_sources "console/*.cpp")
-file(GLOB learn_sources "learn/*.cpp")
+file(GLOB learn_sources "learn/*.cpp" "learn/*.h")
 file(GLOB lib_sources "*.cpp" "*.c" "../include/*.h")
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
 
