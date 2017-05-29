@@ -3,11 +3,13 @@
 #include <string>
 #include <vector>
 
-enum class SCIENCE_TYPE;
+namespace fbs {
+  enum class SCIENCE_TYPE : uint32_t;
+}
 
 class ScienceNode {
 public:
-  explicit ScienceNode(SCIENCE_TYPE type)
+  explicit ScienceNode(fbs::SCIENCE_TYPE type)
   : m_type(type)
   { }
 
@@ -16,14 +18,14 @@ public:
   
   std::vector<ScienceNode*> m_previous;
   std::vector<ScienceNode*> m_next;
-  SCIENCE_TYPE m_type;
+  fbs::SCIENCE_TYPE m_type;
 };
 
 namespace science {
   void initialize();
   void reset();
 
-  ScienceNode* Science(SCIENCE_TYPE);
+  ScienceNode* Science(fbs::SCIENCE_TYPE);
   ScienceNode* Science(uint32_t);
   float research_cost(ScienceNode* sn);
   void debug_requirements(ScienceNode* sn);

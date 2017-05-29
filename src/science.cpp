@@ -11,6 +11,7 @@
 
 #include "game_types.h"
 #include "player.h"
+#include "step_generated.h"
 
 namespace science {
   class ScienceEdge;
@@ -20,7 +21,7 @@ namespace science {
   ScienceNodeMap s_tower_of_babylon;
   std::vector<ScienceEdge> s_edges;
 
-  ScienceNode* Science(SCIENCE_TYPE st)  {
+  ScienceNode* Science(fbs::SCIENCE_TYPE st)  {
     return Science(static_cast<uint32_t>(st));
   }
 
@@ -32,7 +33,7 @@ namespace science {
  
   class ScienceEdge {
   public:
-    explicit ScienceEdge(SCIENCE_TYPE prev, SCIENCE_TYPE next) 
+    explicit ScienceEdge(fbs::SCIENCE_TYPE prev, fbs::SCIENCE_TYPE next) 
     : m_previous(Science(prev))
     , m_next(Science(next))
     {}
@@ -42,25 +43,27 @@ namespace science {
   };
 
   void initialize() {
-    auto science_init = [](SCIENCE_TYPE st) {
-      if (st == SCIENCE_TYPE::UNKNOWN) return;
+    auto science_init = [](fbs::SCIENCE_TYPE st) {
+      if (st == fbs::SCIENCE_TYPE::UNKNOWN) return;
       uint32_t key = static_cast<uint32_t>(st);
       s_tower_of_babylon[key] = new ScienceNode(st);
     };
-    for_each_science_type(science_init);
+    for (const auto& science : fbs::EnumValuesSCIENCE_TYPE()) {
+      science_init(science);
+    }
     std::vector<ScienceEdge> edges { 
-      ScienceEdge(SCIENCE_TYPE::AGRICULTURE,SCIENCE_TYPE::POTTERY),
-      ScienceEdge(SCIENCE_TYPE::AGRICULTURE,SCIENCE_TYPE::ANIMAL_HUSBANDRY),
-      ScienceEdge(SCIENCE_TYPE::AGRICULTURE,SCIENCE_TYPE::ARCHERY),
-      ScienceEdge(SCIENCE_TYPE::AGRICULTURE,SCIENCE_TYPE::MINING),
-      ScienceEdge(SCIENCE_TYPE::POTTERY,SCIENCE_TYPE::SAILING),
-      ScienceEdge(SCIENCE_TYPE::POTTERY,SCIENCE_TYPE::CALENDAR),
-      ScienceEdge(SCIENCE_TYPE::POTTERY,SCIENCE_TYPE::WRITING),
-      ScienceEdge(SCIENCE_TYPE::ANIMAL_HUSBANDRY,SCIENCE_TYPE::TRAPPING),
-      ScienceEdge(SCIENCE_TYPE::ANIMAL_HUSBANDRY,SCIENCE_TYPE::WHEEL),
-      ScienceEdge(SCIENCE_TYPE::ARCHERY,SCIENCE_TYPE::WHEEL),
-      ScienceEdge(SCIENCE_TYPE::MINING,SCIENCE_TYPE::MASONRY),
-      ScienceEdge(SCIENCE_TYPE::MINING,SCIENCE_TYPE::BRONZE_WORKING)
+      ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::POTTERY),
+      ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::ANIMAL_HUSBANDRY),
+      ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::ARCHERY),
+      ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::MINING),
+      ScienceEdge(fbs::SCIENCE_TYPE::POTTERY,fbs::SCIENCE_TYPE::SAILING),
+      ScienceEdge(fbs::SCIENCE_TYPE::POTTERY,fbs::SCIENCE_TYPE::CALENDAR),
+      ScienceEdge(fbs::SCIENCE_TYPE::POTTERY,fbs::SCIENCE_TYPE::WRITING),
+      ScienceEdge(fbs::SCIENCE_TYPE::ANIMAL_HUSBANDRY,fbs::SCIENCE_TYPE::TRAPPING),
+      ScienceEdge(fbs::SCIENCE_TYPE::ANIMAL_HUSBANDRY,fbs::SCIENCE_TYPE::WHEEL),
+      ScienceEdge(fbs::SCIENCE_TYPE::ARCHERY,fbs::SCIENCE_TYPE::WHEEL),
+      ScienceEdge(fbs::SCIENCE_TYPE::MINING,fbs::SCIENCE_TYPE::MASONRY),
+      ScienceEdge(fbs::SCIENCE_TYPE::MINING,fbs::SCIENCE_TYPE::BRONZE_WORKING)
     };
     for (auto e : edges) {
       e.m_previous->m_next.push_back(e.m_next);
@@ -142,7 +145,7 @@ namespace science {
 };
 
 std::string ScienceNode::Name() {
-  return get_science_name(m_type);
+  return fbs::EnumNameSCIENCE_TYPE(m_type);
 }
 
 bool ScienceNode::Researched(uint32_t player_id) {

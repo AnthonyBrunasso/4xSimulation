@@ -6,6 +6,7 @@
 #include "Vector3.hpp"
 #include "city.h"
 #include "improvement.h"
+#include "step_generated.h"
 #include "unit.h"
 
 Player::Player(uint32_t id)
@@ -18,7 +19,7 @@ Player::Player(uint32_t id)
     , m_gold(0.0f)
     , m_science(0.0f)
     , m_magic(10.0) // Players should start with some magic
-    , m_research(SCIENCE_TYPE::AGRICULTURE)
+    , m_research(fbs::SCIENCE_TYPE::AGRICULTURE)
     , m_ai_type(fbs::AI_TYPE::UNKNOWN)
     , m_ai_state(nullptr)
     , m_omniscient(false)
@@ -45,7 +46,7 @@ bool Player::DiscoveredCity(uint32_t id) const {
   return m_discovered_cities.find(id) != m_discovered_cities.end();
 }
 
-bool Player::DiscoveredScience(SCIENCE_TYPE st) const {
+bool Player::DiscoveredScience(fbs::SCIENCE_TYPE st) const {
   uint32_t id = static_cast<uint32_t>(st);
   return m_discovered_science.find(id) != m_discovered_science.end();
 }
@@ -79,7 +80,7 @@ namespace player {
       p->m_improvements.erase(id);
     });
 
-    p->m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
+    p->m_available_research.push_back(static_cast<uint32_t>(fbs::SCIENCE_TYPE::AGRICULTURE));
     s_players.push_back(p);
   }
 }

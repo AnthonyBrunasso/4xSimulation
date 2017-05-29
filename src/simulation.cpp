@@ -219,10 +219,10 @@ namespace simulation {
       if (!sn) return;
       float req = science::research_cost(sn);
       if (player.m_science >= req) {
-        std::cout << "Player " << player.m_id << " has discovered the science of " << get_science_name(player.m_research) << std::endl;
+        std::cout << "Player " << player.m_id << " has discovered the science of " << fbs::EnumNameSCIENCE_TYPE(player.m_research) << std::endl;
         player.m_science -= req;
         science::research_complete(player.m_id, sn);
-        player.m_research = SCIENCE_TYPE::UNKNOWN;
+        player.m_research = fbs::SCIENCE_TYPE::UNKNOWN;
       }
     });
 
@@ -396,7 +396,7 @@ namespace simulation {
   }
 
   void execute_grant(const fbs::GrantStep* grant_step) {
-    SCIENCE_TYPE st = static_cast<SCIENCE_TYPE>(grant_step->science());
+    fbs::SCIENCE_TYPE st = static_cast<fbs::SCIENCE_TYPE>(grant_step->science());
     science::research_complete(grant_step->player(), science::Science(st));
   }
 
@@ -708,7 +708,7 @@ namespace simulation {
     std::vector<uint32_t>& research = player->m_available_research;
     std::vector<uint32_t>::const_iterator findIt = find(research.begin(), research.end(), science);
     if (findIt == research.end()) return "Research is not available to player.";
-    player->m_research = static_cast<SCIENCE_TYPE>(science);
+    player->m_research = static_cast<fbs::SCIENCE_TYPE>(science);
     return "Research assigned.";
   }
 

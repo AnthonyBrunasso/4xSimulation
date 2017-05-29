@@ -10,13 +10,17 @@
 
 #include "game_types.h"
 #include "resources.h"
-#include "step_generated.h"
 
 class AIState;
 class City;
 class Tile;
 class Unit;
 struct Improvement;
+
+namespace fbs {
+  enum class AI_TYPE : uint32_t;
+  enum class SCIENCE_TYPE : uint32_t;
+}
 
 //
 // Player is a generic class that ties units and buildings to some ai type.
@@ -31,7 +35,7 @@ public:
   bool OwnsImprovement(uint32_t id) const;
   bool DiscoveredPlayer(uint32_t id) const;
   bool DiscoveredCity(uint32_t id) const;
-  bool DiscoveredScience(SCIENCE_TYPE st) const;
+  bool DiscoveredScience(fbs::SCIENCE_TYPE st) const;
 
   uint32_t m_id;
   std::string m_name;
@@ -51,7 +55,7 @@ public:
   float m_magic;
 
   // Resources owned by this player.
-  SCIENCE_TYPE m_research;
+  fbs::SCIENCE_TYPE m_research;
   fbs::AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
   std::shared_ptr<AIState> m_ai_state;

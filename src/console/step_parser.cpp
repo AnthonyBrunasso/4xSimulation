@@ -182,7 +182,7 @@ namespace step_parser {
     else if (tokens[0] == "grant") {
       CHECK_VALID(2, tokens);
 
-      uint32_t science_id = (static_cast<uint32_t>(get_science_type(tokens[1])));
+      uint32_t science_id = static_cast<uint32_t>(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
       if (science_id == 0) {
         science_id = (std::stoul(tokens[1]));
       }
@@ -276,7 +276,7 @@ namespace step_parser {
 
     else if (tokens[0] == "research") {
       CHECK_VALID(2, tokens);
-      uint32_t science_id = (static_cast<uint32_t>(get_science_type(tokens[1])));
+      uint32_t science_id = static_cast<uint32_t>(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
       if (science_id == 0) {
         science_id = (std::stoul(tokens[1]));
       }

@@ -6,6 +6,7 @@
 #include "city.h"
 #include "game_types.h"
 #include "player.h"
+#include "step_generated.h"
 #include "unit.h"
 
 
@@ -27,7 +28,7 @@ namespace notification {
         events.push_back(n);
       }
     });
-    if (player->m_research == SCIENCE_TYPE::UNKNOWN) {
+    if (player->m_research == fbs::SCIENCE_TYPE::UNKNOWN) {
       Notification n;
       n.m_id = 0;
       n.m_event_type = fbs::NOTIFICATION_TYPE::SCIENCE_IDLE;

@@ -100,9 +100,9 @@ namespace terminal  {
       CHECK(2, tokens);
       uint32_t player_id = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
-        SCIENCE_TYPE st = get_science_type(tokens[2]);
-        if (st == SCIENCE_TYPE::UNKNOWN) {
-          st = static_cast<SCIENCE_TYPE>(std::stoul(tokens[2]));
+      fbs::SCIENCE_TYPE st = util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[2], fbs::EnumNamesSCIENCE_TYPE());
+        if (st == fbs::SCIENCE_TYPE::UNKNOWN) {
+          st = static_cast<fbs::SCIENCE_TYPE>(std::stoul(tokens[2]));
         }
         ScienceNode* sn = science::Science(st);
         if (!sn) return false;
