@@ -21,8 +21,7 @@ public:
     , m_path()
     , m_action_points(0)
     , m_owner_id(unique_id::INVALID_PLAYER)
-    // Random start direction? 
-    , m_direction(util::get_direction(DIRECTION_TYPE::EAST))
+    , m_direction(0, 0, 0)
   {
   };
 

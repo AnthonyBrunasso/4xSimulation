@@ -13,7 +13,7 @@ CONSTRUCTION = "CONSTRUCTION"
 # AI_ORDER     = "AI_ORDER"
 TURN         = "TURN"
 SEARCH       = "SEARCH"
-DIRECTION    = "DIRECTION"
+# DIRECTION    = "DIRECTION"
 # SCIENCE      = "SCIENCE"
 # MAGIC        = "MAGIC"
 # STATUS       = "STATUS"
@@ -82,12 +82,12 @@ add_gametype(SEARCH, 'Resources'   , 4)
 # add_gametype(AI_ORDER, 'Approach_Improvement', 6)
 # add_gametype(AI_ORDER, 'Wander'              , 7)
 
-add_gametype(DIRECTION, "North_East", 1)
-add_gametype(DIRECTION, "East"      , 2)
-add_gametype(DIRECTION, "South_East", 3)
-add_gametype(DIRECTION, "South_West", 4)
-add_gametype(DIRECTION, "West"      , 5)
-add_gametype(DIRECTION, "North_West", 6)
+# add_gametype(DIRECTION, "North_East", 1)
+# add_gametype(DIRECTION, "East"      , 2)
+# add_gametype(DIRECTION, "South_East", 3)
+# add_gametype(DIRECTION, "South_West", 4)
+# add_gametype(DIRECTION, "West"      , 5)
+# add_gametype(DIRECTION, "North_West", 6)
 
 # add_gametype(SCIENCE, "Agriculture", 1)
 # add_gametype(SCIENCE, "Pottery", 2)

@@ -68,7 +68,7 @@ std::string format::unit(const Unit& unit) {
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl
      << " path: " << unit.m_path.size() << std::endl
      << " owner: " << unit.m_owner_id << std::endl
-     << " direction: " << get_direction_name(util::get_direction(unit.m_direction));
+     << " direction: " << fbs::EnumNameDIRECTION_TYPE(util::get_direction(unit.m_direction));
 
   return std::move(ss.str());
 }
