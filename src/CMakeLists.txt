@@ -2,8 +2,10 @@ project(4xSimulation)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")                                                          
 include_directories("../include")      
 include_directories("../flatbuffers/include")
+include_directories("../nn_cpp/include")
 
 file(GLOB console_sources "console/*.cpp")
+file(GLOB learn_sources "learn/*.cpp")
 file(GLOB lib_sources "*.cpp" "*.c" "../include/*.h")
 list(REMOVE_ITEM lib_sources ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
 
@@ -32,11 +34,12 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
 add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
 add_executable(4xsim ${console_sources})
+add_executable(4xlearn ${learn_sources})
 add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
-target_link_libraries(4xtest flatbuffers)
 
-target_link_libraries(4xsim 4xlib)
-target_link_libraries(4xsim flatbuffers)
+target_link_libraries(4xtest flatbuffers)
+target_link_libraries(4xsim 4xlib flatbuffers)
+target_link_libraries(4xlearn 4xlib flatbuffers)
 
 
 if (4X_CHECK_INCLUDES)
