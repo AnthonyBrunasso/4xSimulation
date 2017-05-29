@@ -47,10 +47,11 @@ namespace step_parser {
   void bad_arguments(const std::vector<std::string>& tokens);
 
   size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
+    size_t bytes_written;
     if (!tokens.size()) {
       return 0;
     }
-    auto copy_to_netbuffer = [buffer, buffer_len] (fbs::StepUnion step_type, const flatbuffers::Offset<void>& step) {
+    auto copy_to_netbuffer = [&bytes_written, buffer, buffer_len] (fbs::StepUnion step_type, const flatbuffers::Offset<void>& step) {
       flatbuffers::Offset<fbs::AnyStep> anystep = fbs::CreateAnyStep(GetFBB(), step_type, step);
       fbs::FinishAnyStepBuffer(GetFBB(), anystep);
       if (GetFBB().GetSize() > buffer_len) {
@@ -60,6 +61,7 @@ namespace step_parser {
 
       // Copy the built message
       std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
+      bytes_written = GetFBB().GetSize();
       // Clear flatbuffers scratch space
       GetFBB().Clear();
     };
@@ -386,12 +388,11 @@ namespace step_parser {
       return 0;
     }
 
-    if (GetFBB().GetSize() == 0) {
+    if (!bytes_written) {
       std::cout << "Failure to serialize step" << std::endl;
-      return 0;
     }
 
-    return GetFBB().GetSize();
+    return bytes_written;
   }
 
   void bad_arguments(const std::vector<std::string>& tokens) {
