@@ -11,7 +11,7 @@ BUILDING     = "BUILDING"
 CONSTRUCTION = "CONSTRUCTION"
 # AI           = "AI"
 # AI_ORDER     = "AI_ORDER"
-TURN         = "TURN"
+# TURN         = "TURN"
 # SEARCH       = "SEARCH"
 # DIRECTION    = "DIRECTION"
 # SCIENCE      = "SCIENCE"
@@ -66,8 +66,8 @@ add_gametype(CONSTRUCTION, 'Caster', 10)
 # add_gametype(AI, "Human"    , 2)
 # add_gametype(AI, "Monster"  , 3)
 
-add_gametype(TURN, 'TurnActive'    , 1)
-add_gametype(TURN, 'TurnCompleted' , 2)
+# add_gametype(TURN, 'TurnActive'    , 1)
+# add_gametype(TURN, 'TurnCompleted' , 2)
 
 # add_gametype(SEARCH, 'Units'       , 1)
 # add_gametype(SEARCH, 'Cities'      , 2)

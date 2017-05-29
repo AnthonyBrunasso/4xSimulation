@@ -1047,7 +1047,7 @@ void simulation::process_begin_turn() {
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {
-    player.m_turn_state = TURN_TYPE::TURNACTIVE;
+    player.m_turn_state = fbs::TURN_TYPE::TURNACTIVE;
   });
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
@@ -1072,7 +1072,7 @@ void simulation::process_end_turn(const fbs::EndTurnStep* end_turn) {
   }
 
   phase_queued_movement(player_id);
-  player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
+  player->m_turn_state = fbs::TURN_TYPE::TURNCOMPLETED;
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }

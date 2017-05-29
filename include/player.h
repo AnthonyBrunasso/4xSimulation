@@ -20,6 +20,7 @@ struct Improvement;
 namespace fbs {
   enum class AI_TYPE : uint32_t;
   enum class SCIENCE_TYPE : uint32_t;
+  enum class TURN_TYPE : uint32_t;
 }
 
 //
@@ -48,7 +49,7 @@ public:
   std::set<uint32_t> m_discovered_science;
   std::set<const Tile*> m_discovered_tiles;
   std::vector<uint32_t> m_available_research;
-  TURN_TYPE m_turn_state;
+  fbs::TURN_TYPE m_turn_state;
 
   float m_gold;
   float m_science;

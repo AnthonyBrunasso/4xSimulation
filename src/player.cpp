@@ -15,7 +15,7 @@ Player::Player(uint32_t id)
     , m_units() 
     , m_improvements()
     , m_discovered_players()
-    , m_turn_state(TURN_TYPE::TURNACTIVE)
+    , m_turn_state(fbs::TURN_TYPE::TURNACTIVE)
     , m_gold(0.0f)
     , m_science(0.0f)
     , m_magic(10.0) // Players should start with some magic
@@ -192,7 +192,7 @@ void player::add_discovered_city(uint32_t player_id, uint32_t city_id) {
 bool player::all_players_turn_ended() {
   bool allPlayersReady = true;
   player::for_each_player([&allPlayersReady](Player& player) {
-    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
+    allPlayersReady &= player.m_turn_state == fbs::TURN_TYPE::TURNCOMPLETED;
   });
   return allPlayersReady;
 }

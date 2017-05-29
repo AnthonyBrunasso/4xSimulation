@@ -116,7 +116,7 @@ std::string format::player(const Player& player) {
   ss << "name: " << player.m_name << std::endl;
   ss << " buildings: " << format::set(player.m_cities) << std::endl;
   ss << " units: " << format::set(player.m_units) << std::endl;
-  ss << " turn_state: " << get_turn_name(player.m_turn_state) << std::endl;
+  ss << " turn_state: " << fbs::EnumNameTURN_TYPE(player.m_turn_state) << std::endl;
   ss << " gold: " << player.m_gold << std::endl;
   ss << " science: " << player.m_science << std::endl;
   ss << " magic: " << player.m_magic << std::endl;
