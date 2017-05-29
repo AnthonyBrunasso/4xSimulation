@@ -23,10 +23,6 @@ namespace step_parser {
     return builder;
   }
 
-  void FBBToBuffer(void* buffer) {
-      std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
-  }
-
   fbs::v3i str_to_v3i(const std::string& x_str, const std::string& y_str, const std::string& z_str) {
     fbs::v3i v3i(std::stoi(x_str), std::stoi(y_str), std::stoi(z_str));
     return v3i;
@@ -51,7 +47,6 @@ namespace step_parser {
   void bad_arguments(const std::vector<std::string>& tokens);
 
   size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
-    GetFBB().Clear();
     if (!tokens.size()) {
       return 0;
     }
@@ -63,7 +58,10 @@ namespace step_parser {
         return;
       }
 
-      FBBToBuffer(buffer);
+      // Copy the built message
+      std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
+      // Clear flatbuffers scratch space
+      GetFBB().Clear();
     };
 
     if (tokens[0] == "quit") {
