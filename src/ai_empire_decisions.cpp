@@ -120,52 +120,52 @@ void EmpireExplore::operator()(uint32_t player_id) {
 UnitOrder reevaluate_order(uint32_t /*unit_id*/, uint32_t /*player_id*/) {
   // No reevaluation
   std::cout << "IMPLEMENT REEVALUATION!!" << std::endl;
-  return UnitOrder(0, 0, AI_ORDER_TYPE::UNKNOWN);
+  return UnitOrder(0, 0, fbs::AI_ORDER_TYPE::UNKNOWN);
 }
 
 void execute_order(const UnitOrder& decision, uint32_t player_id) {
   uint32_t uid = decision.m_unit_id;
   uint32_t tid = decision.m_target_id;
 
-  std::cout << "Executing order: " << get_ai_order_name(decision.m_order) 
+  std::cout << "Executing order: " << fbs::EnumNameAI_ORDER_TYPE(decision.m_order) 
     << " for player_id: " << player_id << std::endl;
 
   // Try to execute an AI order, if it can't be execute reevaluate the order.
   // Reevaluation can occur if a unit tries to attack a unit that no longer exists.
   switch (decision.m_order) {
-  case AI_ORDER_TYPE::ATTACK_UNIT:
+    case fbs::AI_ORDER_TYPE::ATTACK_UNIT:
     if (!ai_shared::attack_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::APPROACH_UNIT:
+    case fbs::AI_ORDER_TYPE::APPROACH_UNIT:
     if (!ai_shared::approach_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::ATTACK_CITY:
+    case fbs::AI_ORDER_TYPE::ATTACK_CITY:
     std::cout << "Attack City not yet implemented." << std::endl;
     break;
-  case AI_ORDER_TYPE::APPROACH_CITY:
+    case fbs::AI_ORDER_TYPE::APPROACH_CITY:
     if (!ai_shared::approach_city(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::PILLAGE_IMPROVEMENT:
+    case fbs::AI_ORDER_TYPE::PILLAGE_IMPROVEMENT:
     if (!ai_shared::pillage_improvement(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::WANDER:
+    case fbs::AI_ORDER_TYPE::WANDER:
     if (!ai_shared::wander(uid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
+    case fbs::AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
     if (!ai_shared::approach_improvement(uid, player_id)) /* TODO: player_id != improvement_id */ {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
-  case AI_ORDER_TYPE::UNKNOWN:
+    case fbs::AI_ORDER_TYPE::UNKNOWN:
   default:
     std::cout << "Unknown decision." << std::endl;
     return;
