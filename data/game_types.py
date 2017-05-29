@@ -12,7 +12,7 @@ CONSTRUCTION = "CONSTRUCTION"
 # AI           = "AI"
 # AI_ORDER     = "AI_ORDER"
 TURN         = "TURN"
-SEARCH       = "SEARCH"
+# SEARCH       = "SEARCH"
 # DIRECTION    = "DIRECTION"
 # SCIENCE      = "SCIENCE"
 # MAGIC        = "MAGIC"
@@ -69,10 +69,10 @@ add_gametype(CONSTRUCTION, 'Caster', 10)
 add_gametype(TURN, 'TurnActive'    , 1)
 add_gametype(TURN, 'TurnCompleted' , 2)
 
-add_gametype(SEARCH, 'Units'       , 1)
-add_gametype(SEARCH, 'Cities'      , 2)
-add_gametype(SEARCH, 'Improvements', 3)
-add_gametype(SEARCH, 'Resources'   , 4)
+# add_gametype(SEARCH, 'Units'       , 1)
+# add_gametype(SEARCH, 'Cities'      , 2)
+# add_gametype(SEARCH, 'Improvements', 3)
+# add_gametype(SEARCH, 'Resources'   , 4)
 
 # add_gametype(AI_ORDER, 'Attack_Unit'         , 1)
 # add_gametype(AI_ORDER, 'Approach_Unit'       , 2)

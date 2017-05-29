@@ -397,7 +397,7 @@ namespace terminal  {
 
     terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
       CHECK_VALID(6, tokens);
-      SEARCH_TYPE type = get_search_type(tokens[1]);
+      fbs::SEARCH_TYPE type = util::enum_from_names<fbs::SEARCH_TYPE>(tokens[1], fbs::EnumNamesSEARCH_TYPE());
       sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       uint32_t depth = std::stoul(tokens[5]);
       static auto s_units = [](const Unit& u) -> bool {
@@ -417,19 +417,19 @@ namespace terminal  {
         return false;
       };
       switch (type) {
-      case SEARCH_TYPE::UNITS:
+      case fbs::SEARCH_TYPE::UNITS:
         search::bfs_units(start, depth, world_map::get_map(), s_units);
         return true;
-      case SEARCH_TYPE::CITIES:
+      case fbs::SEARCH_TYPE::CITIES:
         search::bfs_cities(start, depth, world_map::get_map(), s_cities);
         return true;
-      case SEARCH_TYPE::IMPROVEMENTS:
+      case fbs::SEARCH_TYPE::IMPROVEMENTS:
         search::bfs_improvements(start, depth, world_map::get_map(), s_improvements);
         return true;
-      case SEARCH_TYPE::RESOURCES:
+      case fbs::SEARCH_TYPE::RESOURCES:
         search::bfs_resources(start, depth, world_map::get_map(), s_resources);
         return true;
-      case SEARCH_TYPE::UNKNOWN:
+      case fbs::SEARCH_TYPE::UNKNOWN:
       default:
         std::cout << "Unknown search type." << std::endl;
         return true;
