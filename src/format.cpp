@@ -9,6 +9,7 @@
 #include "production.h"
 #include "resources.h"
 #include "status_effect.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "terrain_yield.h"
 #include "unit.h"
@@ -121,7 +122,7 @@ std::string format::player(const Player& player) {
   ss << " magic: " << player.m_magic << std::endl;
   ss << " resources: " << format::resources(player::get_resources(player.m_id)) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
-  ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
+  ss << " ai: " << fbs::EnumNameAI_TYPE(player.m_ai_type) << std::endl;
   ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
   ss << " discovered cities: " << format::set(player.m_discovered_cities) << std::endl;
 
@@ -172,7 +173,7 @@ std::string format::effect(const StatusEffect& effect) {
   std::stringstream ss;
 
   ss << "Unique id: " << effect.m_id << std::endl;
-  ss << " type: " << get_status_name(effect.m_type) << std::endl;
+  ss << " type: " << fbs::EnumNameSTATUS_TYPE(effect.m_type) << std::endl;
   ss << " source location: " << format::vector3(effect.m_location) << std::endl;
   ss << " range: " << effect.m_range << std::endl;
   ss << " total turns: " << effect.m_turns << std::endl;

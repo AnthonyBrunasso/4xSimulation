@@ -1,11 +1,16 @@
 #pragma once
 
-enum class SCENARIO_TYPE;
+#include <cstdint>
+
+namespace fbs
+{
+  enum class SCENARIO_TYPE : uint32_t;
+}
 
 namespace scenario {
-  void start(SCENARIO_TYPE type);
+  void start(fbs::SCENARIO_TYPE type);
   void reset();
   void process();
 
-  void debug_print(SCENARIO_TYPE type);
+  void debug_print(fbs::SCENARIO_TYPE type);
 }

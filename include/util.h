@@ -23,4 +23,17 @@ namespace util {
     return static_cast<ENUM>(id);
   }
 
+  template <class ENUM>
+  ENUM enum_from_names(const std::string& searchName, const char** names) {
+    size_t index = 0;
+    while (*names) {
+      if (searchName == *names) {
+        return static_cast<ENUM>(index);
+      }
+      ++names;
+      ++index;
+    }
+
+    return static_cast<ENUM>(0);
+  }
 }

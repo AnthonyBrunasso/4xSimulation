@@ -16,6 +16,7 @@
 #include "improvement.h"
 #include "player.h"
 #include "search.h"
+#include "step_generated.h"
 #include "unit.h"
 #include "world_map.h"
 
@@ -75,11 +76,11 @@ float DiscoveredCities::operator()(uint32_t player_id, float threshold) {
   }
 
   switch (player->m_ai_type) {
-    case AI_TYPE::BARBARIAN:
+    case fbs::AI_TYPE::BARBARIAN:
       return ::discovered_cities_barbarian(player, threshold);
-    case AI_TYPE::HUMAN:
+    case fbs::AI_TYPE::HUMAN:
     default:
-      std::cout << "DiscoveredCities evaluation not evaluated for: " << get_ai_name(player->m_ai_type) << std::endl;
+      std::cout << "DiscoveredCities evaluation not evaluated for: " << fbs::EnumNameAI_TYPE(player->m_ai_type) << std::endl;
       return NOOP_EVALUATION;
   }
 

@@ -19,7 +19,7 @@ Player::Player(uint32_t id)
     , m_science(0.0f)
     , m_magic(10.0) // Players should start with some magic
     , m_research(SCIENCE_TYPE::AGRICULTURE)
-    , m_ai_type(AI_TYPE::UNKNOWN)
+    , m_ai_type(fbs::AI_TYPE::UNKNOWN)
     , m_ai_state(nullptr)
     , m_omniscient(false)
 {
@@ -87,17 +87,17 @@ namespace player {
 uint32_t player::create_human(const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
-  p->m_ai_type = AI_TYPE::HUMAN;
+  p->m_ai_type = fbs::AI_TYPE::HUMAN;
   p->m_name = name;
   init(p);
   return playerId;
 }
 
-uint32_t player::create_ai(AI_TYPE type) {
+uint32_t player::create_ai(fbs::AI_TYPE type) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
   p->m_ai_type = type;
-  p->m_name = get_ai_name(type);
+  p->m_name = fbs::EnumNameAI_TYPE(type);
   init(p);
   return playerId;
 }

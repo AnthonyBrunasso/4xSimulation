@@ -7,6 +7,7 @@
 #include "game_types.h"
 #include "player.h"
 #include "status_effect.h"
+#include "step_generated.h"
 #include "unit.h"
 
 uint32_t INVALID_MONSTER_ID = 0xffffffff;
@@ -19,7 +20,7 @@ namespace scenario_monster {
 void scenario_monster::start() {
   // Add a monster player.
   if (s_monster_id == INVALID_MONSTER_ID) {
-    s_monster_id = player::create_ai(AI_TYPE::MONSTER); 
+    s_monster_id = player::create_ai(fbs::AI_TYPE::MONSTER); 
   }
   sf::Vector3i loc(0, 0, 0);
   auto summon_monster = [loc]() {
@@ -32,14 +33,14 @@ void scenario_monster::start() {
     u->m_combat_stats.m_range = 2;
   };
   status_effect::inject_end(summon_monster);
-  status_effect::create(STATUS_TYPE::SUMMONING_MONSTER, loc);
+  status_effect::create(fbs::STATUS_TYPE::SUMMONING_MONSTER, loc);
 }
 
 void scenario_monster::process() {
   // For each barbarian tribe channel energy
   uint32_t count = 0;
   auto player_count = [&count](Player& player) {
-    if (player.m_ai_type == AI_TYPE::BARBARIAN) ++count;
+    if (player.m_ai_type == fbs::AI_TYPE::BARBARIAN) ++count;
   };
   player::for_each_player(player_count);
   s_channeled_power += count;

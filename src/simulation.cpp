@@ -389,7 +389,7 @@ namespace simulation {
     };
 
     status_effect::inject_end(end_turn_inject);
-    if (status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, location)) {
+    if (status_effect::create(fbs::STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, location)) {
       // Drain workers action points.
       unit->m_action_points = 0;
     }
@@ -617,7 +617,7 @@ namespace simulation {
       // Good destination
       break;
     }
-    if (player->m_ai_type != AI_TYPE::HUMAN && path.empty()) {
+    if (player->m_ai_type != fbs::AI_TYPE::HUMAN && path.empty()) {
       unit->m_action_points = 0;
       std::cout << "AI attempted an empty path: unit exhausted." << std::endl;
     }
@@ -770,17 +770,17 @@ namespace simulation {
     fbs::MAGIC_TYPE type = magic_step->type();
     sf::Vector3i location = get_v3i(magic_step->location());
     bool cheat = magic_step->cheat();
-    magic::cast(player_id, (MAGIC_TYPE)type, location, cheat);
+    magic::cast(player_id, type, location, cheat);
   }
 
   void execute_status(const fbs::StatusStep* status_step) {
     fbs::STATUS_TYPE type = status_step->type();
     sf::Vector3i location = get_v3i(status_step->location());
-    status_effect::create((STATUS_TYPE)type, location);
+    status_effect::create(type, location);
   }
 
   void execute_scenario(const fbs::ScenarioStep* scenario_step) {
-    scenario::start((SCENARIO_TYPE)scenario_step->type());
+    scenario::start(scenario_step->type());
   }
 
   void execute_add_player(const fbs::AddPlayerStep* add_player_step) {
@@ -788,11 +788,11 @@ namespace simulation {
     const flatbuffers::String* name = add_player_step->name();
     uint32_t player_id = 0;
     switch (ai_type) {
-      case fbs::AI_TYPE::AI_BARBARIAN:
-        player_id = player::create_ai((AI_TYPE)ai_type);
+      case fbs::AI_TYPE::BARBARIAN:
+        player_id = player::create_ai(ai_type);
         barbarians::set_player_id(player_id);
         break;
-      case fbs::AI_TYPE::AI_HUMAN:
+      case fbs::AI_TYPE::HUMAN:
         player_id = player::create_human(name->str());
       default:
         break;
@@ -1063,11 +1063,11 @@ void simulation::process_end_turn(const fbs::EndTurnStep* end_turn) {
   Player* player = player::get_player(player_id);
   if (!player) return;
 
-  if (player->m_ai_type == AI_TYPE::BARBARIAN) {
+  if (player->m_ai_type == fbs::AI_TYPE::BARBARIAN) {
     barbarians::pillage_and_plunder(player_id);
   }
 
-  if (player->m_ai_type == AI_TYPE::MONSTER) {
+  if (player->m_ai_type == fbs::AI_TYPE::MONSTER) {
     monster::execute_turn(player_id);
   }
 

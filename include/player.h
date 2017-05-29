@@ -10,6 +10,7 @@
 
 #include "game_types.h"
 #include "resources.h"
+#include "step_generated.h"
 
 class AIState;
 class City;
@@ -51,7 +52,7 @@ public:
 
   // Resources owned by this player.
   SCIENCE_TYPE m_research;
-  AI_TYPE m_ai_type;
+  fbs::AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
   std::shared_ptr<AIState> m_ai_state;
   // Cheat state
@@ -60,7 +61,7 @@ public:
 
 namespace player {
   uint32_t create_human(const std::string& name);
-  uint32_t create_ai(AI_TYPE type);
+  uint32_t create_ai(fbs::AI_TYPE type);
   Player* get_player(uint32_t i);
   size_t get_count();
   ResourceUMap get_resources(uint32_t player_id);

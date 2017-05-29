@@ -9,7 +9,6 @@
 #include <iterator>
 #include <memory>
 
-#include "flatbuffers/flatbuffers.h"
 #include "format.h"
 #include "game_types.h"
 #include "player.h"
@@ -212,13 +211,13 @@ namespace step_parser {
 
     else if (tokens[0] == "join") {
       CHECK(2, tokens);
-      AI_TYPE ai_type = (AI_TYPE::HUMAN);
+      fbs::AI_TYPE ai_type = (fbs::AI_TYPE::HUMAN);
       if (tokens.size() == 3) {
         if (std::isdigit(tokens[2][0])) {
-          ai_type = util::uint_to_enum<AI_TYPE>(std::stoul(tokens[2]));
+          ai_type = util::uint_to_enum<fbs::AI_TYPE>(std::stoul(tokens[2]));
         }
         else {
-          ai_type = (get_ai_type(tokens[2]));
+          ai_type = util::enum_from_names<fbs::AI_TYPE>(tokens[2], fbs::EnumNamesAI_TYPE());
         }
       }
       flatbuffers::Offset<flatbuffers::String> name = GetFBB().CreateString(tokens[1].c_str(), tokens[1].size());
@@ -351,7 +350,7 @@ namespace step_parser {
 
     else if (tokens[0] == "cast") {
       CHECK(5, tokens);
-      fbs::MAGIC_TYPE magic_type = (fbs::MAGIC_TYPE)(get_magic_type(tokens[1]));
+      fbs::MAGIC_TYPE magic_type = util::enum_from_names<fbs::MAGIC_TYPE>(tokens[1], fbs::EnumNamesMAGIC_TYPE());
       fbs::v3i location = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
       bool cheat = false;
       if (tokens.size() > 5) {
@@ -363,7 +362,7 @@ namespace step_parser {
 
     else if (tokens[0] == "status") {
       CHECK(5, tokens);
-      fbs::STATUS_TYPE status_type = (fbs::STATUS_TYPE)(get_status_type(tokens[1]));
+      fbs::STATUS_TYPE status_type = util::enum_from_names<fbs::STATUS_TYPE>(tokens[1], fbs::EnumNamesSTATUS_TYPE());
       fbs::v3i location = str_to_v3i(tokens[2], tokens[3], tokens[4]);
       flatbuffers::Offset<fbs::StatusStep> status_step = fbs::CreateStatusStep(GetFBB(), status_type, &location);
       copy_to_netbuffer(fbs::StepUnion::StatusStep, status_step.Union());
@@ -371,13 +370,13 @@ namespace step_parser {
 
     else if (tokens[0] == "scenario") {
       CHECK(2, tokens);
-      SCENARIO_TYPE scenario_type;
+      fbs::SCENARIO_TYPE scenario_type;
       if (std::isdigit(tokens[1][0])) {
-        scenario_type = (util::uint_to_enum<SCENARIO_TYPE>(std::stoul(tokens[1])));
+        scenario_type = (util::uint_to_enum<fbs::SCENARIO_TYPE>(std::stoul(tokens[1])));
       }
       // Else treat it as a the name of what needs to be spawned.
       else {
-        scenario_type = (get_scenario_type(tokens[1]));
+        scenario_type = util::enum_from_names<fbs::SCENARIO_TYPE>(tokens[1], fbs::EnumNamesSCENARIO_TYPE());
       }
       flatbuffers::Offset<fbs::ScenarioStep> scenario_step = fbs::CreateScenarioStep(GetFBB(), (fbs::SCENARIO_TYPE)scenario_type);
       copy_to_netbuffer(fbs::StepUnion::ScenarioStep, scenario_step.Union());
