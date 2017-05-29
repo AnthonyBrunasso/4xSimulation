@@ -12,6 +12,7 @@
 #include "hex.h"
 #include "production.h"
 #include "search.h"
+#include "step_generated.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
@@ -292,26 +293,26 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
   TerrainYield t = c->DumpYields();
   if (t.m_food < 0.0) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_STARVING;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_STARVING;
     n.m_id = id;
     events.push_back(n);
   }
   if (!c->IsConstructing()) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_PRODUCTION;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_PRODUCTION;
     n.m_id = id;
     events.push_back(n);
   }
   float idleCount = c->IdleWorkers();
   if (idleCount) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_HARVEST;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_HARVEST;
     n.m_id = id;
     events.push_back(n);
   }
   if (c->m_specialization == TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_SPECIALIZE;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_SPECIALIZE;
     n.m_id = id;
     events.push_back(n);
   }
@@ -324,7 +325,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
       }
       
       Notification n;
-      n.m_event_type = NOTIFICATION_TYPE::CITY_DEFENSE;
+      n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_DEFENSE;
       n.m_id = c->m_id;
       n.m_other_id = u.m_id;
       events.push_back(n);

@@ -17,7 +17,7 @@ DIRECTION    = "DIRECTION"
 SCIENCE      = "SCIENCE"
 # MAGIC        = "MAGIC"
 # STATUS       = "STATUS"
-NOTIFICATION = "NOTIFICATION"
+# NOTIFICATION = "NOTIFICATION"
 # SCENARIO     = "SCENARIO"
 
 # Resources to generate when running type_generator.py
@@ -110,13 +110,13 @@ add_gametype(SCIENCE, "Bronze_Working", 12)
 # add_gametype(STATUS, "Constructing_Improvement", 3);
 # add_gametype(STATUS, "Summoning_Monster", 4);
 # 
-add_gametype(NOTIFICATION, "City_Starving", 1)
-add_gametype(NOTIFICATION, "City_Defense", 2)
-add_gametype(NOTIFICATION, "City_Harvest", 3)
-add_gametype(NOTIFICATION, "City_Production", 4)
-add_gametype(NOTIFICATION, "City_Specialize", 5)
-add_gametype(NOTIFICATION, "Unit_Idle", 6)
-add_gametype(NOTIFICATION, "Science_Idle", 7)
+# add_gametype(NOTIFICATION, "City_Starving", 1)
+# add_gametype(NOTIFICATION, "City_Defense", 2)
+# add_gametype(NOTIFICATION, "City_Harvest", 3)
+# add_gametype(NOTIFICATION, "City_Production", 4)
+# add_gametype(NOTIFICATION, "City_Specialize", 5)
+# add_gametype(NOTIFICATION, "Unit_Idle", 6)
+# add_gametype(NOTIFICATION, "Science_Idle", 7)
 
 # add_gametype(SCENARIO, "Disease", 1)
 # add_gametype(SCENARIO, "Monster", 2)
