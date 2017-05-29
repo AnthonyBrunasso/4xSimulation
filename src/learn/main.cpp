@@ -42,6 +42,7 @@ int main(int, char*[]) {
     std::getline(std::cin, input);
   }
 
+  std::cout << "Graceful game end." << std::endl;
   // Enter interactive mode
   std::string input;
   std::getline(std::cin, input);

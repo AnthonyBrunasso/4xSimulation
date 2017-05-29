@@ -23,6 +23,7 @@ namespace simulation_interface {
     }
 
     std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
+    GetFBB().Clear();
   }
 
   void start_faceoff() {
