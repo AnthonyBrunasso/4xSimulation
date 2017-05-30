@@ -197,28 +197,28 @@ namespace terrain_yield {
     {static_cast<int32_t>(fbs::RESOURCE_TYPE::STONE), &BonusStone},
   };
 
-  TerrainYield ImprovementYields(fbs::RESOURCE_TYPE , IMPROVEMENT_TYPE impv) {
+  TerrainYield ImprovementYields(fbs::RESOURCE_TYPE , fbs::IMPROVEMENT_TYPE impv) {
     // Not yet implemented: there are examples of Improvement benefits varying by resource
     // Not yet implemented: there are examples of Improvement benefits varying by technology
     
     TerrainYield t;
     switch(impv) {
-    case IMPROVEMENT_TYPE::MINE:
+    case fbs::IMPROVEMENT_TYPE::MINE:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::PASTURE:
+    case fbs::IMPROVEMENT_TYPE::PASTURE:
       t.m_food += 1;
       break;
-    case IMPROVEMENT_TYPE::CAMP:
+    case fbs::IMPROVEMENT_TYPE::CAMP:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::PLANTATION:
+    case fbs::IMPROVEMENT_TYPE::PLANTATION:
       t.m_gold += 1;
       break;
-    case IMPROVEMENT_TYPE::QUARRY:
+    case fbs::IMPROVEMENT_TYPE::QUARRY:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::FISH_BOATS:
+    case fbs::IMPROVEMENT_TYPE::FISH_BOATS:
       t.m_food += 1;
       break;
     default:

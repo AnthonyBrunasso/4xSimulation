@@ -111,7 +111,7 @@ namespace {
       ::spread_units(tile, m_units);
     }
 
-    IMPROVEMENT_TYPE m_improvement_type;
+    fbs::IMPROVEMENT_TYPE m_improvement_type;
   };
 
 

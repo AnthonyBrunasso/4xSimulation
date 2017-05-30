@@ -162,7 +162,7 @@ std::string format::improvement(const Improvement& improvement) {
 
   ss << "Unique id: " << improvement.m_id << std::endl;
   ss << " resource: " << fbs::EnumNameRESOURCE_TYPE(improvement.m_resource.m_type) << std::endl;
-  ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
+  ss << " type: " << fbs::EnumNameIMPROVEMENT_TYPE(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);
 

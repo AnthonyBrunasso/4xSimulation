@@ -368,7 +368,7 @@ namespace simulation {
       return;
     }
     Resource& res = tile->m_resources[i];
-    IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
+    fbs::IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
     if (!improvement::satisfies_requirements(res.m_type, impv, location)) {
       return;
     }
@@ -538,7 +538,7 @@ namespace simulation {
       Improvement* improvement = improvement::get_improvement(impId);
       if (!improvement) continue;
       if (improvement->m_owner_id == unit->m_owner_id) continue;
-      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_id << "!" << std::endl;
+      std::cout << fbs::EnumNameIMPROVEMENT_TYPE(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_id << "!" << std::endl;
       improvement::destroy(improvement->m_id);
       unit::heal(unit->m_id, 6.f);
       unit->m_action_points = 0;

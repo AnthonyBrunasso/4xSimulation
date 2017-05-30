@@ -77,7 +77,7 @@ namespace {
     }     
   }
 
-  bool is_resource_available(fbs::RESOURCE_TYPE rt, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+  bool is_resource_available(fbs::RESOURCE_TYPE rt, fbs::IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
@@ -98,16 +98,19 @@ namespace {
   }
 
   bool valid_resource(fbs::RESOURCE_TYPE selected_type
-      , IMPROVEMENT_TYPE type
+      , fbs::IMPROVEMENT_TYPE type
       , const sf::Vector3i& location) {
     return type == improvement::resource_improvement(selected_type);
   }
 
   void set_improvement_requirements() {
-    for_each_improvement_type([] (IMPROVEMENT_TYPE impv) {
+    auto check = ([] (fbs::IMPROVEMENT_TYPE impv) {
       improvement::add_requirement(impv, is_resource_available);
       improvement::add_requirement(impv, valid_resource);
     });
+    for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
+      check(imp);
+    }
   }
 
   bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {

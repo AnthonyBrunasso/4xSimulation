@@ -10,15 +10,15 @@
 
 namespace fbs {
   enum class RESOURCE_TYPE : uint32_t;
+  enum class IMPROVEMENT_TYPE : uint32_t;
 }
-enum class IMPROVEMENT_TYPE;
 
 struct Improvement {
-  Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type);
+  Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type);
 
   uint32_t m_id;
   Resource m_resource;
-  IMPROVEMENT_TYPE m_type;
+  fbs::IMPROVEMENT_TYPE m_type;
   // This is the player that owns this resource
   uint32_t m_owner_id;
   sf::Vector3i m_location;
@@ -31,15 +31,15 @@ namespace improvement {
   // Improvements will often have requirements. For example, improving a resource
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
-  void add_requirement(IMPROVEMENT_TYPE type
-      , std::function<bool(fbs::RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
+  void add_requirement(fbs::IMPROVEMENT_TYPE type
+      , std::function<bool(fbs::RESOURCE_TYPE, fbs::IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
 
   bool satisfies_requirements(fbs::RESOURCE_TYPE rtype
-      , IMPROVEMENT_TYPE itype
+      , fbs::IMPROVEMENT_TYPE itype
       , const sf::Vector3i& location);
 
   uint32_t create(Resource res
-      , IMPROVEMENT_TYPE type
+      , fbs::IMPROVEMENT_TYPE type
       , const sf::Vector3i& location
       , uint32_t owner);
 
@@ -48,8 +48,8 @@ namespace improvement {
   void destroy(uint32_t id);
   void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
-  ValidResourceVector resource_requirements(IMPROVEMENT_TYPE type);
-  IMPROVEMENT_TYPE resource_improvement(fbs::RESOURCE_TYPE resource);
+  ValidResourceVector resource_requirements(fbs::IMPROVEMENT_TYPE type);
+  fbs::IMPROVEMENT_TYPE resource_improvement(fbs::RESOURCE_TYPE resource);
 
   void for_each_improvement(
       std::function<void(const Improvement& improvement)> operation);

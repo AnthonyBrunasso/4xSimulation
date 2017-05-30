@@ -4,7 +4,7 @@ from store import add_gametype
 # keyword and id is reserved, (unknown, 0)
 
 # RESOURCE     = "RESOURCE"
-IMPROVEMENT  = "IMPROVEMENT"
+# IMPROVEMENT  = "IMPROVEMENT"
 # TERRAIN      = "TERRAIN"
 # UNIT         = "UNIT"
 # BUILDING     = "BUILDING"
@@ -31,13 +31,13 @@ IMPROVEMENT  = "IMPROVEMENT"
 # add_gametype(RESOURCE, 'Stone', 8)
 # add_gametype(RESOURCE, 'Sheep', 9)
 # 
-add_gametype(IMPROVEMENT, 'Mine', 1)
-add_gametype(IMPROVEMENT, 'Pasture', 2)
-add_gametype(IMPROVEMENT, 'Camp', 3)
-add_gametype(IMPROVEMENT, 'Plantation', 4)
-add_gametype(IMPROVEMENT, 'Quarry', 5)
-add_gametype(IMPROVEMENT, 'Fish_Boats', 6)
-
+# add_gametype(IMPROVEMENT, 'Mine', 1)
+# add_gametype(IMPROVEMENT, 'Pasture', 2)
+# add_gametype(IMPROVEMENT, 'Camp', 3)
+# add_gametype(IMPROVEMENT, 'Plantation', 4)
+# add_gametype(IMPROVEMENT, 'Quarry', 5)
+# add_gametype(IMPROVEMENT, 'Fish_Boats', 6)
+# 
 # add_gametype(TERRAIN, 'Desert'   , ord('d') - ord('a'))
 # add_gametype(TERRAIN, 'Grassland', ord('g') - ord('a'))
 # add_gametype(TERRAIN, 'Mountain' , ord('m') - ord('a'))

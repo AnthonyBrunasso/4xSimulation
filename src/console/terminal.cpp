@@ -353,10 +353,13 @@ namespace terminal  {
     
     terminal::add_query("improvement_types", "improvement_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_improvement_type([](IMPROVEMENT_TYPE improvement) {
-        std::cout << static_cast<int32_t>(improvement) << ": " << get_improvement_name(improvement) << std::endl;
+      auto check =([](fbs::IMPROVEMENT_TYPE improvement) {
+        std::cout << static_cast<int32_t>(improvement) << ": " << fbs::EnumNameIMPROVEMENT_TYPE(improvement) << std::endl;
         std::cout << "  " << improvement::resource_requirements(improvement).size() << " requirements" << std::endl;
       });
+      for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
+        check(imp);
+      }
       return true;
     });   
     
