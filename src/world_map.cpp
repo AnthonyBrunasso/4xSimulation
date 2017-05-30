@@ -77,7 +77,7 @@ namespace {
     }     
   }
 
-  bool is_resource_available(RESOURCE_TYPE rt, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+  bool is_resource_available(fbs::RESOURCE_TYPE rt, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
@@ -97,7 +97,7 @@ namespace {
     return true;
   }
 
-  bool valid_resource(RESOURCE_TYPE selected_type
+  bool valid_resource(fbs::RESOURCE_TYPE selected_type
       , IMPROVEMENT_TYPE type
       , const sf::Vector3i& location) {
     return type == improvement::resource_improvement(selected_type);
@@ -225,8 +225,8 @@ bool world_map::load_file(const std::string& name) {
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
 
-    RESOURCE_TYPE resource_type = static_cast<RESOURCE_TYPE>(*data);
-    if (resource_type == RESOURCE_TYPE::UNKNOWN) continue;
+    fbs::RESOURCE_TYPE resource_type = static_cast<fbs::RESOURCE_TYPE>(*data);
+    if (resource_type == fbs::RESOURCE_TYPE::UNKNOWN) continue;
 
     tile.m_resources.push_back(Resource(resource_type));
   }

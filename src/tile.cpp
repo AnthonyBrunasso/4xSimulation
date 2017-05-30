@@ -33,7 +33,7 @@ Tile::Tile(sf::Vector3i loc) :
 {
 }
 
-bool Tile::HasResource(RESOURCE_TYPE res) {
+bool Tile::HasResource(fbs::RESOURCE_TYPE res) {
   std::vector<Resource>::const_iterator findIt = std::find(m_resources.begin(), m_resources.end(), Resource(res));
   return findIt != m_resources.end();
 }

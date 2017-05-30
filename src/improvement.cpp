@@ -6,13 +6,14 @@
 #include <vector>
 
 #include "Vector3.hpp"
+#include "step_generated.h"
 #include "unique_id.h"
 #include "util.h"
 
 namespace {
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
   typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
-  typedef std::vector<std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> > Requirements;
+  typedef std::vector<std::function<bool(fbs::RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> > Requirements;
   typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   typedef std::unordered_map<uint32_t, uint32_t> ResourceImprovementMap;
   typedef std::vector<std::uint32_t> ValidResourceVector;
@@ -26,15 +27,15 @@ namespace {
 }
 
 void improvement::initialize() {
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::LUXURY_GOLD)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::LUXURY_SUGAR)] = util::enum_to_uint(IMPROVEMENT_TYPE::PLANTATION);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_IRON)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STRATEGIC_COAL)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::CATTLE)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::DEER)] = util::enum_to_uint(IMPROVEMENT_TYPE::CAMP);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::FISH)] = util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::STONE)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(RESOURCE_TYPE::SHEEP)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::LUXURY_GOLD)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::LUXURY_SUGAR)] = util::enum_to_uint(IMPROVEMENT_TYPE::PLANTATION);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STRATEGIC_IRON)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STRATEGIC_COAL)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::CATTLE)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::DEER)] = util::enum_to_uint(IMPROVEMENT_TYPE::CAMP);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::FISH)] = util::enum_to_uint(IMPROVEMENT_TYPE::FISH_BOATS);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STONE)] = util::enum_to_uint(IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::SHEEP)] = util::enum_to_uint(IMPROVEMENT_TYPE::PASTURE);
 
   for (auto& res : s_resource_improvements) {
     s_impvResources[res.second].push_back(res.first);
@@ -50,11 +51,11 @@ Improvement::Improvement(uint32_t unique_id, Resource res, IMPROVEMENT_TYPE type
 }
 
 void improvement::add_requirement(IMPROVEMENT_TYPE type, 
-    std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement) {
+    std::function<bool(fbs::RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement) {
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-bool improvement::satisfies_requirements(RESOURCE_TYPE rtype
+bool improvement::satisfies_requirements(fbs::RESOURCE_TYPE rtype
     , IMPROVEMENT_TYPE itype
     , const sf::Vector3i& location) {
   Requirements& requirements = s_creation_requirements[util::enum_to_uint(itype)]; 
@@ -124,7 +125,7 @@ ValidResourceVector improvement::resource_requirements(IMPROVEMENT_TYPE type) {
   return itFind->second;
 }
 
-IMPROVEMENT_TYPE improvement::resource_improvement(RESOURCE_TYPE resource) {
+IMPROVEMENT_TYPE improvement::resource_improvement(fbs::RESOURCE_TYPE resource) {
   return util::uint_to_enum<IMPROVEMENT_TYPE>(s_resource_improvements[util::enum_to_uint(resource)]);
 }
 

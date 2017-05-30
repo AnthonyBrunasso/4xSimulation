@@ -187,17 +187,17 @@ namespace terrain_yield {
     {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterSpecialization},
   };
   static YieldFunctions s_resourceYieldFn{
-    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
-    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
-    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
-    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
-    {static_cast<int32_t>(RESOURCE_TYPE::CATTLE), &BonusCattle},
-    {static_cast<int32_t>(RESOURCE_TYPE::DEER), &BonusDeer},
-    {static_cast<int32_t>(RESOURCE_TYPE::FISH), &BonusFish},
-    {static_cast<int32_t>(RESOURCE_TYPE::STONE), &BonusStone},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::CATTLE), &BonusCattle},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::DEER), &BonusDeer},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::FISH), &BonusFish},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STONE), &BonusStone},
   };
 
-  TerrainYield ImprovementYields(RESOURCE_TYPE , IMPROVEMENT_TYPE impv) {
+  TerrainYield ImprovementYields(fbs::RESOURCE_TYPE , IMPROVEMENT_TYPE impv) {
     // Not yet implemented: there are examples of Improvement benefits varying by resource
     // Not yet implemented: there are examples of Improvement benefits varying by technology
     
@@ -281,7 +281,7 @@ TerrainYield terrain_yield::get_specialization_yield(fbs::TERRAIN_TYPE type) {
   return base;
 }
 
-TerrainYield terrain_yield::get_resource_yield(RESOURCE_TYPE type) {
+TerrainYield terrain_yield::get_resource_yield(fbs::RESOURCE_TYPE type) {
   TerrainYield base;
   const auto& findIt = s_resourceYieldFn.find(static_cast<int32_t>(type));
   if (findIt == s_resourceYieldFn.end()) {

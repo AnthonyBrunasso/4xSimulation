@@ -11,6 +11,7 @@
 
 namespace fbs {
   enum class TERRAIN_TYPE : uint32_t;
+  enum class RESOURCE_TYPE : uint32_t;
 }
 
 // Tiles contain -
@@ -22,7 +23,7 @@ public:
   Tile();
   Tile(sf::Vector3i location);
 
-  bool HasResource(RESOURCE_TYPE res);
+  bool HasResource(fbs::RESOURCE_TYPE res);
 
   fbs::TERRAIN_TYPE m_terrain_type;
 

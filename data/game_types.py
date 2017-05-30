@@ -3,7 +3,7 @@ from store import add_gametype
 # NOTE: All game types will generate an UNKNOWN enum at id 0 so that
 # keyword and id is reserved, (unknown, 0)
 
-RESOURCE     = "RESOURCE"
+# RESOURCE     = "RESOURCE"
 IMPROVEMENT  = "IMPROVEMENT"
 # TERRAIN      = "TERRAIN"
 # UNIT         = "UNIT"
@@ -21,16 +21,16 @@ IMPROVEMENT  = "IMPROVEMENT"
 # SCENARIO     = "SCENARIO"
 
 # Resources to generate when running type_generator.py
-add_gametype(RESOURCE, 'Luxury_Gold', 1)
-add_gametype(RESOURCE, 'Luxury_Sugar', 2)
-add_gametype(RESOURCE, 'Strategic_Iron', 3)
-add_gametype(RESOURCE, 'Strategic_Coal', 4)
-add_gametype(RESOURCE, 'Cattle', 5)
-add_gametype(RESOURCE, 'Deer', 6)
-add_gametype(RESOURCE, 'Fish', 7)
-add_gametype(RESOURCE, 'Stone', 8)
-add_gametype(RESOURCE, 'Sheep', 9)
-
+# add_gametype(RESOURCE, 'Luxury_Gold', 1)
+# add_gametype(RESOURCE, 'Luxury_Sugar', 2)
+# add_gametype(RESOURCE, 'Strategic_Iron', 3)
+# add_gametype(RESOURCE, 'Strategic_Coal', 4)
+# add_gametype(RESOURCE, 'Cattle', 5)
+# add_gametype(RESOURCE, 'Deer', 6)
+# add_gametype(RESOURCE, 'Fish', 7)
+# add_gametype(RESOURCE, 'Stone', 8)
+# add_gametype(RESOURCE, 'Sheep', 9)
+# 
 add_gametype(IMPROVEMENT, 'Mine', 1)
 add_gametype(IMPROVEMENT, 'Pasture', 2)
 add_gametype(IMPROVEMENT, 'Camp', 3)

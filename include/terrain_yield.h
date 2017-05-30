@@ -4,8 +4,8 @@
 class City;
 namespace fbs {
   enum class TERRAIN_TYPE : uint32_t;
+  enum class RESOURCE_TYPE : uint32_t;
 };
-enum class RESOURCE_TYPE;
 
 struct TerrainYield
 {
@@ -33,7 +33,7 @@ namespace terrain_yield {
   TerrainYield get_yield(const sf::Vector3i& loc, fbs::TERRAIN_TYPE specialization);
   TerrainYield get_base_yield(fbs::TERRAIN_TYPE type);
   TerrainYield get_specialization_yield(fbs::TERRAIN_TYPE type);
-  TerrainYield get_resource_yield(RESOURCE_TYPE);
+  TerrainYield get_resource_yield(fbs::RESOURCE_TYPE);
 
   void reset();
 }

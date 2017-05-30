@@ -48,7 +48,7 @@ std::string format::tile(const Tile& tile) {
      << " resources: [ ";
 
   for (auto resource : tile.m_resources) {
-    ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
+    ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
   }
 
   ss << "]" << std::endl;
@@ -143,8 +143,8 @@ std::string format::resources(const ResourceUMap& resources) {
   std::stringstream ss;
 
   ss << "[ ";
-  resources.for_each_resource([&ss](RESOURCE_TYPE type, const Resource& resource) {
-    ss << get_resource_name(type) << ": " << resource.m_quantity << " ";
+  resources.for_each_resource([&ss](fbs::RESOURCE_TYPE type, const Resource& resource) {
+    ss << fbs::EnumNameRESOURCE_TYPE(type) << ": " << resource.m_quantity << " ";
   });
   ss << "]";
 
@@ -153,7 +153,7 @@ std::string format::resources(const ResourceUMap& resources) {
 
 std::string format::resource(const Resource& resource) {
   std::stringstream ss;
-  ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
+  ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
   return std::move(ss.str());
 }
 
@@ -161,7 +161,7 @@ std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 
   ss << "Unique id: " << improvement.m_id << std::endl;
-  ss << " resource: " << get_resource_name(improvement.m_resource.m_type) << std::endl;
+  ss << " resource: " << fbs::EnumNameRESOURCE_TYPE(improvement.m_resource.m_type) << std::endl;
   ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);

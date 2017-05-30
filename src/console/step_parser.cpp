@@ -167,7 +167,7 @@ namespace step_parser {
         type_id = (std::stoul(tokens[1]));
       }
       else {
-        type_id = (util::enum_to_uint(get_resource_type(tokens[1])));
+        type_id = (util::enum_to_uint(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
       }
 
       fbs::v3i dest = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
@@ -202,7 +202,7 @@ namespace step_parser {
         resource_id = std::stoul(tokens[1]);
       }
       else {
-        resource_id = (util::enum_to_uint(get_resource_type(tokens[1])));
+        resource_id = (util::enum_to_uint(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
       }
       fbs::v3i dest = str_to_v3i(tokens[2], tokens[3], tokens[4]);
       flatbuffers::Offset<fbs::ImproveStep> improve_step = fbs::CreateImproveStep(GetFBB(), &dest, resource_id, s_active_player);

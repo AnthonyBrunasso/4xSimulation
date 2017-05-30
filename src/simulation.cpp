@@ -358,7 +358,7 @@ namespace simulation {
       return;
     }
 
-    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(resource_id);
+    fbs::RESOURCE_TYPE rt = static_cast<fbs::RESOURCE_TYPE>(resource_id);
     i = 0;
     for (; i < tile->m_resources.size(); ++i) {
       if (tile->m_resources[i].m_type == rt) break;
@@ -479,7 +479,7 @@ namespace simulation {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    Resource new_resource(static_cast<RESOURCE_TYPE>(resource_type), quantity);
+    Resource new_resource(static_cast<fbs::RESOURCE_TYPE>(resource_type), quantity);
     bool found = false;
     // If resource already on the tile increment its quantity.
     for (auto& r : tile->m_resources) {

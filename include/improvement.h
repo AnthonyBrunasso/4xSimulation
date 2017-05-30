@@ -8,6 +8,9 @@
 #include "game_types.h"
 #include "resources.h"
 
+namespace fbs {
+  enum class RESOURCE_TYPE : uint32_t;
+}
 enum class IMPROVEMENT_TYPE;
 
 struct Improvement {
@@ -29,9 +32,9 @@ namespace improvement {
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
   void add_requirement(IMPROVEMENT_TYPE type
-      , std::function<bool(RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
+      , std::function<bool(fbs::RESOURCE_TYPE, IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
 
-  bool satisfies_requirements(RESOURCE_TYPE rtype
+  bool satisfies_requirements(fbs::RESOURCE_TYPE rtype
       , IMPROVEMENT_TYPE itype
       , const sf::Vector3i& location);
 
@@ -46,7 +49,7 @@ namespace improvement {
   void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   ValidResourceVector resource_requirements(IMPROVEMENT_TYPE type);
-  IMPROVEMENT_TYPE resource_improvement(RESOURCE_TYPE resource);
+  IMPROVEMENT_TYPE resource_improvement(fbs::RESOURCE_TYPE resource);
 
   void for_each_improvement(
       std::function<void(const Improvement& improvement)> operation);

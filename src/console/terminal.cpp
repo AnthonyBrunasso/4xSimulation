@@ -342,9 +342,12 @@ namespace terminal  {
 
     terminal::add_query("resource_types", "resource_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_resource_type([](RESOURCE_TYPE resource) {
-        std::cout << static_cast<int32_t>(resource) << ": " << get_resource_name(resource) << std::endl;
+      auto check = ([](fbs::RESOURCE_TYPE resource) {
+        std::cout << static_cast<int32_t>(resource) << ": " << fbs::EnumNameRESOURCE_TYPE(resource) << std::endl;
       });
+      for (auto rt : fbs::EnumValuesRESOURCE_TYPE()) {
+        check(rt);
+      }
       return true;
     });   
     
