@@ -69,7 +69,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
 
   // TEMPORARY: Construct the barbarian and uber forge.
   flatbuffers::Offset<fbs::ConstructionStep> forge;
-  uint32_t production_id = (util::enum_to_uint(CONSTRUCTION_TYPE::FORGE));
+  uint32_t production_id = (util::enum_to_uint(fbs::CONSTRUCTION_TYPE::FORGE));
   bool cheat = true;
   forge = fbs::CreateConstructionStep(ai_shared::GetFBB(), city_id, production_id, cheat, player_id);
   ai_shared::simulate_step(fbs::StepUnion::ConstructionStep, forge.Union());
@@ -86,7 +86,7 @@ void EmpireConstruct::operator()(uint32_t player_id) {
     if (!city) continue;
     // Begin construction of the production type in all available cities.
     if (!city->IsConstructing()) {
-      std::cout << current->m_name << " beginning construction of: " << get_construction_name(m_production_type) <<
+      std::cout << current->m_name << " beginning construction of: " << fbs::EnumNameCONSTRUCTION_TYPE(m_production_type) <<
         " in city: " << city->m_id << std::endl;
       production_queue::add(city->GetProductionQueue(), m_production_type);
     }
@@ -233,7 +233,7 @@ void EmpireWander::operator()(uint32_t player_id) {
 
 namespace empire_decisions {
   EmpireSettle s_empire_settle;
-  EmpireConstruct s_empire_construct(CONSTRUCTION_TYPE::MELEE);
+  EmpireConstruct s_empire_construct(fbs::CONSTRUCTION_TYPE::MELEE);
   EmpireExplore s_empire_explore;
   EmpireUnitDecisions s_empire_unit_decisions;
 }

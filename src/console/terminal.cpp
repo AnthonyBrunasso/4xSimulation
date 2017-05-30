@@ -147,11 +147,11 @@ namespace terminal  {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
         if (city.IsConstructing()) return;
-        std::vector<CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
+        std::vector<fbs::CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
         std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
         for (size_t i = 0; i < incomplete.size(); ++i) {
-          CONSTRUCTION_TYPE t = incomplete[i];
-          std::cout <<  static_cast<uint32_t>(t) << " " << get_construction_name(t) << std::endl;
+          fbs::CONSTRUCTION_TYPE t = incomplete[i];
+          std::cout <<  static_cast<uint32_t>(t) << " " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
         }
         stop = true;
       });
@@ -372,9 +372,12 @@ namespace terminal  {
     
     terminal::add_query("construction_types", "construction_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_construction_type([](CONSTRUCTION_TYPE construction) {
-        std::cout << static_cast<int32_t>(construction) << ": " << get_construction_name(construction) << std::endl;
+      auto check = ([](fbs::CONSTRUCTION_TYPE construction) {
+        std::cout << static_cast<int32_t>(construction) << ": " << fbs::EnumNameCONSTRUCTION_TYPE(construction) << std::endl;
       });
+      for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
+        check(ct);
+      }
       return true;
     });
 

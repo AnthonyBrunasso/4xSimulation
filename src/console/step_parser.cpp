@@ -142,7 +142,7 @@ namespace step_parser {
         construction_id = (std::stoul(tokens[2]));
       }
       else {
-        construction_id = (util::enum_to_uint(get_construction_type(tokens[2])));
+        construction_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
       }
       if (tokens.size() > 3) {
         cheat = true;
@@ -267,7 +267,7 @@ namespace step_parser {
           production_id = (std::stoul(tokens[2]));
         }
         else {
-          production_id = (util::enum_to_uint(get_construction_type(tokens[2])));
+          production_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
         }
       }
       flatbuffers::Offset<fbs::PurchaseStep> purchase_step = fbs::CreatePurchaseStep(GetFBB(), s_active_player, production_id, city_id);
@@ -293,7 +293,7 @@ namespace step_parser {
           production_id = (std::stoul(tokens[2]));
         }
         else {
-          production_id = (util::enum_to_uint(get_construction_type(tokens[2])));
+          production_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
         }
       }
       flatbuffers::Offset<fbs::SellStep> sell_step = fbs::CreateSellStep(GetFBB(), s_active_player, city_id, production_id);

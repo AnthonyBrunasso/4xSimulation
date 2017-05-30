@@ -8,7 +8,7 @@ IMPROVEMENT  = "IMPROVEMENT"
 TERRAIN      = "TERRAIN"
 UNIT         = "UNIT"
 BUILDING     = "BUILDING"
-CONSTRUCTION = "CONSTRUCTION"
+# CONSTRUCTION = "CONSTRUCTION"
 # AI           = "AI"
 # AI_ORDER     = "AI_ORDER"
 # TURN         = "TURN"
@@ -53,14 +53,14 @@ add_gametype(UNIT, 'Wizard', 6)
 
 add_gametype(BUILDING, 'Town', 1)
 
-add_gametype(CONSTRUCTION, 'Granary', 1)
-add_gametype(CONSTRUCTION, 'Range'  , 2)
-add_gametype(CONSTRUCTION, 'Forge'  , 3)
-add_gametype(CONSTRUCTION, 'Melee'  , 4)
-add_gametype(CONSTRUCTION, 'Factory', 5)
-add_gametype(CONSTRUCTION, 'Scout'  , 6)
-add_gametype(CONSTRUCTION, 'Worker' , 8)
-add_gametype(CONSTRUCTION, 'Caster', 10)
+# add_gametype(CONSTRUCTION, 'Granary', 1)
+# add_gametype(CONSTRUCTION, 'Range'  , 2)
+# add_gametype(CONSTRUCTION, 'Forge'  , 3)
+# add_gametype(CONSTRUCTION, 'Melee'  , 4)
+# add_gametype(CONSTRUCTION, 'Factory', 5)
+# add_gametype(CONSTRUCTION, 'Scout'  , 6)
+# add_gametype(CONSTRUCTION, 'Worker' , 8)
+# add_gametype(CONSTRUCTION, 'Caster', 10)
 
 # add_gametype(AI, "Barbarian", 1)
 # add_gametype(AI, "Human"    , 2)
