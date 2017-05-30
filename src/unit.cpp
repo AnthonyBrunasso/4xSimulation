@@ -21,6 +21,16 @@ namespace {
   SubMap s_create_subs;
 }
 
+Unit::Unit() : m_type(fbs::UNIT_TYPE::UNKNOWN)
+, m_id(unique_id::INVALID_ID)
+, m_location()
+, m_path()
+, m_action_points(0)
+, m_owner_id(unique_id::INVALID_PLAYER)
+, m_direction(0, 0, 0)
+{
+}
+
 Unit::Unit(uint32_t unique_id) 
 : m_type(fbs::UNIT_TYPE::UNKNOWN)
 , m_id(unique_id)
@@ -30,7 +40,7 @@ Unit::Unit(uint32_t unique_id)
 , m_owner_id(unique_id::INVALID_PLAYER)
 , m_direction(0, 0, 0)
 {
-};
+}
 
 uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
   Player* player = player::get_player(player_id);
@@ -185,6 +195,10 @@ void unit::change_direction(uint32_t id, const sf::Vector3i& target) {
   Unit* u = get_unit(id);
   if (!u) return;
   u->m_direction = target - u->m_location;
+}
+
+size_t unit::size() {
+  return s_units.size();
 }
 
 void unit::reset() {

@@ -92,7 +92,47 @@ extern "C" {
     return count;
   }
 
-  Tile* simulations_tiles_create() {
+  Unit* simulation_units_create() {
+    Unit* units = new Unit[unit::size()];
+    return units;
+  }
+
+  void simulation_units_sync(Unit* units) {
+    int i = 0;
+    unit::for_each_unit([&units, &i](const Unit& unit) {
+      units[i++] = unit;
+    });
+  }
+
+  void simulation_units_free(Unit* units) {
+    delete[] units;
+  }
+
+  int simulation_units_size() {
+    return unit::size();
+  }
+
+  int simulation_units_x(Unit* units, int i) {
+    return units[i].m_location.x;
+  }
+
+  int simulation_units_y(Unit* units, int i) {
+    return units[i].m_location.y;
+  }
+
+  int simulation_units_z(Unit* units, int i) {
+    return units[i].m_location.z;
+  }
+
+  unsigned int simulation_units_id(Unit* units, int i) {
+    return units[i].m_id;
+  }
+
+  unsigned int simulation_units_owner_id(Unit* units, int i) {
+    return units[i].m_owner_id;
+  }
+
+  Tile* simulation_tiles_create() {
     world_map::TileMap& map = world_map::get_map();
     Tile* tiles = new Tile[map.size()];
     return tiles;
@@ -110,7 +150,7 @@ extern "C" {
     delete[] tiles;
   }
 
-  int simulation_tiles_size(Tile* tiles) {
+  int simulation_tiles_size() {
     return world_map::get_map().size();
   }
 

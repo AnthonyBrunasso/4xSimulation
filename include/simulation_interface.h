@@ -3,6 +3,7 @@
 #include "flatbuffers/flatbuffers.h"
 #include "step_generated.h"
 #include "tile.h"
+#include "unit.h"
 
 namespace simulation_interface {
   void start();
@@ -23,11 +24,22 @@ extern "C" {
   // Player
   __declspec(dllexport) int simulation_players_size();
 
+  // Unit
+  __declspec(dllexport) Unit* simulation_units_create();
+  __declspec(dllexport) void simulation_units_sync(Unit* units);
+  __declspec(dllexport) void simulation_units_free(Unit* units);
+  __declspec(dllexport) int simulation_units_size();
+  __declspec(dllexport) int simulation_units_x(Unit* units, int i);
+  __declspec(dllexport) int simulation_units_y(Unit* units, int i);
+  __declspec(dllexport) int simulation_units_z(Unit* units, int i);
+  __declspec(dllexport) unsigned int simulation_units_id(Unit* units, int i);
+  __declspec(dllexport) unsigned int simulation_units_owner_id(Unit* units, int i);
+
   // Tile Map
-  __declspec(dllexport) Tile* simulations_tiles_create();
+  __declspec(dllexport) Tile* simulation_tiles_create();
   __declspec(dllexport) void simulation_tiles_sync(Tile* tiles);
   __declspec(dllexport) void simulation_tiles_free(Tile* tiles);
-  __declspec(dllexport) int simulation_tiles_size(Tile* tiles);
+  __declspec(dllexport) int simulation_tiles_size();
   __declspec(dllexport) int simulation_tiles_x(Tile* tiles, int i);
   __declspec(dllexport) int simulation_tiles_y(Tile* tiles, int i);
   __declspec(dllexport) int simulation_tiles_z(Tile* tiles, int i);

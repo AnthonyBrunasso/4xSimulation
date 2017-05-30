@@ -17,6 +17,7 @@ namespace fbs {
 
 class Unit {
 public:
+  Unit();
   explicit Unit(uint32_t unique_id);
 
   fbs::UNIT_TYPE m_type;
@@ -70,6 +71,8 @@ namespace unit {
 
   // Changes direction towards target, doesn't normalize direction.
   void change_direction(uint32_t id, const sf::Vector3i& target);
+
+  size_t size();
 
   void reset();
 }
