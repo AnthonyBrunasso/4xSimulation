@@ -19,6 +19,7 @@
 #include "random.h"
 #include "resources.h"
 #include "search.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "tile_costs.h"
 #include "unique_id.h"
@@ -149,7 +150,7 @@ namespace {
   }
 
   void set_city_requirements() {
-    city::add_requirement(BUILDING_TYPE::TOWN, town_requirement);
+    city::add_requirement(fbs::BUILDING_TYPE::TOWN, town_requirement);
   }
 }
 

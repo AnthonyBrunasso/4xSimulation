@@ -12,6 +12,10 @@
 class ConstructionQueueFIFO;
 struct TerrainYield;
 
+namespace fbs {
+  enum class BUILDING_TYPE : uint32_t;
+}
+
 class City {
 public:
   explicit City(uint32_t id);
@@ -64,9 +68,9 @@ namespace city {
   float population_size_from_food(float food);
 
   // Access
-  void add_requirement(BUILDING_TYPE type, 
+  void add_requirement(fbs::BUILDING_TYPE type, 
     std::function<bool(const sf::Vector3i&, uint32_t)> requirement);
-  uint32_t create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
+  uint32_t create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
   void sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub);

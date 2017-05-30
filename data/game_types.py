@@ -7,7 +7,7 @@ RESOURCE     = "RESOURCE"
 IMPROVEMENT  = "IMPROVEMENT"
 TERRAIN      = "TERRAIN"
 UNIT         = "UNIT"
-BUILDING     = "BUILDING"
+# BUILDING     = "BUILDING"
 # CONSTRUCTION = "CONSTRUCTION"
 # AI           = "AI"
 # AI_ORDER     = "AI_ORDER"
@@ -51,7 +51,7 @@ add_gametype(UNIT, 'Worker' , 4)
 add_gametype(UNIT, 'Monster', 5)
 add_gametype(UNIT, 'Wizard', 6)
 
-add_gametype(BUILDING, 'Town', 1)
+# add_gametype(BUILDING, 'Town', 1)
 
 # add_gametype(CONSTRUCTION, 'Granary', 1)
 # add_gametype(CONSTRUCTION, 'Range'  , 2)

@@ -307,7 +307,7 @@ namespace simulation {
     });
     if (too_close) return;
 
-    uint32_t id = city::create(BUILDING_TYPE::TOWN, location, player_id);
+    uint32_t id = city::create(fbs::BUILDING_TYPE::TOWN, location, player_id);
     if (!id) {
       // Colonization failed.
       return;
