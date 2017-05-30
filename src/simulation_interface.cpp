@@ -64,6 +64,10 @@ namespace simulation_interface {
 }
 
 extern "C" {
+  void simulation_reset() {
+    simulation::reset();
+  }
+
   void simulation_start() {
     simulation_interface::start();
   }

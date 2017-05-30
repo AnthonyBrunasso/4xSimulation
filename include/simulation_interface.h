@@ -14,6 +14,7 @@ namespace simulation_interface {
 
 extern "C" {
   // Simulation steps (mostly)
+  __declspec(dllexport) void simulation_reset();
   __declspec(dllexport) void simulation_start();
   __declspec(dllexport) void simulation_end();
   __declspec(dllexport) void simulation_start_faceoff();
