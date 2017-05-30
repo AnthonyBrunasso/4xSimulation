@@ -37,16 +37,16 @@ namespace simulation_interface {
   void start_faceoff() {
     const size_t BUFFER_LEN = 512;
     char buffer[BUFFER_LEN];
-    SCENARIO_TYPE scenario_type = SCENARIO_TYPE::FACEOFF;
+    fbs::SCENARIO_TYPE scenario_type = fbs::SCENARIO_TYPE::FACEOFF;
     flatbuffers::Offset<fbs::ScenarioStep> scenario_step = fbs::CreateScenarioStep(GetFBB(), (fbs::SCENARIO_TYPE)scenario_type);
     copy_to_netbuffer(fbs::StepUnion::ScenarioStep, scenario_step.Union(), buffer, BUFFER_LEN);
     simulation::process_step(buffer, BUFFER_LEN);
   }
 
-  void join_player(AI_TYPE type, const std::string& name) {
+  void join_player(fbs::AI_TYPE type, const std::string& name) {
     const size_t BUFFER_LEN = 512;
     char buffer[BUFFER_LEN];
-    AI_TYPE ai_type = type;
+    fbs::AI_TYPE ai_type = type;
     flatbuffers::Offset<flatbuffers::String> fbs_name = GetFBB().CreateString(name);
     flatbuffers::Offset<fbs::AddPlayerStep> add_player_step = fbs::CreateAddPlayerStep(GetFBB(), fbs_name, (fbs::AI_TYPE)ai_type);
     copy_to_netbuffer(fbs::StepUnion::AddPlayerStep, add_player_step.Union(), buffer, BUFFER_LEN);
@@ -72,11 +72,11 @@ extern "C" {
   }
 
   void simulation_join_barbarian(const char* name) {
-    simulation_interface::join_player(AI_TYPE::BARBARIAN, name);
+    simulation_interface::join_player(fbs::AI_TYPE::BARBARIAN, name);
   }
 
   void simulation_join_player(const char* name) {
-    simulation_interface::join_player(AI_TYPE::HUMAN, name);
+    simulation_interface::join_player(fbs::AI_TYPE::HUMAN, name);
   }
 
   int simulation_count_players() {
