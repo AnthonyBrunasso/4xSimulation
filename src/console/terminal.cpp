@@ -331,9 +331,12 @@ namespace terminal  {
 
     terminal::add_query("terrain_types", "terrain_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_terrain_type([](TERRAIN_TYPE terrain) {
-        std::cout << static_cast<int32_t>(terrain) << ": " << get_terrain_name(terrain) << std::endl;
+      auto check = ([](fbs::TERRAIN_TYPE terrain) {
+        std::cout << static_cast<int32_t>(terrain) << ": " << fbs::EnumNameTERRAIN_TYPE(terrain) << std::endl;
       });
+      for (auto tt : fbs::EnumValuesTERRAIN_TYPE()) {
+        check(tt);
+      }
       return true;
     });
 

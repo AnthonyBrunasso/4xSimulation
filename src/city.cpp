@@ -41,7 +41,7 @@ City::City(uint32_t id)
 , m_damage(0.f)
 , m_razing(false)
 , m_defenses_used(false)
-, m_specialization(TERRAIN_TYPE::UNKNOWN)
+, m_specialization(fbs::TERRAIN_TYPE::UNKNOWN)
 , m_production_id(0)
 { 
 }
@@ -50,12 +50,12 @@ bool City::CanSpecialize() const {
   return (m_experience > 3.0f);
 }
 
-bool City::SetSpecialization(TERRAIN_TYPE type) {
+bool City::SetSpecialization(fbs::TERRAIN_TYPE type) {
   if (!CanSpecialize()) {
     return false;
   }
   // May only be set once
-  if (m_specialization != TERRAIN_TYPE::UNKNOWN) {
+  if (m_specialization != fbs::TERRAIN_TYPE::UNKNOWN) {
     return false;
   }
   m_specialization = type;
@@ -310,7 +310,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
     n.m_id = id;
     events.push_back(n);
   }
-  if (c->m_specialization == TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
+  if (c->m_specialization == fbs::TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
     Notification n;
     n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_SPECIALIZE;
     n.m_id = id;

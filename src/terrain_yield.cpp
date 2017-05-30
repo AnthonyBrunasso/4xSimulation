@@ -15,6 +15,7 @@
 #include "game_types.h"
 #include "improvement.h"
 #include "resources.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "world_map.h"
 
@@ -57,7 +58,7 @@ namespace terrain_yield {
 }
 
 TerrainYield::TerrainYield()
-: m_type(TERRAIN_TYPE::UNKNOWN)
+: m_type(fbs::TERRAIN_TYPE::UNKNOWN)
 , m_food(0.f)
 , m_production(0.f)
 , m_science(0.f)
@@ -89,7 +90,7 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
 
 std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {
   out << "TerrainYield "
-      << ((ty.m_type != TERRAIN_TYPE::UNKNOWN)?get_terrain_name(ty.m_type):"")
+      << ((ty.m_type != fbs::TERRAIN_TYPE::UNKNOWN)?fbs::EnumNameTERRAIN_TYPE(ty.m_type):"")
       << "(" << ty.m_food << " Food) "
       << "(" << ty.m_production << " Prod) "
       << "(" << ty.m_science << " Sci) "
@@ -172,18 +173,18 @@ namespace terrain_yield {
   
   typedef std::unordered_map<int32_t, std::function<void (TerrainYield&)> > YieldFunctions;
   static YieldFunctions s_defaultYieldFn{
-    {static_cast<int32_t>(TERRAIN_TYPE::DESERT), &DesertYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::GRASSLAND), &GrasslandYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::MOUNTAIN), &MountainYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterYield},
   };
   static YieldFunctions s_specializeYieldFn{
-    {static_cast<int32_t>(TERRAIN_TYPE::DESERT), &DesertSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterSpecialization},
   };
   static YieldFunctions s_resourceYieldFn{
     {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
@@ -227,7 +228,7 @@ namespace terrain_yield {
     return t;
   }
 
-  TerrainYield get_yield(const sf::Vector3i& loc, TERRAIN_TYPE spec) {
+  TerrainYield get_yield(const sf::Vector3i& loc, fbs::TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();
     Tile* tile = world_map::get_tile(loc);
     if (!tile) {
@@ -257,7 +258,7 @@ namespace terrain_yield {
   }
 }
 
-TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
+TerrainYield terrain_yield::get_base_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
   base.m_type = type;
   const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(type));
@@ -269,7 +270,7 @@ TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
   return base;
 }
 
-TerrainYield terrain_yield::get_specialization_yield(TERRAIN_TYPE type) {
+TerrainYield terrain_yield::get_specialization_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
   const auto& findIt = s_specializeYieldFn.find(static_cast<int32_t>(type));
   if (findIt == s_specializeYieldFn.end()) {

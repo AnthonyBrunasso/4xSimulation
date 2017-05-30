@@ -2,7 +2,9 @@
 #include <iostream>
 
 class City;
-enum class TERRAIN_TYPE;
+namespace fbs {
+  enum class TERRAIN_TYPE : uint32_t;
+};
 enum class RESOURCE_TYPE;
 
 struct TerrainYield
@@ -11,7 +13,7 @@ struct TerrainYield
 
   void operator+=(const TerrainYield& rhs);
 
-  TERRAIN_TYPE m_type;
+  fbs::TERRAIN_TYPE m_type;
   float m_food;
   float m_production;
   float m_science;
@@ -28,9 +30,9 @@ namespace terrain_yield {
   bool add_harvest(sf::Vector3i& loc, City*);
   void remove_harvest(sf::Vector3i& loc);
 
-  TerrainYield get_yield(const sf::Vector3i& loc, TERRAIN_TYPE specialization);
-  TerrainYield get_base_yield(TERRAIN_TYPE type);
-  TerrainYield get_specialization_yield(TERRAIN_TYPE type);
+  TerrainYield get_yield(const sf::Vector3i& loc, fbs::TERRAIN_TYPE specialization);
+  TerrainYield get_base_yield(fbs::TERRAIN_TYPE type);
+  TerrainYield get_specialization_yield(fbs::TERRAIN_TYPE type);
   TerrainYield get_resource_yield(RESOURCE_TYPE);
 
   void reset();

@@ -5,7 +5,7 @@ from store import add_gametype
 
 RESOURCE     = "RESOURCE"
 IMPROVEMENT  = "IMPROVEMENT"
-TERRAIN      = "TERRAIN"
+# TERRAIN      = "TERRAIN"
 # UNIT         = "UNIT"
 # BUILDING     = "BUILDING"
 # CONSTRUCTION = "CONSTRUCTION"
@@ -38,11 +38,11 @@ add_gametype(IMPROVEMENT, 'Plantation', 4)
 add_gametype(IMPROVEMENT, 'Quarry', 5)
 add_gametype(IMPROVEMENT, 'Fish_Boats', 6)
 
-add_gametype(TERRAIN, 'Desert'   , ord('d') - ord('a'))
-add_gametype(TERRAIN, 'Grassland', ord('g') - ord('a'))
-add_gametype(TERRAIN, 'Mountain' , ord('m') - ord('a'))
-add_gametype(TERRAIN, 'Plains'   , ord('p') - ord('a'))
-add_gametype(TERRAIN, 'Water'    , ord('w') - ord('a'))
+# add_gametype(TERRAIN, 'Desert'   , ord('d') - ord('a'))
+# add_gametype(TERRAIN, 'Grassland', ord('g') - ord('a'))
+# add_gametype(TERRAIN, 'Mountain' , ord('m') - ord('a'))
+# add_gametype(TERRAIN, 'Plains'   , ord('p') - ord('a'))
+# add_gametype(TERRAIN, 'Water'    , ord('w') - ord('a'))
 
 # add_gametype(UNIT, 'Scout'  , 1)
 # add_gametype(UNIT, 'Archer' , 2)

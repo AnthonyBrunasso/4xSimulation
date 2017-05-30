@@ -427,7 +427,7 @@ namespace simulation {
       return;
     }
     if (terrain_yield::add_harvest(destination, city)) {
-      std::cout << "City (" << city->m_id << ") is now harvesting from " << get_terrain_name(tile->m_terrain_type) << "." << std::endl;
+      std::cout << "City (" << city->m_id << ") is now harvesting from " << fbs::EnumNameTERRAIN_TYPE(tile->m_terrain_type) << "." << std::endl;
       return;
     }
   }
@@ -465,8 +465,8 @@ namespace simulation {
       std::cout << "City is not ready for specialization." << std::endl;
       return;
     }
-    if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(terrain_type))) {
-      std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(terrain_type)) << std::endl;
+    if (city->SetSpecialization(static_cast<fbs::TERRAIN_TYPE>(terrain_type))) {
+      std::cout << "City has specialized in " << fbs::EnumNameTERRAIN_TYPE(static_cast<fbs::TERRAIN_TYPE>(terrain_type)) << std::endl;
     }
   }
 

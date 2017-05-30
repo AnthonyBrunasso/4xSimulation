@@ -9,6 +9,10 @@
 #include "game_types.h"
 #include "resources.h"
 
+namespace fbs {
+  enum class TERRAIN_TYPE : uint32_t;
+}
+
 // Tiles contain -
 // * unique id : to identify any improvements on the tile
 // * terrain id: to identify any special geogrpahic properties of the tile
@@ -20,7 +24,7 @@ public:
 
   bool HasResource(RESOURCE_TYPE res);
 
-  TERRAIN_TYPE m_terrain_type;
+  fbs::TERRAIN_TYPE m_terrain_type;
 
   // Multiple unit can be contained on a tile, ex: Worker and warrior
   std::vector<uint32_t> m_unit_ids;

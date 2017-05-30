@@ -315,7 +315,7 @@ namespace step_parser {
         terrain_type = (std::stoul(tokens[2]));
       }
       else {
-        terrain_type = (util::enum_to_uint(get_terrain_type(tokens[2])));
+        terrain_type = (util::enum_to_uint(util::enum_from_names<fbs::TERRAIN_TYPE>(tokens[2], fbs::EnumNamesTERRAIN_TYPE())));
       }
       flatbuffers::Offset<fbs::SpecializeStep> specialize_step = fbs::CreateSpecializeStep(GetFBB(), city_id, terrain_type, s_active_player);
       copy_to_netbuffer(fbs::StepUnion::SpecializeStep, specialize_step.Union());

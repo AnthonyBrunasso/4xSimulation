@@ -14,6 +14,7 @@ struct TerrainYield;
 
 namespace fbs {
   enum class BUILDING_TYPE : uint32_t;
+  enum class TERRAIN_TYPE : uint32_t;
 }
 
 class City {
@@ -22,7 +23,7 @@ public:
   City(const City&) = default;
 
   bool CanSpecialize() const;
-  bool SetSpecialization(TERRAIN_TYPE type);
+  bool SetSpecialization(fbs::TERRAIN_TYPE type);
 
   void Siege(float damage);
   bool Capture();
@@ -56,7 +57,7 @@ public:
   float m_damage;
   bool m_razing;
   bool m_defenses_used;
-  TERRAIN_TYPE m_specialization;
+  fbs::TERRAIN_TYPE m_specialization;
   uint32_t m_production_id;
   std::vector<sf::Vector3i> m_yield_tiles;
   uint32_t m_owner_id;

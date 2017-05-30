@@ -206,7 +206,7 @@ bool world_map::load_file(const std::string& name) {
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
 
-    TERRAIN_TYPE terrain_type = static_cast<TERRAIN_TYPE>(*data);
+    fbs::TERRAIN_TYPE terrain_type = static_cast<fbs::TERRAIN_TYPE>(*data);
     tile.m_terrain_type = terrain_type;
     tile.m_path_cost = tile_costs::get(terrain_type);
   }
