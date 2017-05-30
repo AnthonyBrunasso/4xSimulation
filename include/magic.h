@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "Vector3.hpp"
-#include "game_types.h"
+
 #include "step_generated.h"
 
 namespace magic {

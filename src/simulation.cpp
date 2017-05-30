@@ -16,7 +16,7 @@
 #include "combat.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "magic.h"

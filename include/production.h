@@ -8,7 +8,7 @@
 #include <list>
 #include <vector>
 
-#include "game_types.h"
+
 
 class ConstructionOrder;
 class ConstructionQueueFIFO;

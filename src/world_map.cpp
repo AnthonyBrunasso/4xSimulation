@@ -13,7 +13,7 @@
 #include "ai_barbarians.h"
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "improvement.h"
 #include "player.h"
 #include "random.h"

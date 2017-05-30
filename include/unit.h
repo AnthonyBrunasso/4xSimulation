@@ -6,7 +6,7 @@
 
 #include "Vector3.hpp"
 #include "combat.h"
-#include "game_types.h"
+
 #include "unique_id.h"
 #include "util.h"
 

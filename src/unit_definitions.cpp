@@ -5,7 +5,7 @@
 #include <utility>
 
 #include "combat.h"
-#include "game_types.h"
+
 #include "step_generated.h"
 #include "util.h"
 

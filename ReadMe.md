@@ -1,25 +1,20 @@
 # 4xSimulation
 
-Prebuild steps:
-
-```sh
-cd tools
-python serialization.py
-```
-
 Build with Cmake:
 ```sh
-From root directory, make a build directory to store all build related artifacts.
+
+Windows:
 mkdir build
 cd build
-If on windows:
 cmake ..\ -G "Visual Studio 14 Win64"
 Start 4xSimulation.sln and build
-If not on windows:
+Linux / Mac:
+mkdir build
+cd build
 cmake ../
 make
 cd src
-./4xSimulation
+./4xsim
 ```
 ### Multiplayer (requires python3)
 python binary_network_server.py

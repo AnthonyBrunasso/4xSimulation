@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "game_types.h"
+
 
 namespace fbs {
   enum class RESOURCE_TYPE : uint32_t;

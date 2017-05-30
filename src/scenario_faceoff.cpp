@@ -7,7 +7,7 @@
 
 #include "Vector3.hpp"
 #include "ai_barbarians.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "step_generated.h"
 #include "unit.h"

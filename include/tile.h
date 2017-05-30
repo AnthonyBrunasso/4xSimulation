@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Vector3.hpp"
-#include "game_types.h"
+
 #include "resources.h"
 
 namespace fbs {

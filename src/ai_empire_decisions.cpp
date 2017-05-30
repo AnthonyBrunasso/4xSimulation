@@ -13,7 +13,7 @@
 #include "city.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "production.h"
 #include "random.h"

@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #include "dtree.h"
-#include "game_types.h"
+
 
 namespace fbs {
   enum class CONSTRUCTION_TYPE : uint32_t;

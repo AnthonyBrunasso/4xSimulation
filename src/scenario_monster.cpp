@@ -4,7 +4,7 @@
 
 #include "Vector3.hpp"
 #include "combat.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "status_effect.h"
 #include "step_generated.h"

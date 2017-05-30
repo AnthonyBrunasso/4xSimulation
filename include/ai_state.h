@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Vector3.hpp"
-#include "game_types.h"
+
 
 namespace fbs {
   enum class AI_ORDER_TYPE : uint32_t;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Vector3.hpp"
-#include "game_types.h"
+
 
 #include <string>
 #include <cstdint>

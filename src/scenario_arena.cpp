@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "city.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "step_generated.h"
 #include "unit.h"

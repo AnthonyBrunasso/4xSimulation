@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "game_types.h"
+
 #include "player.h"
 #include "step_generated.h"
 

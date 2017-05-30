@@ -12,7 +12,7 @@
 #include "Vector3.hpp"
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"

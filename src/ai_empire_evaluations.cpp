@@ -11,7 +11,7 @@
 #include "ai_state.h"
 #include "city.h"
 #include "combat.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"

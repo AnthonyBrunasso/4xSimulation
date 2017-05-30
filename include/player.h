@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "game_types.h"
+
 #include "resources.h"
 
 class AIState;

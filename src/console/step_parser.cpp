@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "format.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "step_generated.h"
 #include "util.h"

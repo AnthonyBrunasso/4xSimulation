@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-#include "game_types.h"
+
 #include "resources.h"
 
 namespace fbs {

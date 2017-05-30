@@ -12,7 +12,7 @@
 
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "improvement.h"
 #include "resources.h"
 #include "step_generated.h"

@@ -1,6 +1,6 @@
 #include "scenario.h"
 
-#include "game_types.h"
+
 #include "scenario_monster.h"
 #include "scenario_arena.h"
 #include "scenario_citylife.h"
