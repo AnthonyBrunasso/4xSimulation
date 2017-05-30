@@ -24,7 +24,7 @@ void scenario_monster::start() {
   }
   sf::Vector3i loc(0, 0, 0);
   auto summon_monster = [loc]() {
-    uint32_t id = unit::create(UNIT_TYPE::MONSTER, loc, s_monster_id);
+    uint32_t id = unit::create(fbs::UNIT_TYPE::MONSTER, loc, s_monster_id);
     // Get the monster and apply its channeled power to health and attack :O.
     Unit* u = unit::get_unit(id);
     if (!u) return;

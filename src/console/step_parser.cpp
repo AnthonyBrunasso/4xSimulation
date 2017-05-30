@@ -330,7 +330,7 @@ namespace step_parser {
       }
       // Else treat it as the name of what needs to be spawned.
       else {
-        unit_type = util::enum_to_uint(get_unit_type(tokens[1]));
+        unit_type = util::enum_to_uint(util::enum_from_names<fbs::UNIT_TYPE>(tokens[1], fbs::EnumNamesUNIT_TYPE()));
       }
       fbs::v3i unitLoc = str_to_v3i(tokens[2], tokens[3], tokens[4]);
 

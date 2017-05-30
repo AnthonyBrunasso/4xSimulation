@@ -12,20 +12,15 @@
 
 class Player;
 
+namespace fbs {
+  enum class UNIT_TYPE : uint32_t;
+}
+
 class Unit {
 public:
-  explicit Unit(uint32_t unique_id) 
-    : m_type(UNIT_TYPE::UNKNOWN)
-    , m_id(unique_id)
-    , m_location()
-    , m_path()
-    , m_action_points(0)
-    , m_owner_id(unique_id::INVALID_PLAYER)
-    , m_direction(0, 0, 0)
-  {
-  };
+  explicit Unit(uint32_t unique_id);
 
-  UNIT_TYPE m_type;
+  fbs::UNIT_TYPE m_type;
   uint32_t m_id;
   sf::Vector3i m_location;
   // Current path the unit is on, size is 0 if the unit is not moving
@@ -55,7 +50,7 @@ struct UnitFatality
 };
 
 namespace unit {
-  uint32_t create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
+  uint32_t create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id);
   // Subscribe to creation of a unit
   void sub_create(std::function<void(Unit*)> sub);
   bool destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_player_id);

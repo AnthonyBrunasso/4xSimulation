@@ -127,7 +127,7 @@ namespace {
     for (auto id : tile->m_unit_ids) {
       Unit* unit = unit::get_unit(id);
       if (!unit) continue;
-      if (unit->m_type == UNIT_TYPE::WORKER) {
+      if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
         // Get the player and check that the player owns this unit.
         if (player->OwnsUnit(unit->m_id)) {
           return true;

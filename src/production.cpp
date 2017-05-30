@@ -173,19 +173,19 @@ namespace production {
     uint32_t unit_id;
     switch (type_id) {
     case fbs::CONSTRUCTION_TYPE::SCOUT:
-      unit_id = unit::create(UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
+      unit_id = unit::create(fbs::UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
       break;
     case fbs::CONSTRUCTION_TYPE::RANGE:
-      unit_id = unit::create(UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
+      unit_id = unit::create(fbs::UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
       break;
     case fbs::CONSTRUCTION_TYPE::MELEE:
-      unit_id = unit::create(UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
+      unit_id = unit::create(fbs::UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
       break;
     case fbs::CONSTRUCTION_TYPE::WORKER:
-      unit_id = unit::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
+      unit_id = unit::create(fbs::UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
       break;
     case fbs::CONSTRUCTION_TYPE::CASTER:
-      unit_id = unit::create(UNIT_TYPE::WIZARD, city->m_location, city->m_owner_id);
+      unit_id = unit::create(fbs::UNIT_TYPE::WIZARD, city->m_location, city->m_owner_id);
       break;
     default:
       return;

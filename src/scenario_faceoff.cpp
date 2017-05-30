@@ -9,6 +9,7 @@
 #include "ai_barbarians.h"
 #include "game_types.h"
 #include "player.h"
+#include "step_generated.h"
 #include "unit.h"
 #include "util.h"
 
@@ -18,11 +19,11 @@ namespace scenario_faceoff
   PlayerScore s_player_score;
   bool s_active;
 
-  uint32_t score(UNIT_TYPE ut);
+  uint32_t score(fbs::UNIT_TYPE ut);
   void dead_unit(UnitFatality* uf);
 };
 
-uint32_t scenario_faceoff::score(UNIT_TYPE ut)
+uint32_t scenario_faceoff::score(fbs::UNIT_TYPE ut)
 {
   return 1;
 }
@@ -55,11 +56,11 @@ void scenario_faceoff::start() {
 
   barbarians::disable_macro_behavior();
   
-  std::vector<uint32_t> unit_types = { util::enum_to_uint(UNIT_TYPE::ARCHER),
-    util::enum_to_uint(UNIT_TYPE::ARCHER),
-    util::enum_to_uint(UNIT_TYPE::PHALANX),
-    util::enum_to_uint(UNIT_TYPE::SCOUT),
-    util::enum_to_uint(UNIT_TYPE::PHALANX)};
+  std::vector<uint32_t> unit_types = { util::enum_to_uint(fbs::UNIT_TYPE::ARCHER),
+    util::enum_to_uint(fbs::UNIT_TYPE::ARCHER),
+    util::enum_to_uint(fbs::UNIT_TYPE::PHALANX),
+    util::enum_to_uint(fbs::UNIT_TYPE::SCOUT),
+    util::enum_to_uint(fbs::UNIT_TYPE::PHALANX)};
   std::vector<sf::Vector3i> p0_locations = { sf::Vector3i(5, -10, 5),
     sf::Vector3i(6, -10, 4),
     sf::Vector3i(4, -9, 5),
@@ -73,11 +74,11 @@ void scenario_faceoff::start() {
 
   for (int i = 0; i < p0_locations.size(); ++i)
   {
-    unit::create(util::uint_to_enum<UNIT_TYPE>(unit_types[i]), p0_locations[i], 0);
+    unit::create(util::uint_to_enum<fbs::UNIT_TYPE>(unit_types[i]), p0_locations[i], 0);
   }
   for (int i = 0; i < p1_locations.size(); ++i)
   {
-    unit::create(util::uint_to_enum<UNIT_TYPE>(unit_types[i]), p1_locations[i], 1);
+    unit::create(util::uint_to_enum<fbs::UNIT_TYPE>(unit_types[i]), p1_locations[i], 1);
   }
 
   unit::sub_destroy(dead_unit);

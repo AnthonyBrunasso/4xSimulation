@@ -81,7 +81,7 @@ void magic::initialize() {
   auto fireball_requirements = [](uint32_t player_id, const sf::Vector3i& location) {
     auto find_wizard = [player_id](const Unit& u) {
       if (u.m_owner_id != player_id) return false;
-      if (u.m_type != UNIT_TYPE::WIZARD) return false;
+      if (u.m_type != fbs::UNIT_TYPE::WIZARD) return false;
       return true;
     };
 

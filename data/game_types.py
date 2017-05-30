@@ -6,7 +6,7 @@ from store import add_gametype
 RESOURCE     = "RESOURCE"
 IMPROVEMENT  = "IMPROVEMENT"
 TERRAIN      = "TERRAIN"
-UNIT         = "UNIT"
+# UNIT         = "UNIT"
 # BUILDING     = "BUILDING"
 # CONSTRUCTION = "CONSTRUCTION"
 # AI           = "AI"
@@ -44,12 +44,12 @@ add_gametype(TERRAIN, 'Mountain' , ord('m') - ord('a'))
 add_gametype(TERRAIN, 'Plains'   , ord('p') - ord('a'))
 add_gametype(TERRAIN, 'Water'    , ord('w') - ord('a'))
 
-add_gametype(UNIT, 'Scout'  , 1)
-add_gametype(UNIT, 'Archer' , 2)
-add_gametype(UNIT, 'Phalanx', 3)
-add_gametype(UNIT, 'Worker' , 4)
-add_gametype(UNIT, 'Monster', 5)
-add_gametype(UNIT, 'Wizard', 6)
+# add_gametype(UNIT, 'Scout'  , 1)
+# add_gametype(UNIT, 'Archer' , 2)
+# add_gametype(UNIT, 'Phalanx', 3)
+# add_gametype(UNIT, 'Worker' , 4)
+# add_gametype(UNIT, 'Monster', 5)
+# add_gametype(UNIT, 'Wizard', 6)
 
 # add_gametype(BUILDING, 'Town', 1)
 

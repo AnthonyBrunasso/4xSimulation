@@ -8,6 +8,7 @@
 
 #include "combat.h"
 #include "player.h"
+#include "step_generated.h"
 #include "unique_id.h"
 #include "unit_definitions.h"
 
@@ -20,7 +21,18 @@ namespace {
   SubMap s_create_subs;
 }
 
-uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
+Unit::Unit(uint32_t unique_id) 
+: m_type(fbs::UNIT_TYPE::UNKNOWN)
+, m_id(unique_id)
+, m_location()
+, m_path()
+, m_action_points(0)
+, m_owner_id(unique_id::INVALID_PLAYER)
+, m_direction(0, 0, 0)
+{
+};
+
+uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_t player_id) {
   Player* player = player::get_player(player_id);
   if (!player) {
     return 0;
@@ -42,7 +54,7 @@ uint32_t unit::create(UNIT_TYPE unit_type, const sf::Vector3i& location, uint32_
   // Add the unit to storage and the world map.
   s_units[id] = unit;
   player::add_unit(player_id, id);
-  std::cout << "Created unit id " << id << ", entity type: " << get_unit_name(unit_type) << std::endl;
+  std::cout << "Created unit id " << id << ", entity type: " << fbs::EnumNameUNIT_TYPE(unit_type) << std::endl;
 
   for (auto& sub : s_create_subs) {
     sub(unit);

@@ -315,8 +315,8 @@ namespace terminal  {
 
     terminal::add_query("definitions", "definitions", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      unit_definitions::for_each_definition([](UNIT_TYPE type, const CombatStats& stats) {
-        std::cout << get_unit_name(type) << ": " << format::combat_stats(stats) << std::endl;
+      unit_definitions::for_each_definition([](fbs::UNIT_TYPE type, const CombatStats& stats) {
+        std::cout << fbs::EnumNameUNIT_TYPE(type) << ": " << format::combat_stats(stats) << std::endl;
       });
       return true;
     });
@@ -356,9 +356,12 @@ namespace terminal  {
     
     terminal::add_query("unit_types", "unit_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_unit_type([](UNIT_TYPE unit) {
-        std::cout << static_cast<int32_t>(unit) << ": " << get_unit_name(unit) << std::endl;
+      auto check = ([](fbs::UNIT_TYPE unit) {
+        std::cout << static_cast<int32_t>(unit) << ": " << fbs::EnumNameUNIT_TYPE(unit) << std::endl;
       });
+      for (auto ut : fbs::EnumValuesUNIT_TYPE()) {
+        check(ut);
+      }
       return true;
     });   
     
