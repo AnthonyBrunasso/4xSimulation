@@ -2,6 +2,9 @@
 
 #include "step_generated.h"
 #include "simulation.h"
+#include "random.h"
+#include "player.h"
+#include "world_map.h"
 
 #include <iostream>
 
@@ -24,6 +27,11 @@ namespace simulation_interface {
 
     std::memcpy(buffer, GetFBB().GetBufferPointer(), GetFBB().GetSize());
     GetFBB().Clear();
+  }
+
+  void start() {
+    game_random::set_seed(3);
+    simulation::start();
   }
 
   void start_faceoff() {
@@ -51,5 +59,65 @@ namespace simulation_interface {
     flatbuffers::Offset<fbs::EndTurnStep> end_turn_step = fbs::CreateEndTurnStep(GetFBB(), player_id, next_player);
     copy_to_netbuffer(fbs::StepUnion::EndTurnStep, end_turn_step.Union(), buffer, BUFFER_LEN);
     simulation::process_step(buffer, BUFFER_LEN);
+  }
+}
+
+extern "C" {
+  void simulation_start() {
+    simulation_interface::start();
+  }
+
+  void simulation_start_faceoff() {
+    simulation_interface::start_faceoff();
+  }
+
+  void simulation_join_barbarian(const char* name) {
+    simulation_interface::join_player(AI_TYPE::BARBARIAN, name);
+  }
+
+  void simulation_join_player(const char* name) {
+    simulation_interface::join_player(AI_TYPE::HUMAN, name);
+  }
+
+  int simulation_count_players() {
+    int count = 0;
+    player::for_each_player([&count](Player& player) {
+      ++count;
+    });
+    return count;
+  }
+
+  Tile* simulation_create_tiles() {
+    world_map::TileMap& map = world_map::get_map();
+    Tile* tiles = new Tile[map.size()];
+    return tiles;
+  }
+
+  void simulation_sync_tiles(Tile* tiles) {
+    world_map::TileMap& map = world_map::get_map();
+    int i = 0;
+    for (const auto& tile : map) {
+      tiles[i++] = tile.second;
+    }
+  }
+
+  void simulation_free_tiles(Tile* tiles) {
+    delete[] tiles;
+  }
+
+  int simulation_tiles_size(Tile* tiles) {
+    return world_map::get_map().size();
+  }
+
+  int simulation_tile_x(Tile* tiles, int i) {
+    return tiles[i].m_location.x;
+  }
+
+  int simulation_tile_y(Tile* tiles, int i) {
+    return tiles[i].m_location.y;
+  }
+
+  int simulation_tile_z(Tile* tiles, int i) {
+    return tiles[i].m_location.z;
   }
 }

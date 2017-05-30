@@ -33,6 +33,7 @@ fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
 add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
+add_library(4xdll SHARED ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
 add_executable(4xsim ${console_sources})
 add_executable(4xlearn ${learn_sources})
 add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
