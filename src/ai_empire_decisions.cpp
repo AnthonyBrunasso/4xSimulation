@@ -13,7 +13,7 @@
 #include "city.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "player.h"
 #include "production.h"
 #include "random.h"
@@ -54,7 +54,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
   // Create a worker, for now, on that tile then a city
   flatbuffers::Offset<fbs::SpawnStep> spawn_step;
-  uint32_t unit_type = (util::enum_to_uint(UNIT_TYPE::WORKER));
+  uint32_t unit_type = (util::enum_to_uint(fbs::UNIT_TYPE::WORKER));
   fbs::v3i location(new_home.x, new_home.y, new_home.z);
   spawn_step = fbs::CreateSpawnStep(ai_shared::GetFBB(), unit_type, &location, player_id);
   ai_shared::simulate_step(fbs::StepUnion::SpawnStep, spawn_step.Union());
@@ -69,7 +69,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
 
   // TEMPORARY: Construct the barbarian and uber forge.
   flatbuffers::Offset<fbs::ConstructionStep> forge;
-  uint32_t production_id = (util::enum_to_uint(CONSTRUCTION_TYPE::FORGE));
+  uint32_t production_id = (util::enum_to_uint(fbs::CONSTRUCTION_TYPE::FORGE));
   bool cheat = true;
   forge = fbs::CreateConstructionStep(ai_shared::GetFBB(), city_id, production_id, cheat, player_id);
   ai_shared::simulate_step(fbs::StepUnion::ConstructionStep, forge.Union());
@@ -86,7 +86,7 @@ void EmpireConstruct::operator()(uint32_t player_id) {
     if (!city) continue;
     // Begin construction of the production type in all available cities.
     if (!city->IsConstructing()) {
-      std::cout << current->m_name << " beginning construction of: " << get_construction_name(m_production_type) <<
+      std::cout << current->m_name << " beginning construction of: " << fbs::EnumNameCONSTRUCTION_TYPE(m_production_type) <<
         " in city: " << city->m_id << std::endl;
       production_queue::add(city->GetProductionQueue(), m_production_type);
     }
@@ -120,52 +120,52 @@ void EmpireExplore::operator()(uint32_t player_id) {
 UnitOrder reevaluate_order(uint32_t /*unit_id*/, uint32_t /*player_id*/) {
   // No reevaluation
   std::cout << "IMPLEMENT REEVALUATION!!" << std::endl;
-  return UnitOrder(0, 0, AI_ORDER_TYPE::UNKNOWN);
+  return UnitOrder(0, 0, fbs::AI_ORDER_TYPE::UNKNOWN);
 }
 
 void execute_order(const UnitOrder& decision, uint32_t player_id) {
   uint32_t uid = decision.m_unit_id;
   uint32_t tid = decision.m_target_id;
 
-  std::cout << "Executing order: " << get_ai_order_name(decision.m_order) 
+  std::cout << "Executing order: " << fbs::EnumNameAI_ORDER_TYPE(decision.m_order) 
     << " for player_id: " << player_id << std::endl;
 
   // Try to execute an AI order, if it can't be execute reevaluate the order.
   // Reevaluation can occur if a unit tries to attack a unit that no longer exists.
   switch (decision.m_order) {
-  case AI_ORDER_TYPE::ATTACK_UNIT:
+    case fbs::AI_ORDER_TYPE::ATTACK_UNIT:
     if (!ai_shared::attack_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::APPROACH_UNIT:
+    case fbs::AI_ORDER_TYPE::APPROACH_UNIT:
     if (!ai_shared::approach_unit(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::ATTACK_CITY:
+    case fbs::AI_ORDER_TYPE::ATTACK_CITY:
     std::cout << "Attack City not yet implemented." << std::endl;
     break;
-  case AI_ORDER_TYPE::APPROACH_CITY:
+    case fbs::AI_ORDER_TYPE::APPROACH_CITY:
     if (!ai_shared::approach_city(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::PILLAGE_IMPROVEMENT:
+    case fbs::AI_ORDER_TYPE::PILLAGE_IMPROVEMENT:
     if (!ai_shared::pillage_improvement(uid, tid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::WANDER:
+    case fbs::AI_ORDER_TYPE::WANDER:
     if (!ai_shared::wander(uid)) {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
     break;
-  case AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
+    case fbs::AI_ORDER_TYPE::APPROACH_IMPROVEMENT: // ASSUMPTION: Only improve can cause this.
     if (!ai_shared::approach_improvement(uid, player_id)) /* TODO: player_id != improvement_id */ {
       execute_order(reevaluate_order(uid, player_id), player_id);
     }
-  case AI_ORDER_TYPE::UNKNOWN:
+    case fbs::AI_ORDER_TYPE::UNKNOWN:
   default:
     std::cout << "Unknown decision." << std::endl;
     return;
@@ -233,7 +233,7 @@ void EmpireWander::operator()(uint32_t player_id) {
 
 namespace empire_decisions {
   EmpireSettle s_empire_settle;
-  EmpireConstruct s_empire_construct(CONSTRUCTION_TYPE::MELEE);
+  EmpireConstruct s_empire_construct(fbs::CONSTRUCTION_TYPE::MELEE);
   EmpireExplore s_empire_explore;
   EmpireUnitDecisions s_empire_unit_decisions;
 }

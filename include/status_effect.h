@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game_types.h"
+#include "step_generated.h"
 #include "Vector3.hpp"
 
 #include <cstdint>
@@ -11,7 +11,7 @@ class Tile;
 
 class StatusEffect {
 public:
-  StatusEffect(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+  StatusEffect(uint32_t id, fbs::STATUS_TYPE type, const sf::Vector3i& location) :
     m_id(id)
     , m_type(type)
     , m_location(location)
@@ -34,7 +34,7 @@ public:
   virtual void spread(Tile& tile) = 0;
 
   uint32_t m_id;
-  STATUS_TYPE m_type;
+  fbs::STATUS_TYPE m_type;
   // Origination location
   sf::Vector3i m_location;
   uint32_t m_range;
@@ -60,7 +60,7 @@ namespace status_effect {
   void inject_end(std::function<void()> end);
   void inject_per(std::function<void()> per);
 
-  uint32_t create(STATUS_TYPE type, const sf::Vector3i& location);  
+  uint32_t create(fbs::STATUS_TYPE type, const sf::Vector3i& location);  
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);

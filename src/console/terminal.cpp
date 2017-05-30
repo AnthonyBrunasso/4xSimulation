@@ -12,7 +12,7 @@
 #include "Vector3.hpp"
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"
@@ -100,9 +100,9 @@ namespace terminal  {
       CHECK(2, tokens);
       uint32_t player_id = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
-        SCIENCE_TYPE st = get_science_type(tokens[2]);
-        if (st == SCIENCE_TYPE::UNKNOWN) {
-          st = static_cast<SCIENCE_TYPE>(std::stoul(tokens[2]));
+      fbs::SCIENCE_TYPE st = util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[2], fbs::EnumNamesSCIENCE_TYPE());
+        if (st == fbs::SCIENCE_TYPE::UNKNOWN) {
+          st = static_cast<fbs::SCIENCE_TYPE>(std::stoul(tokens[2]));
         }
         ScienceNode* sn = science::Science(st);
         if (!sn) return false;
@@ -147,11 +147,11 @@ namespace terminal  {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
         if (city.IsConstructing()) return;
-        std::vector<CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
+        std::vector<fbs::CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
         std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
         for (size_t i = 0; i < incomplete.size(); ++i) {
-          CONSTRUCTION_TYPE t = incomplete[i];
-          std::cout <<  static_cast<uint32_t>(t) << " " << get_construction_name(t) << std::endl;
+          fbs::CONSTRUCTION_TYPE t = incomplete[i];
+          std::cout <<  static_cast<uint32_t>(t) << " " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
         }
         stop = true;
       });
@@ -315,8 +315,8 @@ namespace terminal  {
 
     terminal::add_query("definitions", "definitions", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      unit_definitions::for_each_definition([](UNIT_TYPE type, const CombatStats& stats) {
-        std::cout << get_unit_name(type) << ": " << format::combat_stats(stats) << std::endl;
+      unit_definitions::for_each_definition([](fbs::UNIT_TYPE type, const CombatStats& stats) {
+        std::cout << fbs::EnumNameUNIT_TYPE(type) << ": " << format::combat_stats(stats) << std::endl;
       });
       return true;
     });
@@ -331,50 +331,68 @@ namespace terminal  {
 
     terminal::add_query("terrain_types", "terrain_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_terrain_type([](TERRAIN_TYPE terrain) {
-        std::cout << static_cast<int32_t>(terrain) << ": " << get_terrain_name(terrain) << std::endl;
+      auto check = ([](fbs::TERRAIN_TYPE terrain) {
+        std::cout << static_cast<int32_t>(terrain) << ": " << fbs::EnumNameTERRAIN_TYPE(terrain) << std::endl;
       });
+      for (auto tt : fbs::EnumValuesTERRAIN_TYPE()) {
+        check(tt);
+      }
       return true;
     });
 
     terminal::add_query("resource_types", "resource_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_resource_type([](RESOURCE_TYPE resource) {
-        std::cout << static_cast<int32_t>(resource) << ": " << get_resource_name(resource) << std::endl;
+      auto check = ([](fbs::RESOURCE_TYPE resource) {
+        std::cout << static_cast<int32_t>(resource) << ": " << fbs::EnumNameRESOURCE_TYPE(resource) << std::endl;
       });
+      for (auto rt : fbs::EnumValuesRESOURCE_TYPE()) {
+        check(rt);
+      }
       return true;
     });   
     
     terminal::add_query("improvement_types", "improvement_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_improvement_type([](IMPROVEMENT_TYPE improvement) {
-        std::cout << static_cast<int32_t>(improvement) << ": " << get_improvement_name(improvement) << std::endl;
+      auto check =([](fbs::IMPROVEMENT_TYPE improvement) {
+        std::cout << static_cast<int32_t>(improvement) << ": " << fbs::EnumNameIMPROVEMENT_TYPE(improvement) << std::endl;
         std::cout << "  " << improvement::resource_requirements(improvement).size() << " requirements" << std::endl;
       });
+      for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
+        check(imp);
+      }
       return true;
     });   
     
     terminal::add_query("unit_types", "unit_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_unit_type([](UNIT_TYPE unit) {
-        std::cout << static_cast<int32_t>(unit) << ": " << get_unit_name(unit) << std::endl;
+      auto check = ([](fbs::UNIT_TYPE unit) {
+        std::cout << static_cast<int32_t>(unit) << ": " << fbs::EnumNameUNIT_TYPE(unit) << std::endl;
       });
+      for (auto ut : fbs::EnumValuesUNIT_TYPE()) {
+        check(ut);
+      }
       return true;
     });   
     
     terminal::add_query("building_types", "building_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_building_type([](BUILDING_TYPE building) {
-        std::cout << static_cast<int32_t>(building) << ": " << get_building_name(building) << std::endl;
+      auto check = ([](fbs::BUILDING_TYPE building) {
+        std::cout << static_cast<int32_t>(building) << ": " << fbs::EnumNameBUILDING_TYPE(building) << std::endl;
       });
+      for (auto bt : fbs::EnumValuesBUILDING_TYPE()) {
+        check(bt);
+      }
       return true;
     });   
     
     terminal::add_query("construction_types", "construction_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
-      for_each_construction_type([](CONSTRUCTION_TYPE construction) {
-        std::cout << static_cast<int32_t>(construction) << ": " << get_construction_name(construction) << std::endl;
+      auto check = ([](fbs::CONSTRUCTION_TYPE construction) {
+        std::cout << static_cast<int32_t>(construction) << ": " << fbs::EnumNameCONSTRUCTION_TYPE(construction) << std::endl;
       });
+      for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
+        check(ct);
+      }
       return true;
     });
 
@@ -397,7 +415,7 @@ namespace terminal  {
 
     terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
       CHECK_VALID(6, tokens);
-      SEARCH_TYPE type = get_search_type(tokens[1]);
+      fbs::SEARCH_TYPE type = util::enum_from_names<fbs::SEARCH_TYPE>(tokens[1], fbs::EnumNamesSEARCH_TYPE());
       sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       uint32_t depth = std::stoul(tokens[5]);
       static auto s_units = [](const Unit& u) -> bool {
@@ -417,19 +435,19 @@ namespace terminal  {
         return false;
       };
       switch (type) {
-      case SEARCH_TYPE::UNITS:
+      case fbs::SEARCH_TYPE::UNITS:
         search::bfs_units(start, depth, world_map::get_map(), s_units);
         return true;
-      case SEARCH_TYPE::CITIES:
+      case fbs::SEARCH_TYPE::CITIES:
         search::bfs_cities(start, depth, world_map::get_map(), s_cities);
         return true;
-      case SEARCH_TYPE::IMPROVEMENTS:
+      case fbs::SEARCH_TYPE::IMPROVEMENTS:
         search::bfs_improvements(start, depth, world_map::get_map(), s_improvements);
         return true;
-      case SEARCH_TYPE::RESOURCES:
+      case fbs::SEARCH_TYPE::RESOURCES:
         search::bfs_resources(start, depth, world_map::get_map(), s_resources);
         return true;
-      case SEARCH_TYPE::UNKNOWN:
+      case fbs::SEARCH_TYPE::UNKNOWN:
       default:
         std::cout << "Unknown search type." << std::endl;
         return true;
@@ -453,7 +471,8 @@ namespace terminal  {
 
     terminal::add_query("scenario_debug", "scenario_debug <scenario_type>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(2, tokens);
-      scenario::debug_print(get_scenario_type(tokens[1]));
+      fbs::SCENARIO_TYPE type = util::enum_from_names<fbs::SCENARIO_TYPE>(tokens[1], fbs::EnumNamesSCENARIO_TYPE());
+      scenario::debug_print(type);
       return true;
     });
 

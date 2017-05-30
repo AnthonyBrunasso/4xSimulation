@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "game_types.h"
+
 #include "resources.h"
 
 class AIState;
@@ -16,6 +16,12 @@ class City;
 class Tile;
 class Unit;
 struct Improvement;
+
+namespace fbs {
+  enum class AI_TYPE : uint32_t;
+  enum class SCIENCE_TYPE : uint32_t;
+  enum class TURN_TYPE : uint32_t;
+}
 
 //
 // Player is a generic class that ties units and buildings to some ai type.
@@ -30,7 +36,7 @@ public:
   bool OwnsImprovement(uint32_t id) const;
   bool DiscoveredPlayer(uint32_t id) const;
   bool DiscoveredCity(uint32_t id) const;
-  bool DiscoveredScience(SCIENCE_TYPE st) const;
+  bool DiscoveredScience(fbs::SCIENCE_TYPE st) const;
 
   uint32_t m_id;
   std::string m_name;
@@ -43,15 +49,15 @@ public:
   std::set<uint32_t> m_discovered_science;
   std::set<const Tile*> m_discovered_tiles;
   std::vector<uint32_t> m_available_research;
-  TURN_TYPE m_turn_state;
+  fbs::TURN_TYPE m_turn_state;
 
   float m_gold;
   float m_science;
   float m_magic;
 
   // Resources owned by this player.
-  SCIENCE_TYPE m_research;
-  AI_TYPE m_ai_type;
+  fbs::SCIENCE_TYPE m_research;
+  fbs::AI_TYPE m_ai_type;
   // AI state built when needed, could be nullptr for human players.
   std::shared_ptr<AIState> m_ai_state;
   // Cheat state
@@ -60,7 +66,7 @@ public:
 
 namespace player {
   uint32_t create_human(const std::string& name);
-  uint32_t create_ai(AI_TYPE type);
+  uint32_t create_ai(fbs::AI_TYPE type);
   Player* get_player(uint32_t i);
   size_t get_count();
   ResourceUMap get_resources(uint32_t player_id);

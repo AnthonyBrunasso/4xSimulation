@@ -4,11 +4,13 @@
 #include <vector>
 #include <string>
 
-enum class NOTIFICATION_TYPE;
+namespace fbs {
+  enum class NOTIFICATION_TYPE : uint32_t; 
+}
 
 struct Notification
 {
-  NOTIFICATION_TYPE m_event_type;
+  fbs::NOTIFICATION_TYPE m_event_type;
   uint32_t m_id;
   uint32_t m_other_id;
 };

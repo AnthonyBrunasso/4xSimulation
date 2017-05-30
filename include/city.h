@@ -6,11 +6,16 @@
 #include <vector>
 
 #include "Vector3.hpp"
-#include "game_types.h"
+
 #include "notification.h"
 
 class ConstructionQueueFIFO;
 struct TerrainYield;
+
+namespace fbs {
+  enum class BUILDING_TYPE : uint32_t;
+  enum class TERRAIN_TYPE : uint32_t;
+}
 
 class City {
 public:
@@ -18,7 +23,7 @@ public:
   City(const City&) = default;
 
   bool CanSpecialize() const;
-  bool SetSpecialization(TERRAIN_TYPE type);
+  bool SetSpecialization(fbs::TERRAIN_TYPE type);
 
   void Siege(float damage);
   bool Capture();
@@ -52,7 +57,7 @@ public:
   float m_damage;
   bool m_razing;
   bool m_defenses_used;
-  TERRAIN_TYPE m_specialization;
+  fbs::TERRAIN_TYPE m_specialization;
   uint32_t m_production_id;
   std::vector<sf::Vector3i> m_yield_tiles;
   uint32_t m_owner_id;
@@ -64,9 +69,9 @@ namespace city {
   float population_size_from_food(float food);
 
   // Access
-  void add_requirement(BUILDING_TYPE type, 
+  void add_requirement(fbs::BUILDING_TYPE type, 
     std::function<bool(const sf::Vector3i&, uint32_t)> requirement);
-  uint32_t create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
+  uint32_t create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
   void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
   void sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub);

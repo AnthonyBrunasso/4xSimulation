@@ -12,6 +12,7 @@
 #include "hex.h"
 #include "production.h"
 #include "search.h"
+#include "step_generated.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
@@ -40,7 +41,7 @@ City::City(uint32_t id)
 , m_damage(0.f)
 , m_razing(false)
 , m_defenses_used(false)
-, m_specialization(TERRAIN_TYPE::UNKNOWN)
+, m_specialization(fbs::TERRAIN_TYPE::UNKNOWN)
 , m_production_id(0)
 { 
 }
@@ -49,12 +50,12 @@ bool City::CanSpecialize() const {
   return (m_experience > 3.0f);
 }
 
-bool City::SetSpecialization(TERRAIN_TYPE type) {
+bool City::SetSpecialization(fbs::TERRAIN_TYPE type) {
   if (!CanSpecialize()) {
     return false;
   }
   // May only be set once
-  if (m_specialization != TERRAIN_TYPE::UNKNOWN) {
+  if (m_specialization != fbs::TERRAIN_TYPE::UNKNOWN) {
     return false;
   }
   m_specialization = type;
@@ -194,12 +195,12 @@ float city::population_size_from_food(float food) {
   return std::floor(std::pow(food/5.f, (1.f/2.75f)));
 }
 
-void city::add_requirement(BUILDING_TYPE type, 
+void city::add_requirement(fbs::BUILDING_TYPE type, 
     std::function<bool(const sf::Vector3i&, uint32_t)> requirement) {
   s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
 }
 
-uint32_t city::create(BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id) {
+uint32_t city::create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id) {
   Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
@@ -292,26 +293,26 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
   TerrainYield t = c->DumpYields();
   if (t.m_food < 0.0) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_STARVING;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_STARVING;
     n.m_id = id;
     events.push_back(n);
   }
   if (!c->IsConstructing()) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_PRODUCTION;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_PRODUCTION;
     n.m_id = id;
     events.push_back(n);
   }
   float idleCount = c->IdleWorkers();
   if (idleCount) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_HARVEST;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_HARVEST;
     n.m_id = id;
     events.push_back(n);
   }
-  if (c->m_specialization == TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
+  if (c->m_specialization == fbs::TERRAIN_TYPE::UNKNOWN && c->CanSpecialize()) {
     Notification n;
-    n.m_event_type = NOTIFICATION_TYPE::CITY_SPECIALIZE;
+    n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_SPECIALIZE;
     n.m_id = id;
     events.push_back(n);
   }
@@ -324,7 +325,7 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
       }
       
       Notification n;
-      n.m_event_type = NOTIFICATION_TYPE::CITY_DEFENSE;
+      n.m_event_type = fbs::NOTIFICATION_TYPE::CITY_DEFENSE;
       n.m_id = c->m_id;
       n.m_other_id = u.m_id;
       events.push_back(n);

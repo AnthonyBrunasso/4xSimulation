@@ -7,8 +7,9 @@
 #include <utility>
 
 #include "city.h"
-#include "game_types.h"
+
 #include "player.h"
+#include "step_generated.h"
 #include "unit.h"
 #include "util.h"
 
@@ -20,15 +21,15 @@ namespace scenario_arena
   SpawnQueue s_spawn_list;
   bool s_active;
 
-  uint32_t score(UNIT_TYPE ut);
+  uint32_t score(fbs::UNIT_TYPE ut);
   void dead_unit(UnitFatality* uf);
 };
 
-uint32_t scenario_arena::score(UNIT_TYPE ut)
+uint32_t scenario_arena::score(fbs::UNIT_TYPE ut)
 {
   switch(ut)
   {
-  case UNIT_TYPE::MONSTER:
+  case fbs::UNIT_TYPE::MONSTER:
     return 5;
   default:
     break;
@@ -45,14 +46,14 @@ void scenario_arena::dead_unit(UnitFatality* uf)
   s_player_score[uf->m_opponent->m_id] += score(uf->m_dead->m_type);
 
   if ((s_player_score[uf->m_opponent->m_id] & (16 - 1)) == 0) {
-    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(UNIT_TYPE::WIZARD)));
+    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(fbs::UNIT_TYPE::WIZARD)));
   }
   else if ((s_player_score[uf->m_opponent->m_id] & (8 - 1)) == 0) {
-    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(UNIT_TYPE::ARCHER)));
+    s_spawn_list.push_back(std::pair<uint32_t, uint32_t>(uf->m_opponent->m_id, util::enum_to_uint(fbs::UNIT_TYPE::ARCHER)));
   }
   else if ((s_player_score[uf->m_opponent->m_id] & (4-1)) == 0) {
     const auto& spawn_fn = [uf](const City& c) {
-      unit::create(UNIT_TYPE::SCOUT, c.m_location, uf->m_opponent->m_id);
+      unit::create(fbs::UNIT_TYPE::SCOUT, c.m_location, uf->m_opponent->m_id);
     };
     player::for_each_player_city(uf->m_opponent->m_id, spawn_fn);
   }
@@ -78,12 +79,12 @@ void scenario_arena::process() {
     for (SpawnQueue::iterator it = s_spawn_list.begin(); it != s_spawn_list.end(); ++it) {
       if (it->first != player.m_id) continue;
       
-      unit::create(util::uint_to_enum<UNIT_TYPE>(it->second), cityInstance.m_location, player.m_id);
+      unit::create(util::uint_to_enum<fbs::UNIT_TYPE>(it->second), cityInstance.m_location, player.m_id);
       s_spawn_list.erase(it);
       return;
     }
 
-    unit::create(UNIT_TYPE::PHALANX, cityInstance.m_location, player.m_id);
+    unit::create(fbs::UNIT_TYPE::PHALANX, cityInstance.m_location, player.m_id);
   };
   auto player_func = [city_func](Player& player) {
     player::for_each_player_city(player.m_id,

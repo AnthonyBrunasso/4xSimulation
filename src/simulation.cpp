@@ -16,7 +16,7 @@
 #include "combat.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "magic.h"
@@ -219,10 +219,10 @@ namespace simulation {
       if (!sn) return;
       float req = science::research_cost(sn);
       if (player.m_science >= req) {
-        std::cout << "Player " << player.m_id << " has discovered the science of " << get_science_name(player.m_research) << std::endl;
+        std::cout << "Player " << player.m_id << " has discovered the science of " << fbs::EnumNameSCIENCE_TYPE(player.m_research) << std::endl;
         player.m_science -= req;
         science::research_complete(player.m_id, sn);
-        player.m_research = SCIENCE_TYPE::UNKNOWN;
+        player.m_research = fbs::SCIENCE_TYPE::UNKNOWN;
       }
     });
 
@@ -277,7 +277,7 @@ namespace simulation {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
-    CONSTRUCTION_TYPE t(production::id(production_id));
+    fbs::CONSTRUCTION_TYPE t(production::id(production_id));
 
     if (cheat) {
       production_queue::purchase(city->GetProductionQueue(), t);
@@ -307,7 +307,7 @@ namespace simulation {
     });
     if (too_close) return;
 
-    uint32_t id = city::create(BUILDING_TYPE::TOWN, location, player_id);
+    uint32_t id = city::create(fbs::BUILDING_TYPE::TOWN, location, player_id);
     if (!id) {
       // Colonization failed.
       return;
@@ -320,7 +320,7 @@ namespace simulation {
       Unit* u = unit::get_unit(uid);
       if (!u) continue;
       // Consume the unit that built the city.
-      if (u->m_type == UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
+      if (u->m_type == fbs::UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
         unit::destroy(u->m_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
         break;
       }
@@ -349,16 +349,16 @@ namespace simulation {
       unit = unit::get_unit(unit_id);
       if (!unit) continue;
       if (!unit->m_action_points) continue;
-      if (unit->m_type != UNIT_TYPE::WORKER) continue;
+      if (unit->m_type != fbs::UNIT_TYPE::WORKER) continue;
       break;
     }
 
-    if (!unit || unit->m_type != UNIT_TYPE::WORKER) {
+    if (!unit || unit->m_type != fbs::UNIT_TYPE::WORKER) {
       std::cout << "No worker is available to improve the tile" << std::endl;
       return;
     }
 
-    RESOURCE_TYPE rt = static_cast<RESOURCE_TYPE>(resource_id);
+    fbs::RESOURCE_TYPE rt = static_cast<fbs::RESOURCE_TYPE>(resource_id);
     i = 0;
     for (; i < tile->m_resources.size(); ++i) {
       if (tile->m_resources[i].m_type == rt) break;
@@ -368,7 +368,7 @@ namespace simulation {
       return;
     }
     Resource& res = tile->m_resources[i];
-    IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
+    fbs::IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
     if (!improvement::satisfies_requirements(res.m_type, impv, location)) {
       return;
     }
@@ -389,14 +389,14 @@ namespace simulation {
     };
 
     status_effect::inject_end(end_turn_inject);
-    if (status_effect::create(STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, location)) {
+    if (status_effect::create(fbs::STATUS_TYPE::CONSTRUCTING_IMPROVEMENT, location)) {
       // Drain workers action points.
       unit->m_action_points = 0;
     }
   }
 
   void execute_grant(const fbs::GrantStep* grant_step) {
-    SCIENCE_TYPE st = static_cast<SCIENCE_TYPE>(grant_step->science());
+    fbs::SCIENCE_TYPE st = static_cast<fbs::SCIENCE_TYPE>(grant_step->science());
     science::research_complete(grant_step->player(), science::Science(st));
   }
 
@@ -427,7 +427,7 @@ namespace simulation {
       return;
     }
     if (terrain_yield::add_harvest(destination, city)) {
-      std::cout << "City (" << city->m_id << ") is now harvesting from " << get_terrain_name(tile->m_terrain_type) << "." << std::endl;
+      std::cout << "City (" << city->m_id << ") is now harvesting from " << fbs::EnumNameTERRAIN_TYPE(tile->m_terrain_type) << "." << std::endl;
       return;
     }
   }
@@ -465,8 +465,8 @@ namespace simulation {
       std::cout << "City is not ready for specialization." << std::endl;
       return;
     }
-    if (city->SetSpecialization(static_cast<TERRAIN_TYPE>(terrain_type))) {
-      std::cout << "City has specialized in " << get_terrain_name(static_cast<TERRAIN_TYPE>(terrain_type)) << std::endl;
+    if (city->SetSpecialization(static_cast<fbs::TERRAIN_TYPE>(terrain_type))) {
+      std::cout << "City has specialized in " << fbs::EnumNameTERRAIN_TYPE(static_cast<fbs::TERRAIN_TYPE>(terrain_type)) << std::endl;
     }
   }
 
@@ -479,7 +479,7 @@ namespace simulation {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    Resource new_resource(static_cast<RESOURCE_TYPE>(resource_type), quantity);
+    Resource new_resource(static_cast<fbs::RESOURCE_TYPE>(resource_type), quantity);
     bool found = false;
     // If resource already on the tile increment its quantity.
     for (auto& r : tile->m_resources) {
@@ -538,7 +538,7 @@ namespace simulation {
       Improvement* improvement = improvement::get_improvement(impId);
       if (!improvement) continue;
       if (improvement->m_owner_id == unit->m_owner_id) continue;
-      std::cout << get_improvement_name(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_id << "!" << std::endl;
+      std::cout << fbs::EnumNameIMPROVEMENT_TYPE(improvement->m_type) << " (owner " << improvement->m_owner_id << ") was pillaged by unit " << unit->m_id << "!" << std::endl;
       improvement::destroy(improvement->m_id);
       unit::heal(unit->m_id, 6.f);
       unit->m_action_points = 0;
@@ -554,7 +554,7 @@ namespace simulation {
     if (!player) return "Invalid player";
     Tile* tile = world_map::get_tile(location);
     if (!tile) return "Invalid location";
-    unit::create(static_cast<UNIT_TYPE>(unit_type), location, player_id);
+    unit::create(static_cast<fbs::UNIT_TYPE>(unit_type), location, player_id);
     return "Unit created";
   }
 
@@ -617,7 +617,7 @@ namespace simulation {
       // Good destination
       break;
     }
-    if (player->m_ai_type != AI_TYPE::HUMAN && path.empty()) {
+    if (player->m_ai_type != fbs::AI_TYPE::HUMAN && path.empty()) {
       unit->m_action_points = 0;
       std::cout << "AI attempted an empty path: unit exhausted." << std::endl;
     }
@@ -680,7 +680,7 @@ namespace simulation {
     City* city = city::get_city(city_id);
     if(!city) return "Invalid City";
     if (production_id != 0) {
-      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(production_id));
+      fbs::CONSTRUCTION_TYPE t(util::uint_to_enum<fbs::CONSTRUCTION_TYPE>(production_id));
       float cost = production::required_to_purchase(t);
       if (player->m_gold < cost) {
         ss << "Player has " << player->m_gold << " and needs " << cost << " gold. Purchase failed.";
@@ -691,11 +691,11 @@ namespace simulation {
       return "Purchase made.";
     }
 
-    std::vector<CONSTRUCTION_TYPE> available = production_queue::incomplete(city->GetProductionQueue());
+    std::vector<fbs::CONSTRUCTION_TYPE> available = production_queue::incomplete(city->GetProductionQueue());
     ss << "City (" << city->m_id << ") available purchases: " << std::endl;
     for (size_t i = 0; i < available.size(); ++i) {
-      CONSTRUCTION_TYPE t(available[i]);
-      ss << production::required_to_purchase(t) << " Gold: " << get_construction_name(t) << std::endl;
+      fbs::CONSTRUCTION_TYPE t(available[i]);
+      ss << production::required_to_purchase(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();
   }
@@ -708,7 +708,7 @@ namespace simulation {
     std::vector<uint32_t>& research = player->m_available_research;
     std::vector<uint32_t>::const_iterator findIt = find(research.begin(), research.end(), science);
     if (findIt == research.end()) return "Research is not available to player.";
-    player->m_research = static_cast<SCIENCE_TYPE>(science);
+    player->m_research = static_cast<fbs::SCIENCE_TYPE>(science);
     return "Research assigned.";
   }
 
@@ -721,9 +721,9 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(city_id);
     if(!city) return "Invalid City";
-    std::vector<CONSTRUCTION_TYPE> completed = production_queue::complete(city->GetProductionQueue());
+    std::vector<fbs::CONSTRUCTION_TYPE> completed = production_queue::complete(city->GetProductionQueue());
     if (production_id != 0) {
-      CONSTRUCTION_TYPE t(util::uint_to_enum<CONSTRUCTION_TYPE>(production_id));
+      fbs::CONSTRUCTION_TYPE t(util::uint_to_enum<fbs::CONSTRUCTION_TYPE>(production_id));
       for (size_t i = 0; i < completed.size(); ++i) {
         if (completed[i] == t) {
           player->m_gold += production::yield_from_sale(completed[i]);
@@ -736,8 +736,8 @@ namespace simulation {
 
     ss << "City (" << city->m_id << ") available buildings for sale: " << std::endl;
     for (size_t i = 0; i < completed.size(); ++i) {
-      CONSTRUCTION_TYPE t(completed[i]);
-      ss << "+" << production::yield_from_sale(t) << " Gold: " << get_construction_name(t) << std::endl;
+      fbs::CONSTRUCTION_TYPE t(completed[i]);
+      ss << "+" << production::yield_from_sale(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();
   }
@@ -770,17 +770,17 @@ namespace simulation {
     fbs::MAGIC_TYPE type = magic_step->type();
     sf::Vector3i location = get_v3i(magic_step->location());
     bool cheat = magic_step->cheat();
-    magic::cast(player_id, (MAGIC_TYPE)type, location, cheat);
+    magic::cast(player_id, type, location, cheat);
   }
 
   void execute_status(const fbs::StatusStep* status_step) {
     fbs::STATUS_TYPE type = status_step->type();
     sf::Vector3i location = get_v3i(status_step->location());
-    status_effect::create((STATUS_TYPE)type, location);
+    status_effect::create(type, location);
   }
 
   void execute_scenario(const fbs::ScenarioStep* scenario_step) {
-    scenario::start((SCENARIO_TYPE)scenario_step->type());
+    scenario::start(scenario_step->type());
   }
 
   void execute_add_player(const fbs::AddPlayerStep* add_player_step) {
@@ -788,11 +788,11 @@ namespace simulation {
     const flatbuffers::String* name = add_player_step->name();
     uint32_t player_id = 0;
     switch (ai_type) {
-      case fbs::AI_TYPE::AI_BARBARIAN:
-        player_id = player::create_ai((AI_TYPE)ai_type);
+      case fbs::AI_TYPE::BARBARIAN:
+        player_id = player::create_ai(ai_type);
         barbarians::set_player_id(player_id);
         break;
-      case fbs::AI_TYPE::AI_HUMAN:
+      case fbs::AI_TYPE::HUMAN:
         player_id = player::create_human(name->str());
       default:
         break;
@@ -1047,7 +1047,7 @@ void simulation::process_begin_turn() {
 
   // Each player state -> Playing
   player::for_each_player([](Player& player) {
-    player.m_turn_state = TURN_TYPE::TURNACTIVE;
+    player.m_turn_state = fbs::TURN_TYPE::TURNACTIVE;
   });
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
@@ -1063,16 +1063,16 @@ void simulation::process_end_turn(const fbs::EndTurnStep* end_turn) {
   Player* player = player::get_player(player_id);
   if (!player) return;
 
-  if (player->m_ai_type == AI_TYPE::BARBARIAN) {
+  if (player->m_ai_type == fbs::AI_TYPE::BARBARIAN) {
     barbarians::pillage_and_plunder(player_id);
   }
 
-  if (player->m_ai_type == AI_TYPE::MONSTER) {
+  if (player->m_ai_type == fbs::AI_TYPE::MONSTER) {
     monster::execute_turn(player_id);
   }
 
   phase_queued_movement(player_id);
-  player->m_turn_state = TURN_TYPE::TURNCOMPLETED;
+  player->m_turn_state = fbs::TURN_TYPE::TURNCOMPLETED;
   if (player::all_players_turn_ended()) {
     process_begin_turn(); 
   }

@@ -12,9 +12,10 @@
 
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "improvement.h"
 #include "resources.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "world_map.h"
 
@@ -57,7 +58,7 @@ namespace terrain_yield {
 }
 
 TerrainYield::TerrainYield()
-: m_type(TERRAIN_TYPE::UNKNOWN)
+: m_type(fbs::TERRAIN_TYPE::UNKNOWN)
 , m_food(0.f)
 , m_production(0.f)
 , m_science(0.f)
@@ -89,7 +90,7 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
 
 std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {
   out << "TerrainYield "
-      << ((ty.m_type != TERRAIN_TYPE::UNKNOWN)?get_terrain_name(ty.m_type):"")
+      << ((ty.m_type != fbs::TERRAIN_TYPE::UNKNOWN)?fbs::EnumNameTERRAIN_TYPE(ty.m_type):"")
       << "(" << ty.m_food << " Food) "
       << "(" << ty.m_production << " Prod) "
       << "(" << ty.m_science << " Sci) "
@@ -172,52 +173,52 @@ namespace terrain_yield {
   
   typedef std::unordered_map<int32_t, std::function<void (TerrainYield&)> > YieldFunctions;
   static YieldFunctions s_defaultYieldFn{
-    {static_cast<int32_t>(TERRAIN_TYPE::DESERT), &DesertYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::GRASSLAND), &GrasslandYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::MOUNTAIN), &MountainYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsYield},
-    {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsYield},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterYield},
   };
   static YieldFunctions s_specializeYieldFn{
-    {static_cast<int32_t>(TERRAIN_TYPE::DESERT), &DesertSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
-    {static_cast<int32_t>(TERRAIN_TYPE::WATER), &WaterSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
+    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterSpecialization},
   };
   static YieldFunctions s_resourceYieldFn{
-    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
-    {static_cast<int32_t>(RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
-    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
-    {static_cast<int32_t>(RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
-    {static_cast<int32_t>(RESOURCE_TYPE::CATTLE), &BonusCattle},
-    {static_cast<int32_t>(RESOURCE_TYPE::DEER), &BonusDeer},
-    {static_cast<int32_t>(RESOURCE_TYPE::FISH), &BonusFish},
-    {static_cast<int32_t>(RESOURCE_TYPE::STONE), &BonusStone},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::CATTLE), &BonusCattle},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::DEER), &BonusDeer},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::FISH), &BonusFish},
+    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STONE), &BonusStone},
   };
 
-  TerrainYield ImprovementYields(RESOURCE_TYPE , IMPROVEMENT_TYPE impv) {
+  TerrainYield ImprovementYields(fbs::RESOURCE_TYPE , fbs::IMPROVEMENT_TYPE impv) {
     // Not yet implemented: there are examples of Improvement benefits varying by resource
     // Not yet implemented: there are examples of Improvement benefits varying by technology
     
     TerrainYield t;
     switch(impv) {
-    case IMPROVEMENT_TYPE::MINE:
+    case fbs::IMPROVEMENT_TYPE::MINE:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::PASTURE:
+    case fbs::IMPROVEMENT_TYPE::PASTURE:
       t.m_food += 1;
       break;
-    case IMPROVEMENT_TYPE::CAMP:
+    case fbs::IMPROVEMENT_TYPE::CAMP:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::PLANTATION:
+    case fbs::IMPROVEMENT_TYPE::PLANTATION:
       t.m_gold += 1;
       break;
-    case IMPROVEMENT_TYPE::QUARRY:
+    case fbs::IMPROVEMENT_TYPE::QUARRY:
       t.m_production += 1;
       break;
-    case IMPROVEMENT_TYPE::FISH_BOATS:
+    case fbs::IMPROVEMENT_TYPE::FISH_BOATS:
       t.m_food += 1;
       break;
     default:
@@ -227,7 +228,7 @@ namespace terrain_yield {
     return t;
   }
 
-  TerrainYield get_yield(const sf::Vector3i& loc, TERRAIN_TYPE spec) {
+  TerrainYield get_yield(const sf::Vector3i& loc, fbs::TERRAIN_TYPE spec) {
     TerrainYield base = TerrainYield();
     Tile* tile = world_map::get_tile(loc);
     if (!tile) {
@@ -257,7 +258,7 @@ namespace terrain_yield {
   }
 }
 
-TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
+TerrainYield terrain_yield::get_base_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
   base.m_type = type;
   const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(type));
@@ -269,7 +270,7 @@ TerrainYield terrain_yield::get_base_yield(TERRAIN_TYPE type) {
   return base;
 }
 
-TerrainYield terrain_yield::get_specialization_yield(TERRAIN_TYPE type) {
+TerrainYield terrain_yield::get_specialization_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
   const auto& findIt = s_specializeYieldFn.find(static_cast<int32_t>(type));
   if (findIt == s_specializeYieldFn.end()) {
@@ -280,7 +281,7 @@ TerrainYield terrain_yield::get_specialization_yield(TERRAIN_TYPE type) {
   return base;
 }
 
-TerrainYield terrain_yield::get_resource_yield(RESOURCE_TYPE type) {
+TerrainYield terrain_yield::get_resource_yield(fbs::RESOURCE_TYPE type) {
   TerrainYield base;
   const auto& findIt = s_resourceYieldFn.find(static_cast<int32_t>(type));
   if (findIt == s_resourceYieldFn.end()) {

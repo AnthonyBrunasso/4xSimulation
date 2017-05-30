@@ -6,6 +6,7 @@
 
 #include "city.h"
 #include "search.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "unit.h"
 #include "world_map.h"
@@ -42,7 +43,7 @@ namespace {
 
   class SummoningMonster : public StatusEffect {
   public:
-    SummoningMonster(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+    SummoningMonster(uint32_t id, fbs::STATUS_TYPE type, const sf::Vector3i& location) :
         StatusEffect(id, type, location) {
       m_turns = 20; 
       m_current_turn = 20;
@@ -60,7 +61,7 @@ namespace {
   // Status effect implementations, maybe these should be moved to another file.
   class StasisEffect : public StatusEffect {
   public:
-    StasisEffect(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+    StasisEffect(uint32_t id, fbs::STATUS_TYPE type, const sf::Vector3i& location) :
         StatusEffect(id, type, location) {
       m_range = 1;
       m_turns = 2;
@@ -74,7 +75,7 @@ namespace {
         u->m_action_points = 0;
       }
 
-      std::cout << "status: " << get_status_name(m_type) 
+      std::cout << "status: " << fbs::EnumNameSTATUS_TYPE(m_type) 
         << " id: " << m_id 
         << " evaluting per turn logic. " << std::endl;
     }
@@ -86,7 +87,7 @@ namespace {
 
   class ConstructingEffect : public StatusEffect {
   public:
-    ConstructingEffect(uint32_t id, STATUS_TYPE type, const sf::Vector3i& location) :
+    ConstructingEffect(uint32_t id, fbs::STATUS_TYPE type, const sf::Vector3i& location) :
         StatusEffect(id, type, location) {
       // Only effects the tile it is on, therefore range 0.
       m_range = 0;
@@ -99,7 +100,7 @@ namespace {
       for (auto u : m_units) {
         Unit* unit = unit::get_unit(u);
         if (!unit) continue;
-        if (unit->m_type != UNIT_TYPE::WORKER) continue;
+        if (unit->m_type != fbs::UNIT_TYPE::WORKER) continue;
         // Workers get depleted action points per turn.
         unit->m_action_points = 0;
       }
@@ -110,7 +111,7 @@ namespace {
       ::spread_units(tile, m_units);
     }
 
-    IMPROVEMENT_TYPE m_improvement_type;
+    fbs::IMPROVEMENT_TYPE m_improvement_type;
   };
 
 
@@ -149,22 +150,22 @@ void status_effect::inject_per(std::function<void()> per) {
   s_injected_per = per;
 }
 
-uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
+uint32_t status_effect::create(fbs::STATUS_TYPE type, const sf::Vector3i& location) {
   uint32_t id = s_unique_ids++;
   StatusEffect* e = nullptr;
   // Best factory, ever. 
   switch (type) {
-  case STATUS_TYPE::STASIS:
+    case fbs::STATUS_TYPE::STASIS:
     e = new StasisEffect(id, type, location);
     break;
-  case STATUS_TYPE::CONSTRUCTING_IMPROVEMENT:
+    case fbs::STATUS_TYPE::CONSTRUCTING_IMPROVEMENT:
     e = new ConstructingEffect(id, type, location);
     break;
-  case STATUS_TYPE::SUMMONING_MONSTER:
+    case fbs::STATUS_TYPE::SUMMONING_MONSTER:
     e = new SummoningMonster(id, type, location);
     break;
-  case STATUS_TYPE::RESIST_MODIFIERS:
-  case STATUS_TYPE::UNKNOWN:
+    case fbs::STATUS_TYPE::RESIST_MODIFIERS:
+    case fbs::STATUS_TYPE::UNKNOWN:
     return 0;
   }
 
@@ -175,7 +176,7 @@ uint32_t status_effect::create(STATUS_TYPE type, const sf::Vector3i& location) {
   e->m_per_turn_injection = s_injected_per;
 
   s_status[id] = e;
-  std::cout << "Created status effect id " << id << " type: " << get_status_name(type) << std::endl;
+  std::cout << "Created status effect id " << id << " type: " << fbs::EnumNameSTATUS_TYPE(type) << std::endl;
 
   for (auto sub : s_create_subs) {
     sub(location, id);

@@ -6,6 +6,7 @@
 #include "Vector3.hpp"
 #include "city.h"
 #include "improvement.h"
+#include "step_generated.h"
 #include "unit.h"
 
 Player::Player(uint32_t id)
@@ -14,12 +15,12 @@ Player::Player(uint32_t id)
     , m_units() 
     , m_improvements()
     , m_discovered_players()
-    , m_turn_state(TURN_TYPE::TURNACTIVE)
+    , m_turn_state(fbs::TURN_TYPE::TURNACTIVE)
     , m_gold(0.0f)
     , m_science(0.0f)
     , m_magic(10.0) // Players should start with some magic
-    , m_research(SCIENCE_TYPE::AGRICULTURE)
-    , m_ai_type(AI_TYPE::UNKNOWN)
+    , m_research(fbs::SCIENCE_TYPE::AGRICULTURE)
+    , m_ai_type(fbs::AI_TYPE::UNKNOWN)
     , m_ai_state(nullptr)
     , m_omniscient(false)
 {
@@ -45,7 +46,7 @@ bool Player::DiscoveredCity(uint32_t id) const {
   return m_discovered_cities.find(id) != m_discovered_cities.end();
 }
 
-bool Player::DiscoveredScience(SCIENCE_TYPE st) const {
+bool Player::DiscoveredScience(fbs::SCIENCE_TYPE st) const {
   uint32_t id = static_cast<uint32_t>(st);
   return m_discovered_science.find(id) != m_discovered_science.end();
 }
@@ -79,7 +80,7 @@ namespace player {
       p->m_improvements.erase(id);
     });
 
-    p->m_available_research.push_back(static_cast<uint32_t>(SCIENCE_TYPE::AGRICULTURE));
+    p->m_available_research.push_back(static_cast<uint32_t>(fbs::SCIENCE_TYPE::AGRICULTURE));
     s_players.push_back(p);
   }
 }
@@ -87,17 +88,17 @@ namespace player {
 uint32_t player::create_human(const std::string& name) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
-  p->m_ai_type = AI_TYPE::HUMAN;
+  p->m_ai_type = fbs::AI_TYPE::HUMAN;
   p->m_name = name;
   init(p);
   return playerId;
 }
 
-uint32_t player::create_ai(AI_TYPE type) {
+uint32_t player::create_ai(fbs::AI_TYPE type) {
   uint32_t playerId = static_cast<uint32_t>(s_players.size());
   Player* p = new Player(playerId);
   p->m_ai_type = type;
-  p->m_name = get_ai_name(type);
+  p->m_name = fbs::EnumNameAI_TYPE(type);
   init(p);
   return playerId;
 }
@@ -191,7 +192,7 @@ void player::add_discovered_city(uint32_t player_id, uint32_t city_id) {
 bool player::all_players_turn_ended() {
   bool allPlayersReady = true;
   player::for_each_player([&allPlayersReady](Player& player) {
-    allPlayersReady &= player.m_turn_state == TURN_TYPE::TURNCOMPLETED;
+    allPlayersReady &= player.m_turn_state == fbs::TURN_TYPE::TURNCOMPLETED;
   });
   return allPlayersReady;
 }

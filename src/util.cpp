@@ -1,5 +1,6 @@
 #include "util.h"
 
+#include "step_generated.h"
 #include <cstdint>
 
 sf::Vector3i util::str_to_vector3(const std::string& x, const std::string& y, const std::string& z) {
@@ -23,43 +24,43 @@ sf::Vector3f util::to_vector3f(const sf::Vector3i& vector) {
   return sf::Vector3f(xi, yi, zi);
 }
 
-DIRECTION_TYPE util::get_direction(const sf::Vector3i& diff) {
+fbs::DIRECTION_TYPE util::get_direction(const sf::Vector3i& diff) {
   if (diff == sf::Vector3i(1, -1, 0)) {
-    return DIRECTION_TYPE::NORTH_EAST;
+    return fbs::DIRECTION_TYPE::NORTH_EAST;
   }
   else if (diff == sf::Vector3i(1, 0, -1)) {
-    return DIRECTION_TYPE::EAST;
+    return fbs::DIRECTION_TYPE::EAST;
   }
   else if (diff == sf::Vector3i(0, 1, -1)) {
-    return DIRECTION_TYPE::SOUTH_EAST;
+    return fbs::DIRECTION_TYPE::SOUTH_EAST;
   }
   else if (diff == sf::Vector3i(-1, 1, 0)) {
-    return DIRECTION_TYPE::SOUTH_WEST;
+    return fbs::DIRECTION_TYPE::SOUTH_WEST;
   }
   else if (diff == sf::Vector3i(-1, 0, 1)) {
-    return DIRECTION_TYPE::WEST;
+    return fbs::DIRECTION_TYPE::WEST;
   }
   else if (diff == sf::Vector3i(0, -1, 1)) {
-    return DIRECTION_TYPE::NORTH_WEST;
+    return fbs::DIRECTION_TYPE::NORTH_WEST;
   }
-  return DIRECTION_TYPE::UNKNOWN;
+  return fbs::DIRECTION_TYPE::UNKNOWN;
 }
 
-sf::Vector3i util::get_direction(DIRECTION_TYPE type) {
+sf::Vector3i util::get_direction(fbs::DIRECTION_TYPE type) {
   switch (type) {
-    case DIRECTION_TYPE::NORTH_EAST:
+    case fbs::DIRECTION_TYPE::NORTH_EAST:
       return sf::Vector3i(1, -1, 0);
-    case DIRECTION_TYPE::EAST:
+    case fbs::DIRECTION_TYPE::EAST:
       return sf::Vector3i(1, 0, -1);
-    case DIRECTION_TYPE::SOUTH_EAST:
+    case fbs::DIRECTION_TYPE::SOUTH_EAST:
       return sf::Vector3i(0, 1, -1);
-    case DIRECTION_TYPE::SOUTH_WEST:
+    case fbs::DIRECTION_TYPE::SOUTH_WEST:
       return sf::Vector3i(-1, 1, 0);
-    case DIRECTION_TYPE::WEST:
+    case fbs::DIRECTION_TYPE::WEST:
       return sf::Vector3i(-1, 0, 1);
-    case DIRECTION_TYPE::NORTH_WEST:
+    case fbs::DIRECTION_TYPE::NORTH_WEST:
       return sf::Vector3i(0, -1, 1);
-    case DIRECTION_TYPE::UNKNOWN:
+    case fbs::DIRECTION_TYPE::UNKNOWN:
       return sf::Vector3i(0, 0, 0);
   }
   return sf::Vector3i(0, 0, 0);

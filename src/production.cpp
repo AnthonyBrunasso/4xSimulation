@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <iostream>
 #include <iterator>
-#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -15,6 +14,7 @@
 #include "city.h"
 #include "player.h"
 #include "production_detail.h"
+#include "step_generated.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
@@ -30,9 +30,9 @@ public:
   ConstructionState(const ConstructionState&) = delete;
   ConstructionState& operator=(const ConstructionState&) = delete;
 
-  ConstructionOrder* GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id);
-  bool EraseConstruction(CONSTRUCTION_TYPE type_id);
-  bool IsConstructed(CONSTRUCTION_TYPE type_id) const;
+  ConstructionOrder* GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id);
+  bool EraseConstruction(fbs::CONSTRUCTION_TYPE type_id);
+  bool IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const;
 
 private:
   friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
@@ -85,12 +85,12 @@ namespace production {
     s_creationCallbacks.push_back(cb);
   }
 
-  CONSTRUCTION_TYPE id(uint32_t type_id) {
-    return static_cast<CONSTRUCTION_TYPE>(type_id);
+  fbs::CONSTRUCTION_TYPE id(uint32_t type_id) {
+    return static_cast<fbs::CONSTRUCTION_TYPE>(type_id);
   }
 
   const char*name(ConstructionOrder* co) {
-    return get_construction_name(co->m_type);
+    return fbs::EnumNameCONSTRUCTION_TYPE(co->m_type);
   }
 
   float current(ConstructionOrder* co) {
@@ -129,62 +129,62 @@ namespace production {
     return co->m_production >= required(co->m_type);
   }
 
-  float required(CONSTRUCTION_TYPE type) {
+  float required(fbs::CONSTRUCTION_TYPE type) {
     switch (type) {
-    case CONSTRUCTION_TYPE::GRANARY:
+    case fbs::CONSTRUCTION_TYPE::GRANARY:
       return 40.f;
-    case CONSTRUCTION_TYPE::RANGE :
+    case fbs::CONSTRUCTION_TYPE::RANGE :
       return 30.f;
-    case CONSTRUCTION_TYPE::FORGE :
+    case fbs::CONSTRUCTION_TYPE::FORGE :
       return 12.f;
-    case CONSTRUCTION_TYPE::MELEE :
+    case fbs::CONSTRUCTION_TYPE::MELEE :
       return 30.f;
-    case CONSTRUCTION_TYPE::FACTORY :
+    case fbs::CONSTRUCTION_TYPE::FACTORY :
       return 60.f;
-    case CONSTRUCTION_TYPE::SCOUT :
+    case fbs::CONSTRUCTION_TYPE::SCOUT :
       return 15.f;
-    case CONSTRUCTION_TYPE::WORKER :
+    case fbs::CONSTRUCTION_TYPE::WORKER :
       return 20.f;
-    case CONSTRUCTION_TYPE::CASTER:
+    case fbs::CONSTRUCTION_TYPE::CASTER:
       return 40;
-    case CONSTRUCTION_TYPE::UNKNOWN :
+    case fbs::CONSTRUCTION_TYPE::UNKNOWN :
     default:
       return 1000.f;
     }
   }
 
-  float required_to_purchase(CONSTRUCTION_TYPE type) {
+  float required_to_purchase(fbs::CONSTRUCTION_TYPE type) {
     return required(type) * 3.f;
   }
   
-  float yield_from_sale(CONSTRUCTION_TYPE type) {
+  float yield_from_sale(fbs::CONSTRUCTION_TYPE type) {
     return required_to_purchase(type) * .25f;
   }
 
-  bool construction_is_unique(CONSTRUCTION_TYPE type_id) {
+  bool construction_is_unique(fbs::CONSTRUCTION_TYPE type_id) {
     return (static_cast<size_t>(type_id) & 1) != 0;
   }
 
-  void spawn_unit(CONSTRUCTION_TYPE type_id, uint32_t city_id) {
+  void spawn_unit(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id) {
     City* city = city::get_city(city_id);
     if (!city) return;
 
     uint32_t unit_id;
     switch (type_id) {
-    case CONSTRUCTION_TYPE::SCOUT:
-      unit_id = unit::create(UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
+    case fbs::CONSTRUCTION_TYPE::SCOUT:
+      unit_id = unit::create(fbs::UNIT_TYPE::SCOUT, city->m_location, city->m_owner_id);
       break;
-    case CONSTRUCTION_TYPE::RANGE:
-      unit_id = unit::create(UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
+    case fbs::CONSTRUCTION_TYPE::RANGE:
+      unit_id = unit::create(fbs::UNIT_TYPE::ARCHER, city->m_location, city->m_owner_id);
       break;
-    case CONSTRUCTION_TYPE::MELEE:
-      unit_id = unit::create(UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
+    case fbs::CONSTRUCTION_TYPE::MELEE:
+      unit_id = unit::create(fbs::UNIT_TYPE::PHALANX, city->m_location, city->m_owner_id);
       break;
-    case CONSTRUCTION_TYPE::WORKER:
-      unit_id = unit::create(UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
+    case fbs::CONSTRUCTION_TYPE::WORKER:
+      unit_id = unit::create(fbs::UNIT_TYPE::WORKER, city->m_location, city->m_owner_id);
       break;
-    case CONSTRUCTION_TYPE::CASTER:
-      unit_id = unit::create(UNIT_TYPE::WIZARD, city->m_location, city->m_owner_id);
+    case fbs::CONSTRUCTION_TYPE::CASTER:
+      unit_id = unit::create(fbs::UNIT_TYPE::WIZARD, city->m_location, city->m_owner_id);
       break;
     default:
       return;
@@ -203,28 +203,34 @@ namespace production {
 }
 
 namespace production_queue {
-  std::vector<CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO* cq) {
-    std::vector<CONSTRUCTION_TYPE> constructed;
-    for_each_construction_type([cq, &constructed](CONSTRUCTION_TYPE t) {
+  std::vector<fbs::CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO* cq) {
+    std::vector<fbs::CONSTRUCTION_TYPE> constructed;
+    auto check = [cq, &constructed](fbs::CONSTRUCTION_TYPE t) {
       if (!cq->m_state->IsConstructed(t)) return;
       constructed.push_back(t);
-    });
+    };
+    for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
+      check(ct);
+    }
     return std::move(constructed);
   }
 
-  std::vector<CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO* cq) {
-    std::vector<CONSTRUCTION_TYPE> incomplete;
-    for_each_construction_type([cq, &incomplete](CONSTRUCTION_TYPE t) {
+  std::vector<fbs::CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO* cq) {
+    std::vector<fbs::CONSTRUCTION_TYPE> incomplete;
+    auto check = ([cq, &incomplete](fbs::CONSTRUCTION_TYPE t) {
       if (cq->m_state->IsConstructed(t)) return;
       incomplete.push_back(t);
     });
+    for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
+      check(ct);
+    }
     return std::move(incomplete);
   }
   
-  std::vector<CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO* cq) {
-    std::vector<CONSTRUCTION_TYPE> incomplete;
-    std::vector<CONSTRUCTION_TYPE> queued = queue(cq);
-    for_each_construction_type([cq, &queued, &incomplete](CONSTRUCTION_TYPE t) {
+  std::vector<fbs::CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO* cq) {
+    std::vector<fbs::CONSTRUCTION_TYPE> incomplete;
+    std::vector<fbs::CONSTRUCTION_TYPE> queued = queue(cq);
+    auto check = ([cq, &queued, &incomplete](fbs::CONSTRUCTION_TYPE t) {
       if (production::construction_is_unique(t)) {
         if (cq->m_state->IsConstructed(t)) return;
         auto itFind = std::find(queued.begin(), queued.end(), t);
@@ -233,11 +239,14 @@ namespace production_queue {
       
       incomplete.push_back(t);
     });
+    for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
+      check(ct);
+    }
     return std::move(incomplete);
   }
   
-  std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO* cq) {
-    std::vector<CONSTRUCTION_TYPE> queue;
+  std::vector<fbs::CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO* cq) {
+    std::vector<fbs::CONSTRUCTION_TYPE> queue;
     for (auto& q : cq->m_queue) {
       queue.push_back(q->m_type);
     }
@@ -245,12 +254,12 @@ namespace production_queue {
     return std::move(queue);
   }
 
-  CONSTRUCTION_TYPE front(const ConstructionQueueFIFO* cq) {
-    if (cq->m_queue.empty()) return CONSTRUCTION_TYPE::UNKNOWN;
+  fbs::CONSTRUCTION_TYPE front(const ConstructionQueueFIFO* cq) {
+    if (cq->m_queue.empty()) return fbs::CONSTRUCTION_TYPE::UNKNOWN;
     return cq->m_queue.front()->m_type;
   }
 
-  bool built(const ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
+  bool built(const ConstructionQueueFIFO* cq, fbs::CONSTRUCTION_TYPE type_id) {
     return cq->m_state->IsConstructed(type_id);
   }
 
@@ -258,21 +267,21 @@ namespace production_queue {
     TerrainYield ty;
     ty.m_production = 1.f;
 
-    if (built(cq, CONSTRUCTION_TYPE::FORGE)) {
+    if (built(cq, fbs::CONSTRUCTION_TYPE::FORGE)) {
       ty.m_production += 1.5f;
     }
-    if (built(cq, CONSTRUCTION_TYPE::FACTORY)) {
+    if (built(cq, fbs::CONSTRUCTION_TYPE::FACTORY)) {
       ty.m_production += 10.0f;
     }
-    if (built(cq, CONSTRUCTION_TYPE::GRANARY)) {
+    if (built(cq, fbs::CONSTRUCTION_TYPE::GRANARY)) {
       ty.m_food += 2.0f;
     }
 
     return ty;
   }
 
-  void add(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
-    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+  void add(ConstructionQueueFIFO* cq, fbs::CONSTRUCTION_TYPE type_id) {
+    if (type_id == fbs::CONSTRUCTION_TYPE::UNKNOWN) {
       std::cout << "Construction Add on unknown type" << std::endl;
       return;
     }
@@ -311,8 +320,8 @@ namespace production_queue {
     cq->m_queue.erase(itr);
   }
 
-  void purchase(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
-    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+  void purchase(ConstructionQueueFIFO* cq, fbs::CONSTRUCTION_TYPE type_id) {
+    if (type_id == fbs::CONSTRUCTION_TYPE::UNKNOWN) {
       std::cout << "Construction purchase on unknown type" << std::endl;
       return;
     }
@@ -326,8 +335,8 @@ namespace production_queue {
     production::apply(order, 9999.f);
   }
 
-  void sell(ConstructionQueueFIFO* cq, CONSTRUCTION_TYPE type_id) {
-    if (type_id == CONSTRUCTION_TYPE::UNKNOWN) {
+  void sell(ConstructionQueueFIFO* cq, fbs::CONSTRUCTION_TYPE type_id) {
+    if (type_id == fbs::CONSTRUCTION_TYPE::UNKNOWN) {
       std::cout << "Construction sale on unknown type" << std::endl;
       return;
     }
@@ -346,7 +355,7 @@ namespace production_queue {
       cq->m_stockpile = production::apply(order, cq->m_stockpile);
       if (production::completed(order)) {
         ConstructionOrder* completed = cq->m_queue.front();
-        std::cout << "Construction completed: " << get_construction_name(completed->m_type) << std::endl;
+        std::cout << "Construction completed: " << fbs::EnumNameCONSTRUCTION_TYPE(completed->m_type) << std::endl;
         cq->m_queue.pop_front();
         if (!production::construction_is_unique(order->m_type)) {
           // Unit spawn
@@ -374,7 +383,7 @@ ConstructionState::~ConstructionState() {
   }
 }
 
-ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id, uint32_t city_id) {
+ConstructionOrder* ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id) {
   if (!production::construction_is_unique(type_id)) {
     return new ConstructionOrder(type_id, city_id);
   }
@@ -382,23 +391,18 @@ ConstructionOrder* ConstructionState::GetConstruction(CONSTRUCTION_TYPE type_id,
   uint32_t type = static_cast<uint32_t>(type_id);
   ConstructionUMap::const_iterator findIt = m_constructions.find(type);
   if (findIt != m_constructions.end()) {
-    std::cout << "Resuming unique construction: " << get_construction_name(type_id) << std::endl;
-    return findIt->second;
+    std::cout << "Resuming unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; return findIt->second;
   }
 
-  std::cout << "New unique construction: " << get_construction_name(type_id) << std::endl;
-
-  ConstructionOrder* newOrder = new ConstructionOrder(type_id, city_id);
-  m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder));
-  
+  std::cout << "New unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; ConstructionOrder* newOrder = new ConstructionOrder(type_id, city_id); m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder)); 
   return newOrder;
 }
 
-bool ConstructionState::EraseConstruction(CONSTRUCTION_TYPE type_id) {
+bool ConstructionState::EraseConstruction(fbs::CONSTRUCTION_TYPE type_id) {
   return m_constructions.erase(static_cast<uint32_t>(type_id)) != 0;
 }
 
-bool ConstructionState::IsConstructed(CONSTRUCTION_TYPE type_id) const {
+bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
   if (!production::construction_is_unique(type_id)) {
     return false;
   }
@@ -448,7 +452,7 @@ std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
     if (!production::completed(construction.second)) {
       continue;
     }
-    out << "      " << get_construction_name(construction.second->m_type) << " is completed." << std::endl;
+    out << "      " << EnumNameCONSTRUCTION_TYPE(construction.second->m_type) << " is completed." << std::endl;
   }
   return out;
 }

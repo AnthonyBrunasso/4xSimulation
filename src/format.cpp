@@ -2,13 +2,14 @@
 
 #include "city.h"
 #include "combat.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"
 #include "production.h"
 #include "resources.h"
 #include "status_effect.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "terrain_yield.h"
 #include "unit.h"
@@ -38,7 +39,7 @@ std::string format::axial_neighbors(const sf::Vector2i& start) {
 
 std::string format::tile(const Tile& tile) {
   std::stringstream ss;
-  ss << "terrain: " << get_terrain_name(tile.m_terrain_type) << std::endl
+  ss << "terrain: " << fbs::EnumNameTERRAIN_TYPE(tile.m_terrain_type) << std::endl
      << " base yield: " << terrain_yield::get_base_yield(tile.m_terrain_type) << std::endl
      << " type id: " << static_cast<int32_t>(tile.m_terrain_type) << std::endl
      << " units: " << format::vector(tile.m_unit_ids) << std::endl
@@ -47,7 +48,7 @@ std::string format::tile(const Tile& tile) {
      << " resources: [ ";
 
   for (auto resource : tile.m_resources) {
-    ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
+    ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
   }
 
   ss << "]" << std::endl;
@@ -61,13 +62,13 @@ std::string format::unit(const Unit& unit) {
   std::stringstream ss;
 
   ss << "unique id: " << unit.m_id << std::endl
-     << " unit name: " << get_unit_name(unit.m_type) << std::endl
+     << " unit name: " << fbs::EnumNameUNIT_TYPE(unit.m_type) << std::endl
      << " location: " << format::vector3(unit.m_location) << std::endl
      << " actions: " << unit.m_action_points << std::endl
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl
      << " path: " << unit.m_path.size() << std::endl
      << " owner: " << unit.m_owner_id << std::endl
-     << " direction: " << get_direction_name(util::get_direction(unit.m_direction));
+     << " direction: " << fbs::EnumNameDIRECTION_TYPE(util::get_direction(unit.m_direction));
 
   return std::move(ss.str());
 }
@@ -115,13 +116,13 @@ std::string format::player(const Player& player) {
   ss << "name: " << player.m_name << std::endl;
   ss << " buildings: " << format::set(player.m_cities) << std::endl;
   ss << " units: " << format::set(player.m_units) << std::endl;
-  ss << " turn_state: " << get_turn_name(player.m_turn_state) << std::endl;
+  ss << " turn_state: " << fbs::EnumNameTURN_TYPE(player.m_turn_state) << std::endl;
   ss << " gold: " << player.m_gold << std::endl;
   ss << " science: " << player.m_science << std::endl;
   ss << " magic: " << player.m_magic << std::endl;
   ss << " resources: " << format::resources(player::get_resources(player.m_id)) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
-  ss << " ai: " << get_ai_name(player.m_ai_type) << std::endl;
+  ss << " ai: " << fbs::EnumNameAI_TYPE(player.m_ai_type) << std::endl;
   ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
   ss << " discovered cities: " << format::set(player.m_discovered_cities) << std::endl;
 
@@ -142,8 +143,8 @@ std::string format::resources(const ResourceUMap& resources) {
   std::stringstream ss;
 
   ss << "[ ";
-  resources.for_each_resource([&ss](RESOURCE_TYPE type, const Resource& resource) {
-    ss << get_resource_name(type) << ": " << resource.m_quantity << " ";
+  resources.for_each_resource([&ss](fbs::RESOURCE_TYPE type, const Resource& resource) {
+    ss << fbs::EnumNameRESOURCE_TYPE(type) << ": " << resource.m_quantity << " ";
   });
   ss << "]";
 
@@ -152,7 +153,7 @@ std::string format::resources(const ResourceUMap& resources) {
 
 std::string format::resource(const Resource& resource) {
   std::stringstream ss;
-  ss << get_resource_name(resource.m_type) << ": " << resource.m_quantity << " ";
+  ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
   return std::move(ss.str());
 }
 
@@ -160,8 +161,8 @@ std::string format::improvement(const Improvement& improvement) {
   std::stringstream ss;
 
   ss << "Unique id: " << improvement.m_id << std::endl;
-  ss << " resource: " << get_resource_name(improvement.m_resource.m_type) << std::endl;
-  ss << " type: " << get_improvement_name(improvement.m_type) << std::endl;
+  ss << " resource: " << fbs::EnumNameRESOURCE_TYPE(improvement.m_resource.m_type) << std::endl;
+  ss << " type: " << fbs::EnumNameIMPROVEMENT_TYPE(improvement.m_type) << std::endl;
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);
 
@@ -172,7 +173,7 @@ std::string format::effect(const StatusEffect& effect) {
   std::stringstream ss;
 
   ss << "Unique id: " << effect.m_id << std::endl;
-  ss << " type: " << get_status_name(effect.m_type) << std::endl;
+  ss << " type: " << fbs::EnumNameSTATUS_TYPE(effect.m_type) << std::endl;
   ss << " source location: " << format::vector3(effect.m_location) << std::endl;
   ss << " range: " << effect.m_range << std::endl;
   ss << " total turns: " << effect.m_turns << std::endl;

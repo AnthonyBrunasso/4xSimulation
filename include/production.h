@@ -8,19 +8,23 @@
 #include <list>
 #include <vector>
 
-#include "game_types.h"
+
 
 class ConstructionOrder;
 class ConstructionQueueFIFO;
 class ConstructionState;
 struct TerrainYield;
 
+namespace fbs {
+  enum class CONSTRUCTION_TYPE : uint32_t;
+}
+
 typedef std::list<ConstructionOrder*> ConstructionList;
 
 namespace production {
-  typedef std::function<void(CONSTRUCTION_TYPE)> UnitCreationCallback;
+  typedef std::function<void(fbs::CONSTRUCTION_TYPE)> UnitCreationCallback;
 
-  CONSTRUCTION_TYPE id(uint32_t);
+  fbs::CONSTRUCTION_TYPE id(uint32_t);
 
   const char*name(ConstructionOrder*);
   float current(ConstructionOrder*);
@@ -30,10 +34,10 @@ namespace production {
   float apply(ConstructionOrder*, float amount_available);
   bool completed(ConstructionOrder*);
 
-  float required(CONSTRUCTION_TYPE type_id);
-  float required_to_purchase(CONSTRUCTION_TYPE type_id);
-  float yield_from_sale(CONSTRUCTION_TYPE type_id);
-  bool construction_is_unique(CONSTRUCTION_TYPE type_id);
+  float required(fbs::CONSTRUCTION_TYPE type_id);
+  float required_to_purchase(fbs::CONSTRUCTION_TYPE type_id);
+  float yield_from_sale(fbs::CONSTRUCTION_TYPE type_id);
+  bool construction_is_unique(fbs::CONSTRUCTION_TYPE type_id);
 
   uint32_t create(uint32_t city_id);
   ConstructionQueueFIFO* get_production(uint32_t production_id);
@@ -43,20 +47,20 @@ namespace production {
 }
 
 namespace production_queue {
-  std::vector<CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO*);
-  std::vector<CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO*);
-  std::vector<CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO*);
-  std::vector<CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO*);
+  std::vector<fbs::CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO*);
+  std::vector<fbs::CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO*);
+  std::vector<fbs::CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO*);
+  std::vector<fbs::CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO*);
   
-  CONSTRUCTION_TYPE front(const ConstructionQueueFIFO*);
-  bool built(const ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  fbs::CONSTRUCTION_TYPE front(const ConstructionQueueFIFO*);
+  bool built(const ConstructionQueueFIFO*, fbs::CONSTRUCTION_TYPE);
   TerrainYield yield(const ConstructionQueueFIFO*);
 
-  void add(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  void add(ConstructionQueueFIFO*, fbs::CONSTRUCTION_TYPE);
   void move(ConstructionQueueFIFO*, size_t, size_t);
   void remove(ConstructionQueueFIFO*, size_t);
-  void purchase(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
-  void sell(ConstructionQueueFIFO*, CONSTRUCTION_TYPE);
+  void purchase(ConstructionQueueFIFO*, fbs::CONSTRUCTION_TYPE);
+  void sell(ConstructionQueueFIFO*, fbs::CONSTRUCTION_TYPE);
   void simulate(ConstructionQueueFIFO*, TerrainYield& t);
 }
 

@@ -3,7 +3,11 @@
 #include <stdint.h>
 
 #include "dtree.h"
-#include "game_types.h"
+
+
+namespace fbs {
+  enum class CONSTRUCTION_TYPE : uint32_t;
+}
 
 class EmpireSettle : public Decision {
 public:
@@ -12,11 +16,11 @@ public:
 
 class EmpireConstruct : public Decision {
 public:
-  EmpireConstruct(CONSTRUCTION_TYPE type) : m_production_type(type) {}; 
+  EmpireConstruct(fbs::CONSTRUCTION_TYPE type) : m_production_type(type) {}; 
 
   virtual void operator()(uint32_t player_id) override;
 
-  CONSTRUCTION_TYPE m_production_type;
+  fbs::CONSTRUCTION_TYPE m_production_type;
 };
 
 class EmpireExplore : public Decision {

@@ -13,12 +13,13 @@
 #include "ai_barbarians.h"
 #include "city.h"
 #include "format.h"
-#include "game_types.h"
+
 #include "improvement.h"
 #include "player.h"
 #include "random.h"
 #include "resources.h"
 #include "search.h"
+#include "step_generated.h"
 #include "tile.h"
 #include "tile_costs.h"
 #include "unique_id.h"
@@ -76,7 +77,7 @@ namespace {
     }     
   }
 
-  bool is_resource_available(RESOURCE_TYPE rt, IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
+  bool is_resource_available(fbs::RESOURCE_TYPE rt, fbs::IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
       std::cout << "Invalid tile" << std::endl;
@@ -96,17 +97,20 @@ namespace {
     return true;
   }
 
-  bool valid_resource(RESOURCE_TYPE selected_type
-      , IMPROVEMENT_TYPE type
+  bool valid_resource(fbs::RESOURCE_TYPE selected_type
+      , fbs::IMPROVEMENT_TYPE type
       , const sf::Vector3i& location) {
     return type == improvement::resource_improvement(selected_type);
   }
 
   void set_improvement_requirements() {
-    for_each_improvement_type([] (IMPROVEMENT_TYPE impv) {
+    auto check = ([] (fbs::IMPROVEMENT_TYPE impv) {
       improvement::add_requirement(impv, is_resource_available);
       improvement::add_requirement(impv, valid_resource);
     });
+    for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
+      check(imp);
+    }
   }
 
   bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {
@@ -126,7 +130,7 @@ namespace {
     for (auto id : tile->m_unit_ids) {
       Unit* unit = unit::get_unit(id);
       if (!unit) continue;
-      if (unit->m_type == UNIT_TYPE::WORKER) {
+      if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
         // Get the player and check that the player owns this unit.
         if (player->OwnsUnit(unit->m_id)) {
           return true;
@@ -149,7 +153,7 @@ namespace {
   }
 
   void set_city_requirements() {
-    city::add_requirement(BUILDING_TYPE::TOWN, town_requirement);
+    city::add_requirement(fbs::BUILDING_TYPE::TOWN, town_requirement);
   }
 }
 
@@ -205,7 +209,7 @@ bool world_map::load_file(const std::string& name) {
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
 
-    TERRAIN_TYPE terrain_type = static_cast<TERRAIN_TYPE>(*data);
+    fbs::TERRAIN_TYPE terrain_type = static_cast<fbs::TERRAIN_TYPE>(*data);
     tile.m_terrain_type = terrain_type;
     tile.m_path_cost = tile_costs::get(terrain_type);
   }
@@ -224,8 +228,8 @@ bool world_map::load_file(const std::string& name) {
     memset(data, 0, sizeof(data));
     inputFile.read(data, BLOCK_SIZE);
 
-    RESOURCE_TYPE resource_type = static_cast<RESOURCE_TYPE>(*data);
-    if (resource_type == RESOURCE_TYPE::UNKNOWN) continue;
+    fbs::RESOURCE_TYPE resource_type = static_cast<fbs::RESOURCE_TYPE>(*data);
+    if (resource_type == fbs::RESOURCE_TYPE::UNKNOWN) continue;
 
     tile.m_resources.push_back(Resource(resource_type));
   }

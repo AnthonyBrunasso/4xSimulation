@@ -11,11 +11,12 @@
 #include "ai_state.h"
 #include "city.h"
 #include "combat.h"
-#include "game_types.h"
+
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"
 #include "search.h"
+#include "step_generated.h"
 #include "unit.h"
 #include "world_map.h"
 
@@ -75,11 +76,11 @@ float DiscoveredCities::operator()(uint32_t player_id, float threshold) {
   }
 
   switch (player->m_ai_type) {
-    case AI_TYPE::BARBARIAN:
+    case fbs::AI_TYPE::BARBARIAN:
       return ::discovered_cities_barbarian(player, threshold);
-    case AI_TYPE::HUMAN:
+    case fbs::AI_TYPE::HUMAN:
     default:
-      std::cout << "DiscoveredCities evaluation not evaluated for: " << get_ai_name(player->m_ai_type) << std::endl;
+      std::cout << "DiscoveredCities evaluation not evaluated for: " << fbs::EnumNameAI_TYPE(player->m_ai_type) << std::endl;
       return NOOP_EVALUATION;
   }
 
@@ -117,10 +118,10 @@ float EmpireUnitOrder::operator()(uint32_t player_id, float threshold) {
         return false;
       }
      
-      AI_ORDER_TYPE order = AI_ORDER_TYPE::APPROACH_UNIT;
+      fbs::AI_ORDER_TYPE order = fbs::AI_ORDER_TYPE::APPROACH_UNIT;
       // If the unit can be attacked attack it.
       if (hex::cube_distance(unit.m_location, owned_unit.m_location) <= range) {
-        order = AI_ORDER_TYPE::ATTACK_UNIT;
+        order = fbs::AI_ORDER_TYPE::ATTACK_UNIT;
       }
      
       // Otherwise just go towards it.
@@ -136,9 +137,9 @@ float EmpireUnitOrder::operator()(uint32_t player_id, float threshold) {
       }
 
       // We need to move to an improvement before being able to pillage it.
-      AI_ORDER_TYPE order = AI_ORDER_TYPE::APPROACH_IMPROVEMENT;
+      fbs::AI_ORDER_TYPE order = fbs::AI_ORDER_TYPE::APPROACH_IMPROVEMENT;
       if (hex::cube_distance(owned_unit.m_location, i.m_location) == 0) {
-        order = AI_ORDER_TYPE::PILLAGE_IMPROVEMENT;
+        order = fbs::AI_ORDER_TYPE::PILLAGE_IMPROVEMENT;
       }
 
       state->add_order(owned_unit.m_id, i.m_id, order);
@@ -152,7 +153,7 @@ float EmpireUnitOrder::operator()(uint32_t player_id, float threshold) {
       }
 
       // Attacking cities not implemented yet. Approach it.
-      state->add_order(owned_unit.m_id, c.m_id, AI_ORDER_TYPE::APPROACH_CITY);
+      state->add_order(owned_unit.m_id, c.m_id, fbs::AI_ORDER_TYPE::APPROACH_CITY);
       return true;
     };
     // Approach or attack the found unit up to 4 range.
@@ -170,7 +171,7 @@ float EmpireUnitOrder::operator()(uint32_t player_id, float threshold) {
     }
 
     // Otherwise wander.
-    state->add_order(owned_unit.m_id, 0, AI_ORDER_TYPE::WANDER);
+    state->add_order(owned_unit.m_id, 0, fbs::AI_ORDER_TYPE::WANDER);
   };
 
   player::for_each_player_unit(player_id, check_proximity);
