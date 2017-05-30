@@ -8,7 +8,6 @@
 #include "combat.h"
 
 #include "unique_id.h"
-#include "util.h"
 
 class Player;
 
