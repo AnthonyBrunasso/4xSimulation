@@ -1,8 +1,6 @@
 #include <iostream>
 #include <string>
 
-#include "simulation.h"
-#include "ai_barbarians.h"
 #include "random.h"
 #include "step_generated.h"
 #include "player.h"
@@ -10,25 +8,25 @@
 #include "simulation_interface.h"
 
 int main(int, char*[]) {
-  simulation_interface::start();
+  simulation_start();
 
-  simulation_interface::join_player(fbs::AI_TYPE::BARBARIAN, "barbarian");
-  simulation_interface::join_player(fbs::AI_TYPE::HUMAN, "learner");
+  simulation_join_barbarian("barbarian");
+  simulation_join_player("learner");
 
-  barbarians::set_player_id(0);
+  simulation_barbarians_set_id(0);
 
   simulation_interface::start_faceoff();
 
   bool game_over = false;
   uint32_t loser = -1;
   while (!game_over) {
-    barbarians::pillage_and_plunder(0);
+    simulation_barbarians_execute_turn(0);
     
-    simulation_interface::end_turn(0, 1);
+    simulation_end_turn(0, 1);
 
     // Do learning stuff.
 
-    simulation_interface::end_turn(1, 0);
+    simulation_end_turn(1, 0);
 
     // Terminate when someone has no units.
 
@@ -45,8 +43,8 @@ int main(int, char*[]) {
   std::string input;
   std::getline(std::cin, input);
 
-  simulation::kill();
-  barbarians::reset();
+  simulation_end();
+  simulation_barbarians_reset();
 
   return 0;
 }

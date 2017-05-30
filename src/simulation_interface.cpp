@@ -5,6 +5,7 @@
 #include "random.h"
 #include "player.h"
 #include "world_map.h"
+#include "ai_barbarians.h"
 
 #include <iostream>
 
@@ -67,6 +68,10 @@ extern "C" {
     simulation_interface::start();
   }
 
+  void simulation_end() {
+    simulation::kill();
+  }
+
   void simulation_start_faceoff() {
     simulation_interface::start_faceoff();
   }
@@ -79,7 +84,7 @@ extern "C" {
     simulation_interface::join_player(fbs::AI_TYPE::HUMAN, name);
   }
 
-  int simulation_count_players() {
+  int simulation_players_size() {
     int count = 0;
     player::for_each_player([&count](Player& player) {
       ++count;
@@ -87,13 +92,13 @@ extern "C" {
     return count;
   }
 
-  Tile* simulation_create_tiles() {
+  Tile* simulations_tiles_create() {
     world_map::TileMap& map = world_map::get_map();
     Tile* tiles = new Tile[map.size()];
     return tiles;
   }
 
-  void simulation_sync_tiles(Tile* tiles) {
+  void simulation_tiles_sync(Tile* tiles) {
     world_map::TileMap& map = world_map::get_map();
     int i = 0;
     for (const auto& tile : map) {
@@ -101,7 +106,7 @@ extern "C" {
     }
   }
 
-  void simulation_free_tiles(Tile* tiles) {
+  void simulation_tiles_free(Tile* tiles) {
     delete[] tiles;
   }
 
@@ -109,15 +114,31 @@ extern "C" {
     return world_map::get_map().size();
   }
 
-  int simulation_tile_x(Tile* tiles, int i) {
+  int simulation_tiles_x(Tile* tiles, int i) {
     return tiles[i].m_location.x;
   }
 
-  int simulation_tile_y(Tile* tiles, int i) {
+  int simulation_tiles_y(Tile* tiles, int i) {
     return tiles[i].m_location.y;
   }
 
-  int simulation_tile_z(Tile* tiles, int i) {
+  int simulation_tiles_z(Tile* tiles, int i) {
     return tiles[i].m_location.z;
+  }
+
+  void simulation_end_turn(int current_player, int next_player) {
+    simulation_interface::end_turn(current_player, next_player);
+  }
+
+  void simulation_barbarians_set_id(int player_id) {
+    barbarians::set_player_id(player_id);
+  }
+
+  void simulation_barbarians_execute_turn(int player_id) {
+    barbarians::pillage_and_plunder(player_id);
+  }
+
+  void simulation_barbarians_reset() {
+    barbarians::reset();
   }
 }

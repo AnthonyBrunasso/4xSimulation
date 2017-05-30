@@ -12,19 +12,28 @@ namespace simulation_interface {
 }
 
 extern "C" {
-  // Simulation
+  // Simulation steps (mostly)
   __declspec(dllexport) void simulation_start();
+  __declspec(dllexport) void simulation_end();
   __declspec(dllexport) void simulation_start_faceoff();
   __declspec(dllexport) void simulation_join_barbarian(const char* name);
   __declspec(dllexport) void simulation_join_player(const char* name);
-  __declspec(dllexport) int simulation_count_players();
+  __declspec(dllexport) void simulation_end_turn(int current_player, int next_player);
+
+  // Player
+  __declspec(dllexport) int simulation_players_size();
 
   // Tile Map
-  __declspec(dllexport) Tile* simulation_create_tiles();
-  __declspec(dllexport) void simulation_sync_tiles(Tile* tiles);
-  __declspec(dllexport) void simulation_free_tiles(Tile* tiles);
+  __declspec(dllexport) Tile* simulations_tiles_create();
+  __declspec(dllexport) void simulation_tiles_sync(Tile* tiles);
+  __declspec(dllexport) void simulation_tiles_free(Tile* tiles);
   __declspec(dllexport) int simulation_tiles_size(Tile* tiles);
-  __declspec(dllexport) int simulation_tile_x(Tile* tiles, int i);
-  __declspec(dllexport) int simulation_tile_y(Tile* tiles, int i);
-  __declspec(dllexport) int simulation_tile_z(Tile* tiles, int i);
+  __declspec(dllexport) int simulation_tiles_x(Tile* tiles, int i);
+  __declspec(dllexport) int simulation_tiles_y(Tile* tiles, int i);
+  __declspec(dllexport) int simulation_tiles_z(Tile* tiles, int i);
+
+  // Barbarians
+  __declspec(dllexport) void simulation_barbarians_set_id(int player_id);
+  __declspec(dllexport) void simulation_barbarians_execute_turn(int player_id);
+  __declspec(dllexport) void simulation_barbarians_reset();
 }
