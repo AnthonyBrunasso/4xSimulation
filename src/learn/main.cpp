@@ -4,7 +4,7 @@
 #include "simulation.h"
 #include "ai_barbarians.h"
 #include "random.h"
-#include "game_types.h"
+#include "step_generated.h"
 #include "player.h"
 
 #include "simulation_interface.h"
@@ -12,8 +12,8 @@
 int main(int, char*[]) {
   simulation_interface::start();
 
-  simulation_interface::join_player(AI_TYPE::BARBARIAN, "barbarian");
-  simulation_interface::join_player(AI_TYPE::HUMAN, "learner");
+  simulation_interface::join_player(fbs::AI_TYPE::BARBARIAN, "barbarian");
+  simulation_interface::join_player(fbs::AI_TYPE::HUMAN, "learner");
 
   barbarians::set_player_id(0);
 
