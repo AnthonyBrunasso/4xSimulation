@@ -4,6 +4,8 @@
 #include "random.h"
 #include "step_generated.h"
 #include "player.h"
+#include "ai_neural_net.h"
+#include "ai_unit_decisions.h"
 
 #include "simulation_interface.h"
 
@@ -15,7 +17,10 @@ int main(int, char*[]) {
 
   simulation_barbarians_set_id(0);
 
-  simulation_interface::start_faceoff();
+  uint32_t nn_id = neural_net::create({ 2, 1 }, { &unit_decisions::get_wander() });
+  neural_net::set_player_id(1, nn_id);
+
+  simulation_start_faceoff();
 
   bool game_over = false;
   uint32_t loser = -1;
@@ -25,6 +30,7 @@ int main(int, char*[]) {
     simulation_end_turn(0, 1);
 
     // Do learning stuff.
+    neural_net::execute(1, { 1.0f, 2.0f });
 
     simulation_end_turn(1, 0);
 
@@ -36,6 +42,9 @@ int main(int, char*[]) {
         loser = player.m_id;
       }
     });
+
+    std::string input;
+    std::getline(std::cin, input);
   }
 
   std::cout << "Graceful game end." << std::endl;
