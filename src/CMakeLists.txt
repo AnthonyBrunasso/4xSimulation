@@ -21,6 +21,7 @@ function(fourx_compile_flatbuffers_schema_to_cpp SRC_FBS)
   string(REGEX REPLACE "\\.fbs$" "_generated.h" GEN_HEADER ${SRC_FBS})
   add_custom_command(
     OUTPUT ${GEN_HEADER}
+    DEPENDS ${SRC_FBS}
     COMMAND "${FLATBUFFERS_FLATC_EXECUTABLE}" -c --no-includes 
             --no-prefix --scoped-enums
             -o "${SRC_FBS_DIR}"
