@@ -6,19 +6,23 @@
 #include "scenario_citylife.h"
 #include "scenario_faceoff.h"
 #include "step_generated.h"
+#include "util.h"
 
 #include <algorithm>
 #include <vector>
 #include <iostream>
 
 namespace scenario {
-  std::vector<fbs::SCENARIO_TYPE> s_running;
+  std::vector<uint32_t> s_running;
 }
 
-void scenario::start(fbs::SCENARIO_TYPE type) {
-  std::cout << "Starting scenario: " << fbs::EnumNameSCENARIO_TYPE(type) << std::endl;
-  if (std::find(s_running.begin(), s_running.end(), type) != s_running.end()) return;
-  switch(type) {
+void scenario::start(fbs::SCENARIO_TYPE scenario) {
+  std::cout << "Starting scenario: " << fbs::EnumNameSCENARIO_TYPE(scenario) << std::endl;
+
+  uint32_t scenario_val = any_enum(scenario);
+  if (std::find(s_running.begin(), s_running.end(), scenario_val) != s_running.end()) return;
+
+  switch(scenario) {
     case fbs::SCENARIO_TYPE::DISEASE:
     case fbs::SCENARIO_TYPE::MONSTER:
       scenario_monster::start();
@@ -36,7 +40,7 @@ void scenario::start(fbs::SCENARIO_TYPE type) {
       break;
   }
 
-  s_running.push_back(type);
+  s_running.push_back(scenario_val);
 }
 
 void scenario::reset() {
@@ -51,7 +55,7 @@ void scenario::reset() {
 void scenario::process() {
   std::cout << "Running scenario logc." << std::endl;
   for (auto t : s_running) {
-    switch(t) {
+    switch(fbs::SCENARIO_TYPE(t)) {
       case fbs::SCENARIO_TYPE::DISEASE:
       case fbs::SCENARIO_TYPE::MONSTER:
         scenario_monster::process();
@@ -66,9 +70,9 @@ void scenario::process() {
   }
 }
 
-void scenario::debug_print(fbs::SCENARIO_TYPE type) {
+void scenario::debug_print() {
   for (auto t : s_running) {
-    switch(t) {
+    switch(fbs::SCENARIO_TYPE(t)) {
       case fbs::SCENARIO_TYPE::DISEASE:
       case fbs::SCENARIO_TYPE::MONSTER:
         scenario_monster::debug_print();

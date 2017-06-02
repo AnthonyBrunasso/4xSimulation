@@ -469,10 +469,9 @@ namespace terminal  {
       return true;
     });
 
-    terminal::add_query("scenario_debug", "scenario_debug <scenario_type>", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(2, tokens);
-      fbs::SCENARIO_TYPE type = util::enum_from_names<fbs::SCENARIO_TYPE>(tokens[1], fbs::EnumNamesSCENARIO_TYPE());
-      scenario::debug_print(type);
+    terminal::add_query("scenario_debug", "scenario_debug", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      scenario::debug_print();
       return true;
     });
 
