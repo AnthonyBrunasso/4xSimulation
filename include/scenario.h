@@ -12,5 +12,5 @@ namespace scenario {
   void reset();
   void process();
 
-  void debug_print(fbs::SCENARIO_TYPE type);
+  void debug_print();
 }
