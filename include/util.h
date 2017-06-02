@@ -45,16 +45,6 @@ namespace util {
   sf::Vector3f to_vector3f(const sf::Vector3i& vector);
   fbs::DIRECTION_TYPE get_direction(const sf::Vector3i& diff);
   sf::Vector3i get_direction(fbs::DIRECTION_TYPE type);
- 
-  template <class ENUM>
-  uint32_t enum_to_uint(ENUM id) {
-    return static_cast<uint32_t>(id);
-  }
-
-  template <class ENUM>
-  ENUM uint_to_enum(uint32_t id) {
-    return static_cast<ENUM>(id);
-  }
 
   template <class ENUM>
   ENUM enum_from_names(const std::string& searchName, const char** names) {

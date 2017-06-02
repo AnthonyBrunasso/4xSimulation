@@ -27,15 +27,15 @@ namespace {
 }
 
 void improvement::initialize() {
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::LUXURY_GOLD)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::LUXURY_SUGAR)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::PLANTATION);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STRATEGIC_IRON)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STRATEGIC_COAL)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::CATTLE)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::PASTURE);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::DEER)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::CAMP);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::FISH)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::FISH_BOATS);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::STONE)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::MINE);
-  s_resource_improvements[util::enum_to_uint(fbs::RESOURCE_TYPE::SHEEP)] = util::enum_to_uint(fbs::IMPROVEMENT_TYPE::PASTURE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::LUXURY_GOLD)] = any_enum(fbs::IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::LUXURY_SUGAR)] = any_enum(fbs::IMPROVEMENT_TYPE::PLANTATION);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::STRATEGIC_IRON)] = any_enum(fbs::IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::STRATEGIC_COAL)] = any_enum(fbs::IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::CATTLE)] = any_enum(fbs::IMPROVEMENT_TYPE::PASTURE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::DEER)] = any_enum(fbs::IMPROVEMENT_TYPE::CAMP);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::FISH)] = any_enum(fbs::IMPROVEMENT_TYPE::FISH_BOATS);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::STONE)] = any_enum(fbs::IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::SHEEP)] = any_enum(fbs::IMPROVEMENT_TYPE::PASTURE);
 
   for (auto& res : s_resource_improvements) {
     s_impvResources[res.second].push_back(res.first);
@@ -52,13 +52,13 @@ Improvement::Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE
 
 void improvement::add_requirement(fbs::IMPROVEMENT_TYPE type, 
     std::function<bool(fbs::RESOURCE_TYPE, fbs::IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement) {
-  s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
+  s_creation_requirements[any_enum(type)].push_back(requirement);
 }
 
 bool improvement::satisfies_requirements(fbs::RESOURCE_TYPE rtype
     , fbs::IMPROVEMENT_TYPE itype
     , const sf::Vector3i& location) {
-  Requirements& requirements = s_creation_requirements[util::enum_to_uint(itype)]; 
+  Requirements& requirements = s_creation_requirements[any_enum(itype)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
     if (!requirement(rtype, itype, location)) {
@@ -116,7 +116,7 @@ void improvement::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)>
 
 ValidResourceVector improvement::resource_requirements(fbs::IMPROVEMENT_TYPE type) {
   ValidResourceVector none;
-  uint32_t impv = util::enum_to_uint(type);
+  uint32_t impv = any_enum(type);
   ImprovementResourcesMap::const_iterator itFind = s_impvResources.find(impv);
   if (itFind == s_impvResources.end()) {
     return none;
@@ -126,7 +126,8 @@ ValidResourceVector improvement::resource_requirements(fbs::IMPROVEMENT_TYPE typ
 }
 
 fbs::IMPROVEMENT_TYPE improvement::resource_improvement(fbs::RESOURCE_TYPE resource) {
-  return util::uint_to_enum<fbs::IMPROVEMENT_TYPE>(s_resource_improvements[util::enum_to_uint(resource)]);
+  uint32_t rid = any_enum(resource);
+  return any_enum(s_resource_improvements[rid]);
 }
 
 Improvement* improvement::get_improvement(uint32_t id) {

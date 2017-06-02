@@ -32,7 +32,7 @@ Resource& Resource::operator+=(const Resource& rhs) {
 
 ResourceUMap::ResourceUMap() {
   auto check = ([this](fbs::RESOURCE_TYPE type){
-    this->m_resource_map[util::enum_to_uint(type)] = Resource(type);
+    this->m_resource_map[any_enum(type)] = Resource(type);
   });
   for (auto rt : fbs::EnumValuesRESOURCE_TYPE()) {
     check(rt);
@@ -40,15 +40,15 @@ ResourceUMap::ResourceUMap() {
 }
 
 void ResourceUMap::add(fbs::RESOURCE_TYPE type, int32_t quantity) {
-  m_resource_map[util::enum_to_uint(type)].m_quantity += quantity;
+  m_resource_map[any_enum(type)].m_quantity += quantity;
 }
 
 void ResourceUMap::add(Resource resource) {
-  m_resource_map[util::enum_to_uint(resource.m_type)] += resource;
+  m_resource_map[any_enum(resource.m_type)] += resource;
 }
 
 void ResourceUMap::for_each_resource(std::function<void(fbs::RESOURCE_TYPE type, const Resource& resource)> operation) const {
   for (auto resource : m_resource_map) {
-    operation(util::uint_to_enum<fbs::RESOURCE_TYPE>(resource.first), resource.second);
+    operation(any_enum(resource.first), resource.second);
   }
 }

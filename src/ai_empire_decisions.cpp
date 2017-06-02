@@ -54,7 +54,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
   std::cout << current->m_name << " found a home at " << format::vector3(new_home) << std::endl;
   // Create a worker, for now, on that tile then a city
   flatbuffers::Offset<fbs::SpawnStep> spawn_step;
-  uint32_t unit_type = (util::enum_to_uint(fbs::UNIT_TYPE::WORKER));
+  uint32_t unit_type = (any_enum(fbs::UNIT_TYPE::WORKER));
   fbs::v3i location(new_home.x, new_home.y, new_home.z);
   spawn_step = fbs::CreateSpawnStep(ai_shared::GetFBB(), unit_type, &location, player_id);
   ai_shared::simulate_step(fbs::StepUnion::SpawnStep, spawn_step.Union());
@@ -69,7 +69,7 @@ void EmpireSettle::operator()(uint32_t player_id) {
 
   // TEMPORARY: Construct the barbarian and uber forge.
   flatbuffers::Offset<fbs::ConstructionStep> forge;
-  uint32_t production_id = (util::enum_to_uint(fbs::CONSTRUCTION_TYPE::FORGE));
+  uint32_t production_id = (any_enum(fbs::CONSTRUCTION_TYPE::FORGE));
   bool cheat = true;
   forge = fbs::CreateConstructionStep(ai_shared::GetFBB(), city_id, production_id, cheat, player_id);
   ai_shared::simulate_step(fbs::StepUnion::ConstructionStep, forge.Union());

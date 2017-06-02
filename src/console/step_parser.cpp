@@ -142,7 +142,7 @@ namespace step_parser {
         construction_id = (std::stoul(tokens[2]));
       }
       else {
-        construction_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
+        construction_id = any_enum(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
       }
       if (tokens.size() > 3) {
         cheat = true;
@@ -167,7 +167,7 @@ namespace step_parser {
         type_id = (std::stoul(tokens[1]));
       }
       else {
-        type_id = (util::enum_to_uint(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
+        type_id = (any_enum(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
       }
 
       fbs::v3i dest = (str_to_v3i(tokens[2], tokens[3], tokens[4]));
@@ -182,7 +182,7 @@ namespace step_parser {
     else if (tokens[0] == "grant") {
       CHECK_VALID(2, tokens);
 
-      uint32_t science_id = static_cast<uint32_t>(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
+      uint32_t science_id = any_enum(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
       if (science_id == 0) {
         science_id = (std::stoul(tokens[1]));
       }
@@ -202,7 +202,7 @@ namespace step_parser {
         resource_id = std::stoul(tokens[1]);
       }
       else {
-        resource_id = (util::enum_to_uint(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
+        resource_id = (any_enum(util::enum_from_names<fbs::RESOURCE_TYPE>(tokens[1], fbs::EnumNamesRESOURCE_TYPE())));
       }
       fbs::v3i dest = str_to_v3i(tokens[2], tokens[3], tokens[4]);
       flatbuffers::Offset<fbs::ImproveStep> improve_step = fbs::CreateImproveStep(GetFBB(), &dest, resource_id, s_active_player);
@@ -213,8 +213,14 @@ namespace step_parser {
       CHECK(2, tokens);
       fbs::AI_TYPE ai_type = (fbs::AI_TYPE::HUMAN);
       if (tokens.size() == 3) {
+        ai_type = fbs::AI_TYPE::UNKNOWN;
         if (std::isdigit(tokens[2][0])) {
-          ai_type = util::uint_to_enum<fbs::AI_TYPE>(std::stoul(tokens[2]));
+          any_enum input(std::stoul(tokens[2]));
+          for (auto at : fbs::EnumValuesAI_TYPE()) {
+            if (at == input) {
+              ai_type = at;
+            }
+          }
         }
         else {
           ai_type = util::enum_from_names<fbs::AI_TYPE>(tokens[2], fbs::EnumNamesAI_TYPE());
@@ -267,7 +273,7 @@ namespace step_parser {
           production_id = (std::stoul(tokens[2]));
         }
         else {
-          production_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
+          production_id = any_enum(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
         }
       }
       flatbuffers::Offset<fbs::PurchaseStep> purchase_step = fbs::CreatePurchaseStep(GetFBB(), s_active_player, production_id, city_id);
@@ -276,7 +282,7 @@ namespace step_parser {
 
     else if (tokens[0] == "research") {
       CHECK_VALID(2, tokens);
-      uint32_t science_id = static_cast<uint32_t>(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
+      uint32_t science_id = any_enum(util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[1], fbs::EnumNamesSCIENCE_TYPE()));
       if (science_id == 0) {
         science_id = (std::stoul(tokens[1]));
       }
@@ -293,7 +299,7 @@ namespace step_parser {
           production_id = (std::stoul(tokens[2]));
         }
         else {
-          production_id = util::enum_to_uint(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
+          production_id = any_enum(util::enum_from_names<fbs::CONSTRUCTION_TYPE>(tokens[2], fbs::EnumNamesCONSTRUCTION_TYPE()));
         }
       }
       flatbuffers::Offset<fbs::SellStep> sell_step = fbs::CreateSellStep(GetFBB(), s_active_player, city_id, production_id);
@@ -315,7 +321,7 @@ namespace step_parser {
         terrain_type = (std::stoul(tokens[2]));
       }
       else {
-        terrain_type = (util::enum_to_uint(util::enum_from_names<fbs::TERRAIN_TYPE>(tokens[2], fbs::EnumNamesTERRAIN_TYPE())));
+        terrain_type = (any_enum(util::enum_from_names<fbs::TERRAIN_TYPE>(tokens[2], fbs::EnumNamesTERRAIN_TYPE())));
       }
       flatbuffers::Offset<fbs::SpecializeStep> specialize_step = fbs::CreateSpecializeStep(GetFBB(), city_id, terrain_type, s_active_player);
       copy_to_netbuffer(fbs::StepUnion::SpecializeStep, specialize_step.Union());
@@ -330,7 +336,7 @@ namespace step_parser {
       }
       // Else treat it as the name of what needs to be spawned.
       else {
-        unit_type = util::enum_to_uint(util::enum_from_names<fbs::UNIT_TYPE>(tokens[1], fbs::EnumNamesUNIT_TYPE()));
+        unit_type = any_enum(util::enum_from_names<fbs::UNIT_TYPE>(tokens[1], fbs::EnumNamesUNIT_TYPE()));
       }
       fbs::v3i unitLoc = str_to_v3i(tokens[2], tokens[3], tokens[4]);
 
@@ -370,9 +376,14 @@ namespace step_parser {
 
     else if (tokens[0] == "scenario") {
       CHECK(2, tokens);
-      fbs::SCENARIO_TYPE scenario_type;
+      fbs::SCENARIO_TYPE scenario_type = fbs::SCENARIO_TYPE::UNKNOWN;
       if (std::isdigit(tokens[1][0])) {
-        scenario_type = (util::uint_to_enum<fbs::SCENARIO_TYPE>(std::stoul(tokens[1])));
+        any_enum input(std::stoul(tokens[1]));
+        for (auto st : fbs::EnumValuesSCENARIO_TYPE()) {
+          if (st == input) {
+            scenario_type = st;
+          }
+        }
       }
       // Else treat it as a the name of what needs to be spawned.
       else {
