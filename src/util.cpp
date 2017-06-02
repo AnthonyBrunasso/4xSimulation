@@ -65,3 +65,17 @@ sf::Vector3i util::get_direction(fbs::DIRECTION_TYPE type) {
   }
   return sf::Vector3i(0, 0, 0);
 }
+
+size_t util::enum_from_names(const std::string& searchName, const char** names) {                          
+	size_t index = 0;                                                                                         
+	while (*names) {                                                                                          
+		if (searchName == *names) {                                                                             
+			return (index);                                                                                       
+		}                                                                                                       
+		++names;                                                                                                
+		++index;                                                                                                
+	}                                                                                                         
+																																																						
+	return (0);                                                                                               
+}
+
