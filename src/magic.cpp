@@ -37,7 +37,7 @@ namespace {
   RequirementMap s_requirements;
 
   bool damage_units(uint32_t casting_player, fbs::MAGIC_TYPE type, const Tile& tile) {
-    float dmg = s_magic_stats[util::enum_to_uint(type)].m_damage;
+    float dmg = s_magic_stats[any_enum(type)].m_damage;
     for (auto id : tile.m_unit_ids) {
       // Rain ze fire.
       std::cout << "Casting " << fbs::EnumNameMAGIC_TYPE(type) << " upon unit " << id << std::endl;
@@ -54,11 +54,11 @@ namespace {
 }
 
 void magic::initialize() {
-  uint32_t fb_id = util::enum_to_uint(fbs::MAGIC_TYPE::FIREBALL);
+  uint32_t fb_id = any_enum(fbs::MAGIC_TYPE::FIREBALL);
   // Fireball does 5 whopping damage! Woah!
   s_magic_stats[fb_id] = Spell(5.0f, 2.0f, fbs::MAGIC_TYPE::FIREBALL);
 
-  uint32_t mm_id = util::enum_to_uint(fbs::MAGIC_TYPE::MAGIC_MISSILE);
+  uint32_t mm_id = any_enum(fbs::MAGIC_TYPE::MAGIC_MISSILE);
   s_magic_stats[mm_id] = Spell(3.0f, 0.5f, fbs::MAGIC_TYPE::MAGIC_MISSILE);
 
   // Magic missles must come from a city.
@@ -103,7 +103,7 @@ void magic::reset() {
 }
 
 void magic::cast(uint32_t player_id, fbs::MAGIC_TYPE type, const sf::Vector3i& location, bool cheat/*=false*/) {
-  uint32_t utype = util::enum_to_uint(type);
+  uint32_t utype = any_enum(type);
   float magic_cost = s_magic_stats[utype].m_cost;
   Player* p = player::get_player(player_id);
   if (!p) {

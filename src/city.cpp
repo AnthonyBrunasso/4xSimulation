@@ -197,11 +197,11 @@ float city::population_size_from_food(float food) {
 
 void city::add_requirement(fbs::BUILDING_TYPE type, 
     std::function<bool(const sf::Vector3i&, uint32_t)> requirement) {
-  s_creation_requirements[util::enum_to_uint(type)].push_back(requirement);
+  s_creation_requirements[any_enum(type)].push_back(requirement);
 }
 
 uint32_t city::create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id) {
-  Requirements& requirements = s_creation_requirements[util::enum_to_uint(type)]; 
+  Requirements& requirements = s_creation_requirements[any_enum(type)]; 
   // Verify all requirements are satisfied for this improvement.
   for (auto requirement : requirements) {
     if (!requirement(location, player_id)) {
