@@ -21,3 +21,8 @@ sf::Vector3i game_random::cube_coord(int max_coord) {
 void game_random::set_seed(unsigned seed) {
   s_mt.seed(seed);
 }
+
+int game_random::discrete_distribution(const std::initializer_list<double>& values) {
+  std::discrete_distribution<> d(values);
+  return d(s_mt);
+}
