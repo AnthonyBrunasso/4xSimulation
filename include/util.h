@@ -46,17 +46,5 @@ namespace util {
   fbs::DIRECTION_TYPE get_direction(const sf::Vector3i& diff);
   sf::Vector3i get_direction(fbs::DIRECTION_TYPE type);
 
-  template <class ENUM>
-  ENUM enum_from_names(const std::string& searchName, const char** names) {
-    size_t index = 0;
-    while (*names) {
-      if (searchName == *names) {
-        return static_cast<ENUM>(index);
-      }
-      ++names;
-      ++index;
-    }
-
-    return static_cast<ENUM>(0);
-  }
+  size_t enum_from_names(const std::string& searchName, const char** names);
 }

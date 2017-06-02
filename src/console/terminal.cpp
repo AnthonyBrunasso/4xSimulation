@@ -100,7 +100,7 @@ namespace terminal  {
       CHECK(2, tokens);
       uint32_t player_id = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
-      fbs::SCIENCE_TYPE st = util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[2], fbs::EnumNamesSCIENCE_TYPE());
+      fbs::SCIENCE_TYPE st = any_enum(util::enum_from_names(tokens[2], fbs::EnumNamesSCIENCE_TYPE()));
         if (st == fbs::SCIENCE_TYPE::UNKNOWN) {
           st = static_cast<fbs::SCIENCE_TYPE>(std::stoul(tokens[2]));
         }
@@ -415,7 +415,7 @@ namespace terminal  {
 
     terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
       CHECK_VALID(6, tokens);
-      fbs::SEARCH_TYPE type = util::enum_from_names<fbs::SEARCH_TYPE>(tokens[1], fbs::EnumNamesSEARCH_TYPE());
+      fbs::SEARCH_TYPE type = any_enum(util::enum_from_names(tokens[1], fbs::EnumNamesSEARCH_TYPE()));
       sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       uint32_t depth = std::stoul(tokens[5]);
       static auto s_units = [](const Unit& u) -> bool {
