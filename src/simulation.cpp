@@ -277,7 +277,7 @@ namespace simulation {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
-    fbs::CONSTRUCTION_TYPE t(production::id(production_id));
+    fbs::CONSTRUCTION_TYPE t = any_enum(production_id);
 
     if (cheat) {
       production_queue::purchase(city->GetProductionQueue(), t);
@@ -691,10 +691,10 @@ namespace simulation {
       return "Purchase made.";
     }
 
-    std::vector<fbs::CONSTRUCTION_TYPE> available = production_queue::incomplete(city->GetProductionQueue());
+    std::vector<uint32_t> available = production_queue::incomplete(city->GetProductionQueue());
     ss << "City (" << city->m_id << ") available purchases: " << std::endl;
     for (size_t i = 0; i < available.size(); ++i) {
-      fbs::CONSTRUCTION_TYPE t(available[i]);
+      fbs::CONSTRUCTION_TYPE t = any_enum(available[i]);
       ss << production::required_to_purchase(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();
@@ -721,12 +721,12 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(city_id);
     if(!city) return "Invalid City";
-    std::vector<fbs::CONSTRUCTION_TYPE> completed = production_queue::complete(city->GetProductionQueue());
+    std::vector<uint32_t> completed = production_queue::complete(city->GetProductionQueue());
     if (production_id != 0) {
-      fbs::CONSTRUCTION_TYPE t = any_enum(production_id);
       for (size_t i = 0; i < completed.size(); ++i) {
-        if (completed[i] == t) {
-          player->m_gold += production::yield_from_sale(completed[i]);
+        if (completed[i] == production_id) {
+          fbs::CONSTRUCTION_TYPE t = any_enum(completed[i]);
+          player->m_gold += production::yield_from_sale(t);
           production_queue::sell(city->GetProductionQueue(), t);
           return "Sale made.";
         }
@@ -736,7 +736,7 @@ namespace simulation {
 
     ss << "City (" << city->m_id << ") available buildings for sale: " << std::endl;
     for (size_t i = 0; i < completed.size(); ++i) {
-      fbs::CONSTRUCTION_TYPE t(completed[i]);
+      fbs::CONSTRUCTION_TYPE t = any_enum(completed[i]);
       ss << "+" << production::yield_from_sale(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();

@@ -147,10 +147,10 @@ namespace terminal  {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
         if (city.IsConstructing()) return;
-        std::vector<fbs::CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
+        std::vector<uint32_t> incomplete = production_queue::incomplete(city.GetProductionQueue());
         std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
         for (size_t i = 0; i < incomplete.size(); ++i) {
-          fbs::CONSTRUCTION_TYPE t = incomplete[i];
+          fbs::CONSTRUCTION_TYPE t = any_enum(incomplete[i]);
           std::cout <<  static_cast<uint32_t>(t) << " " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
         }
         stop = true;

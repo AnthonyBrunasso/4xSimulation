@@ -44,10 +44,10 @@ namespace production {
 }
 
 namespace production_queue {
-  std::vector<fbs::CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO*);
-  std::vector<fbs::CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO*);
-  std::vector<fbs::CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO*);
-  std::vector<fbs::CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO*);
+  std::vector<uint32_t> complete(const ConstructionQueueFIFO*);
+  std::vector<uint32_t> incomplete(const ConstructionQueueFIFO*);
+  std::vector<uint32_t> available(const ConstructionQueueFIFO*);
+  std::vector<uint32_t> queue(const ConstructionQueueFIFO*);
   
   fbs::CONSTRUCTION_TYPE front(const ConstructionQueueFIFO*);
   bool built(const ConstructionQueueFIFO*, fbs::CONSTRUCTION_TYPE);
