@@ -3,9 +3,7 @@
 
 #include <cstdint>
 
-namespace fbs {
-  enum class CONSTRUCTION_TYPE : uint32_t;
-}
+#include "enum_generated.h"
 
 class ConstructionOrder
 {

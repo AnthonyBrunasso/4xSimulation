@@ -16,25 +16,26 @@ if(NOT FLATBUFFERS_FLATC_EXECUTABLE)
 endif()                                                                                                       
 # Make our own builder
 # unused flags, for now: --gen-object-api --gen-mutable
-function(fourx_compile_flatbuffers_schema_to_cpp SRC_FBS)
+function(fourx_compile_flatbuffers_schema_to_cpp SRC_FBS FLAGS)
   get_filename_component(SRC_FBS_DIR ${SRC_FBS} PATH)
   string(REGEX REPLACE "\\.fbs$" "_generated.h" GEN_HEADER ${SRC_FBS})
   add_custom_command(
     OUTPUT ${GEN_HEADER}
     DEPENDS ${SRC_FBS}
-    COMMAND "${FLATBUFFERS_FLATC_EXECUTABLE}" -c --no-includes 
+    COMMAND "${FLATBUFFERS_FLATC_EXECUTABLE}" -c ${FLAGS}
             --no-prefix --scoped-enums
             -o "${SRC_FBS_DIR}"
             "${CMAKE_CURRENT_SOURCE_DIR}/${SRC_FBS}"
     DEPENDS flatc)
 endfunction()
 
-fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs)  
+fourx_compile_flatbuffers_schema_to_cpp(generated/enum.fbs --no-fb-include)
+fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs "")
 # Add the output path to the include directories
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
-add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
-add_library(4xdll SHARED ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )
+add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
+add_library(4xdll SHARED ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
 add_executable(4xsim ${console_sources})
 add_executable(4xlearn ${learn_sources})
 add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )

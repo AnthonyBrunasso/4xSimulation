@@ -2,10 +2,7 @@
 
 #include <cstdint>
 
-namespace fbs
-{
-  enum class SCENARIO_TYPE : uint32_t;
-}
+#include "enum_generated.h"
 
 namespace scenario {
   void start(fbs::SCENARIO_TYPE type);

@@ -4,9 +4,7 @@
 #include <vector>
 #include <string>
 
-namespace fbs {
-  enum class NOTIFICATION_TYPE : uint32_t; 
-}
+#include "enum_generated.h"
 
 struct Notification
 {

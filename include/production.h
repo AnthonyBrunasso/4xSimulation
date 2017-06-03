@@ -8,16 +8,13 @@
 #include <list>
 #include <vector>
 
+#include "enum_generated.h"
 
 
 class ConstructionOrder;
 class ConstructionQueueFIFO;
 class ConstructionState;
 struct TerrainYield;
-
-namespace fbs {
-  enum class CONSTRUCTION_TYPE : uint32_t;
-}
 
 typedef std::list<ConstructionOrder*> ConstructionList;
 
