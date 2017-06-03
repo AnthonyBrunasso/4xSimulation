@@ -422,7 +422,7 @@ std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
     std::istream_iterator<std::string>(),
     std::back_inserter(tokens));
 
-  return std::move(tokens);
+  return (tokens);
 }
 
 size_t step_parser::parse(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {

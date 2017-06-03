@@ -94,7 +94,7 @@ std::vector<sf::Vector3i> search::range(const sf::Vector3i& start, int32_t dista
     }
   }
 
-  return std::move(coords);
+  return (coords);
 }
 
 // Calculates the path with the cheapest cumulative tile path cost
@@ -124,7 +124,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     PathNode current = open.top();
     if (current.m_location == end) {
       build_path(current.m_location, came_from, coords);
-      return std::move(coords);
+      return (coords);
     }
     // Remove from open list.
     open.pop();
@@ -161,7 +161,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     }
   }
 
-  return std::move(coords);
+  return (coords);
 }
 
 // Bfs until the comparator returns true.

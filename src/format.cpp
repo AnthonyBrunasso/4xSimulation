@@ -23,7 +23,7 @@ std::string format::cube_neighbors(const sf::Vector3i& start) {
     ss << "(" << adj[i].x << "," << adj[i].y << "," << adj[i].z << ") ";
   }
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::axial_neighbors(const sf::Vector2i& start) {
@@ -34,7 +34,7 @@ std::string format::axial_neighbors(const sf::Vector2i& start) {
     ss << "(" << adj[i].x << "," << adj[i].y << ") ";
   }
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::tile(const Tile& tile) {
@@ -55,7 +55,7 @@ std::string format::tile(const Tile& tile) {
 
   ss << " improvements: " << format::vector(tile.m_improvement_ids) << std::endl;
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::unit(const Unit& unit) {
@@ -70,7 +70,7 @@ std::string format::unit(const Unit& unit) {
      << " owner: " << unit.m_owner_id << std::endl
      << " direction: " << fbs::EnumNameDIRECTION_TYPE(util::get_direction(unit.m_direction));
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::city(const City& city) {
@@ -84,7 +84,7 @@ std::string format::city(const City& city) {
   ss << "    Growth: (" << city.FoodForGrowth()-city.m_food << " required) (" << city.GetTurnsForGrowth() << " turns)" << std::endl;
   ss << *city.GetProductionQueue() << std::endl;
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::ascii_tile(Tile* tile) {
@@ -107,7 +107,7 @@ std::string format::ascii_tile(Tile* tile) {
     ascii = "* ^";
   }
 
-  return std::move(ascii);
+  return (ascii);
 }
 
 std::string format::player(const Player& player) {
@@ -126,7 +126,7 @@ std::string format::player(const Player& player) {
   ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
   ss << " discovered cities: " << format::set(player.m_discovered_cities) << std::endl;
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::combat_stats(const CombatStats& stats) {
@@ -136,7 +136,7 @@ std::string format::combat_stats(const CombatStats& stats) {
      << " attack: " << stats.m_attack
      << " range: " << stats.m_range;
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::resources(const ResourceUMap& resources) {
@@ -148,13 +148,13 @@ std::string format::resources(const ResourceUMap& resources) {
   });
   ss << "]";
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::resource(const Resource& resource) {
   std::stringstream ss;
   ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::improvement(const Improvement& improvement) {
@@ -166,7 +166,7 @@ std::string format::improvement(const Improvement& improvement) {
   ss << " player id: " << improvement.m_owner_id << std::endl;
   ss << " location: " << format::vector3(improvement.m_location);
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::effect(const StatusEffect& effect) {
@@ -186,7 +186,7 @@ std::string format::effect(const StatusEffect& effect) {
   ss << " affecting units: " << format::uint_vector(effect.m_units) << std::endl;
   ss << " affecting cities: " << format::uint_vector(effect.m_cities);
 
-  return std::move(ss.str());
+  return (ss.str());
 }
 
 std::string format::uint_vector(const std::vector<uint32_t>& vec) {
@@ -199,5 +199,5 @@ std::string format::uint_vector(const std::vector<uint32_t>& vec) {
   }
 
   ss << "]";
-  return std::move(ss.str());
+  return (ss.str());
 }

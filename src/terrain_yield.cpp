@@ -85,7 +85,7 @@ const TerrainYield operator+(const TerrainYield& lhs, const TerrainYield& rhs) {
   base.m_gold = lhs.m_gold + rhs.m_gold;
   base.m_experience = lhs.m_experience + rhs.m_experience;
   base.m_magic = lhs.m_magic + rhs.m_magic;
-  return std::move(base);
+  return (base);
 }
 
 std::ostream& operator<<(std::ostream& out,  const TerrainYield& ty) {

@@ -605,7 +605,7 @@ std::vector<std::string> terminal::tokenize(const std::string& input) {
   std::cout << "Tokenizing: " << input << std::endl;
   std::vector<std::string> tokens = step_parser::split_to_tokens(input);
 
-  return std::move(tokens);
+  return (tokens);
 }
 
 bool terminal::is_query(const std::vector<std::string> & tokens) {
