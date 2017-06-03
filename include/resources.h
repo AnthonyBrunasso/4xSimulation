@@ -4,11 +4,9 @@
 #include <unordered_map>
 #include <functional>
 
+#include "enum_generated.h"
 
 
-namespace fbs {
-  enum class RESOURCE_TYPE : uint32_t;
-}
 
 // These resources will represent civilization level resources. 
 // Examples: Amount of gold in a civilization, amount of happiness.

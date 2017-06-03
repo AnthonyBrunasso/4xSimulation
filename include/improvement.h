@@ -5,13 +5,8 @@
 #include <functional>
 #include <vector>
 
-
+#include "enum_generated.h"
 #include "resources.h"
-
-namespace fbs {
-  enum class RESOURCE_TYPE : uint32_t;
-  enum class IMPROVEMENT_TYPE : uint32_t;
-}
 
 struct Improvement {
   Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type);

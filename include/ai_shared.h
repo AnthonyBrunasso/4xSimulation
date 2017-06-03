@@ -2,6 +2,7 @@
 
 #include <Vector3.hpp>
 #include <stdint.h>
+#include "enum_generated.h"
 
 namespace flatbuffers {
   class FlatBufferBuilder;

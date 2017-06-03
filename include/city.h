@@ -7,15 +7,11 @@
 
 #include "Vector3.hpp"
 
+#include "enum_generated.h"
 #include "notification.h"
 
 class ConstructionQueueFIFO;
 struct TerrainYield;
-
-namespace fbs {
-  enum class BUILDING_TYPE : uint32_t;
-  enum class TERRAIN_TYPE : uint32_t;
-}
 
 class City {
 public:
