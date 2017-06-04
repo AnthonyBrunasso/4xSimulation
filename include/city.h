@@ -65,13 +65,11 @@ namespace city {
   float population_size_from_food(float food);
 
   // Access
-  void add_requirement(fbs::BUILDING_TYPE type, 
-    std::function<bool(const sf::Vector3i&, uint32_t)> requirement);
-  uint32_t create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id);
-  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  uint32_t create(const sf::Vector3i& location, uint32_t player_id);
+  void sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
   void raze(uint32_t id);
-  void sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub);
-  void sub_raze_complete(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_raze_init(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
+  void sub_raze_complete(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
   City* nearest_city(sf::Vector3i&);
   City* get_city(uint32_t id);
   void do_notifications(uint32_t city_id, NotificationVector& events);

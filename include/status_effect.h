@@ -61,10 +61,10 @@ namespace status_effect {
   void inject_per(std::function<void()> per);
 
   uint32_t create(fbs::STATUS_TYPE type, const sf::Vector3i& location);  
-  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);
-  void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
 
   StatusEffect* get_effect(uint32_t id);
   void for_each_effect(std::function<void(const StatusEffect& effect)> operation);

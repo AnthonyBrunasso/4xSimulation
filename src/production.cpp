@@ -48,19 +48,20 @@ namespace production {
   typedef std::unordered_map<uint32_t, ConstructionQueueFIFO*> ProductionMap;
   ProductionMap s_production_queues;
 
-  void production_cleanup(const sf::Vector3i&, uint32_t city_id) {
+  bool production_cleanup(const sf::Vector3i&, uint32_t city_id) {
     City* c = city::get_city(city_id);
-    if (!c) return;
+    if (!c) return false;
 
     ProductionMap::iterator itFind = s_production_queues.find(c->m_production_id);
     if (itFind == s_production_queues.end()) {
-      return;
+      return false;
     }
     
     ConstructionQueueFIFO* cq = itFind->second;
     delete cq->m_state;
     delete cq;
     s_production_queues.erase(itFind);
+    return true;
   }
   
   uint32_t create(uint32_t city_id) {

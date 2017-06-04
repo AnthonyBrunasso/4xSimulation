@@ -9,21 +9,24 @@
 #include "step_generated.h"
 #include "unique_id.h"
 #include "util.h"
+#include "world_map.h"
 
-namespace {
+namespace improvement {
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
-  typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
-  typedef std::vector<std::function<bool(fbs::RESOURCE_TYPE, fbs::IMPROVEMENT_TYPE, const sf::Vector3i&)> > Requirements;
-  typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   typedef std::unordered_map<uint32_t, uint32_t> ResourceImprovementMap;
   typedef std::vector<std::uint32_t> ValidResourceVector;
   typedef std::unordered_map<uint32_t, ValidResourceVector> ImprovementResourcesMap;
   ImprovementResourcesMap s_impvResources;
   ImprovementMap s_improvements;
-  SubMap s_destroy_subs;
-  SubMap s_create_subs;
-  RequirementMap s_creation_requirements;
   ResourceImprovementMap s_resource_improvements;
+
+  typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
+  constexpr size_t SUBSCRIBER_LIMIT = 10;
+  SubscriberFunc s_destroy_subs[SUBSCRIBER_LIMIT];
+  SubscriberFunc s_create_subs[SUBSCRIBER_LIMIT];
+
+  bool valid_resource(fbs::RESOURCE_TYPE selected_type, fbs::IMPROVEMENT_TYPE type);
+  bool is_resource_available(fbs::RESOURCE_TYPE rt, const sf::Vector3i& location);
 }
 
 void improvement::initialize() {
@@ -50,23 +53,34 @@ Improvement::Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE
 {
 }
 
-void improvement::add_requirement(fbs::IMPROVEMENT_TYPE type, 
-    std::function<bool(fbs::RESOURCE_TYPE, fbs::IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement) {
-  s_creation_requirements[any_enum(type)].push_back(requirement);
+bool improvement::is_resource_available(fbs::RESOURCE_TYPE rt, const sf::Vector3i& location) {
+	Tile* tile = world_map::get_tile(location);
+	if (!tile) {
+		std::cout << "Invalid tile" << std::endl;
+		return false;
+	}
+
+	// Check if this tile already contains a resource improvement.
+	for (auto id : tile->m_improvement_ids) {
+		Improvement* improvement = improvement::get_improvement(id);
+		if (!improvement) continue;
+		if (improvement->m_resource.m_type == rt) {
+			std::cout << "Resource improvement already exists on this tile" << std::endl;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool improvement::valid_resource(fbs::RESOURCE_TYPE selected_type, fbs::IMPROVEMENT_TYPE type) {
+	return type == improvement::resource_improvement(selected_type);
 }
 
 bool improvement::satisfies_requirements(fbs::RESOURCE_TYPE rtype
     , fbs::IMPROVEMENT_TYPE itype
     , const sf::Vector3i& location) {
-  Requirements& requirements = s_creation_requirements[any_enum(itype)]; 
-  // Verify all requirements are satisfied for this improvement.
-  for (auto requirement : requirements) {
-    if (!requirement(rtype, itype, location)) {
-      std::cout << "Could not satisfy improvement create requirements." << std::endl;
-      return false;
-    }
-  }
-  return true;
+  return valid_resource(rtype, itype) && is_resource_available(rtype, location);
 }
 
 uint32_t improvement::create(Resource res
@@ -86,14 +100,23 @@ uint32_t improvement::create(Resource res
   std::cout << "Created improvement id " << id << ", improvement type: " << fbs::EnumNameIMPROVEMENT_TYPE(type) << std::endl;
 
   for (auto sub : s_create_subs) {
-    sub(location, id);
+    if (sub) {
+      sub(location, id);
+    }
   }
 
   return id;
 }
 
-void improvement::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_create_subs.push_back(sub);
+void improvement::sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto& s : s_create_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 void improvement::destroy(uint32_t id) {
@@ -103,18 +126,27 @@ void improvement::destroy(uint32_t id) {
   }
 
   for (auto sub : s_destroy_subs) {
-    sub(improvement->m_location, id);
+    if (sub) {
+      sub(improvement->m_location, id);
+    }
   }
 
   s_improvements.erase(id);
   delete improvement;
 }
 
-void improvement::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_destroy_subs.push_back(sub);
+void improvement::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto& s : s_destroy_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
-ValidResourceVector improvement::resource_requirements(fbs::IMPROVEMENT_TYPE type) {
+improvement::ValidResourceVector improvement::resource_requirements(fbs::IMPROVEMENT_TYPE type) {
   ValidResourceVector none;
   uint32_t impv = any_enum(type);
   ImprovementResourcesMap::const_iterator itFind = s_impvResources.find(impv);
@@ -150,9 +182,12 @@ void improvement::reset() {
   }
   s_improvements.clear();
   s_impvResources.clear();
-  s_destroy_subs.clear();
-  s_create_subs.clear();
-  s_creation_requirements.clear();
+  for (auto& s : s_destroy_subs) {
+    s = SubscriberFunc();
+  }
+  for (auto& s : s_create_subs) {
+    s = SubscriberFunc();
+  }
   s_resource_improvements.clear();
 }
 

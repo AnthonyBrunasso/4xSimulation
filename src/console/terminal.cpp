@@ -374,17 +374,6 @@ namespace terminal  {
       return true;
     });   
     
-    terminal::add_query("building_types", "building_types", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(1, tokens);
-      auto check = ([](fbs::BUILDING_TYPE building) {
-        std::cout << static_cast<int32_t>(building) << ": " << fbs::EnumNameBUILDING_TYPE(building) << std::endl;
-      });
-      for (auto bt : fbs::EnumValuesBUILDING_TYPE()) {
-        check(bt);
-      }
-      return true;
-    });   
-    
     terminal::add_query("construction_types", "construction_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       auto check = ([](fbs::CONSTRUCTION_TYPE construction) {

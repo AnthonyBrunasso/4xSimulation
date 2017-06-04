@@ -21,14 +21,13 @@
 
 namespace city {
   typedef std::unordered_map<uint32_t, City*> CityMap;
-  typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
-  typedef std::vector<std::function<bool(const sf::Vector3i&, uint32_t)> > Requirements;
-  typedef std::unordered_map<uint32_t, Requirements> RequirementMap;
   CityMap s_cities;
-  SubMap s_raze_init_subs;
-  SubMap s_raze_complete_subs;
-  SubMap s_create_subs;
-  RequirementMap s_creation_requirements;
+
+  typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
+  constexpr size_t SUBSCRIBER_LIMIT = 10;
+  SubscriberFunc s_raze_init_subs[SUBSCRIBER_LIMIT];
+  SubscriberFunc s_raze_complete_subs[SUBSCRIBER_LIMIT];
+  SubscriberFunc s_create_subs[SUBSCRIBER_LIMIT];
 
   void notify_raze_init(City& c);
   void notify_raze_complete(City& c);
@@ -195,21 +194,7 @@ float city::population_size_from_food(float food) {
   return std::floor(std::pow(food/5.f, (1.f/2.75f)));
 }
 
-void city::add_requirement(fbs::BUILDING_TYPE type, 
-    std::function<bool(const sf::Vector3i&, uint32_t)> requirement) {
-  s_creation_requirements[any_enum(type)].push_back(requirement);
-}
-
-uint32_t city::create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uint32_t player_id) {
-  Requirements& requirements = s_creation_requirements[any_enum(type)]; 
-  // Verify all requirements are satisfied for this improvement.
-  for (auto requirement : requirements) {
-    if (!requirement(location, player_id)) {
-      std::cout << "Could not satisfy city create requirements." << std::endl;
-      return unique_id::INVALID_ID;
-    }
-  }
-
+uint32_t city::create(const sf::Vector3i& location, uint32_t player_id) {
   uint32_t id = unique_id::generate();
 
   City* foundedCity = new City(id);
@@ -219,14 +204,23 @@ uint32_t city::create(fbs::BUILDING_TYPE type, const sf::Vector3i& location, uin
   foundedCity->m_owner_id = player_id;
   
   for (auto sub : s_create_subs) {
-    sub(location, id);
+    if (sub) {
+      sub(location, id); 
+    }
   }
 
   return id;
 }
 
-void city::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_create_subs.push_back(sub);
+void city::sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto &s : s_create_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 void city::raze(uint32_t id) {
@@ -247,22 +241,40 @@ void city::raze(uint32_t id) {
 
 void city::notify_raze_init(City& c) {
   for (auto sub: s_raze_init_subs) {
-    sub(c.m_location, c.m_id);
+    if (sub) {
+      sub(c.m_location, c.m_id);
+    }
   }
 }
 
-void city::sub_raze_init(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_raze_init_subs.push_back(sub);
+void city::sub_raze_init(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto &s : s_raze_init_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 void city::notify_raze_complete(City& c) {
   for (auto sub: s_raze_complete_subs) {
-    sub(c.m_location, c.m_id);
+    if (sub) {
+      sub(c.m_location, c.m_id);
+    }
   }
 }
 
-void city::sub_raze_complete(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_raze_complete_subs.push_back(sub);
+void city::sub_raze_complete(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto &s : s_raze_complete_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 City* city::nearest_city(sf::Vector3i &loc) {
@@ -347,9 +359,14 @@ void city::reset() {
   }
   s_cities.clear();
 
-  s_raze_init_subs.clear();
-  s_raze_complete_subs.clear();
-  s_create_subs.clear();
-  s_creation_requirements.clear();
+  for (auto &s : s_raze_init_subs) {
+    s = SubscriberFunc();
+  }
+  for (auto &s : s_raze_complete_subs) {
+    s = SubscriberFunc();
+  }
+  for (auto &s : s_create_subs) {
+    s = SubscriberFunc();
+  }
 }
 

@@ -287,6 +287,28 @@ namespace simulation {
     production_queue::add(city->GetProductionQueue(), t);
   }
 
+	uint32_t tile_has_worker(const sf::Vector3i& location, uint32_t player_id) {
+		Tile* tile = world_map::get_tile(location);
+		if (!tile) {
+			std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+			return 0;
+		}
+
+		// Check if this tile already contains a resource improvement.
+		for (auto id : tile->m_unit_ids) {
+			Unit* unit = unit::get_unit(id);
+			if (!unit) continue;
+			if (unit->m_owner_id != player_id) continue;
+			if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
+				return unit->m_id;
+			}
+		}
+
+		// No worker is contained on the tile.
+		std::cout << "player " << player_id << " does not own a worker at " << format::vector3(location) << std::endl;
+		return 0;
+	}
+
   void execute_colonize(const fbs::ColonizeStep* colonize_step) {
     uint32_t player_id = colonize_step->player();
     sf::Vector3i location = get_v3i(colonize_step->location());
@@ -307,24 +329,17 @@ namespace simulation {
     });
     if (too_close) return;
 
-    uint32_t id = city::create(fbs::BUILDING_TYPE::TOWN, location, player_id);
-    if (!id) {
+		uint32_t unit_id = tile_has_worker(location, player_id);
+    if (!unit_id) return;
+    uint32_t city_id = city::create(location, player_id);
+    if (!city_id) {
       // Colonization failed.
       return;
     }
     // If colonization succeeded there is a worker on the tile, destroy it.
-    player::add_city(player_id, id);
-    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(location) << std::endl;
-    Tile* t = world_map::get_tile(location);
-    for (auto uid : t->m_unit_ids) {
-      Unit* u = unit::get_unit(uid);
-      if (!u) continue;
-      // Consume the unit that built the city.
-      if (u->m_type == fbs::UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
-        unit::destroy(u->m_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
-        break;
-      }
-    }
+    player::add_city(player_id, city_id);
+    std::cout << "player " << player->m_name << " colonized city (" << city_id << ") at: " << format::vector3(location) << std::endl;
+    unit::destroy(unit_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
   }
 
   void execute_improve(const fbs::ImproveStep* improve_step) {

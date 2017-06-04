@@ -116,11 +116,11 @@ namespace {
 
 
   typedef std::map<uint32_t, StatusEffect*> StatusMap;
-  typedef std::vector<std::function<void(const sf::Vector3i&, uint32_t)> > SubMap;
-
   StatusMap s_status;
-  SubMap s_create_subs;
-  SubMap s_destroy_subs;
+  typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
+  constexpr size_t SUBSCRIBER_LIMIT = 10;
+  SubscriberFunc s_destroy_subs[SUBSCRIBER_LIMIT];
+  SubscriberFunc s_create_subs[SUBSCRIBER_LIMIT];
 
   std::function<void()> s_injected_begin = {};
   std::function<void()> s_injected_end = {};
@@ -179,7 +179,9 @@ uint32_t status_effect::create(fbs::STATUS_TYPE type, const sf::Vector3i& locati
   std::cout << "Created status effect id " << id << " type: " << fbs::EnumNameSTATUS_TYPE(type) << std::endl;
 
   for (auto sub : s_create_subs) {
-    sub(location, id);
+    if (sub) {
+      sub(location, id);
+    }
   }
 
   // Gather all tiles in range of status effect.
@@ -205,8 +207,15 @@ uint32_t status_effect::create(fbs::STATUS_TYPE type, const sf::Vector3i& locati
   return id;
 }
 
-void status_effect::sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_create_subs.push_back(sub);
+void status_effect::sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto &s : s_create_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 void status_effect::destroy(uint32_t id) {
@@ -214,14 +223,23 @@ void status_effect::destroy(uint32_t id) {
   if (!e) return;
 
   for (auto sub : s_destroy_subs) {
-    sub(e->m_location, id);
+    if (sub) {
+      sub(e->m_location, id);
+    }
   }
 
   s_status.erase(id);
   delete e;
 }
-void status_effect::sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub) {
-  s_destroy_subs.push_back(sub);
+void status_effect::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
+  for (auto &s : s_destroy_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 StatusEffect* status_effect::get_effect(uint32_t id) {
@@ -301,6 +319,10 @@ void status_effect::reset() {
   }
   s_status.clear();
 
-  s_create_subs.clear();
-  s_destroy_subs.clear();
+  for (auto &s : s_create_subs) {
+    s = SubscriberFunc();
+  }
+  for (auto &s : s_destroy_subs) {
+    s = SubscriberFunc();
+  }
 }

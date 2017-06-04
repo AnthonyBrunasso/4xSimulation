@@ -65,19 +65,21 @@ namespace player {
       p->m_units.erase(uf->m_dead->m_id);
     });
 
-    city::sub_raze_complete([p](const sf::Vector3i /*location*/, uint32_t id) {
+    city::sub_raze_complete([p](const sf::Vector3i /*location*/, uint32_t id) -> bool {
 
       if (!p->OwnsCity(id)) {
-        return;
+        return false;
       }
       p->m_cities.erase(id);
+      return true;
     });
 
-    improvement::sub_destroy([p](const sf::Vector3i /*location*/, uint32_t id) {
+    improvement::sub_destroy([p](const sf::Vector3i /*location*/, uint32_t id) -> bool{
       if (!p->OwnsImprovement(id)) {
-        return;
+        return false;
       }
       p->m_improvements.erase(id);
+      return true;
     });
 
     p->m_available_research.push_back(static_cast<uint32_t>(fbs::SCIENCE_TYPE::AGRICULTURE));

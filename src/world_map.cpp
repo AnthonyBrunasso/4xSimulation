@@ -13,7 +13,6 @@
 #include "ai_barbarians.h"
 #include "city.h"
 #include "format.h"
-
 #include "improvement.h"
 #include "player.h"
 #include "random.h"
@@ -30,8 +29,6 @@ namespace {
   static uint32_t s_map_size;
   
   void subscribe_to_events();
-  void set_improvement_requirements();
-  void set_city_requirements();
 
   void unit_create(Unit* u) {
     world_map::add_unit(u->m_location, u->m_id);
@@ -41,106 +38,44 @@ namespace {
     world_map::remove_unit(uf->m_dead->m_location, uf->m_dead->m_id);
   }
 
-  void city_create(const sf::Vector3i& location, uint32_t id) {
+  bool city_create(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     tile->m_city_id = id;
+    return true;
   }
 
-  void city_raze(const sf::Vector3i& location, uint32_t /*id*/) {
+  bool city_raze(const sf::Vector3i& location, uint32_t /*id*/) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     
     tile->m_city_id = unique_id::INVALID_ID;
+    return true;
   }
 
-  void improvement_create(const sf::Vector3i& location, uint32_t id) {
+  bool improvement_create(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     tile->m_improvement_ids.push_back(id);
+    return true;
   }
 
-  void improvement_destroy(const sf::Vector3i& location, uint32_t id) {
+  bool improvement_destroy(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     auto findIt = std::find(tile->m_improvement_ids.begin(), tile->m_improvement_ids.end(), id);
     if (findIt != tile->m_improvement_ids.end()) {
       tile->m_improvement_ids.erase(findIt);
     }     
-  }
-
-  bool is_resource_available(fbs::RESOURCE_TYPE rt, fbs::IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
-    Tile* tile = world_map::get_tile(location);
-    if (!tile) {
-      std::cout << "Invalid tile" << std::endl;
-      return false;
-    }
-    
-    // Check if this tile already contains a resource improvement.
-    for (auto id : tile->m_improvement_ids) {
-      Improvement* improvement = improvement::get_improvement(id);
-      if (!improvement) continue;
-      if (improvement->m_resource.m_type == rt) {
-        std::cout << "Resource improvement already exists on this tile" << std::endl;
-        return false;
-      }
-    }
-
     return true;
-  }
-
-  bool valid_resource(fbs::RESOURCE_TYPE selected_type
-      , fbs::IMPROVEMENT_TYPE type
-      , const sf::Vector3i& location) {
-    return type == improvement::resource_improvement(selected_type);
-  }
-
-  void set_improvement_requirements() {
-    auto check = ([] (fbs::IMPROVEMENT_TYPE impv) {
-      improvement::add_requirement(impv, is_resource_available);
-      improvement::add_requirement(impv, valid_resource);
-    });
-    for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
-      check(imp);
-    }
-  }
-
-  bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {
-    Tile* tile = world_map::get_tile(location);
-    if (!tile) {
-      std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
-      return false;
-    }
-
-    Player* player = player::get_player(player_id);
-    if (!player) {
-      std::cout << "Invalid player id: " << player_id << std::endl;
-      return false;
-    }
-
-    // Check if this tile already contains a resource improvement.
-    for (auto id : tile->m_unit_ids) {
-      Unit* unit = unit::get_unit(id);
-      if (!unit) continue;
-      if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
-        // Get the player and check that the player owns this unit.
-        if (player->OwnsUnit(unit->m_id)) {
-          return true;
-        }
-      }
-    }
-    
-    // No worker is contained on the tile.
-    std::cout << player->m_name << " does not own a worker at " << format::vector3(location) << std::endl;
-    return false;
   }
 
   void subscribe_to_events() {
@@ -150,10 +85,6 @@ namespace {
     city::sub_raze_complete(city_raze);
     improvement::sub_create(improvement_create);
     improvement::sub_destroy(improvement_destroy);
-  }
-
-  void set_city_requirements() {
-    city::add_requirement(fbs::BUILDING_TYPE::TOWN, town_requirement);
   }
 }
 
@@ -183,8 +114,6 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   improvement::initialize();
 
   subscribe_to_events();
-  set_improvement_requirements();
-  set_city_requirements();
 }
 
 bool world_map::load_file(const std::string& name) {
