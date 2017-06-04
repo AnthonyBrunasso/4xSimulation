@@ -14,11 +14,13 @@
 
 namespace {
   typedef std::unordered_map<uint32_t, Unit*> UnitMap;
-  typedef std::vector<std::function<void(Unit*)> > SubMap;
-  typedef std::vector<std::function<void(UnitFatality*)> > DestroySubMap;
   UnitMap s_units;
-  DestroySubMap s_destroy_subs;
-  SubMap s_create_subs;
+
+  constexpr size_t SUBSCRIBER_LIMIT = 10;
+  typedef std::function<void(Unit*)> UnitSubFunc;
+  UnitSubFunc s_create_subs[SUBSCRIBER_LIMIT];
+  typedef std::function<void(UnitFatality*)> UnitDeathFunc;
+  UnitDeathFunc s_destroy_subs[SUBSCRIBER_LIMIT];
 }
 
 Unit::Unit(uint32_t unique_id) 
@@ -57,14 +59,23 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   std::cout << "Created unit id " << id << ", entity type: " << fbs::EnumNameUNIT_TYPE(unit_type) << std::endl;
 
   for (auto& sub : s_create_subs) {
-    sub(unit);
+    if (sub) {
+      sub(unit);
+    }
   }
 
   return id;
 }
 
 void unit::sub_create(std::function<void(Unit*)> sub) {
-  s_create_subs.push_back(sub);
+  for (auto &s : s_create_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id)
@@ -80,7 +91,9 @@ bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id
 
   // Notify all subscribers of unit death with its location and unique id
   for (auto& sub : s_destroy_subs) {
-    sub(&uf);
+    if (sub) {
+      sub(&uf);
+    }
   }
 
   s_units.erase(unit->m_id);
@@ -89,7 +102,14 @@ bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id
 }
 
 void unit::sub_destroy(std::function<void(UnitFatality*)> sub) {
-  s_destroy_subs.push_back(sub);
+  for (auto &s : s_destroy_subs) {
+    if (!s) {
+      s = sub;
+      return;
+    }
+  }
+
+  std::cout << "Error: Subscriber Limit" << std::endl;
 }
 
 Unit* unit::get_unit(uint32_t id) {
@@ -193,6 +213,10 @@ void unit::reset() {
   }
   
   s_units.clear();
-  s_destroy_subs.clear();
-  s_create_subs.clear();
+  for (auto &s : s_destroy_subs) {
+    s = UnitDeathFunc();
+  }
+  for (auto &s : s_create_subs) {
+    s = UnitSubFunc();
+  }
 }
