@@ -15,8 +15,6 @@ namespace improvement {
   typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
   typedef std::unordered_map<uint32_t, uint32_t> ResourceImprovementMap;
   typedef std::vector<std::uint32_t> ValidResourceVector;
-  typedef std::unordered_map<uint32_t, ValidResourceVector> ImprovementResourcesMap;
-  ImprovementResourcesMap s_impvResources;
   ImprovementMap s_improvements;
   ResourceImprovementMap s_resource_improvements;
 
@@ -37,12 +35,8 @@ void improvement::initialize() {
   s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::CATTLE)] = any_enum(fbs::IMPROVEMENT_TYPE::PASTURE);
   s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::DEER)] = any_enum(fbs::IMPROVEMENT_TYPE::CAMP);
   s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::FISH)] = any_enum(fbs::IMPROVEMENT_TYPE::FISH_BOATS);
-  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::STONE)] = any_enum(fbs::IMPROVEMENT_TYPE::MINE);
+  s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::STONE)] = any_enum(fbs::IMPROVEMENT_TYPE::QUARRY);
   s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::SHEEP)] = any_enum(fbs::IMPROVEMENT_TYPE::PASTURE);
-
-  for (auto& res : s_resource_improvements) {
-    s_impvResources[res.second].push_back(res.first);
-  }
 }
 
 Improvement::Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type) 
@@ -147,14 +141,15 @@ void improvement::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)>
 }
 
 improvement::ValidResourceVector improvement::resource_requirements(fbs::IMPROVEMENT_TYPE type) {
-  ValidResourceVector none;
-  uint32_t impv = any_enum(type);
-  ImprovementResourcesMap::const_iterator itFind = s_impvResources.find(impv);
-  if (itFind == s_impvResources.end()) {
-    return none;
+  ValidResourceVector valid_resources;
+  uint32_t imp_id = any_enum(type);
+  for (auto it : s_resource_improvements) {
+    if (it.second == imp_id) {
+      valid_resources.push_back(it.first);
+    }
   }
 
-  return itFind->second;
+  return valid_resources;
 }
 
 fbs::IMPROVEMENT_TYPE improvement::resource_improvement(fbs::RESOURCE_TYPE resource) {
@@ -181,7 +176,6 @@ void improvement::reset() {
     delete i.second;
   }
   s_improvements.clear();
-  s_impvResources.clear();
   for (auto& s : s_destroy_subs) {
     s = SubscriberFunc();
   }
