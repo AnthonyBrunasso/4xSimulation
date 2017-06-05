@@ -33,12 +33,12 @@ void EmpireSettle::operator()(uint32_t player_id) {
     std::cout << "Unable to find player to settle." << std::endl;
   }
 
-  std::unordered_map<sf::Vector3i, bool> invalid_homes;   
+  std::unordered_map<sf::Vector3i, uint32_t> invalid_homes;   
   player::for_each_player([&invalid_homes](Player& player) {
     for (auto id : player.m_cities) {
       City* city = city::get_city(id);
       if (!city) continue;
-      invalid_homes[city->m_location] = true;
+      invalid_homes[city->m_location] = 1;
     }
   });
 

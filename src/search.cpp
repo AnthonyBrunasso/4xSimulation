@@ -107,10 +107,10 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
   std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparator> open;
   open.push(PathNode(start, 0, heuristic_estimate(start, end))); 
   // Set of open list discoveries for quick lookup. Unordered map because set uses tree and needs >,< operator.
-  std::unordered_map<sf::Vector3i, bool> openDiscovered; 
-  openDiscovered[start] = true;
+  std::unordered_map<sf::Vector3i, uint32_t> openDiscovered; 
+  openDiscovered[start] = 1;
   // All nodes that are already evaluated. Unordered map because set uses tree and needs >,< operator.
-  std::unordered_map<sf::Vector3i, bool> closed;
+  std::unordered_map<sf::Vector3i, uint32_t> closed;
 
   // Map used to move backwards from goal node to start to get pstartath.
   std::unordered_map<sf::Vector3i, sf::Vector3i> came_from;
@@ -131,7 +131,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     openDiscovered.erase(current.m_location);
 
     // Put into closed list.
-    closed[current.m_location] = true;
+    closed[current.m_location] = 1;
 
     // Get all of currents neighbors.
     std::vector<PathNode> neighbors;
@@ -142,7 +142,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
       // If the neibhors location equals end, this is our destination, don't skip it or A* will never finish.
       // If the node shouldn't be expanded add it to the closed list and continue.
       if (neighbor.m_location != end && expand && !expand(tile_map[neighbor.m_location])) {
-        closed[neighbor.m_location] = true;
+        closed[neighbor.m_location] = 1;
         continue;
       }
       // Ignore neighbors that have already been evaluated.
@@ -150,7 +150,7 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
       // If not in open list, add it for evaluation.
       if (openDiscovered.find(neighbor.m_location) == openDiscovered.end()) {
         open.push(neighbor);
-        openDiscovered[neighbor.m_location] = true;
+        openDiscovered[neighbor.m_location] = 1;
       }
       // If this is not a better path than one already found continue.
       else if (neighbor.m_cost.m_value > true_costs[neighbor.m_location].m_value) {
