@@ -17,6 +17,7 @@
 #include "resources.h"
 #include "step_generated.h"
 #include "tile.h"
+#include "util.h"
 #include "world_map.h"
 
 namespace terrain_yield {
@@ -171,31 +172,35 @@ namespace terrain_yield {
     t.m_production += 1;
   }
   
-  typedef std::unordered_map<int32_t, std::function<void (TerrainYield&)> > YieldFunctions;
-  static YieldFunctions s_defaultYieldFn{
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertYield},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandYield},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainYield},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsYield},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterYield},
-  };
-  static YieldFunctions s_specializeYieldFn{
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::DESERT), &DesertSpecialization},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::GRASSLAND), &GrasslandSpecialization},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::MOUNTAIN), &MountainSpecialization},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::PLAINS), &PlainsSpecialization},
-    {static_cast<int32_t>(fbs::TERRAIN_TYPE::WATER), &WaterSpecialization},
-  };
-  static YieldFunctions s_resourceYieldFn{
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_GOLD), &StandardLuxury},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::LUXURY_SUGAR), &StandardLuxury},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_IRON), &StandardStrategic},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STRATEGIC_COAL), &StandardStrategic},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::CATTLE), &BonusCattle},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::DEER), &BonusDeer},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::FISH), &BonusFish},
-    {static_cast<int32_t>(fbs::RESOURCE_TYPE::STONE), &BonusStone},
-  };
+  constexpr size_t MAX_TERRAIN_TYPE = size_t(fbs::TERRAIN_TYPE::MAX);
+  constexpr size_t MAX_RESOURCE_TYPE = size_t(fbs::RESOURCE_TYPE::MAX);
+  typedef std::function<void (TerrainYield&)> YieldFunc;
+  YieldFunc s_defaultYieldFn[MAX_TERRAIN_TYPE];
+  YieldFunc s_specializeYieldFn[MAX_TERRAIN_TYPE];
+  YieldFunc s_resourceYieldFn[MAX_RESOURCE_TYPE];
+
+  void init() {
+    s_defaultYieldFn[any_enum(fbs::TERRAIN_TYPE::DESERT)] = &DesertYield;
+    s_defaultYieldFn[any_enum(fbs::TERRAIN_TYPE::GRASSLAND)] = &GrasslandYield;
+    s_defaultYieldFn[any_enum(fbs::TERRAIN_TYPE::MOUNTAIN)] = &MountainYield;
+    s_defaultYieldFn[any_enum(fbs::TERRAIN_TYPE::PLAINS)] = &PlainsYield;
+    s_defaultYieldFn[any_enum(fbs::TERRAIN_TYPE::WATER)] = &WaterYield;
+
+    s_specializeYieldFn[any_enum(fbs::TERRAIN_TYPE::DESERT)] = &DesertSpecialization;
+    s_specializeYieldFn[any_enum(fbs::TERRAIN_TYPE::GRASSLAND)] = &GrasslandSpecialization;
+    s_specializeYieldFn[any_enum(fbs::TERRAIN_TYPE::MOUNTAIN)] = &MountainSpecialization;
+    s_specializeYieldFn[any_enum(fbs::TERRAIN_TYPE::PLAINS)] = &PlainsSpecialization;
+    s_specializeYieldFn[any_enum(fbs::TERRAIN_TYPE::WATER)] = &WaterSpecialization;
+
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::LUXURY_GOLD)] = &StandardLuxury;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::LUXURY_SUGAR)] = &StandardLuxury;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::STRATEGIC_IRON)] = &StandardStrategic;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::STRATEGIC_COAL)] = &StandardStrategic;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::CATTLE)] = &BonusCattle;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::DEER)] = &BonusDeer;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::FISH)] = &BonusFish;
+    s_resourceYieldFn[any_enum(fbs::RESOURCE_TYPE::STONE)] = &BonusStone;
+  }
 
   TerrainYield ImprovementYields(fbs::RESOURCE_TYPE , fbs::IMPROVEMENT_TYPE impv) {
     // Not yet implemented: there are examples of Improvement benefits varying by resource
@@ -261,38 +266,34 @@ namespace terrain_yield {
 TerrainYield terrain_yield::get_base_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
   base.m_type = type;
-  const auto& findIt = s_defaultYieldFn.find(static_cast<int32_t>(type));
-  if (findIt == s_defaultYieldFn.end()) {
-    return base;
-  }
+  uint32_t index = any_enum(type);
+  if (!s_defaultYieldFn[index]) return base;
 
-  findIt->second(base);
+  s_defaultYieldFn[index](base);
+
   return base;
 }
 
 TerrainYield terrain_yield::get_specialization_yield(fbs::TERRAIN_TYPE type) {
   TerrainYield base;
-  const auto& findIt = s_specializeYieldFn.find(static_cast<int32_t>(type));
-  if (findIt == s_specializeYieldFn.end()) {
-    return base;
-  }
-  
-  findIt->second(base);
+  uint32_t index = any_enum(type);
+  if (!s_specializeYieldFn[index]) return base;
+
+  s_specializeYieldFn[index](base);
   return base;
 }
 
 TerrainYield terrain_yield::get_resource_yield(fbs::RESOURCE_TYPE type) {
   TerrainYield base;
-  const auto& findIt = s_resourceYieldFn.find(static_cast<int32_t>(type));
-  if (findIt == s_resourceYieldFn.end()) {
-    return base;
-  }
+  uint32_t index = any_enum(type);
+  if (!s_resourceYieldFn[index]) return base;
 
-  findIt->second(base);
+  s_resourceYieldFn[index](base);
   return base;
 }
 
 void terrain_yield::reset() {
+  init();
   s_terrain_yield.clear();
 }
 
