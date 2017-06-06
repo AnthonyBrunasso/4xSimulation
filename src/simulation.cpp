@@ -536,7 +536,15 @@ namespace simulation {
     scenario::reset();
 
     // Restart the simulation after everything is reset
-    simulation::start();
+    s_game_over = false;
+    // Magic numbers
+    sf::Vector3i start;
+    world_map::build(start, 10);
+    // Setup unit definitions
+    unit_definitions::initialize();
+    science::initialize();
+    magic::initialize();
+    world_map::load_file("marin.dat");
   }
 
   std::string execute_pillage(const fbs::PillageStep* pillage_step) {
@@ -901,18 +909,6 @@ namespace simulation {
     
     return "";
   }
-}
-
-void simulation::start() {
-  s_game_over = false;
-  // Magic numbers
-  sf::Vector3i start;
-  world_map::build(start, 10);
-  // Setup unit definitions
-  unit_definitions::initialize();
-  science::initialize();
-  magic::initialize();
-  world_map::load_file("marin.dat");
 }
 
 void simulation::kill() {
