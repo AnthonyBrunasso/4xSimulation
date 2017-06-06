@@ -11,24 +11,37 @@
 #include "step_generated.h"
 #include "unique_id.h"
 #include "unit_definitions.h"
+#include "util.h"
 
-namespace {
+namespace unit {
   typedef std::unordered_map<uint32_t, Unit*> UnitMap;
   typedef std::vector<std::function<void(Unit*)> > SubMap;
   typedef std::vector<std::function<void(UnitFatality*)> > DestroySubMap;
   UnitMap s_units;
   DestroySubMap s_destroy_subs;
   SubMap s_create_subs;
+
+  constexpr size_t UNIT_NAME_MAX = 15;
+  constexpr size_t UNIT_TYPE_LIMIT = (size_t)fbs::UNIT_TYPE::MAX;
+  char s_unit_names[UNIT_TYPE_LIMIT][UNIT_NAME_MAX+1];
+
+  const char* get_name(fbs::UNIT_TYPE);
 }
 
-Unit::Unit() : m_type(fbs::UNIT_TYPE::UNKNOWN)
-, m_id(unique_id::INVALID_ID)
-, m_location()
-, m_path()
-, m_action_points(0)
-, m_owner_id(unique_id::INVALID_PLAYER)
-, m_direction(0, 0, 0)
-{
+Unit::Unit() 
+  : m_type(fbs::UNIT_TYPE::UNKNOWN)
+  , m_id(unique_id::INVALID_ID)
+  , m_location()
+  , m_path()
+  , m_action_points(0)
+  , m_owner_id(unique_id::INVALID_PLAYER)
+  , m_direction(0, 0, 0)
+{}
+
+const char* unit::get_name(fbs::UNIT_TYPE t) {
+  uint32_t i = any_enum(t);
+  if (strlen(s_unit_names[i])) return s_unit_names[i];
+  return fbs::EnumNameUNIT_TYPE(t);
 }
 
 Unit::Unit(uint32_t unique_id) 
@@ -38,6 +51,7 @@ Unit::Unit(uint32_t unique_id)
 , m_path()
 , m_action_points(0)
 , m_owner_id(unique_id::INVALID_PLAYER)
+, m_name("")
 , m_direction(0, 0, 0)
 {
 }
@@ -53,6 +67,7 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   unit->m_location = location;
   unit->m_owner_id = player_id;
   unit->m_type = unit_type;
+  unit->m_name = get_name(unit_type);
   
   // Apply unit specific stats if they exist.
   CombatStats* stats = unit_definitions::get(unit_type);
@@ -206,6 +221,11 @@ void unit::reset() {
     delete unit.second;
   }
   
+  for (char* name : s_unit_names) {
+    *name = 0;
+  }
+  strncpy(s_unit_names[any_enum(fbs::UNIT_TYPE::WORKER)], "Bruce", UNIT_NAME_MAX);
+
   s_units.clear();
   s_destroy_subs.clear();
   s_create_subs.clear();
