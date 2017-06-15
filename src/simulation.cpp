@@ -529,7 +529,8 @@ namespace simulation {
     unit_definitions::initialize();
     science::initialize();
     magic::initialize();
-    world_map::load_file("marin.dat");
+    world_map::load_file_fb("marin.fbs");
+    //world_map::save_file_fb("marin.fbs");
   }
 
   std::string execute_pillage(const fbs::PillageStep* pillage_step) {

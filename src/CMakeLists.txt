@@ -31,11 +31,12 @@ endfunction()
 
 fourx_compile_flatbuffers_schema_to_cpp(generated/enum.fbs --no-fb-include)
 fourx_compile_flatbuffers_schema_to_cpp(generated/step.fbs "")
+fourx_compile_flatbuffers_schema_to_cpp(generated/map.fbs "")
 # Add the output path to the include directories
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/generated/)
 
-add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
-add_library(4xdll SHARED ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
+add_library(4xlib ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/map_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
+add_library(4xdll SHARED ${lib_sources} ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/map_generated.h ${CMAKE_CURRENT_BINARY_DIR}/generated/enum_generated.h )
 add_executable(4xsim ${console_sources})
 add_executable(4xlearn ${learn_sources})
 add_executable(4xtest ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp ${CMAKE_CURRENT_BINARY_DIR}/generated/step_generated.h )

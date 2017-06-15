@@ -15,6 +15,7 @@
 #include "format.h"
 
 #include "improvement.h"
+#include "map_generated.h"
 #include "player.h"
 #include "random.h"
 #include "resources.h"
@@ -24,9 +25,13 @@
 #include "tile_costs.h"
 #include "unique_id.h"
 #include "unit.h"
+#include "util.h"
 
-namespace {
-  static world_map::TileMap s_map;
+
+#include "flatbuffers/util.h"
+
+namespace world_map {
+  static TileMap s_map;
   static uint32_t s_map_size;
   
   void subscribe_to_events();
@@ -155,6 +160,11 @@ namespace {
   void set_city_requirements() {
     city::add_requirement(fbs::BUILDING_TYPE::TOWN, town_requirement);
   }
+
+  flatbuffers::FlatBufferBuilder& GetFBB() {
+    static flatbuffers::FlatBufferBuilder builder;
+    return builder;
+  }
 }
 
 void init_discoverable_tiles(uint32_t size) {
@@ -248,7 +258,50 @@ bool world_map::load_file(const std::string& name) {
   return true;
 }
 
-bool world_map::write_file(const char* name) {
+bool world_map::load_file_fb(const std::string& name) {
+  std::string map_data;
+  if (!flatbuffers::LoadFile(name.c_str(), true, &map_data)) return false;
+
+  flatbuffers::Verifier v(reinterpret_cast<const uint8_t*>(map_data.c_str()), map_data.size());
+  if (!fbs::VerifyMapBuffer(v)) return false;
+
+  auto root = fbs::GetMap(map_data.c_str());
+  //todo set map size
+  std::vector<sf::Vector3i> coords;
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
+  std::cout << "Loading map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+
+  const flatbuffers::Vector<uint32_t> *terrain = root->terrain();
+  if (terrain->size() != coords.size()) return false;
+
+  for (size_t i = 0; i < coords.size(); ++i) {
+    const auto& coord = coords[i];
+    auto& tile = s_map[coord];
+
+    uint32_t tval = (*terrain)[i];
+    fbs::TERRAIN_TYPE terrain_type = any_enum(tval);
+    tile.m_terrain_type = terrain_type;
+    tile.m_path_cost = tile_costs::get(terrain_type);
+  }
+  std::cout << "Terrain read complete." << std::endl;
+
+  const flatbuffers::Vector<uint32_t> *resource = root->resource();
+  if (resource->size() != coords.size()) return false;
+  for (size_t i = 0; i < coords.size(); ++i) {
+    const auto& coord = coords[i];
+    auto& tile = s_map[coord];
+    uint32_t rval = (*resource)[i];
+    fbs::RESOURCE_TYPE resource_type = any_enum(rval);
+    if (resource_type == fbs::RESOURCE_TYPE::UNKNOWN) continue;
+
+    tile.m_resources.push_back(Resource(resource_type));
+  }
+  std::cout << "Resource read complete." << std::endl;
+
+  return true;
+}
+
+bool world_map::save_file(const char* name) {
   std::ofstream out(name, std::ios::out);
   const size_t BLOCK_SIZE = 4;
   char seperator[] = { 0,0,0,0 };
@@ -274,6 +327,35 @@ bool world_map::write_file(const char* name) {
   }
 
   out.write(seperator, BLOCK_SIZE);
+
+  return true;
+}
+
+bool world_map::save_file_fb(const char* name) {
+  std::vector<sf::Vector3i> coords;
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
+
+  std::cout << "Saving map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+  std::vector<uint32_t> terrain(coords.size());
+  std::vector<uint32_t> resource(coords.size());
+
+  for (size_t i = 0; i < coords.size(); ++i) {
+    auto& tile = s_map[coords[i]];
+    fbs::TERRAIN_TYPE tval = tile.m_terrain_type;
+    fbs::RESOURCE_TYPE rval = fbs::RESOURCE_TYPE::UNKNOWN;
+    if (tile.m_resources.size()) {
+      rval = tile.m_resources.front().m_type;
+    }
+    terrain[i] = any_enum(tval);
+    resource[i] = any_enum(rval);
+  }
+
+  const auto map_data = fbs::CreateMap(GetFBB(), s_map_size,
+      GetFBB().CreateVector(terrain),
+      GetFBB().CreateVector(resource));
+  fbs::FinishMapBuffer(GetFBB(), map_data);
+  if (!flatbuffers::SaveFile(name, reinterpret_cast<const char*>(GetFBB().GetBufferPointer()), GetFBB().GetSize(), true)) return false;
+  std::cout << "Map save completed." << std::endl;
 
   return true;
 }
