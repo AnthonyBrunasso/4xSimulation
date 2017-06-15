@@ -22,7 +22,6 @@ struct Resource {
 
   // Idicates the type of resource this is.
   fbs::RESOURCE_TYPE m_type;
-  // Some resources may wnat to go negative. Money for instance, depending upon design.
   int32_t m_quantity;
 };
 
