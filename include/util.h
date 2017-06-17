@@ -25,19 +25,23 @@ public:
   // We could use this type with std algorithm, but that too leads to code bloat. 
   //template <typename T> friend bool operator==(T val, any_enum);
                                                                                                               
+  // should be able to implicit convert to common types
   template <typename T>                                                                                       
     operator T() const { return T(foo); }                                                                           
-private:                                                                                                      
+  // or compare the common type to foo by cast
+  template <typename T>                                                                                        
+  friend bool operator==(T val, const any_enum& other);
+private:
   any_enum(any_enum&);
   any_enum& operator=(any_enum&);
 
   uint32_t foo;                                                                                               
 };
 
-/*template  <typename T>                                                                                        
-bool operator==(T val, any_enum other) {                                                                      
-    return val == other.foo;                                                                                    
-}*/
+template  <typename T>
+bool operator==(T val, const any_enum& other) {
+    return val == (T)other.foo;
+}
 
 namespace util {
   sf::Vector3i str_to_vector3(const std::string& x, const std::string& y, const std::string& z);
