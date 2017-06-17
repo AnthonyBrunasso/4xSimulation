@@ -3,11 +3,25 @@
 #include "neural_net.h"
 #include "unique_id.h"
 #include "dtree.h"
+#include "player.h"
+#include "unit.h"
 
 #include <cassert>
 #include <unordered_map>
 
 namespace neural_net {
+
+size_t max_index(const std::vector<float>& vector) {
+  size_t idx = 0;
+  float max = 0.0f;
+  for (size_t i = 0; i < vector.size(); ++i) {
+    if (vector[i] > max) {
+      idx = i;
+      max = vector[i];
+    }
+  }
+  return idx;
+}
 
 typedef std::unordered_map<uint32_t, NeuralNet<float>* > NNMap;
 typedef std::unordered_map<uint32_t, std::vector<Decision*> > NNOutputs;
@@ -41,9 +55,11 @@ void execute(uint32_t player_id, const std::vector<float>& input) {
   uint32_t net_id = s_players[player_id];
   NeuralNet<float>* nn = s_nets[net_id];
   std::vector<float> output = nn->predict(input);
-  for (auto& o : output) {
-    std::cout << o << std::endl;
-  }
+  Decision* decision = s_outputs[player_id][max_index(output)];
+  // Execute the predicted decision for each unit of the players.
+  player::for_each_player_unit(player_id, [decision](Unit& unit) {
+    decision->operator()(unit.m_id);
+  });
 }
 
 }

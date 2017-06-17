@@ -6,8 +6,38 @@
 #include "player.h"
 #include "ai_neural_net.h"
 #include "ai_unit_decisions.h"
+#include "world_map.h"
+#include "unit.h"
 
 #include "simulation_interface.h"
+
+// Get hex map and flatten it into an array containining enemy units and ally units.
+std::vector<float> get_input() {
+  world_map::TileMap& tile_map = world_map::get_map();
+  std::vector<float> input(tile_map.size());
+  int i = 0;
+  for (auto& tile : tile_map) {
+    if (tile.second.m_unit_ids.empty()) {
+      input[i] = 0.0f;
+      continue;
+    }
+
+    for (auto id : tile.second.m_unit_ids) {
+      Unit* u = unit::get_unit(id);
+      if (!u) continue;
+      if (u->m_id == 0) {
+        // Enemy
+        input[i] = 1.0f;
+      }
+      else {
+        // Ally
+        input[i] = 0.5f;
+      }
+    }
+    ++i;
+  }
+  return std::move(input);
+}
 
 int main(int, char*[]) {
   simulation_start();
@@ -17,7 +47,7 @@ int main(int, char*[]) {
 
   simulation_barbarians_set_id(0);
 
-  uint32_t nn_id = neural_net::create({ 2, 1 }, { &unit_decisions::get_wander() });
+  uint32_t nn_id = neural_net::create({ world_map::get_map().size(), 2 }, { &unit_decisions::get_wander(), &unit_decisions::get_fight() });
   neural_net::set_player_id(1, nn_id);
 
   simulation_start_faceoff();
@@ -29,8 +59,7 @@ int main(int, char*[]) {
     
     simulation_end_turn(0, 1);
 
-    // Do learning stuff.
-    neural_net::execute(1, { 1.0f, 2.0f });
+    neural_net::execute(1, get_input());
 
     simulation_end_turn(1, 0);
 
@@ -42,12 +71,9 @@ int main(int, char*[]) {
         loser = player.m_id;
       }
     });
-
-    std::string input;
-    std::getline(std::cin, input);
   }
 
-  std::cout << "Graceful game end." << std::endl;
+  std::cout << "Graceful game end loser is: " << loser << std::endl;
   // Enter interactive mode
   std::string input;
   std::getline(std::cin, input);
