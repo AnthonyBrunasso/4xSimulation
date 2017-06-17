@@ -6,7 +6,7 @@
 #include "unit.h"
 
 #if defined(_MSC_VER)
-#define DLL_EXPORT DLL_EXPORT
+#define DLL_EXPORT __declspec(dllexport)
 #elif defined(__clang__)
 #define DLL_EXPORT __attribute__((__visibility__("default")))
 #endif

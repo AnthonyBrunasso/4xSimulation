@@ -32,7 +32,6 @@ namespace simulation_interface {
 
   void start() {
     game_random::set_seed(3);
-    simulation::reset();
   }
 
   void start_faceoff() {
