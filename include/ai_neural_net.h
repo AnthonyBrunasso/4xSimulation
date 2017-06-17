@@ -2,6 +2,8 @@
 
 class Decision;
 
+#include <cstddef>
+#include <stdint.h>
 #include <vector>
 
 namespace neural_net {
