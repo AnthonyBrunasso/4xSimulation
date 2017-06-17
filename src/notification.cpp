@@ -34,7 +34,7 @@ namespace notification {
       n.m_event_type = fbs::NOTIFICATION_TYPE::SCIENCE_IDLE;
     }
 
-    return std::move(events);
+    return (events);
   }
  
   std::string to_string(Notification& n) {

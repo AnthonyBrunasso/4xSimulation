@@ -3,9 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace fbs {
-  enum class SCIENCE_TYPE : uint32_t;
-}
+#include "enum_generated.h"
 
 class ScienceNode {
 public:

@@ -100,7 +100,7 @@ namespace terminal  {
       CHECK(2, tokens);
       uint32_t player_id = std::stoul(tokens[1]);
       if (tokens.size() > 2) {
-      fbs::SCIENCE_TYPE st = util::enum_from_names<fbs::SCIENCE_TYPE>(tokens[2], fbs::EnumNamesSCIENCE_TYPE());
+      fbs::SCIENCE_TYPE st = any_enum(util::enum_from_names(tokens[2], fbs::EnumNamesSCIENCE_TYPE()));
         if (st == fbs::SCIENCE_TYPE::UNKNOWN) {
           st = static_cast<fbs::SCIENCE_TYPE>(std::stoul(tokens[2]));
         }
@@ -147,10 +147,10 @@ namespace terminal  {
         if (stop) return;
         if (p->m_id != city.m_owner_id) return;
         if (city.IsConstructing()) return;
-        std::vector<fbs::CONSTRUCTION_TYPE> incomplete = production_queue::incomplete(city.GetProductionQueue());
+        std::vector<uint32_t> incomplete = production_queue::incomplete(city.GetProductionQueue());
         std::cout << "City (" << city.m_id << ") construct " << city.m_id << " <constructionType>" << std::endl;
         for (size_t i = 0; i < incomplete.size(); ++i) {
-          fbs::CONSTRUCTION_TYPE t = incomplete[i];
+          fbs::CONSTRUCTION_TYPE t = any_enum(incomplete[i]);
           std::cout <<  static_cast<uint32_t>(t) << " " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
         }
         stop = true;
@@ -374,17 +374,6 @@ namespace terminal  {
       return true;
     });   
     
-    terminal::add_query("building_types", "building_types", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(1, tokens);
-      auto check = ([](fbs::BUILDING_TYPE building) {
-        std::cout << static_cast<int32_t>(building) << ": " << fbs::EnumNameBUILDING_TYPE(building) << std::endl;
-      });
-      for (auto bt : fbs::EnumValuesBUILDING_TYPE()) {
-        check(bt);
-      }
-      return true;
-    });   
-    
     terminal::add_query("construction_types", "construction_types", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(1, tokens);
       auto check = ([](fbs::CONSTRUCTION_TYPE construction) {
@@ -415,7 +404,7 @@ namespace terminal  {
 
     terminal::add_query("search_type", "search_type <type> <x> <y> <z> <depth>", [](const std::vector<std::string>& tokens) -> bool{
       CHECK_VALID(6, tokens);
-      fbs::SEARCH_TYPE type = util::enum_from_names<fbs::SEARCH_TYPE>(tokens[1], fbs::EnumNamesSEARCH_TYPE());
+      fbs::SEARCH_TYPE type = any_enum(util::enum_from_names(tokens[1], fbs::EnumNamesSEARCH_TYPE()));
       sf::Vector3i start = util::str_to_vector3(tokens[2], tokens[3], tokens[4]);
       uint32_t depth = std::stoul(tokens[5]);
       static auto s_units = [](const Unit& u) -> bool {
@@ -469,10 +458,9 @@ namespace terminal  {
       return true;
     });
 
-    terminal::add_query("scenario_debug", "scenario_debug <scenario_type>", [](const std::vector<std::string>& tokens) -> bool {
-      CHECK_VALID(2, tokens);
-      fbs::SCENARIO_TYPE type = util::enum_from_names<fbs::SCENARIO_TYPE>(tokens[1], fbs::EnumNamesSCENARIO_TYPE());
-      scenario::debug_print(type);
+    terminal::add_query("scenario_debug", "scenario_debug", [](const std::vector<std::string>& tokens) -> bool {
+      CHECK_VALID(1, tokens);
+      scenario::debug_print();
       return true;
     });
 
@@ -606,7 +594,7 @@ std::vector<std::string> terminal::tokenize(const std::string& input) {
   std::cout << "Tokenizing: " << input << std::endl;
   std::vector<std::string> tokens = step_parser::split_to_tokens(input);
 
-  return std::move(tokens);
+  return (tokens);
 }
 
 bool terminal::is_query(const std::vector<std::string> & tokens) {

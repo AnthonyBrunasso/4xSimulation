@@ -13,8 +13,8 @@
 #include "ai_barbarians.h"
 #include "city.h"
 #include "format.h"
-
 #include "improvement.h"
+#include "map_generated.h"
 #include "player.h"
 #include "random.h"
 #include "resources.h"
@@ -24,14 +24,16 @@
 #include "tile_costs.h"
 #include "unique_id.h"
 #include "unit.h"
+#include "util.h"
 
-namespace {
-  static world_map::TileMap s_map;
+
+#include "flatbuffers/util.h"
+
+namespace world_map {
+  static TileMap s_map;
   static uint32_t s_map_size;
   
   void subscribe_to_events();
-  void set_improvement_requirements();
-  void set_city_requirements();
 
   void unit_create(Unit* u) {
     world_map::add_unit(u->m_location, u->m_id);
@@ -41,106 +43,44 @@ namespace {
     world_map::remove_unit(uf->m_dead->m_location, uf->m_dead->m_id);
   }
 
-  void city_create(const sf::Vector3i& location, uint32_t id) {
+  bool city_create(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     tile->m_city_id = id;
+    return true;
   }
 
-  void city_raze(const sf::Vector3i& location, uint32_t /*id*/) {
+  bool city_raze(const sf::Vector3i& location, uint32_t /*id*/) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     
     tile->m_city_id = unique_id::INVALID_ID;
+    return true;
   }
 
-  void improvement_create(const sf::Vector3i& location, uint32_t id) {
+  bool improvement_create(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     tile->m_improvement_ids.push_back(id);
+    return true;
   }
 
-  void improvement_destroy(const sf::Vector3i& location, uint32_t id) {
+  bool improvement_destroy(const sf::Vector3i& location, uint32_t id) {
     Tile* tile = world_map::get_tile(location);
     if (!tile) {
-      return;
+      return false;
     }
     auto findIt = std::find(tile->m_improvement_ids.begin(), tile->m_improvement_ids.end(), id);
     if (findIt != tile->m_improvement_ids.end()) {
       tile->m_improvement_ids.erase(findIt);
     }     
-  }
-
-  bool is_resource_available(fbs::RESOURCE_TYPE rt, fbs::IMPROVEMENT_TYPE type, const sf::Vector3i& location) {
-    Tile* tile = world_map::get_tile(location);
-    if (!tile) {
-      std::cout << "Invalid tile" << std::endl;
-      return false;
-    }
-    
-    // Check if this tile already contains a resource improvement.
-    for (auto id : tile->m_improvement_ids) {
-      Improvement* improvement = improvement::get_improvement(id);
-      if (!improvement) continue;
-      if (improvement->m_resource.m_type == rt) {
-        std::cout << "Resource improvement already exists on this tile" << std::endl;
-        return false;
-      }
-    }
-
     return true;
-  }
-
-  bool valid_resource(fbs::RESOURCE_TYPE selected_type
-      , fbs::IMPROVEMENT_TYPE type
-      , const sf::Vector3i& location) {
-    return type == improvement::resource_improvement(selected_type);
-  }
-
-  void set_improvement_requirements() {
-    auto check = ([] (fbs::IMPROVEMENT_TYPE impv) {
-      improvement::add_requirement(impv, is_resource_available);
-      improvement::add_requirement(impv, valid_resource);
-    });
-    for (auto imp : fbs::EnumValuesIMPROVEMENT_TYPE()) {
-      check(imp);
-    }
-  }
-
-  bool town_requirement(const sf::Vector3i& location, uint32_t player_id) {
-    Tile* tile = world_map::get_tile(location);
-    if (!tile) {
-      std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
-      return false;
-    }
-
-    Player* player = player::get_player(player_id);
-    if (!player) {
-      std::cout << "Invalid player id: " << player_id << std::endl;
-      return false;
-    }
-
-    // Check if this tile already contains a resource improvement.
-    for (auto id : tile->m_unit_ids) {
-      Unit* unit = unit::get_unit(id);
-      if (!unit) continue;
-      if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
-        // Get the player and check that the player owns this unit.
-        if (player->OwnsUnit(unit->m_id)) {
-          return true;
-        }
-      }
-    }
-    
-    // No worker is contained on the tile.
-    std::cout << player->m_name << " does not own a worker at " << format::vector3(location) << std::endl;
-    return false;
   }
 
   void subscribe_to_events() {
@@ -152,8 +92,9 @@ namespace {
     improvement::sub_destroy(improvement_destroy);
   }
 
-  void set_city_requirements() {
-    city::add_requirement(fbs::BUILDING_TYPE::TOWN, town_requirement);
+  flatbuffers::FlatBufferBuilder& GetFBB() {
+    static flatbuffers::FlatBufferBuilder builder;
+    return builder;
   }
 }
 
@@ -183,97 +124,76 @@ void world_map::build(sf::Vector3i start, uint32_t size) {
   improvement::initialize();
 
   subscribe_to_events();
-  set_improvement_requirements();
-  set_city_requirements();
 }
 
-bool world_map::load_file(const std::string& name) {
-  std::ifstream inputFile(name.c_str(), std::ios::binary | std::ios::in);
-  const size_t BLOCK_SIZE = 4;
-  char data[BLOCK_SIZE];
+bool world_map::load_file_fb(const std::string& name) {
+  std::string map_data;
+  if (!flatbuffers::LoadFile(name.c_str(), true, &map_data)) return false;
 
-  if (!inputFile.good()) {
-    std::cout << "file is not good " << name << std::endl;
-    return false;
-  }
+  flatbuffers::Verifier v(reinterpret_cast<const uint8_t*>(map_data.c_str()), map_data.size());
+  if (!fbs::VerifyMapBuffer(v)) return false;
 
+  auto root = fbs::GetMap(map_data.c_str());
+  //todo set map size
   std::vector<sf::Vector3i> coords;
   coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
-  for (const auto& coord : coords) {
+  std::cout << "Loading map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+
+  const flatbuffers::Vector<uint32_t> *terrain = root->terrain();
+  if (terrain->size() != coords.size()) return false;
+
+  for (size_t i = 0; i < coords.size(); ++i) {
+    const auto& coord = coords[i];
     auto& tile = s_map[coord];
-    if (!inputFile.good()) {
-      std::cout << "map tiles, file data < map tile count" << std::endl;
-      return false;
-    }
 
-    memset(data, 0, sizeof(data));
-    inputFile.read(data, BLOCK_SIZE);
-
-    fbs::TERRAIN_TYPE terrain_type = static_cast<fbs::TERRAIN_TYPE>(*data);
+    uint32_t tval = (*terrain)[i];
+    fbs::TERRAIN_TYPE terrain_type = any_enum(tval);
     tile.m_terrain_type = terrain_type;
     tile.m_path_cost = tile_costs::get(terrain_type);
   }
+  std::cout << "Terrain read complete." << std::endl;
 
-  // read seperator
-  inputFile.read(data, BLOCK_SIZE);
-
-  // process any map resources
-  for (const auto& coord : coords) {
+  const flatbuffers::Vector<uint32_t> *resource = root->resource();
+  if (resource->size() != coords.size()) return false;
+  for (size_t i = 0; i < coords.size(); ++i) {
+    const auto& coord = coords[i];
     auto& tile = s_map[coord];
-    if (!inputFile.good()) {
-      std::cout << "map resources, file data < map tile count" << std::endl;
-      return false;
-    }
-
-    memset(data, 0, sizeof(data));
-    inputFile.read(data, BLOCK_SIZE);
-
-    fbs::RESOURCE_TYPE resource_type = static_cast<fbs::RESOURCE_TYPE>(*data);
+    uint32_t rval = (*resource)[i];
+    fbs::RESOURCE_TYPE resource_type = any_enum(rval);
     if (resource_type == fbs::RESOURCE_TYPE::UNKNOWN) continue;
 
     tile.m_resources.push_back(Resource(resource_type));
   }
-
-  // read seperator
-  inputFile.read(data, BLOCK_SIZE);
-
-  // read eof
-  inputFile.read(data, 1);
-  // If we have data unread, the world is of a mismatched size
-  if (inputFile.good()) {
-    std::cout << "Bailed on map read, file data > map tile count" << std::endl;
-    return false;
-  }
+  std::cout << "Resource read complete." << std::endl;
 
   return true;
 }
 
-bool world_map::write_file(const char* name) {
-  std::ofstream out(name, std::ios::out);
-  const size_t BLOCK_SIZE = 4;
-  char seperator[] = { 0,0,0,0 };
-
+bool world_map::save_file_fb(const char* name) {
   std::vector<sf::Vector3i> coords;
   coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
-  for (auto& coord : coords) {
-    auto& tile = s_map[coord];
-    uint32_t type = static_cast<uint32_t>(tile.m_terrain_type);
-    out.write(reinterpret_cast<const char*>(&type), BLOCK_SIZE);
-  }
 
-  out.write(seperator, BLOCK_SIZE);
+  std::cout << "Saving map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+  std::vector<uint32_t> terrain(coords.size());
+  std::vector<uint32_t> resource(coords.size());
 
-  for (auto& coord : coords) {
-    auto& tile = s_map[coord];
-    uint32_t resource_type = 0;
+  for (size_t i = 0; i < coords.size(); ++i) {
+    auto& tile = s_map[coords[i]];
+    fbs::TERRAIN_TYPE tval = tile.m_terrain_type;
+    fbs::RESOURCE_TYPE rval = fbs::RESOURCE_TYPE::UNKNOWN;
     if (tile.m_resources.size()) {
-      resource_type = static_cast<uint32_t>(tile.m_resources.front().m_type);
+      rval = tile.m_resources.front().m_type;
     }
-
-    out.write(reinterpret_cast<const char*>(&resource_type), BLOCK_SIZE);
+    terrain[i] = any_enum(tval);
+    resource[i] = any_enum(rval);
   }
 
-  out.write(seperator, BLOCK_SIZE);
+  const auto map_data = fbs::CreateMap(GetFBB(), s_map_size,
+      GetFBB().CreateVector(terrain),
+      GetFBB().CreateVector(resource));
+  fbs::FinishMapBuffer(GetFBB(), map_data);
+  if (!flatbuffers::SaveFile(name, reinterpret_cast<const char*>(GetFBB().GetBufferPointer()), GetFBB().GetSize(), true)) return false;
+  std::cout << "Map save completed." << std::endl;
 
   return true;
 }

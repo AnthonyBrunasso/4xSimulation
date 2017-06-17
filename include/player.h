@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-
+#include "enum_generated.h"
 #include "resources.h"
 
 class AIState;
@@ -17,11 +17,6 @@ class Tile;
 class Unit;
 struct Improvement;
 
-namespace fbs {
-  enum class AI_TYPE : uint32_t;
-  enum class SCIENCE_TYPE : uint32_t;
-  enum class TURN_TYPE : uint32_t;
-}
 
 //
 // Player is a generic class that ties units and buildings to some ai type.

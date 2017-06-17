@@ -5,13 +5,8 @@
 #include <functional>
 #include <vector>
 
-
+#include "enum_generated.h"
 #include "resources.h"
-
-namespace fbs {
-  enum class RESOURCE_TYPE : uint32_t;
-  enum class IMPROVEMENT_TYPE : uint32_t;
-}
 
 struct Improvement {
   Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type);
@@ -28,12 +23,10 @@ namespace improvement {
   typedef std::vector<std::uint32_t> ValidResourceVector;
 
   void initialize();
+
   // Improvements will often have requirements. For example, improving a resource
   // requires a resource exist on that tile. Building a road requires that the player
   // the necessary research to build it.
-  void add_requirement(fbs::IMPROVEMENT_TYPE type
-      , std::function<bool(fbs::RESOURCE_TYPE, fbs::IMPROVEMENT_TYPE, const sf::Vector3i&)> requirement);
-
   bool satisfies_requirements(fbs::RESOURCE_TYPE rtype
       , fbs::IMPROVEMENT_TYPE itype
       , const sf::Vector3i& location);
@@ -43,10 +36,10 @@ namespace improvement {
       , const sf::Vector3i& location
       , uint32_t owner);
 
-  void sub_create(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
 
   void destroy(uint32_t id);
-  void sub_destroy(std::function<void(const sf::Vector3i&, uint32_t)> sub);
+  void sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub);
 
   ValidResourceVector resource_requirements(fbs::IMPROVEMENT_TYPE type);
   fbs::IMPROVEMENT_TYPE resource_improvement(fbs::RESOURCE_TYPE resource);

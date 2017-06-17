@@ -1,0 +1,13 @@
+
+include "enum.fbs";
+
+namespace fbs;
+
+table Map
+{
+  size: uint;
+  terrain: [TERRAIN_TYPE];
+  resource: [RESOURCE_TYPE];
+}
+
+root_type Map;

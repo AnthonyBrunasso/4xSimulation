@@ -15,7 +15,7 @@ std::fstream s_target_file;
 int main(int , char* []) {
   game_random::set_seed(3);
   std::vector<Step*> steps;
-  simulation::start();
+  simulation::reset();
   
   // Initialize queries
   terminal::initialize();

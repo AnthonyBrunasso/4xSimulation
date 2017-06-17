@@ -2,13 +2,10 @@
 
 #include <stdint.h>
 #include <vector>
+#include "enum_generated.h"
 
 #include "Vector3.hpp"
 
-
-namespace fbs {
-  enum class AI_ORDER_TYPE : uint32_t;
-}
 
 // Order to be issued to unit.
 class UnitOrder {

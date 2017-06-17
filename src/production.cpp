@@ -18,6 +18,7 @@
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
+#include "util.h"
 
 typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
 class ConstructionState
@@ -47,19 +48,20 @@ namespace production {
   typedef std::unordered_map<uint32_t, ConstructionQueueFIFO*> ProductionMap;
   ProductionMap s_production_queues;
 
-  void production_cleanup(const sf::Vector3i&, uint32_t city_id) {
+  bool production_cleanup(const sf::Vector3i&, uint32_t city_id) {
     City* c = city::get_city(city_id);
-    if (!c) return;
+    if (!c) return false;
 
     ProductionMap::iterator itFind = s_production_queues.find(c->m_production_id);
     if (itFind == s_production_queues.end()) {
-      return;
+      return false;
     }
     
     ConstructionQueueFIFO* cq = itFind->second;
     delete cq->m_state;
     delete cq;
     s_production_queues.erase(itFind);
+    return true;
   }
   
   uint32_t create(uint32_t city_id) {
@@ -86,7 +88,7 @@ namespace production {
   }
 
   fbs::CONSTRUCTION_TYPE id(uint32_t type_id) {
-    return static_cast<fbs::CONSTRUCTION_TYPE>(type_id);
+    return any_enum(type_id);
   }
 
   const char*name(ConstructionOrder* co) {
@@ -162,7 +164,8 @@ namespace production {
   }
 
   bool construction_is_unique(fbs::CONSTRUCTION_TYPE type_id) {
-    return (static_cast<size_t>(type_id) & 1) != 0;
+    uint32_t type = any_enum(type_id);
+    return (type & 1) != 0;
   }
 
   void spawn_unit(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id) {
@@ -203,55 +206,56 @@ namespace production {
 }
 
 namespace production_queue {
-  std::vector<fbs::CONSTRUCTION_TYPE> complete(const ConstructionQueueFIFO* cq) {
-    std::vector<fbs::CONSTRUCTION_TYPE> constructed;
+  std::vector<uint32_t> complete(const ConstructionQueueFIFO* cq) {
+    std::vector<uint32_t> constructed;
     auto check = [cq, &constructed](fbs::CONSTRUCTION_TYPE t) {
       if (!cq->m_state->IsConstructed(t)) return;
-      constructed.push_back(t);
+      constructed.push_back(any_enum(t));
     };
     for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
       check(ct);
     }
-    return std::move(constructed);
+    return (constructed);
   }
 
-  std::vector<fbs::CONSTRUCTION_TYPE> incomplete(const ConstructionQueueFIFO* cq) {
-    std::vector<fbs::CONSTRUCTION_TYPE> incomplete;
+  std::vector<uint32_t> incomplete(const ConstructionQueueFIFO* cq) {
+    std::vector<uint32_t> incomplete;
     auto check = ([cq, &incomplete](fbs::CONSTRUCTION_TYPE t) {
       if (cq->m_state->IsConstructed(t)) return;
-      incomplete.push_back(t);
+      incomplete.push_back(any_enum(t));
     });
     for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
       check(ct);
     }
-    return std::move(incomplete);
+    return (incomplete);
   }
   
-  std::vector<fbs::CONSTRUCTION_TYPE> available(const ConstructionQueueFIFO* cq) {
-    std::vector<fbs::CONSTRUCTION_TYPE> incomplete;
-    std::vector<fbs::CONSTRUCTION_TYPE> queued = queue(cq);
+  std::vector<uint32_t> available(const ConstructionQueueFIFO* cq) {
+    std::vector<uint32_t> incomplete;
+    std::vector<uint32_t> queued = queue(cq);
     auto check = ([cq, &queued, &incomplete](fbs::CONSTRUCTION_TYPE t) {
       if (production::construction_is_unique(t)) {
         if (cq->m_state->IsConstructed(t)) return;
-        auto itFind = std::find(queued.begin(), queued.end(), t);
+        uint32_t production_id = any_enum(t);
+        auto itFind = std::find(queued.begin(), queued.end(), production_id);
         if (itFind != queued.end()) return;
       }
       
-      incomplete.push_back(t);
+      incomplete.push_back(any_enum(t));
     });
     for (auto ct : fbs::EnumValuesCONSTRUCTION_TYPE()) {
       check(ct);
     }
-    return std::move(incomplete);
+    return (incomplete);
   }
   
-  std::vector<fbs::CONSTRUCTION_TYPE> queue(const ConstructionQueueFIFO* cq) {
-    std::vector<fbs::CONSTRUCTION_TYPE> queue;
+  std::vector<uint32_t> queue(const ConstructionQueueFIFO* cq) {
+    std::vector<uint32_t> queue;
     for (auto& q : cq->m_queue) {
-      queue.push_back(q->m_type);
+      queue.push_back(any_enum(q->m_type));
     }
 
-    return std::move(queue);
+    return (queue);
   }
 
   fbs::CONSTRUCTION_TYPE front(const ConstructionQueueFIFO* cq) {
@@ -388,7 +392,7 @@ ConstructionOrder* ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE typ
     return new ConstructionOrder(type_id, city_id);
   }
   
-  uint32_t type = static_cast<uint32_t>(type_id);
+  uint32_t type = any_enum(type_id);
   ConstructionUMap::const_iterator findIt = m_constructions.find(type);
   if (findIt != m_constructions.end()) {
     std::cout << "Resuming unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; return findIt->second;
@@ -399,7 +403,8 @@ ConstructionOrder* ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE typ
 }
 
 bool ConstructionState::EraseConstruction(fbs::CONSTRUCTION_TYPE type_id) {
-  return m_constructions.erase(static_cast<uint32_t>(type_id)) != 0;
+  uint32_t type = any_enum(type_id);
+  return m_constructions.erase(type) != 0;
 }
 
 bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
@@ -407,7 +412,7 @@ bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
     return false;
   }
 
-  uint32_t type = static_cast<uint32_t>(type_id);
+  uint32_t type = any_enum(type_id);
   ConstructionUMap::const_iterator itFind = m_constructions.find(type);
   if (itFind == m_constructions.end()) {
     return false;

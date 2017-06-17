@@ -4,7 +4,7 @@
 
 #include "Vector3.hpp"
 
-#include "step_generated.h"
+#include "enum_generated.h"
 
 namespace magic {
   // Sets attributes of spells.

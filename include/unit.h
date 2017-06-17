@@ -28,6 +28,7 @@ public:
   // Number of actions available for the unit, simulation will dictate this value
   uint32_t m_action_points;
   uint32_t m_owner_id;
+  const char* m_name;
 
   CombatStats m_combat_stats;
   // Vector pointing the way the unit is facing. Directions in this game aren't normalized.

@@ -277,7 +277,7 @@ namespace simulation {
       std::cout << "Player does not own city" << std::endl;
       return;
     }
-    fbs::CONSTRUCTION_TYPE t(production::id(production_id));
+    fbs::CONSTRUCTION_TYPE t = any_enum(production_id);
 
     if (cheat) {
       production_queue::purchase(city->GetProductionQueue(), t);
@@ -286,6 +286,28 @@ namespace simulation {
 
     production_queue::add(city->GetProductionQueue(), t);
   }
+
+	uint32_t tile_has_worker(const sf::Vector3i& location, uint32_t player_id) {
+		Tile* tile = world_map::get_tile(location);
+		if (!tile) {
+			std::cout << "Tile does not exist at location: " << format::vector3(location) << std::endl;
+			return 0;
+		}
+
+		// Check if this tile already contains a resource improvement.
+		for (auto id : tile->m_unit_ids) {
+			Unit* unit = unit::get_unit(id);
+			if (!unit) continue;
+			if (unit->m_owner_id != player_id) continue;
+			if (unit->m_type == fbs::UNIT_TYPE::WORKER) {
+				return unit->m_id;
+			}
+		}
+
+		// No worker is contained on the tile.
+		std::cout << "player " << player_id << " does not own a worker at " << format::vector3(location) << std::endl;
+		return 0;
+	}
 
   void execute_colonize(const fbs::ColonizeStep* colonize_step) {
     uint32_t player_id = colonize_step->player();
@@ -307,24 +329,17 @@ namespace simulation {
     });
     if (too_close) return;
 
-    uint32_t id = city::create(fbs::BUILDING_TYPE::TOWN, location, player_id);
-    if (!id) {
+		uint32_t unit_id = tile_has_worker(location, player_id);
+    if (!unit_id) return;
+    uint32_t city_id = city::create(location, player_id);
+    if (!city_id) {
       // Colonization failed.
       return;
     }
     // If colonization succeeded there is a worker on the tile, destroy it.
-    player::add_city(player_id, id);
-    std::cout << "player " << player->m_name << " colonized city (" << id << ") at: " << format::vector3(location) << std::endl;
-    Tile* t = world_map::get_tile(location);
-    for (auto uid : t->m_unit_ids) {
-      Unit* u = unit::get_unit(uid);
-      if (!u) continue;
-      // Consume the unit that built the city.
-      if (u->m_type == fbs::UNIT_TYPE::WORKER && u->m_owner_id == player->m_id) {
-        unit::destroy(u->m_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
-        break;
-      }
-    }
+    player::add_city(player_id, city_id);
+    std::cout << "player " << player->m_name << " colonized city (" << city_id << ") at: " << format::vector3(location) << std::endl;
+    unit::destroy(unit_id, unique_id::INVALID_ID, unique_id::INVALID_PLAYER);
   }
 
   void execute_improve(const fbs::ImproveStep* improve_step) {
@@ -521,7 +536,16 @@ namespace simulation {
     scenario::reset();
 
     // Restart the simulation after everything is reset
-    simulation::start();
+    s_game_over = false;
+    // Magic numbers
+    sf::Vector3i start;
+    world_map::build(start, 10);
+    // Setup unit definitions
+    unit_definitions::initialize();
+    science::initialize();
+    magic::initialize();
+    world_map::load_file_fb("marin.fbs");
+    //world_map::save_file_fb("marin.fbs");
   }
 
   std::string execute_pillage(const fbs::PillageStep* pillage_step) {
@@ -680,7 +704,7 @@ namespace simulation {
     City* city = city::get_city(city_id);
     if(!city) return "Invalid City";
     if (production_id != 0) {
-      fbs::CONSTRUCTION_TYPE t(util::uint_to_enum<fbs::CONSTRUCTION_TYPE>(production_id));
+      fbs::CONSTRUCTION_TYPE t = any_enum(production_id);
       float cost = production::required_to_purchase(t);
       if (player->m_gold < cost) {
         ss << "Player has " << player->m_gold << " and needs " << cost << " gold. Purchase failed.";
@@ -691,10 +715,10 @@ namespace simulation {
       return "Purchase made.";
     }
 
-    std::vector<fbs::CONSTRUCTION_TYPE> available = production_queue::incomplete(city->GetProductionQueue());
+    std::vector<uint32_t> available = production_queue::incomplete(city->GetProductionQueue());
     ss << "City (" << city->m_id << ") available purchases: " << std::endl;
     for (size_t i = 0; i < available.size(); ++i) {
-      fbs::CONSTRUCTION_TYPE t(available[i]);
+      fbs::CONSTRUCTION_TYPE t = any_enum(available[i]);
       ss << production::required_to_purchase(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();
@@ -721,12 +745,12 @@ namespace simulation {
     if(!player) return "Invalid Player";
     City* city = city::get_city(city_id);
     if(!city) return "Invalid City";
-    std::vector<fbs::CONSTRUCTION_TYPE> completed = production_queue::complete(city->GetProductionQueue());
+    std::vector<uint32_t> completed = production_queue::complete(city->GetProductionQueue());
     if (production_id != 0) {
-      fbs::CONSTRUCTION_TYPE t(util::uint_to_enum<fbs::CONSTRUCTION_TYPE>(production_id));
       for (size_t i = 0; i < completed.size(); ++i) {
-        if (completed[i] == t) {
-          player->m_gold += production::yield_from_sale(completed[i]);
+        if (completed[i] == production_id) {
+          fbs::CONSTRUCTION_TYPE t = any_enum(completed[i]);
+          player->m_gold += production::yield_from_sale(t);
           production_queue::sell(city->GetProductionQueue(), t);
           return "Sale made.";
         }
@@ -736,7 +760,7 @@ namespace simulation {
 
     ss << "City (" << city->m_id << ") available buildings for sale: " << std::endl;
     for (size_t i = 0; i < completed.size(); ++i) {
-      fbs::CONSTRUCTION_TYPE t(completed[i]);
+      fbs::CONSTRUCTION_TYPE t = any_enum(completed[i]);
       ss << "+" << production::yield_from_sale(t) << " Gold: " << fbs::EnumNameCONSTRUCTION_TYPE(t) << std::endl;
     }
     return ss.str();
@@ -886,18 +910,6 @@ namespace simulation {
     
     return "";
   }
-}
-
-void simulation::start() {
-  s_game_over = false;
-  // Magic numbers
-  sf::Vector3i start;
-  world_map::build(start, 10);
-  // Setup unit definitions
-  unit_definitions::initialize();
-  science::initialize();
-  magic::initialize();
-  world_map::load_file("marin.dat");
 }
 
 void simulation::kill() {

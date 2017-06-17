@@ -24,12 +24,12 @@ void tile_costs::initialize() {
 }
 
 uint32_t tile_costs::get(fbs::TERRAIN_TYPE id) {
-  uint32_t key = util::enum_to_uint(id);
+  uint32_t key = any_enum(id);
   return s_costs[key];
 }
 
 void tile_costs::set(fbs::TERRAIN_TYPE id, uint32_t cost) {
-  uint32_t key = util::enum_to_uint(id);
+  uint32_t key = any_enum(id);
   s_costs[key] = cost;
 }
 
