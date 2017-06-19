@@ -246,10 +246,7 @@ namespace terrain_yield {
       base += terrain_yield::get_specialization_yield(spec);
     }
     
-    for (size_t i = 0; i < tile->m_resources.size(); ++i) {
-      const Resource& res = tile->m_resources[i];
-      base += terrain_yield::get_resource_yield(res.m_type);
-    }
+    base += terrain_yield::get_resource_yield(tile->m_resource.m_type);
 
     for (size_t i = 0; i < tile->m_improvement_ids.size(); ++i) {
       uint32_t impv_id = tile->m_improvement_ids[i];

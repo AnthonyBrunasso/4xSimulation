@@ -36,7 +36,7 @@ public:
   // magical "hut" that yields bonus rewards when walked upon
   bool m_discover_bonus;
   // Tiles can contain resources
-  std::vector<Resource> m_resources;
+  Resource m_resource;
   // Improvements contained on this tile
   std::vector<uint32_t> m_improvement_ids;
   sf::Vector3i m_location;

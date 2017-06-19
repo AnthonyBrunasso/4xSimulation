@@ -373,16 +373,13 @@ namespace simulation {
       return;
     }
 
-    fbs::RESOURCE_TYPE rt = static_cast<fbs::RESOURCE_TYPE>(resource_id);
-    i = 0;
-    for (; i < tile->m_resources.size(); ++i) {
-      if (tile->m_resources[i].m_type == rt) break;
-    }
-    if (i == tile->m_resources.size()) {
+    fbs::RESOURCE_TYPE rt = any_enum(resource_id);
+    if (rt == fbs::RESOURCE_TYPE::UNKNOWN) return;
+    if (tile->m_resource.m_type != rt) {
       std::cout << "Resource not available on this tile." << std::endl;
       return;
     }
-    Resource& res = tile->m_resources[i];
+    Resource& res = tile->m_resource;
     fbs::IMPROVEMENT_TYPE impv = improvement::resource_improvement(res.m_type);
     if (!improvement::satisfies_requirements(res.m_type, impv, location)) {
       return;
@@ -494,18 +491,10 @@ namespace simulation {
       std::cout << "Invalid tile" << std::endl;
       return;
     }
-    Resource new_resource(static_cast<fbs::RESOURCE_TYPE>(resource_type), quantity);
-    bool found = false;
-    // If resource already on the tile increment its quantity.
-    for (auto& r : tile->m_resources) {
-      if (r.m_type == new_resource.m_type) {
-        r.m_quantity += new_resource.m_quantity;
-        found = true;
-      }
-    }
-    if (!found) {
-      tile->m_resources.push_back(new_resource);
-    }
+    Resource r;
+    r.m_type = any_enum(resource_type);
+    r.m_quantity = quantity;
+    tile->m_resource = r;
   }
 
   void execute_kill(const fbs::KillStep* kill_step) {
