@@ -45,13 +45,7 @@ std::string format::tile(const Tile& tile) {
      << " units: " << format::vector(tile.m_unit_ids) << std::endl
      << " city: " << tile.m_city_id << std::endl
      << " path_cost: " << tile.m_path_cost << std::endl
-     << " resources: [ ";
-
-  for (auto resource : tile.m_resources) {
-    ss << fbs::EnumNameRESOURCE_TYPE(resource.m_type) << ": " << resource.m_quantity << " ";
-  }
-
-  ss << "]" << std::endl;
+     << " tile resource: [ " << fbs::EnumNameRESOURCE_TYPE(tile.m_resource.m_type) << ": " << tile.m_resource.m_quantity << " " << "]" << std::endl;
 
   ss << " improvements: " << format::vector(tile.m_improvement_ids) << std::endl;
 
@@ -99,7 +93,7 @@ std::string format::ascii_tile(Tile* tile) {
   if (tile->m_city_id != 0) {
     ascii = " ^ ";
   }
-  if (!tile->m_resources.empty()) {
+  if (tile->m_resource.m_type != fbs::RESOURCE_TYPE::UNKNOWN) {
     ascii = " ! ";
   }
 

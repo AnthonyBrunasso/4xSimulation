@@ -231,9 +231,11 @@ bool world_map::load_file_fb(const std::string& name) {
     auto& tile = s_map[coord];
     uint32_t rval = (*resource)[i];
     fbs::RESOURCE_TYPE resource_type = any_enum(rval);
-    if (resource_type == fbs::RESOURCE_TYPE::UNKNOWN) continue;
 
-    tile.m_resources.push_back(Resource(resource_type));
+    Resource r;
+    r.m_type = resource_type; // may be RESOURCE_TYPE::UNKNOWN (none)
+    r.m_quantity = 1;
+    tile.m_resource = r;
   }
   std::cout << "Resource read complete." << std::endl;
 
@@ -251,10 +253,7 @@ bool world_map::save_file_fb(const char* name) {
   for (size_t i = 0; i < coords.size(); ++i) {
     auto& tile = s_map[coords[i]];
     fbs::TERRAIN_TYPE tval = tile.m_terrain_type;
-    fbs::RESOURCE_TYPE rval = fbs::RESOURCE_TYPE::UNKNOWN;
-    if (tile.m_resources.size()) {
-      rval = tile.m_resources.front().m_type;
-    }
+    fbs::RESOURCE_TYPE rval = tile.m_resource.m_type;
     terrain[i] = any_enum(tval);
     resource[i] = any_enum(rval);
   }

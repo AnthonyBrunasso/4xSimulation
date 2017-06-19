@@ -250,11 +250,9 @@ bool search::bfs_resources(const sf::Vector3i& start,
     world_map::TileMap& tile_map,
     std::function<bool(const Resource& unit)> comparator) {
   auto find_resources = [&comparator](const Tile& tile) {
-    if (tile.m_resources.empty()) return false;
+    if (tile.m_resource.m_type == fbs::RESOURCE_TYPE::UNKNOWN) return false;
     bool result = false;
-    for (auto& resource : tile.m_resources) {
-      result |= comparator(resource); 
-    }
+    result |= comparator(tile.m_resource);
     return result;
   };
   return bfs(start, depth, tile_map, find_resources);
