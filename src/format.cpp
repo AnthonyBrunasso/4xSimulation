@@ -57,6 +57,7 @@ std::string format::unit(const Unit& unit) {
 
   ss << "unique id: " << unit.m_id << std::endl
      << " unit name: " << unit.m_name << std::endl
+     << " unit type: " << fbs::EnumNameUNIT_TYPE(unit.m_type) << std::endl
      << " location: " << format::vector3(unit.m_location) << std::endl
      << " actions: " << unit.m_action_points << std::endl
      << " stats: [" << format::combat_stats(unit.m_combat_stats) << "]" << std::endl

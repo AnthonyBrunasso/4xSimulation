@@ -7,16 +7,16 @@
 #include <vector>
 
 #include "combat.h"
+#include "entity.h"
 #include "player.h"
 #include "step_generated.h"
 #include "unique_id.h"
 #include "unit_definitions.h"
 #include "util.h"
 
-namespace unit {
-  typedef std::unordered_map<uint32_t, Unit*> UnitMap;
-  UnitMap s_units;
+ECS_COMPONENT(Unit, 1023);
 
+namespace unit {
   constexpr size_t SUBSCRIBER_LIMIT = 10;
   typedef std::function<void(Unit*)> UnitSubFunc;
   UnitSubFunc s_create_subs[SUBSCRIBER_LIMIT];
@@ -65,13 +65,15 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   }
 
   uint32_t id = unique_id::generate();
-  Unit* unit = new Unit(id);
+  uint32_t c = create(id, s_Units());
+  Unit* unit = c_Unit(c);
+  unit->m_id = id;
   unit->m_location = location;
   unit->m_owner_id = player_id;
   unit->m_type = unit_type;
   unit->m_name = get_name(unit_type);
   
-  // Apply unit specific stats if they exist.
+  // Apply unit specific stats 
   CombatStats* stats = unit_definitions::get(unit_type);
   if (stats) {
     unit->m_combat_stats = *stats;
@@ -79,10 +81,10 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   unit->m_action_points = unit->m_combat_stats.m_action_points;
 
   // Add the unit to storage and the world map.
-  s_units[id] = unit;
   player::add_unit(player_id, id);
   std::cout << "Created unit id " << id << ", entity type: " << fbs::EnumNameUNIT_TYPE(unit_type) << std::endl;
 
+  // Unit creation notify
   for (auto& sub : s_create_subs) {
     if (sub) {
       sub(unit);
@@ -121,8 +123,8 @@ bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id
     }
   }
 
-  s_units.erase(unit->m_id);
-  delete unit;
+  uint32_t c = delete_c(dead_id, s_Units());
+  std::cout << "Deleting entity " << dead_id << " at component " << c << std::endl;
   return true;
 }
 
@@ -138,16 +140,19 @@ void unit::sub_destroy(std::function<void(UnitFatality*)> sub) {
 }
 
 Unit* unit::get_unit(uint32_t id) {
-  if (s_units.find(id) == s_units.end()) {
-    return nullptr;
-  }
-
-  return s_units[id];
+  uint32_t c = get(id, s_Units());
+  std::cout << "Getting entity " << id << " at component location " << c << std::endl;
+  return c_Unit(c);
 }
 
 void unit::for_each_unit(std::function<void(const Unit& unit)> operation) {
-  for (auto unit : s_units) {
-    operation(*unit.second);
+  // TODO: revisit batch operations via ECS
+  for (const auto& a : mapping_Unit) {
+    if (a.entity == INVALID_ENTITY) continue;
+
+    Unit* u = c_Unit(a.component);
+    if (!u) continue;
+    operation(*u);
   }
 }
 
@@ -162,12 +167,13 @@ void unit::set_path(uint32_t id, const std::vector<sf::Vector3i>& path) {
 }
 
 void unit::replenish_actions() {
-  std::cout << "Replentish action points" << std::endl;
-  for (auto& member : s_units) {
-    Unit* unit = member.second;
-    CombatStats* stats = unit_definitions::get(unit->m_type);
-    if (!stats) return;
-    unit->m_action_points = stats->m_action_points;
+  for (const auto& a : mapping_Unit) {
+    if (a.entity == INVALID_ENTITY) continue;
+
+    Unit* u = c_Unit(a.component);
+    if (!u) continue;
+
+    u->m_action_points = u->m_combat_stats.m_action_points;
   }
 }
 
@@ -233,12 +239,18 @@ void unit::change_direction(uint32_t id, const sf::Vector3i& target) {
 }
 
 size_t unit::size() {
-  return s_units.size();
+  size_t s = 0;
+  for (const auto& a : mapping_Unit) {
+    if (a.entity == INVALID_ENTITY) continue;
+    ++s;
+  }
+
+  return s;
 }
 
 void unit::reset() {
-  for (auto& unit : s_units) {
-    delete unit.second;
+  for (const auto& a : mapping_Unit) {
+    delete_c(a.entity, s_Units());
   }
   
   for (char* name : s_unit_names) {
@@ -246,7 +258,6 @@ void unit::reset() {
   }
   strncpy(s_unit_names[any_enum(fbs::UNIT_TYPE::WORKER)], "Bruce", UNIT_NAME_MAX);
 
-  s_units.clear();
   for (auto &s : s_destroy_subs) {
     s = UnitDeathFunc();
   }
