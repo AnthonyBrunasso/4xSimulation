@@ -117,21 +117,6 @@ size_t player::get_count() {
   return s_players.size();
 }
 
-ResourceUMap player::get_resources(uint32_t player_id) {
-  ResourceUMap player_resources;
-
-  Player* player = player::get_player(player_id);
-  if (!player) return player_resources;
-
-  for (auto& impv_id : player->m_improvements) {
-    Improvement* impv = improvement::get_improvement(impv_id);
-    if (!impv) continue;
-    player_resources.add(impv->m_resource);
-  }
-
-  return player_resources;
-}
-
 void player::reset() {
   for (auto& player : s_players) {
     delete player;

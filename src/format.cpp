@@ -120,7 +120,6 @@ std::string format::player(const Player& player) {
   ss << " gold: " << player.m_gold << std::endl;
   ss << " science: " << player.m_science << std::endl;
   ss << " magic: " << player.m_magic << std::endl;
-  ss << " resources: " << format::resources(player::get_resources(player.m_id)) << std::endl;
   ss << " improvements: " << format::set(player.m_improvements) << std::endl;
   ss << " ai: " << fbs::EnumNameAI_TYPE(player.m_ai_type) << std::endl;
   ss << " discovered players: " << format::set(player.m_discovered_players) << std::endl;
@@ -135,18 +134,6 @@ std::string format::combat_stats(const CombatStats& stats) {
   ss << "health: " << stats.m_health
      << " attack: " << stats.m_attack
      << " range: " << stats.m_range;
-
-  return (ss.str());
-}
-
-std::string format::resources(const ResourceUMap& resources) {
-  std::stringstream ss;
-
-  ss << "[ ";
-  resources.for_each_resource([&ss](fbs::RESOURCE_TYPE type, const Resource& resource) {
-    ss << fbs::EnumNameRESOURCE_TYPE(type) << ": " << resource.m_quantity << " ";
-  });
-  ss << "]";
 
   return (ss.str());
 }
