@@ -37,7 +37,7 @@ struct ComponentSum {
 c_type many_##c_type[C_LIMIT]; \
 void* pool_##c_type[C_LIMIT+1]; \
 struct e2c mapping_##c_type[C_LIMIT+1]; \
-ComponentSum* s_##c_type##s() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, sizeof(c_type), C_LIMIT); return &s_##c_type; }; \
+ComponentSum* s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, sizeof(c_type), C_LIMIT); return &s_##c_type; }; \
 c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 
 // entity: 0 is invalid, non-zero is safe

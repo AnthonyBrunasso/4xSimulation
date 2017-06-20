@@ -15,8 +15,7 @@ struct TerrainYield;
 
 class City {
 public:
-  explicit City(uint32_t id);
-  City(const City&) = default;
+  City();
 
   bool CanSpecialize() const;
   bool SetSpecialization(fbs::TERRAIN_TYPE type);

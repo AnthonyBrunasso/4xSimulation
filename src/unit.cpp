@@ -65,7 +65,7 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   }
 
   uint32_t id = unique_id::generate();
-  uint32_t c = create(id, s_Units());
+  uint32_t c = create(id, s_Unit());
   Unit* unit = c_Unit(c);
   unit->m_id = id;
   unit->m_location = location;
@@ -123,7 +123,7 @@ bool unit::destroy(uint32_t dead_id, uint32_t attacking_id, uint32_t opponent_id
     }
   }
 
-  uint32_t c = delete_c(dead_id, s_Units());
+  uint32_t c = delete_c(dead_id, s_Unit());
   std::cout << "Deleting entity " << dead_id << " at component " << c << std::endl;
   return true;
 }
@@ -140,7 +140,7 @@ void unit::sub_destroy(std::function<void(UnitFatality*)> sub) {
 }
 
 Unit* unit::get_unit(uint32_t id) {
-  uint32_t c = get(id, s_Units());
+  uint32_t c = get(id, s_Unit());
   std::cout << "Getting entity " << id << " at component location " << c << std::endl;
   return c_Unit(c);
 }
@@ -250,7 +250,7 @@ size_t unit::size() {
 
 void unit::reset() {
   for (const auto& a : mapping_Unit) {
-    delete_c(a.entity, s_Units());
+    delete_c(a.entity, s_Unit());
   }
   
   for (char* name : s_unit_names) {

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "entity.h"
 #include "format.h"
 #include "hex.h"
 #include "production.h"
@@ -19,9 +20,9 @@
 #include "util.h"
 #include "world_map.h"
 
+ECS_COMPONENT(City, 128);
+
 namespace city {
-  typedef std::unordered_map<uint32_t, City*> CityMap;
-  CityMap s_cities;
 
   typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
   constexpr size_t SUBSCRIBER_LIMIT = 10;
@@ -33,8 +34,8 @@ namespace city {
   void notify_raze_complete(City& c);
 }
 
-City::City(uint32_t id)
-: m_id(id)
+City::City()
+: m_id(0)
 , m_food(city::food_required_by_population(1)-1)
 , m_experience(0.f)
 , m_damage(0.f)
@@ -197,12 +198,13 @@ float city::population_size_from_food(float food) {
 uint32_t city::create(const sf::Vector3i& location, uint32_t player_id) {
   uint32_t id = unique_id::generate();
 
-  City* foundedCity = new City(id);
+  uint32_t c = create(id, s_City());
+  City* foundedCity = c_City(c);
+  foundedCity->m_id = id;
   foundedCity->m_production_id = production::create(id);
-  s_cities[id] = foundedCity;
   foundedCity->m_location = location;
   foundedCity->m_owner_id = player_id;
-  
+ 
   for (auto sub : s_create_subs) {
     if (sub) {
       sub(location, id); 
@@ -225,18 +227,16 @@ void city::sub_create(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
 
 void city::raze(uint32_t id) {
   std::cout << "raze called " << id << std::endl;
-  auto findIt = s_cities.find(id);
-  if (findIt == s_cities.end()) {
-    return;
-  }
+  uint32_t c = get(id, s_City());
+  if(c == INVALID_COMPONENT) return;
+  City* city = c_City(c);
 
-  findIt->second->RemoveAllHarvest();
+  city->RemoveAllHarvest();
 
   // Notify subscribers of razed city
-  city::notify_raze_complete(*findIt->second);
+  city::notify_raze_complete(*city);
 
-  delete findIt->second;
-  s_cities.erase(findIt);
+  c = delete_c(id, s_City());
 }
 
 void city::notify_raze_init(City& c) {
@@ -280,24 +280,22 @@ void city::sub_raze_complete(std::function<bool(const sf::Vector3i&, uint32_t)> 
 City* city::nearest_city(sf::Vector3i &loc) {
   uint32_t minDistance = 0xffffffff;
   City* bestFit = nullptr;
-  for (auto& cityIt : s_cities) {
-     uint32_t distance = hex::cube_distance(loc, cityIt.second->m_location);
-     if (distance < minDistance) {
-       minDistance = distance;
-       bestFit = cityIt.second;
-     }
+  for (auto mc : mapping_City) {
+    if(mc.entity == INVALID_ENTITY) continue;
+    City* city = c_City(mc.component);
+    uint32_t distance = hex::cube_distance(loc, city->m_location);
+    if (distance < minDistance) {
+      minDistance = distance;
+      bestFit = city;
+    }
   }
 
   return bestFit;
 }
 
 City* city::get_city(uint32_t id) {
-  auto findIt = s_cities.find(id);
-  if (findIt == s_cities.end()) {
-    return nullptr;
-  }
-
-  return findIt->second;
+  uint32_t c = get(id, s_City());
+  return c_City(c);
 }
 
 void city::do_notifications(uint32_t id, NotificationVector& events) {
@@ -348,16 +346,17 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
 }
 
 void city::for_each_city(std::function<void(City& )> operation) {
-  for (auto it = s_cities.begin(); it != s_cities.end(); ++it) {
-    operation(*it->second);
+  for (auto mc : mapping_City) {
+    if (mc.entity == INVALID_ENTITY) continue;
+    City* city = c_City(mc.component);
+    operation(*city);
   }
 }
 
 void city::reset() {
-  for (auto it = s_cities.begin(); it != s_cities.end(); ++it) {
-    delete it->second;
+  for (auto mc : mapping_City) {
+    delete_c(mc.entity, s_City());
   }
-  s_cities.clear();
 
   for (auto &s : s_raze_init_subs) {
     s = SubscriberFunc();
