@@ -172,8 +172,8 @@ namespace terrain_yield {
     t.m_production += 1;
   }
   
-  constexpr size_t MAX_TERRAIN_TYPE = size_t(fbs::TERRAIN_TYPE::MAX);
-  constexpr size_t MAX_RESOURCE_TYPE = size_t(fbs::RESOURCE_TYPE::MAX);
+  constexpr size_t MAX_TERRAIN_TYPE = size_t(fbs::TERRAIN_TYPE::MAX)+1;
+  constexpr size_t MAX_RESOURCE_TYPE = size_t(fbs::RESOURCE_TYPE::MAX)+1;
   typedef std::function<void (TerrainYield&)> YieldFunc;
   YieldFunc s_defaultYieldFn[MAX_TERRAIN_TYPE];
   YieldFunc s_specializeYieldFn[MAX_TERRAIN_TYPE];

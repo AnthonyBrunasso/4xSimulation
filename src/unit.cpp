@@ -24,7 +24,7 @@ namespace unit {
   UnitDeathFunc s_destroy_subs[SUBSCRIBER_LIMIT];
 
   constexpr size_t UNIT_NAME_MAX = 15;
-  constexpr size_t UNIT_TYPE_LIMIT = (size_t)fbs::UNIT_TYPE::MAX;
+  constexpr size_t UNIT_TYPE_LIMIT = (size_t)fbs::UNIT_TYPE::MAX+1;
   char s_unit_names[UNIT_TYPE_LIMIT][UNIT_NAME_MAX+1];
 
   const char* get_name(fbs::UNIT_TYPE);

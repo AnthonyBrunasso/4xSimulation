@@ -10,7 +10,7 @@
 #include "util.h"
 
 namespace {
-  constexpr size_t MAX_UNITS = static_cast<size_t>(fbs::UNIT_TYPE::MAX);
+  constexpr size_t MAX_UNITS = size_t(fbs::UNIT_TYPE::MAX)+1;
   CombatStats s_array[MAX_UNITS];
 }
 
