@@ -15,15 +15,12 @@ namespace fbs {
 }
 
 // Tiles contain -
-// * unique id : to identify any improvements on the tile
 // * terrain id: to identify any special geogrpahic properties of the tile
 // * array of entity ids: to identify buildings, unit, etc that are contained on the tile
 class Tile {
 public:
   Tile();
   Tile(sf::Vector3i location);
-
-  bool HasResource(fbs::RESOURCE_TYPE res);
 
   fbs::TERRAIN_TYPE m_terrain_type;
 
