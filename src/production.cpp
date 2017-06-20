@@ -12,6 +12,7 @@
 
 #include "Vector3.hpp"
 #include "city.h"
+#include "entity.h"
 #include "player.h"
 #include "production_detail.h"
 #include "step_generated.h"
@@ -42,45 +43,42 @@ private:
 };
 std::ostream& operator<<(std::ostream&, const ConstructionState&);
 
+ECS_COMPONENT(ConstructionQueueFIFO, 128);
+ECS_COMPONENT(ConstructionState, 128);
+
 namespace production {
   typedef std::vector<UnitCreationCallback> CreationCallbackVector;
   CreationCallbackVector s_creationCallbacks;
-  typedef std::unordered_map<uint32_t, ConstructionQueueFIFO*> ProductionMap;
-  ProductionMap s_production_queues;
 
   bool production_cleanup(const sf::Vector3i&, uint32_t city_id) {
-    City* c = city::get_city(city_id);
-    if (!c) return false;
+    City* city = city::get_city(city_id);
+    if (!city) return false;
 
-    ProductionMap::iterator itFind = s_production_queues.find(c->m_production_id);
-    if (itFind == s_production_queues.end()) {
-      return false;
-    }
+    uint32_t c = delete_c(city_id, s_ConstructionQueueFIFO());
+    if (c == INVALID_COMPONENT) return false;
     
-    ConstructionQueueFIFO* cq = itFind->second;
-    delete cq->m_state;
-    delete cq;
-    s_production_queues.erase(itFind);
+    c = delete_c(city_id, s_ConstructionState());
+    if (c == INVALID_COMPONENT) return false;
+
     return true;
   }
   
   uint32_t create(uint32_t city_id) {
-    uint32_t queue_id = unique_id::generate();
-    ConstructionQueueFIFO* cq = new ConstructionQueueFIFO(city_id);
-    cq->m_state = new ConstructionState();
-    s_production_queues[queue_id] = cq;
+    // Binding production to the same entity as city
+    uint32_t c = create(city_id, s_ConstructionQueueFIFO());
+    ConstructionQueueFIFO* cq = c_ConstructionQueueFIFO(c);
+    cq->m_city_id = city_id;
+
+    // Binding construction state to the same entity as city
+    c = create(city_id, s_ConstructionState());
+    cq->m_state = c_ConstructionState(c);
     city::sub_raze_complete(production_cleanup);
-    return queue_id;
+    return city_id; // todo: not needed, now that id is shared
   }
 
   ConstructionQueueFIFO* get_production(uint32_t production_id) {
-    ProductionMap::const_iterator itFind = s_production_queues.find(production_id);
-
-    if (itFind == s_production_queues.end()) {
-      return nullptr;
-    }
-
-    return itFind->second;
+    uint32_t c = get(production_id, s_ConstructionQueueFIFO());
+    return c_ConstructionQueueFIFO(c);
   }
 
   void sub_create(const UnitCreationCallback& cb) {
@@ -197,11 +195,14 @@ namespace production {
 
   void reset() {
     s_creationCallbacks.clear();
-    for (auto& q : s_production_queues) {
-      delete q.second->m_state;
-      delete q.second;
+    for (auto qm : mapping_ConstructionQueueFIFO) {
+      if (qm.entity == INVALID_ENTITY) continue;
+      delete_c(qm.component, s_ConstructionQueueFIFO());
     }
-    s_production_queues.clear();
+    for (auto cm : mapping_ConstructionState) {
+      if (cm.entity == INVALID_ENTITY) continue;
+      delete_c(cm.component, s_ConstructionState());
+    }
   }
 }
 
@@ -421,8 +422,8 @@ bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
   return production::completed(itFind->second);
 }
 
-ConstructionQueueFIFO::ConstructionQueueFIFO(uint32_t city_id)
-: m_city_id(city_id)
+ConstructionQueueFIFO::ConstructionQueueFIFO()
+: m_city_id(0)
 , m_stockpile(0.f)
 {
   

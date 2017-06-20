@@ -64,7 +64,7 @@ namespace production_queue {
 class ConstructionQueueFIFO
 {
 public:
-  explicit ConstructionQueueFIFO(uint32_t city_id);
+  ConstructionQueueFIFO();
   ConstructionQueueFIFO(ConstructionQueueFIFO&&) = default;
 
   ConstructionQueueFIFO(const ConstructionQueueFIFO&) = delete;

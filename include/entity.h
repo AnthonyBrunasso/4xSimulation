@@ -27,7 +27,7 @@ struct ComponentSum {
 
 // TODO: Document how to get the ComponentSum, the Component
 // TODO: Document batch operations (for each...)
-// TODO: Document batch deletion
+// TODO: Document batch deletion** (2x)
 //
 // example: 
 // class MyComponent {};
