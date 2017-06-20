@@ -47,9 +47,6 @@ ECS_COMPONENT(ConstructionQueueFIFO, 128);
 ECS_COMPONENT(ConstructionState, 128);
 
 namespace production {
-  typedef std::vector<UnitCreationCallback> CreationCallbackVector;
-  CreationCallbackVector s_creationCallbacks;
-
   bool production_cleanup(const sf::Vector3i&, uint32_t city_id) {
     City* city = city::get_city(city_id);
     if (!city) return false;
@@ -79,10 +76,6 @@ namespace production {
   ConstructionQueueFIFO* get_production(uint32_t production_id) {
     uint32_t c = get(production_id, s_ConstructionQueueFIFO());
     return c_ConstructionQueueFIFO(c);
-  }
-
-  void sub_create(const UnitCreationCallback& cb) {
-    s_creationCallbacks.push_back(cb);
   }
 
   fbs::CONSTRUCTION_TYPE id(uint32_t type_id) {
@@ -194,7 +187,6 @@ namespace production {
   }
 
   void reset() {
-    s_creationCallbacks.clear();
     for (auto qm : mapping_ConstructionQueueFIFO) {
       if (qm.entity == INVALID_ENTITY) continue;
       delete_c(qm.component, s_ConstructionQueueFIFO());

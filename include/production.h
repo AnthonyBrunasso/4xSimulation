@@ -19,8 +19,6 @@ struct TerrainYield;
 typedef std::list<ConstructionOrder*> ConstructionList;
 
 namespace production {
-  typedef std::function<void(fbs::CONSTRUCTION_TYPE)> UnitCreationCallback;
-
   fbs::CONSTRUCTION_TYPE id(uint32_t);
 
   const char*name(ConstructionOrder*);
@@ -38,7 +36,6 @@ namespace production {
 
   uint32_t create(uint32_t city_id);
   ConstructionQueueFIFO* get_production(uint32_t production_id);
-  void sub_create(const UnitCreationCallback&);
 
   void reset();
 }
