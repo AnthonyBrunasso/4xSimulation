@@ -9,26 +9,31 @@
 #include <unordered_map>
 #include <utility>
 
-
+#include "entity.h"
 #include "player.h"
 #include "step_generated.h"
+#include "unique_id.h"
+#include "util.h"
+
+ECS_COMPONENT(ScienceNode, 255);
 
 namespace science {
   class ScienceEdge;
 
-  typedef std::unordered_map<uint32_t, ScienceNode*> ScienceNodeMap;
-
-  ScienceNodeMap s_tower_of_babylon;
   std::vector<ScienceEdge> s_edges;
 
   ScienceNode* Science(fbs::SCIENCE_TYPE st)  {
-    return Science(static_cast<uint32_t>(st));
+    for( auto sm : mapping_ScienceNode) {
+      if (sm.entity == INVALID_ENTITY) continue;
+      ScienceNode* sn = c_ScienceNode(sm.component);
+      if (sn->m_type == st) return sn;
+    }
+    return nullptr;
   }
 
   ScienceNode* Science(uint32_t st_i) {
-    ScienceNodeMap::const_iterator itFind = s_tower_of_babylon.find(st_i);
-    if (itFind == s_tower_of_babylon.end()) return nullptr;
-    return itFind->second;
+    fbs::SCIENCE_TYPE st = any_enum(st_i);
+    return Science(st);
   }
  
   class ScienceEdge {
@@ -45,8 +50,10 @@ namespace science {
   void initialize() {
     auto science_init = [](fbs::SCIENCE_TYPE st) {
       if (st == fbs::SCIENCE_TYPE::UNKNOWN) return;
-      uint32_t key = static_cast<uint32_t>(st);
-      s_tower_of_babylon[key] = new ScienceNode(st);
+      uint32_t key = unique_id::generate();
+      uint32_t c = create(key, s_ScienceNode());
+      ScienceNode* sn = c_ScienceNode(c);
+      sn->m_type = st;
     };
     for (const auto& science : fbs::EnumValuesSCIENCE_TYPE()) {
       science_init(science);
@@ -135,11 +142,11 @@ namespace science {
   }
 
   void reset() {
-    for (auto& s : s_tower_of_babylon) {
-      delete s.second;
+    for (auto sm : mapping_ScienceNode) {
+      if (sm.entity == INVALID_ENTITY) continue;
+      delete_c(sm.component, s_ScienceNode());
     }
 
-    s_tower_of_babylon.clear();
     s_edges.clear();
   }
 };
@@ -153,3 +160,4 @@ bool ScienceNode::Researched(uint32_t player_id) {
   if (!player) return false;
   return player->DiscoveredScience(m_type);
 }
+

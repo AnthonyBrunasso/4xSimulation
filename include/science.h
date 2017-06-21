@@ -7,8 +7,8 @@
 
 class ScienceNode {
 public:
-  explicit ScienceNode(fbs::SCIENCE_TYPE type)
-  : m_type(type)
+  explicit ScienceNode()
+  : m_type(fbs::SCIENCE_TYPE::UNKNOWN)
   { }
 
   std::string Name();
