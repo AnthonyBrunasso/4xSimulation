@@ -5,12 +5,14 @@
 
 #include "Vector3.hpp"
 #include "city.h"
+#include "entity.h"
 #include "improvement.h"
 #include "step_generated.h"
+#include "unique_id.h"
 #include "unit.h"
 
-Player::Player(uint32_t id)
-    : m_id(id)
+Player::Player()
+    : m_id(0)
     , m_cities()
     , m_units() 
     , m_improvements()
@@ -51,9 +53,10 @@ bool Player::DiscoveredScience(fbs::SCIENCE_TYPE st) const {
   return m_discovered_science.find(id) != m_discovered_science.end();
 }
 
+ECS_COMPONENT(Player, 15);
+
 namespace player {
   // List of players, player at index 0 will be player 1 ... index N player N - 1
-  std::vector<Player*> s_players;
 
   void init(Player* p) {
     if (!p) return;
@@ -83,13 +86,14 @@ namespace player {
     });
 
     p->m_available_research.push_back(static_cast<uint32_t>(fbs::SCIENCE_TYPE::AGRICULTURE));
-    s_players.push_back(p);
   }
 }
 
 uint32_t player::create_human(const std::string& name) {
-  uint32_t playerId = static_cast<uint32_t>(s_players.size());
-  Player* p = new Player(playerId);
+  uint32_t playerId = unique_id::generate();
+  uint32_t c = create(playerId, s_Player());
+  Player* p = c_Player(c);
+  p->m_id = playerId;
   p->m_ai_type = fbs::AI_TYPE::HUMAN;
   p->m_name = name;
   init(p);
@@ -97,31 +101,65 @@ uint32_t player::create_human(const std::string& name) {
 }
 
 uint32_t player::create_ai(fbs::AI_TYPE type) {
-  uint32_t playerId = static_cast<uint32_t>(s_players.size());
-  Player* p = new Player(playerId);
+  uint32_t playerId = unique_id::generate();
+  uint32_t c = create(playerId, s_Player());
+  Player* p = c_Player(c);
+  p->m_id = playerId;
   p->m_ai_type = type;
   p->m_name = fbs::EnumNameAI_TYPE(type);
   init(p);
   return playerId;
 }
 
-Player* player::get_player(uint32_t i) {
-  if (i >= s_players.size()) {
-    return nullptr;
+uint32_t player::first() {
+  for (auto pm : mapping_Player) {
+    if (pm.entity == INVALID_ENTITY) continue;
+    return pm.entity;
   }
 
-  return s_players[i];
+  return INVALID_ENTITY;
+}
+
+uint32_t player::next(uint32_t i) {
+  uint32_t first = player::first();
+  uint32_t next = INVALID_ENTITY;
+  for (auto pm : mapping_Player) {
+    if (pm.entity == INVALID_ENTITY) continue;
+    if (next != INVALID_ENTITY) return pm.entity;
+    if (pm.entity == i) next = i;
+  }
+
+  return first;
+}
+
+uint32_t player::last() {
+  uint32_t id = INVALID_ENTITY;
+  for (auto pm : mapping_Player) {
+    if (pm.entity == INVALID_ENTITY) continue;
+    id = pm.entity;
+  }
+  return id;
+}
+
+Player* player::get_player(uint32_t i) {
+  uint32_t c = get(i, s_Player());
+  return c_Player(c);
 }
 
 size_t player::get_count() {
-  return s_players.size();
+  size_t count = 0;
+  for (auto mp : mapping_Player) {
+    if (mp.entity == INVALID_ENTITY) continue;
+    ++count;
+  }
+
+  return count;
 }
 
 void player::reset() {
-  for (auto& player : s_players) {
-    delete player;
+  for (auto mp : mapping_Player) {
+    delete_c(mp.entity, s_Player());
   }
-  s_players.clear();
 }
 
 void player::set_omniscient(uint32_t player_id) {
@@ -185,7 +223,9 @@ bool player::all_players_turn_ended() {
 }
 
 void player::for_each_player(std::function<void(Player& player)> operation) {
-  for (auto p : s_players) {
+  for (auto mp : mapping_Player) {
+    if (mp.entity == INVALID_ENTITY) continue;
+    Player* p = c_Player(mp.component);
     operation(*p);
   }
 }

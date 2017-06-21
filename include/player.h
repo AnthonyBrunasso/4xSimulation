@@ -23,7 +23,7 @@ struct Improvement;
 
 class Player {
 public:
-  explicit Player(uint32_t id);
+  explicit Player();
 
   bool OwnsCity(uint32_t id) const;
   bool OwnsUnit(uint32_t id) const;
@@ -63,6 +63,11 @@ namespace player {
   uint32_t create_ai(fbs::AI_TYPE type);
   Player* get_player(uint32_t i);
   size_t get_count();
+  // Turn order isn't required
+  // However, players are sequenced in memory
+  uint32_t first();
+  uint32_t next(uint32_t i);
+  uint32_t last();
 
   void reset();
 

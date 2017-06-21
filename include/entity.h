@@ -28,6 +28,8 @@ struct ComponentSum {
 // TODO: Document how to get the ComponentSum, the Component
 // TODO: Document batch operations (for each...)
 // TODO: Document batch deletion** (2x)
+// TODO: Document batch count
+// TODO: Avail/alive pointer list. Make it compact and null terminated.
 //
 // example: 
 // class MyComponent {};

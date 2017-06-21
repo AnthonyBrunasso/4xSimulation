@@ -44,6 +44,7 @@ namespace step_parser {
   uint32_t s_active_player = 0;
   size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len);
   void bad_arguments(const std::vector<std::string>& tokens);
+  void update_active_player();
 
   size_t parse_tokens(const std::vector<std::string>& tokens, void* buffer, size_t buffer_len) {
     size_t bytes_written;
@@ -80,10 +81,7 @@ namespace step_parser {
       CHECK_VALID(1, tokens);
 
       uint32_t current_player = s_active_player;
-      if (player::get_count()) {
-        ++s_active_player;
-        s_active_player = s_active_player % player::get_count();
-      }
+      s_active_player = player::next(s_active_player);
       uint32_t next_player = s_active_player;
 
       flatbuffers::Offset<fbs::EndTurnStep> end_turn_step = fbs::CreateEndTurnStep(GetFBB(), current_player, next_player);
@@ -93,6 +91,8 @@ namespace step_parser {
     else if (tokens[0] == "active_player") {
       CHECK_VALID(2, tokens);
       s_active_player = std::stoul(tokens[1]);
+      // this will validate the change
+      update_active_player();
     }
     else if (tokens[0] == "production_abort") {
       uint32_t city_id = std::stoul(tokens[1]);
@@ -408,6 +408,13 @@ namespace step_parser {
   void bad_arguments(const std::vector<std::string>& tokens) {
     std::cout << "Invalid arguments: " << format::vector(tokens) << std::endl;
   }
+
+  void update_active_player() {
+    Player* p = player::get_player(s_active_player);
+    if (p) return;
+
+    s_active_player = player::first();
+  }
 }
 
 std::vector<std::string> step_parser::split_to_tokens(const std::string& line) {
@@ -430,6 +437,8 @@ size_t step_parser::parse(const std::vector<std::string>& tokens, void* buffer, 
 }
 
 std::string step_parser::get_active_player() {
+  update_active_player();
+
   Player* player = player::get_player(s_active_player);
   if (!player) {
     return std::string();

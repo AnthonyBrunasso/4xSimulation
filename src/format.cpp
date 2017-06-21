@@ -109,6 +109,7 @@ std::string format::player(const Player& player) {
   std::stringstream ss;
 
   ss << "name: " << player.m_name << std::endl;
+  ss << " id: " << player.m_id << std::endl;
   ss << " buildings: " << format::set(player.m_cities) << std::endl;
   ss << " units: " << format::set(player.m_units) << std::endl;
   ss << " turn_state: " << fbs::EnumNameTURN_TYPE(player.m_turn_state) << std::endl;
