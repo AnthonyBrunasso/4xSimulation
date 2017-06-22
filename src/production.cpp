@@ -21,28 +21,29 @@
 #include "unit.h"
 #include "util.h"
 
-typedef std::unordered_map<uint32_t, ConstructionOrder*> ConstructionUMap;
+static constexpr size_t ORDER_LIMIT = (size_t)fbs::CONSTRUCTION_TYPE::MAX+1;
 class ConstructionState
 {
 public:
   ConstructionState();
   ~ConstructionState();
-  ConstructionState(ConstructionState&&) = default;
 
+  ConstructionState(ConstructionState&&) = default;
   ConstructionState(const ConstructionState&) = delete;
   ConstructionState& operator=(const ConstructionState&) = delete;
 
-  ConstructionOrder* GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id);
+  uint32_t GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id);
   bool EraseConstruction(fbs::CONSTRUCTION_TYPE type_id);
   bool IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const;
 
 private:
   friend std::ostream& operator<<(std::ostream&, const ConstructionState&);
 
-  ConstructionUMap m_constructions;
+  uint32_t m_constructions[ORDER_LIMIT];
 };
 std::ostream& operator<<(std::ostream&, const ConstructionState&);
 
+ECS_COMPONENT(ConstructionOrder, 256);
 ECS_COMPONENT(ConstructionQueueFIFO, 128);
 ECS_COMPONENT(ConstructionState, 128);
 
@@ -283,8 +284,9 @@ namespace production_queue {
       return;
     }
 
-    ConstructionOrder* order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
-    cq->m_queue.push_back(order);
+    uint32_t order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
+    uint32_t c = get(order, s_ConstructionOrder());
+    cq->m_queue.push_back(c_ConstructionOrder(c));
   }
 
   void move(ConstructionQueueFIFO* cq, size_t src, size_t dest) {
@@ -328,8 +330,9 @@ namespace production_queue {
       return;
     }
 
-    ConstructionOrder* order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
-    production::apply(order, 9999.f);
+    uint32_t order = cq->m_state->GetConstruction(type_id, cq->m_city_id);
+    uint32_t c = get(order, s_ConstructionOrder());
+    production::apply(c_ConstructionOrder(c), 9999.f);
   }
 
   void sell(ConstructionQueueFIFO* cq, fbs::CONSTRUCTION_TYPE type_id) {
@@ -372,32 +375,45 @@ namespace production_queue {
 }
 
 ConstructionState::ConstructionState() {
+  memset(m_constructions, 0, sizeof(m_constructions));
 }
 
 ConstructionState::~ConstructionState() {
   for (auto construction : m_constructions) {
-    delete construction.second;
+    delete_c(construction, s_ConstructionOrder());
   }
+  memset(m_constructions, 0, sizeof(m_constructions));
 }
 
-ConstructionOrder* ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id) {
+uint32_t ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id) {
   if (!production::construction_is_unique(type_id)) {
-    return new ConstructionOrder(type_id, city_id);
+    uint32_t id = unique_id::generate();
+    uint32_t c = create(id, s_ConstructionOrder());
+    ConstructionOrder* co = c_ConstructionOrder(c);
+    co->m_type = type_id;
+    co->m_city_id = city_id;
+    return id;
   }
   
   uint32_t type = any_enum(type_id);
-  ConstructionUMap::const_iterator findIt = m_constructions.find(type);
-  if (findIt != m_constructions.end()) {
-    std::cout << "Resuming unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; return findIt->second;
+  if (m_constructions[type]) {
+    std::cout << "Resuming unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl;
+    return m_constructions[type];
   }
 
-  std::cout << "New unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; ConstructionOrder* newOrder = new ConstructionOrder(type_id, city_id); m_constructions.insert(findIt, ConstructionUMap::value_type(type, newOrder)); 
-  return newOrder;
+  std::cout << "New unique construction: " << fbs::EnumNameCONSTRUCTION_TYPE(type_id) << std::endl; 
+  uint32_t id = unique_id::generate();
+  uint32_t c = create(id, s_ConstructionOrder());
+  ConstructionOrder* newOrder = c_ConstructionOrder(c);
+  newOrder->m_type = type_id;
+  newOrder->m_city_id = city_id;
+  m_constructions[type] = id;
+  return id;
 }
 
 bool ConstructionState::EraseConstruction(fbs::CONSTRUCTION_TYPE type_id) {
   uint32_t type = any_enum(type_id);
-  return m_constructions.erase(type) != 0;
+  return delete_c(m_constructions[type], s_ConstructionOrder()) != INVALID_COMPONENT;
 }
 
 bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
@@ -406,12 +422,10 @@ bool ConstructionState::IsConstructed(fbs::CONSTRUCTION_TYPE type_id) const {
   }
 
   uint32_t type = any_enum(type_id);
-  ConstructionUMap::const_iterator itFind = m_constructions.find(type);
-  if (itFind == m_constructions.end()) {
-    return false;
-  }
+  if (!m_constructions[type]) return false;
 
-  return production::completed(itFind->second);
+  uint32_t c = get(m_constructions[type], s_ConstructionOrder());
+  return production::completed(c_ConstructionOrder(c));
 }
 
 ConstructionQueueFIFO::ConstructionQueueFIFO()
@@ -442,15 +456,15 @@ std::ostream& operator<<(std::ostream& out, const ConstructionQueueFIFO& fifo) {
 }
 
 std::ostream& operator<<(std::ostream& out, const ConstructionState& state) {
-  if (state.m_constructions.empty()) {
-    return out;
-  }
   out << "    --Buildings--" << std::endl;
   for (auto construction : state.m_constructions) {
-    if (!production::completed(construction.second)) {
+    if (!construction) continue;
+    uint32_t c = get(construction, s_ConstructionOrder());
+    ConstructionOrder* co = c_ConstructionOrder(c);
+    if (!production::completed(co)) {
       continue;
     }
-    out << "      " << EnumNameCONSTRUCTION_TYPE(construction.second->m_type) << " is completed." << std::endl;
+    out << "      " << EnumNameCONSTRUCTION_TYPE(co->m_type) << " is completed." << std::endl;
   }
   return out;
 }

@@ -8,9 +8,9 @@
 class ConstructionOrder
 {
 public:
-  explicit ConstructionOrder(fbs::CONSTRUCTION_TYPE type_id, uint32_t city_id)
-    : m_type(type_id)
-    , m_city_id(city_id)
+  explicit ConstructionOrder()
+    : m_type(fbs::CONSTRUCTION_TYPE::UNKNOWN)
+    , m_city_id(0)
     , m_production(0.0)
   {}
 

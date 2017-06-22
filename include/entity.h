@@ -29,6 +29,8 @@ struct ComponentSum {
 // simplifies iteration, and allows for look-ups by component id.
 // TODO: Allow a function for look-up by component id.
 //  This should still check the e2c mapping to verify validity.
+//  Science and Production have an assumption that enum can be mapped
+//  into a meaningful object.
 // TODO: Document how to get the ComponentSum, the Component
 // TODO: Document batch operations (for each...)
 // TODO: Document batch deletion** (2x)
