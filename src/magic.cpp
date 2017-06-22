@@ -30,10 +30,12 @@ namespace magic {
     fbs::MAGIC_TYPE m_type;
   };
   
-  std::unordered_map<uint32_t, Spell> s_magic_stats;
+  constexpr size_t MAGIC_LIMIT = (size_t)fbs::MAGIC_TYPE::MAX+1;
+  Spell s_magic_stats[MAGIC_LIMIT];
 
   bool damage_units(uint32_t casting_player, fbs::MAGIC_TYPE type, const Tile& tile) {
-    float dmg = s_magic_stats[any_enum(type)].m_damage;
+    uint32_t idx = any_enum(type);
+    float dmg = s_magic_stats[idx].m_damage;
     for (auto id : tile.m_unit_ids) {
       // Rain ze fire.
       std::cout << "Casting " << fbs::EnumNameMAGIC_TYPE(type) << " upon unit " << id << std::endl;
@@ -93,7 +95,9 @@ bool magic::fireball_requirements(const sf::Vector3i& location, uint32_t player_
 };
 
 void magic::reset() {
-  s_magic_stats.clear();
+  for (auto& ms : s_magic_stats) {
+    ms = Spell();
+  }
 }
 
 void magic::cast(uint32_t player_id, fbs::MAGIC_TYPE type, const sf::Vector3i& location, bool cheat/*=false*/) {
