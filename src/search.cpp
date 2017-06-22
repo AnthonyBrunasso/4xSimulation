@@ -49,27 +49,6 @@ namespace {
     return hex::cube_distance(from, goal);
   }
 
-  void find_neighbors(const PathNode& record, 
-      const sf::Vector3i& goal, 
-      std::vector<PathNode>& neighbors, 
-      world_map::TileMap& tile_map) {
-    // This is a little inefficient since this will need to be copied into neighbors.
-    std::vector<sf::Vector3i> cube_neighbors;
-    hex::cube_neighbors(record.m_location, cube_neighbors); 
-
-    // Fill neighbors with path nodes
-    neighbors.clear();
-    for (auto node : cube_neighbors) {
-      // If the node does not exist in the map continue.
-      if (tile_map.find(node) == tile_map.end()) continue;
-
-      neighbors.push_back(
-          PathNode(node, 
-            record.m_cost.m_value + tile_map[node].m_path_cost,                                    // Cost of current record to this node
-            record.m_cost.m_value + tile_map[node].m_path_cost + heuristic_estimate(node, goal))); // Heuristic cost
-    }
-  }
-
   void build_path(const sf::Vector3i& target, 
       std::unordered_map<sf::Vector3i, sf::Vector3i>& came_from, 
       std::vector<sf::Vector3i>& path) {
@@ -134,30 +113,32 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     closed[current.m_location] = true;
 
     // Get all of currents neighbors.
-    std::vector<PathNode> neighbors;
-    find_neighbors(current, end, neighbors, tile_map);
-
+    std::vector<sf::Vector3i> cube_neighbors;
+    hex::cube_neighbors(current.m_location, cube_neighbors); 
     // Loop over neighbors and evaluate state of each node in path.
-    for (auto neighbor : neighbors) {
-      // If the neibhors location equals end, this is our destination, don't skip it or A* will never finish.
+    for (auto neighbor : cube_neighbors) {
+      // Ignore neighbors that have already been evaluated.
+      if (closed.find(neighbor) != closed.end()) continue;
+      // If the neighbors location equals end, this is our destination, don't skip it or A* will never finish.
       // If the node shouldn't be expanded add it to the closed list and continue.
-      if (neighbor.m_location != end && expand && !expand(tile_map[neighbor.m_location])) {
-        closed[neighbor.m_location] = true;
+      if (neighbor != end && expand && !expand(tile_map[neighbor])) {
+        closed[neighbor] = true;
         continue;
       }
-      // Ignore neighbors that have already been evaluated.
-      if (closed.find(neighbor.m_location) != closed.end()) continue;
+      PathNode pn(neighbor,
+            current.m_cost.m_value + tile_map[neighbor].m_path_cost,                                    // Cost of current record to this node
+            current.m_cost.m_value + tile_map[neighbor].m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
       // If not in open list, add it for evaluation.
-      if (openDiscovered.find(neighbor.m_location) == openDiscovered.end()) {
-        open.push(neighbor);
-        openDiscovered[neighbor.m_location] = true;
+      if (openDiscovered.find(neighbor) == openDiscovered.end()) {
+        open.push(pn);
+        openDiscovered[neighbor] = true;
       }
       // If this is not a better path than one already found continue.
-      else if (neighbor.m_cost.m_value > true_costs[neighbor.m_location].m_value) {
+      else if (pn.m_cost.m_value > true_costs[neighbor].m_value) {
         continue;
       }
-      came_from[neighbor.m_location] = current.m_location;
-      set(true_costs[neighbor.m_location], neighbor.m_cost.m_value);
+      came_from[neighbor] = current.m_location;
+      set(true_costs[neighbor], pn.m_cost.m_value);
     }
   }
 
