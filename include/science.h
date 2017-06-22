@@ -5,6 +5,8 @@
 
 #include "enum_generated.h"
 
+const uint32_t SCIENCE_EDGES_MAX = 4;
+
 class ScienceNode {
 public:
   explicit ScienceNode()
@@ -14,8 +16,8 @@ public:
   std::string Name();
   bool Researched(uint32_t player_id);
   
-  std::vector<ScienceNode*> m_previous;
-  std::vector<ScienceNode*> m_next;
+  ScienceNode* m_previous[SCIENCE_EDGES_MAX];
+  ScienceNode* m_next[SCIENCE_EDGES_MAX];
   fbs::SCIENCE_TYPE m_type;
 };
 

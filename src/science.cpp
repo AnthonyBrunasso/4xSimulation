@@ -71,8 +71,16 @@ namespace science {
       ScienceEdge(fbs::SCIENCE_TYPE::MINING,fbs::SCIENCE_TYPE::BRONZE_WORKING)
     };
     for (auto e : edges) {
-      e.m_previous->m_next.push_back(e.m_next);
-      e.m_next->m_previous.push_back(e.m_previous);
+      for (auto& epn : e.m_previous->m_next) {
+        if (epn) continue;
+        epn = e.m_next;
+        break;
+      }
+      for (auto& enp : e.m_next->m_previous) {
+        if (enp) continue;
+        enp = e.m_previous;
+        break;
+      }
     }
   }
 
@@ -110,7 +118,7 @@ namespace science {
   }
   
   uint32_t node_depth(ScienceNode* sn, uint32_t depth=1) {
-    if (sn->m_previous.empty()) return depth;
+    if (sn->m_previous[0] == nullptr) return depth;
     uint32_t min_depth = 0xffffffff;
     for (auto node : sn->m_previous) {
       min_depth = std::min(min_depth, node_depth(node, depth+1));
