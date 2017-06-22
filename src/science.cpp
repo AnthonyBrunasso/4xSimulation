@@ -18,9 +18,16 @@
 ECS_COMPONENT(ScienceNode, 255);
 
 namespace science {
-  class ScienceEdge;
+  class ScienceEdge {
+  public:
+    explicit ScienceEdge(fbs::SCIENCE_TYPE prev, fbs::SCIENCE_TYPE next) 
+    : m_previous(Science(prev))
+    , m_next(Science(next))
+    {}
 
-  std::vector<ScienceEdge> s_edges;
+    ScienceNode* m_previous;
+    ScienceNode* m_next;
+  };
 
   ScienceNode* Science(fbs::SCIENCE_TYPE st)  {
     for( auto sm : mapping_ScienceNode) {
@@ -36,16 +43,6 @@ namespace science {
     return Science(st);
   }
  
-  class ScienceEdge {
-  public:
-    explicit ScienceEdge(fbs::SCIENCE_TYPE prev, fbs::SCIENCE_TYPE next) 
-    : m_previous(Science(prev))
-    , m_next(Science(next))
-    {}
-
-    ScienceNode* m_previous;
-    ScienceNode* m_next;
-  };
 
   void initialize() {
     auto science_init = [](fbs::SCIENCE_TYPE st) {
@@ -58,7 +55,8 @@ namespace science {
     for (const auto& science : fbs::EnumValuesSCIENCE_TYPE()) {
       science_init(science);
     }
-    std::vector<ScienceEdge> edges { 
+    ScienceEdge edges[] =
+    { 
       ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::POTTERY),
       ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::ANIMAL_HUSBANDRY),
       ScienceEdge(fbs::SCIENCE_TYPE::AGRICULTURE,fbs::SCIENCE_TYPE::ARCHERY),
@@ -76,7 +74,6 @@ namespace science {
       e.m_previous->m_next.push_back(e.m_next);
       e.m_next->m_previous.push_back(e.m_previous);
     }
-    s_edges.swap(edges);
   }
 
   void debug_requirements(ScienceNode* sn) {
@@ -146,8 +143,6 @@ namespace science {
       if (sm.entity == INVALID_ENTITY) continue;
       delete_c(sm.component, s_ScienceNode());
     }
-
-    s_edges.clear();
   }
 };
 
