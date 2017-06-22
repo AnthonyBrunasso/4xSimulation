@@ -2,22 +2,11 @@
 #include "ai_state.h"
 #include <iostream>
 
-void track_node(DNode* node, std::vector<DNode*>& node_vector) {
-  if (!node) return;
-  track_node(node->m_right, node_vector);
-  track_node(node->m_left, node_vector);
-  node_vector.push_back(node);
-}
-
 DTree::DTree(DNode* root) :
    m_root(root) {
 }
 
 DTree::~DTree() {
-}
-
-void DTree::track_nodes(std::vector<DNode*>& nodes) {
-  track_node(m_root, nodes);
 }
 
 // Run this decision with the given player. 

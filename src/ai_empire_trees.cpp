@@ -8,10 +8,10 @@
 #include "dtree.h"
 
 namespace empire_trees {
-  std::vector<DNode*> s_allocated;
 }
 
 DTree& empire_trees::get_primitive_macro() {
+  // ok to leak these on shutdown for now
   static DTree s_primitive_macro([]() -> DNode* {
     // Create macro tree. Check if the player needs to colonize.
     DNode* node = new DNode(nullptr, &empire_evaluations::get_colonize());
@@ -31,6 +31,7 @@ DTree& empire_trees::get_primitive_macro() {
 }
 
 DTree& empire_trees::get_primitive_micro(TurnState* state) {
+  // ok to leak these on shutdown for now
   static DTree s_primitive_micro([]() -> DNode*
   {
     // Create micro tree.
@@ -86,11 +87,4 @@ DTree& empire_trees::get_primitive_micro(TurnState* state) {
 }
 
 void empire_trees::shutdown() {
-  get_primitive_macro().track_nodes(s_allocated);
-  get_primitive_micro(nullptr).track_nodes(s_allocated);
-  std::sort(s_allocated.begin(), s_allocated.end());
-  auto lastUnique = std::unique(s_allocated.begin(), s_allocated.end());
-  for (std::vector<DNode*>::const_iterator it = s_allocated.begin(); it != lastUnique; ++it) {
-    delete *it;
-  }
 }

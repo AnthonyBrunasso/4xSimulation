@@ -50,7 +50,6 @@ public:
   DTree(DNode* root);
   ~DTree();
 
-  void track_nodes(std::vector<DNode*>& nodes);
   // Run this decision with the given player.
   void make_decision(uint32_t id);
 
