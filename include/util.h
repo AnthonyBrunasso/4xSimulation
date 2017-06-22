@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Vector3.hpp"
-
-
-#include <string>
+#include <stddef.h>
 #include <cstdint>
+#include <string>
+
+#include "Vector3.hpp"
 
 namespace fbs
 {

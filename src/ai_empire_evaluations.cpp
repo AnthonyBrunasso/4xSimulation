@@ -1,5 +1,6 @@
 #include "ai_empire_evaluations.h"
 
+
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -11,12 +12,11 @@
 #include "ai_state.h"
 #include "city.h"
 #include "combat.h"
-
+#include "enum_generated.h"
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"
 #include "search.h"
-#include "step_generated.h"
 #include "unit.h"
 #include "world_map.h"
 

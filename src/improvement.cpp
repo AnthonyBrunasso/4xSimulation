@@ -1,13 +1,14 @@
 #include "improvement.h"
 
+#include <stddef.h>
 #include <iostream>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "entity.h"
 #include "Vector3.hpp"
-#include "step_generated.h"
+#include "entity.h"
+#include "tile.h"
 #include "unique_id.h"
 #include "util.h"
 #include "world_map.h"

@@ -1,17 +1,19 @@
 #include "world_map.h"
 
+#include <ext/alloc_traits.h>
 //#include <ext/alloc_traits.h>
 #include <algorithm>
 #include <cstring>
-#include <fstream>
 #include <iostream>
-#include <memory>
 #include <set>
 #include <utility>
 #include <vector>
 
 #include "ai_barbarians.h"
 #include "city.h"
+#include "enum_generated.h"
+#include "flatbuffers/flatbuffers.h"
+#include "flatbuffers/util.h"
 #include "format.h"
 #include "improvement.h"
 #include "map_generated.h"
@@ -19,15 +21,11 @@
 #include "random.h"
 #include "resources.h"
 #include "search.h"
-#include "step_generated.h"
 #include "tile.h"
 #include "tile_costs.h"
 #include "unique_id.h"
 #include "unit.h"
 #include "util.h"
-
-
-#include "flatbuffers/util.h"
 
 namespace world_map {
   static TileMap s_map;

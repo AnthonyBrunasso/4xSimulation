@@ -1,9 +1,16 @@
 #pragma once
 
+#include <stdint.h>
+#include <string>
+
+#include "enum_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "step_generated.h"
 #include "tile.h"
 #include "unit.h"
+
+class Tile;
+class Unit;
 
 #if defined(_MSC_VER)
 #define DLL_EXPORT __declspec(dllexport)

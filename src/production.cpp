@@ -1,13 +1,12 @@
 
 #include "production.h"
 
+#include <string.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <iterator>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "Vector3.hpp"
@@ -15,7 +14,6 @@
 #include "entity.h"
 #include "player.h"
 #include "production_detail.h"
-#include "step_generated.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"

@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstdint>
 #include <cfloat>
+#include <cstdint>
 #include <vector>
 
 struct TurnState;
+
 const float NOOP_EVALUATION = FLT_MAX;
 
 // An AI decision is an action an AI takes. Attacking a unit, colonizing, etc.

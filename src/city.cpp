@@ -3,21 +3,16 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <utility>
 
 #include "entity.h"
 #include "format.h"
 #include "hex.h"
 #include "production.h"
 #include "search.h"
-#include "step_generated.h"
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
-#include "util.h"
 #include "world_map.h"
 
 ECS_COMPONENT(City, 128);

@@ -4,10 +4,9 @@
 
 #include "Vector3.hpp"
 #include "combat.h"
-
+#include "enum_generated.h"
 #include "player.h"
 #include "status_effect.h"
-#include "step_generated.h"
 #include "unit.h"
 
 uint32_t INVALID_MONSTER_ID = 0xffffffff;

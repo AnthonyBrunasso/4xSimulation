@@ -1,12 +1,12 @@
 #include "status_effect.h"
 
+#include <stddef.h>
 #include <iostream>
 #include <map>
 #include <utility>
 
 #include "city.h"
 #include "search.h"
-#include "step_generated.h"
 #include "tile.h"
 #include "unit.h"
 #include "world_map.h"

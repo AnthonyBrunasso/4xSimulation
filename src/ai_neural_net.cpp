@@ -1,13 +1,14 @@
 #include "ai_neural_net.h"
 
-#include "neural_net.h"
-#include "unique_id.h"
-#include "dtree.h"
-#include "player.h"
-#include "unit.h"
-
 #include <cassert>
+#include <cstdint>
 #include <unordered_map>
+
+#include "dtree.h"
+#include "neural_net.h"
+#include "player.h"
+#include "unique_id.h"
+#include "unit.h"
 
 namespace neural_net {
 

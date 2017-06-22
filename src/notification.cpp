@@ -1,12 +1,9 @@
 #include "notification.h"
 
-#include <algorithm>
 #include <sstream>
 
 #include "city.h"
-
 #include "player.h"
-#include "step_generated.h"
 #include "unit.h"
 
 

@@ -1,15 +1,14 @@
 #include "unit.h"
 
+#include <string.h>
 #include <algorithm>
 #include <iostream>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "combat.h"
 #include "entity.h"
+#include "enum_generated.h"
 #include "player.h"
-#include "step_generated.h"
 #include "unique_id.h"
 #include "unit_definitions.h"
 #include "util.h"

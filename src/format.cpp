@@ -2,16 +2,15 @@
 
 #include "city.h"
 #include "combat.h"
-
+#include "enum_generated.h"
 #include "hex.h"
 #include "improvement.h"
 #include "player.h"
 #include "production.h"
 #include "resources.h"
 #include "status_effect.h"
-#include "step_generated.h"
-#include "tile.h"
 #include "terrain_yield.h"
+#include "tile.h"
 #include "unit.h"
 #include "util.h"
 

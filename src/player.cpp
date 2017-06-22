@@ -1,13 +1,11 @@
 #include "player.h"
 
 #include <memory>
-#include <vector>
 
 #include "Vector3.hpp"
 #include "city.h"
 #include "entity.h"
 #include "improvement.h"
-#include "step_generated.h"
 #include "unique_id.h"
 #include "unit.h"
 

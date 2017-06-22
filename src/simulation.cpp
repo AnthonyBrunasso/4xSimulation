@@ -1,8 +1,8 @@
 #include "simulation.h"
 
+#include <ext/alloc_traits.h>
 #include <algorithm>
 #include <iostream>
-#include <memory>
 #include <set>
 #include <string>
 #include <utility>
@@ -14,9 +14,9 @@
 #include "ai_monster.h"
 #include "city.h"
 #include "combat.h"
+#include "enum_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-
 #include "hex.h"
 #include "improvement.h"
 #include "magic.h"

@@ -1,16 +1,15 @@
 #include "scenario.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <vector>
 
-#include "scenario_monster.h"
 #include "scenario_arena.h"
 #include "scenario_citylife.h"
 #include "scenario_faceoff.h"
-#include "step_generated.h"
+#include "scenario_monster.h"
 #include "util.h"
-
-#include <algorithm>
-#include <vector>
-#include <iostream>
 
 namespace scenario {
   std::vector<uint32_t> s_running;

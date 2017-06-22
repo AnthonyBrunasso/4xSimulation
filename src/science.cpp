@@ -6,12 +6,10 @@
 #include <cstdint>
 #include <iostream>
 #include <set>
-#include <unordered_map>
-#include <utility>
+#include <vector>
 
 #include "entity.h"
 #include "player.h"
-#include "step_generated.h"
 #include "unique_id.h"
 #include "util.h"
 

@@ -10,7 +10,6 @@
 
 #include "enum_generated.h"
 
-
 class ConstructionOrder;
 class ConstructionQueueFIFO;
 class ConstructionState;

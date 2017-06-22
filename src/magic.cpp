@@ -1,16 +1,13 @@
 #include "magic.h"
 
-#include <cstdint>
+#include <stddef.h>
 #include <functional>
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <vector>
 
 #include "city.h"
 #include "player.h"
 #include "search.h"
-#include "step_generated.h"
 #include "tile.h"
 #include "unit.h"
 #include "util.h"

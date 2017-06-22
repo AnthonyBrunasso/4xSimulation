@@ -1,9 +1,9 @@
 #include "tile_costs.h"
 
-#include "step_generated.h"
-#include "util.h"
-
 #include <unordered_map>
+
+#include "enum_generated.h"
+#include "util.h"
 
 namespace {
   typedef std::unordered_map<uint32_t, uint32_t> TerrainCostMap;

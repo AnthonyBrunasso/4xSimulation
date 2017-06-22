@@ -1,11 +1,12 @@
 #pragma once
 
-#include "step_generated.h"
-#include "Vector3.hpp"
-
 #include <cstdint>
-#include <vector>
 #include <functional>
+#include <vector>
+
+#include "Vector3.hpp"
+#include "enum_generated.h"
+#include "step_generated.h"
 
 class Tile;
 

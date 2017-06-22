@@ -1,5 +1,6 @@
 #include "scenario_faceoff.h"
 
+#include <ext/alloc_traits.h>
 #include <stddef.h>
 #include <cstdint>
 #include <unordered_map>
@@ -7,9 +8,8 @@
 
 #include "Vector3.hpp"
 #include "ai_barbarians.h"
-
+#include "enum_generated.h"
 #include "player.h"
-#include "step_generated.h"
 #include "unit.h"
 #include "util.h"
 

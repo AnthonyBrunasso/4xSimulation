@@ -1,5 +1,4 @@
 #include "entity.h"
-#include <stdio.h>
 
 ComponentSum::ComponentSum(void* c, void **p, e2c* m, uint32_t s, int l)
   : component(c)

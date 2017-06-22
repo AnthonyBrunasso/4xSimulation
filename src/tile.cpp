@@ -1,9 +1,7 @@
 #include "tile.h"
 
-#include <algorithm>
-
+#include "enum_generated.h"
 #include "unique_id.h"
-#include "step_generated.h"
 
 Tile::Tile() : 
   m_terrain_type(fbs::TERRAIN_TYPE::UNKNOWN)

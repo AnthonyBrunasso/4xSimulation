@@ -3,11 +3,14 @@
 #include <algorithm>
 #include <queue>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "city.h"
+#include "enum_generated.h"
 #include "hex.h"
 #include "improvement.h"
+#include "resources.h"
 #include "tile.h"
 #include "unit.h"
 

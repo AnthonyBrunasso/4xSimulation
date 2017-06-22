@@ -1,5 +1,6 @@
 #include "ai_barbarians.h"
 
+
 #include <algorithm>
 #include <iostream>
 #include <memory>

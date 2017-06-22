@@ -1,12 +1,12 @@
 #pragma once
 
+#include <stddef.h>
 #include <cstdint>
 #include <functional>
 #include <vector>
 
 #include "Vector3.hpp"
 #include "combat.h"
-
 #include "unique_id.h"
 
 class Player;

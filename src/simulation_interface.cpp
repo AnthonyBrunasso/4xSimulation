@@ -1,13 +1,19 @@
 #include "simulation_interface.h"
 
-#include "step_generated.h"
-#include "simulation.h"
-#include "random.h"
-#include "player.h"
-#include "world_map.h"
-#include "ai_barbarians.h"
-
+#include <cstring>
 #include <iostream>
+#include <utility>
+
+#include "Vector3.hpp"
+#include "ai_barbarians.h"
+#include "flatbuffers/flatbuffers.h"
+#include "player.h"
+#include "random.h"
+#include "simulation.h"
+#include "step_generated.h"
+#include "tile.h"
+#include "unit.h"
+#include "world_map.h"
 
 namespace simulation_interface {
   flatbuffers::FlatBufferBuilder& GetFBB();

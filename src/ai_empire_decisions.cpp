@@ -1,5 +1,7 @@
 #include "ai_empire_decisions.h"
 
+
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -13,7 +15,6 @@
 #include "city.h"
 #include "flatbuffers/flatbuffers.h"
 #include "format.h"
-
 #include "player.h"
 #include "production.h"
 #include "random.h"

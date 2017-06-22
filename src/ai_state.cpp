@@ -1,5 +1,4 @@
 #include "ai_state.h"
-#include "step_generated.h"
 
 #include <iostream>
 

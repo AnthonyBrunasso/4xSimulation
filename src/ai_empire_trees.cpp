@@ -1,14 +1,8 @@
 #include "ai_empire_trees.h"
 
-#include <algorithm>
-#include <vector>
-
 #include "ai_empire_decisions.h"
 #include "ai_empire_evaluations.h"
 #include "dtree.h"
-
-namespace empire_trees {
-}
 
 DTree& empire_trees::get_primitive_macro() {
   // ok to leak these on shutdown for now

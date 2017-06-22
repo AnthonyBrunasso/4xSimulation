@@ -11,11 +11,10 @@
 #include <vector>
 
 #include "city.h"
+#include "enum_generated.h"
 #include "format.h"
-
 #include "improvement.h"
 #include "resources.h"
-#include "step_generated.h"
 #include "tile.h"
 #include "util.h"
 #include "world_map.h"

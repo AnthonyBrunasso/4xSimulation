@@ -1,12 +1,10 @@
 #include "unit_definitions.h"
 
+#include <stddef.h>
 #include <cstdint>
-#include <unordered_map>
-#include <utility>
 
 #include "combat.h"
-
-#include "step_generated.h"
+#include "enum_generated.h"
 #include "util.h"
 
 namespace {
