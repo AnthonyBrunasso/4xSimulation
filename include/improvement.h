@@ -9,7 +9,7 @@
 #include "resources.h"
 
 struct Improvement {
-  Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type);
+  Improvement();
 
   uint32_t m_id;
   Resource m_resource;

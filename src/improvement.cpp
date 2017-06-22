@@ -5,17 +5,18 @@
 #include <utility>
 #include <vector>
 
+#include "entity.h"
 #include "Vector3.hpp"
 #include "step_generated.h"
 #include "unique_id.h"
 #include "util.h"
 #include "world_map.h"
 
+ECS_COMPONENT(Improvement, 256);
+
 namespace improvement {
-  typedef std::unordered_map<uint32_t, Improvement*> ImprovementMap;
   typedef std::unordered_map<uint32_t, uint32_t> ResourceImprovementMap;
   typedef std::vector<std::uint32_t> ValidResourceVector;
-  ImprovementMap s_improvements;
   ResourceImprovementMap s_resource_improvements;
 
   typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
@@ -39,10 +40,9 @@ void improvement::initialize() {
   s_resource_improvements[any_enum(fbs::RESOURCE_TYPE::SHEEP)] = any_enum(fbs::IMPROVEMENT_TYPE::PASTURE);
 }
 
-Improvement::Improvement(uint32_t unique_id, Resource res, fbs::IMPROVEMENT_TYPE type) 
-  : m_id(unique_id)
-  , m_resource(res)
-  , m_type(type)
+Improvement::Improvement() 
+  : m_id(INVALID_ENTITY)
+  , m_type(fbs::IMPROVEMENT_TYPE::UNKNOWN)
   , m_owner_id(unique_id::INVALID_ID)
 {
 }
@@ -86,11 +86,14 @@ uint32_t improvement::create(Resource res
   }
 
   uint32_t id = unique_id::generate();
-  Improvement* improvement = new Improvement(id, res, type);
+  uint32_t c = create(id, s_Improvement());
+  Improvement* improvement = c_Improvement(c);
+  improvement->m_id = id;
+  improvement->m_resource = res;
+  improvement->m_type = type;
   improvement->m_location = location;
   improvement->m_owner_id = owner;
 
-  s_improvements[id] = improvement;
   std::cout << "Created improvement id " << id << ", improvement type: " << fbs::EnumNameIMPROVEMENT_TYPE(type) << std::endl;
 
   for (auto sub : s_create_subs) {
@@ -125,8 +128,7 @@ void improvement::destroy(uint32_t id) {
     }
   }
 
-  s_improvements.erase(id);
-  delete improvement;
+  delete_c(id, s_Improvement());
 }
 
 void improvement::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
@@ -158,24 +160,25 @@ fbs::IMPROVEMENT_TYPE improvement::resource_improvement(fbs::RESOURCE_TYPE resou
 }
 
 Improvement* improvement::get_improvement(uint32_t id) {
-  if (s_improvements.find(id) == s_improvements.end()) {
-    return nullptr;
-  }
-  return s_improvements[id];
+  uint32_t c = get(id, s_Improvement());
+  return c_Improvement(c);
 }
 
 void improvement::for_each_improvement(
     std::function<void(const Improvement& improvement)> operation) {
-  for (auto improvement : s_improvements) {
-    operation(*improvement.second);
+  for (auto im : mapping_Improvement) {
+    if (im.entity == INVALID_ENTITY) continue;
+    Improvement* i = c_Improvement(im.component);
+    operation(*i);
   }
 }
 
 void improvement::reset() {
-  for (auto& i : s_improvements) {
-    delete i.second;
+  for (auto im : mapping_Improvement) {
+    if (im.entity == INVALID_ENTITY) continue;
+    delete_c(im.component, s_Improvement());
   }
-  s_improvements.clear();
+
   for (auto& s : s_destroy_subs) {
     s = SubscriberFunc();
   }
