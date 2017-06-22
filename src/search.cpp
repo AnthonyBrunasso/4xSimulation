@@ -12,36 +12,34 @@
 #include "unit.h"
 
 namespace {
-  // Score struct used in A* pathfinding cost maps.
-  // Default value infinity because that's the initial distance known from start to 
-  // a random node given we have not evaluated a valid path to the node.
-  struct Score {
-    Score() : m_value(UINT32_MAX) {};
-    Score(uint32_t value) : m_value(value) {};
-
-    uint32_t m_value;
-  };
-
   struct PathNode {
-    PathNode(const sf::Vector3i& location, uint32_t cost, uint32_t heuristic) :
-      m_location(location)
+    PathNode(const sf::Vector3i& location, uint32_t cost, uint32_t heuristic) 
+      : m_location(location)
       , m_cost(cost)
       , m_heuristic(heuristic) {};
 
     sf::Vector3i m_location;
-    Score m_cost;
-    Score m_heuristic;
+    uint32_t m_cost;
+    uint32_t m_heuristic;
+
+  private:
+    PathNode();
   };
 
   struct PathNodeComparator {
     bool operator() (const PathNode& lhs, const PathNode& rhs) { 
-      return lhs.m_heuristic.m_value > rhs.m_heuristic.m_value; 
+      return lhs.m_heuristic > rhs.m_heuristic; 
     }
   };
 
-  // Helper function to set the actual value of a score.
-  void set(Score& score, uint32_t value) {
-    score.m_value = value;
+  // Helper function to get tile cost with a default value 
+  uint32_t get(const std::unordered_map<sf::Vector3i, uint32_t> &costs, const sf::Vector3i& tile) {
+    auto it = costs.find(tile);
+    if (it == costs.end()) {
+      return UINT32_MAX;
+    }
+
+    return it->second;
   }
 
   // Cube distance will work as a well behaved heuristic for A* pathing.
@@ -94,9 +92,9 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
   // Map used to move backwards from goal node to start to get pstartath.
   std::unordered_map<sf::Vector3i, sf::Vector3i> came_from;
   // The actual costs from the start node to a given node.
-  std::unordered_map<sf::Vector3i, Score> true_costs;
+  std::unordered_map<sf::Vector3i, uint32_t> true_costs;
   // Cost from start to start is 0.
-  set(true_costs[start], 0);
+  true_costs[start] = 0;
 
   while (!open.empty()) {
     // Back will return path node with least path cost.
@@ -126,19 +124,19 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
         continue;
       }
       PathNode pn(neighbor,
-            current.m_cost.m_value + tile_map[neighbor].m_path_cost,                                    // Cost of current record to this node
-            current.m_cost.m_value + tile_map[neighbor].m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
+            current.m_cost + tile_map[neighbor].m_path_cost,                                    // Cost of current record to this node
+            current.m_cost + tile_map[neighbor].m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
       // If not in open list, add it for evaluation.
       if (openDiscovered.find(neighbor) == openDiscovered.end()) {
         open.push(pn);
         openDiscovered[neighbor] = 1;
       }
       // If this is not a better path than one already found continue.
-      else if (pn.m_cost.m_value > true_costs[neighbor].m_value) {
+      else if (pn.m_cost > get(true_costs, neighbor)) {
         continue;
       }
       came_from[neighbor] = current.m_location;
-      set(true_costs[neighbor], pn.m_cost.m_value);
+      true_costs[neighbor] = pn.m_cost;
     }
   }
 
