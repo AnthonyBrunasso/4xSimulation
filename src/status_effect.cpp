@@ -2,8 +2,6 @@
 
 #include <stddef.h>
 #include <iostream>
-#include <map>
-#include <utility>
 
 #include "city.h"
 #include "search.h"
@@ -115,8 +113,8 @@ namespace {
   };
 
 
-  typedef std::map<uint32_t, StatusEffect*> StatusMap;
-  StatusMap s_status;
+  constexpr size_t EFFECT_LIMIT = 128;
+  StatusEffect* s_status[EFFECT_LIMIT];
   typedef std::function<bool(const sf::Vector3i&, uint32_t)> SubscriberFunc;
   constexpr size_t SUBSCRIBER_LIMIT = 10;
   SubscriberFunc s_destroy_subs[SUBSCRIBER_LIMIT];
@@ -127,7 +125,7 @@ namespace {
   std::function<void()> s_injected_per = {};
 
   // Status effects don't use the global unique_id ids.
-  uint32_t s_unique_ids = 1;
+  uint32_t s_unique_ids = 0;
 }
 
 void status_effect::inject(std::function<void()> begin
@@ -228,7 +226,7 @@ void status_effect::destroy(uint32_t id) {
     }
   }
 
-  s_status.erase(id);
+  s_status[id] = 0;
   delete e;
 }
 void status_effect::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t)> sub) {
@@ -243,36 +241,29 @@ void status_effect::sub_destroy(std::function<bool(const sf::Vector3i&, uint32_t
 }
 
 StatusEffect* status_effect::get_effect(uint32_t id) {
-  if (s_status.find(id) == s_status.end()) return nullptr;
   return s_status[id];
 }
 
 void status_effect::for_each_effect(std::function<void(const StatusEffect& effect)> operation) {
   for (auto status : s_status) {
-    operation(*status.second);
+    if (!status) continue;
+    operation(*status);
   }
 }
 
 void status_effect::process() {
-  std::vector<uint32_t> remove_effects;
   // Prune effects list of nullptrs and those flagged with INVALID_TURNS to be removed.
-  for (auto effect : s_status) {
-    StatusEffect* e = effect.second;
-    if (!e || e->m_current_turn == INVALID_TURNS) {
-      remove_effects.push_back(effect.first);
+  for (size_t i = 0; i < EFFECT_LIMIT; ++i) {
+    StatusEffect* e = s_status[i];
+    if (!e) continue;
+    if (e->m_current_turn == INVALID_TURNS) {
+      s_status[i] = 0;
+      delete e;
     }
   }
 
-  for (auto remove_id : remove_effects) {
-    s_status.erase(s_status.find(remove_id));
-  }
-
-  // Clear the list so it can be used for natural removal
-  remove_effects.clear();
-
   // Guarantee that all begin turn effects happen before per turn effects.
-  for (auto effect : s_status) {
-    StatusEffect* e = effect.second;
+  for (auto e : s_status) {
     if (!e) continue;
 
     // Process begin turn logic. 
@@ -283,41 +274,34 @@ void status_effect::process() {
   }
 
   // Likewise, guarantee all per turn effects happen before end turn effects.
-  for (auto effect : s_status) {
-    StatusEffect* e = effect.second;
+  for (auto e : s_status) {
     if (!e) continue;
     e->per_turn();
     if (e->m_per_turn_injection) e->m_per_turn_injection();
   }
 
-  for (auto effect : s_status) {
-    StatusEffect* e = effect.second;
+  for (size_t i = 0; i < EFFECT_LIMIT; ++i) {
+    StatusEffect* e = s_status[i];
     if (!e) continue;
-    if (e->m_current_turn == 0) {
-      e->end_turn();
-      remove_effects.push_back(effect.first);
-      if (e->m_end_turn_injection) e->m_end_turn_injection();
-    }
-  }
-
-  // Remove effects that have reached turn 0 and executed their end turn logic.
-  for (auto remove_id : remove_effects) {
-    s_status.erase(s_status.find(remove_id));
+    if (e->m_current_turn != 0) continue;
+    
+    e->end_turn();
+    if (e->m_end_turn_injection) e->m_end_turn_injection();
+    s_status[i] = 0;
+    delete e;
   }
 
   // Decrement the current turn for all status effects.
-  for (auto& effect : s_status) {
-    StatusEffect* e = effect.second;
+  for (auto& e : s_status) {
     if (!e) continue;
     --e->m_current_turn;
   } 
 }
 
 void status_effect::reset() {
-  for (auto& s : s_status) {
-    delete s.second;  
+  for (size_t i = 0; i < EFFECT_LIMIT; ++i) {
+    s_status[i] = 0;
   }
-  s_status.clear();
 
   for (auto &s : s_create_subs) {
     s = SubscriberFunc();
