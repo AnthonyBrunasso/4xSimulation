@@ -25,6 +25,9 @@ struct ComponentSum {
   int limit;
 };
 
+// do inlined templates add a lot of bloat? Do they improve the api?
+// todo: support ecs_component macro inside a namespace
+// todo: does it make sense to compile with a C compiler?
 // clearing e2c entity and component on deletion seems preferable.
 // simplifies iteration, and allows for look-ups by component id.
 // TODO: Allow a function for look-up by component id.
