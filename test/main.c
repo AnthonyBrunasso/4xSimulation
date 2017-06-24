@@ -15,14 +15,16 @@ struct City {
   uint32_t m_owner;
 };
 
-struct Tile {
-  uint32_t m_terrain;
-  uint32_t m_movement;
-};
-
 ECS_COMPONENT(City, 4);
 ECS_COMPONENT(Unit, 8);
-ECS_COMPONENT(Tile, 16);
+namespace Testing { 
+  struct Tile {
+    uint32_t m_terrain;
+    uint32_t m_movement;
+  };
+
+  ECS_COMPONENT(Tile, 16);
+}
 
 int main() {
   // create all
@@ -40,9 +42,9 @@ int main() {
     printf("%d city address %p\n", i, c);
   }
   for (int i = 0; i <= 10; ++i) {
-    uint32_t id= create(i, s_Tile());//mapping_Tile, pool_Tile);
+    uint32_t id= create(i, Testing::s_Tile());//mapping_Tile, pool_Tile);
     //Tile* t= VALID_COMPONENT(id)?&many_Tile[id]:0;
-    Tile* t = c_Tile(id);
+    Testing::Tile* t = Testing::c_Tile(id);
     printf("%d tile address %p\n", i, t);
   }
 
@@ -60,8 +62,8 @@ int main() {
     printf("%d city address %p\n", i, c);
   }
   for (int i = 10; i >= 0; --i) {
-    uint32_t id= delete_c(i, s_Tile());//mapping_Tile, pool_Tile);
-    Tile* t= VALID_COMPONENT(id)?&many_Tile[id]:0;
+    uint32_t id= delete_c(i, Testing::s_Tile());//mapping_Tile, pool_Tile);
+    Testing::Tile* t= VALID_COMPONENT(id)?&Testing::many_Tile[id]:0;
     printf("%d tile address %p\n", i, t);
   }
 
@@ -79,8 +81,8 @@ int main() {
     printf("%d city address %p\n", i, c);
   }
   for (int i = 0; i <= 10; ++i) {
-    uint32_t id= create(i, s_Tile());//mapping_Tile, pool_Tile);
-    Tile* t= VALID_COMPONENT(id)?&many_Tile[id]:0;
+    uint32_t id= create(i, Testing::s_Tile());//mapping_Tile, pool_Tile);
+    Testing::Tile* t= VALID_COMPONENT(id)?&Testing::many_Tile[id]:0;
     printf("%d tile address %p\n", i, t);
   }
 
