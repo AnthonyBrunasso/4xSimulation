@@ -242,6 +242,7 @@ void status_effect::process() {
     StatusEffect* e = effect.second;
     if (!e || e->m_current_turn == INVALID_TURNS) {
       remove_effects.push_back(effect.first);
+      delete e;
     }
   }
 
@@ -279,6 +280,7 @@ void status_effect::process() {
       e->end_turn();
       remove_effects.push_back(effect.first);
       if (e->m_end_turn_injection) e->m_end_turn_injection();
+      delete e;
     }
   }
 
