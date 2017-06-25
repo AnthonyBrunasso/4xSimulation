@@ -352,7 +352,7 @@ namespace production_queue {
         if (!production::construction_is_unique(order->m_type)) {
           // Unit spawn
           production::spawn_unit(completed->m_type, cq->m_city_id);
-          delete completed;
+          delete_c(completed->m_id, s_ConstructionOrder());
         }
       }
       if (cq->m_stockpile < 1.f) {
@@ -384,6 +384,7 @@ uint32_t ConstructionState::GetConstruction(fbs::CONSTRUCTION_TYPE type_id, uint
     ConstructionOrder* co = c_ConstructionOrder(c);
     co->m_type = type_id;
     co->m_city_id = city_id;
+    co->m_id = id;
     return id;
   }
   

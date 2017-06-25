@@ -17,5 +17,6 @@ public:
   fbs::CONSTRUCTION_TYPE m_type;
   uint32_t m_city_id;
   float m_production;
+  uint32_t m_id;
 };
 
