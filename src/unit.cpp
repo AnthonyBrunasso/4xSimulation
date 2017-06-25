@@ -140,7 +140,6 @@ void unit::sub_destroy(std::function<void(UnitFatality*)> sub) {
 
 Unit* unit::get_unit(uint32_t id) {
   uint32_t c = get(id, s_Unit());
-  std::cout << "Getting entity " << id << " at component location " << c << std::endl;
   return c_Unit(c);
 }
 
