@@ -175,10 +175,7 @@ void improvement::for_each_improvement(
 }
 
 void improvement::reset() {
-  for (auto im : mapping_Improvement) {
-    if (im.entity == INVALID_ENTITY) continue;
-    delete_c(im.component, s_Improvement());
-  }
+  reset_ecs(s_Improvement());
 
   for (auto& s : s_destroy_subs) {
     s = SubscriberFunc();

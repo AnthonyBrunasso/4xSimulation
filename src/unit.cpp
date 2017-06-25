@@ -248,10 +248,8 @@ size_t unit::size() {
 }
 
 void unit::reset() {
-  for (const auto& a : mapping_Unit) {
-    delete_c(a.entity, s_Unit());
-  }
-  
+  reset_ecs(s_Unit());
+
   for (char* name : s_unit_names) {
     *name = 0;
   }

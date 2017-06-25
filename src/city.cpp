@@ -349,9 +349,7 @@ void city::for_each_city(std::function<void(City& )> operation) {
 }
 
 void city::reset() {
-  for (auto mc : mapping_City) {
-    delete_c(mc.entity, s_City());
-  }
+  reset_ecs(s_City());
 
   for (auto &s : s_raze_init_subs) {
     s = SubscriberFunc();

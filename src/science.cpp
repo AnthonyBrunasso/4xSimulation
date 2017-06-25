@@ -145,10 +145,7 @@ namespace science {
   }
 
   void reset() {
-    for (auto sm : mapping_ScienceNode) {
-      if (sm.entity == INVALID_ENTITY) continue;
-      delete_c(sm.component, s_ScienceNode());
-    }
+    reset_ecs(s_ScienceNode());
   }
 };
 

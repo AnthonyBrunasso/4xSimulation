@@ -155,9 +155,7 @@ size_t player::get_count() {
 }
 
 void player::reset() {
-  for (auto mp : mapping_Player) {
-    delete_c(mp.entity, s_Player());
-  }
+  reset_ecs(s_Player());
 }
 
 void player::set_omniscient(uint32_t player_id) {

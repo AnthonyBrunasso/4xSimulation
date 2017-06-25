@@ -186,14 +186,8 @@ namespace production {
   }
 
   void reset() {
-    for (auto qm : mapping_ConstructionQueueFIFO) {
-      if (qm.entity == INVALID_ENTITY) continue;
-      delete_c(qm.component, s_ConstructionQueueFIFO());
-    }
-    for (auto cm : mapping_ConstructionState) {
-      if (cm.entity == INVALID_ENTITY) continue;
-      delete_c(cm.component, s_ConstructionState());
-    }
+    reset_ecs(s_ConstructionQueueFIFO());
+    reset_ecs(s_ConstructionState());
   }
 }
 
