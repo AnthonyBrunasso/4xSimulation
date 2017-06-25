@@ -16,12 +16,11 @@ struct e2c {
 
 // all component instances and mappings to their entities
 struct ComponentSum {
-  ComponentSum(void* c, void **p, e2c* m, uint32_t s, int l);
+  ComponentSum(void* c, int *p, e2c* m, int l);
 
   void *component;
-  void **pool;
+  int *pool;
   e2c* mapping;
-  uint32_t size;
   int limit;
 };
 
@@ -46,9 +45,9 @@ struct ComponentSum {
 //
 #define ECS_COMPONENT(c_type, C_LIMIT) \
 c_type many_##c_type[C_LIMIT]; \
-void* pool_##c_type[C_LIMIT+1]; \
+int pool_##c_type[C_LIMIT+1]; \
 struct e2c mapping_##c_type[C_LIMIT+1]; \
-ComponentSum* s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, sizeof(c_type), C_LIMIT); return &s_##c_type; }; \
+ComponentSum& s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, C_LIMIT); return s_##c_type; }; \
 c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 
 // entity: 0 is invalid, non-zero is safe
@@ -57,7 +56,7 @@ c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 // returns: integer in the valid component range
 // OR INVALID_COMPONENT when:
 //   unable to find the entity
-uint32_t get(uint32_t entity, ComponentSum* cs);
+uint32_t get(uint32_t entity, const ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
 // cs: pointer to the component information
@@ -66,7 +65,7 @@ uint32_t get(uint32_t entity, ComponentSum* cs);
 // OR INVALID_COMPONENT when:
 //   duplicate entity id is created
 //   no room is left in the fixed size component array
-uint32_t create(uint32_t entity, ComponentSum* cs);
+uint32_t create(uint32_t entity, ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
 // cs: pointer to the component information
@@ -75,5 +74,8 @@ uint32_t create(uint32_t entity, ComponentSum* cs);
 // OR INVALID_COMPONENT when:
 //   entity is invalid
 //   entity is not found 
-uint32_t delete_c(uint32_t entity, ComponentSum* cs);
+uint32_t delete_c(uint32_t entity, ComponentSum& cs);
+
+// reset to initial state
+void reset_ecs(ComponentSum& cs);
 
