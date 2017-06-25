@@ -94,6 +94,7 @@ namespace science {
     if(!sn) return false;
     bool can_research = true;
     for (auto node : sn->m_previous) {
+      if (!node) continue;
       can_research = can_research && node->Researched(player_id);
     }
     return can_research;
@@ -116,9 +117,9 @@ namespace science {
   }
   
   uint32_t node_depth(ScienceNode* sn, uint32_t depth=1) {
-    if (sn->m_previous[0] == nullptr) return depth;
-    uint32_t min_depth = 0xffffffff;
+    uint32_t min_depth = std::min(depth, 0xffffffff);
     for (auto node : sn->m_previous) {
+      if (!node) continue;
       min_depth = std::min(min_depth, node_depth(node, depth+1));
     }
     return min_depth;
