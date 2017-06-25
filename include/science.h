@@ -9,9 +9,7 @@ const uint32_t SCIENCE_EDGES_MAX = 4;
 
 class ScienceNode {
 public:
-  explicit ScienceNode()
-  : m_type(fbs::SCIENCE_TYPE::UNKNOWN)
-  { }
+  explicit ScienceNode();
 
   std::string Name();
   bool Researched(uint32_t player_id);

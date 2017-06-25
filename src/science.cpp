@@ -149,6 +149,12 @@ namespace science {
   }
 };
 
+ScienceNode::ScienceNode()
+  : m_previous {0,0,0,0}
+  , m_next{0,0,0,0}
+  , m_type(fbs::SCIENCE_TYPE::UNKNOWN)
+{}
+
 std::string ScienceNode::Name() {
   return fbs::EnumNameSCIENCE_TYPE(m_type);
 }
