@@ -37,10 +37,8 @@ struct ComponentSum {
 //  This should still check the e2c mapping to verify validity.
 //  Science and Production have an assumption that enum can be mapped
 //  into a meaningful object.
-// TODO: Document batch operations (for each...)
-// TODO: Document batch deletion** (2x)
-// TODO: Document batch count
-// TODO: Avail/alive pointer list. Make it compact and null terminated.
+// TODO: Document batch operations 
+// TODO: API to count created components
 //
 // example: 
 // class MyComponent {};
