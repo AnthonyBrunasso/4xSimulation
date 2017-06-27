@@ -26,23 +26,26 @@ namespace Testing {
   ECS_COMPONENT(Tile, 16);
 }
 
+#include "entity.hpp"
+
 int main() {
   // create all
   for (int i = 0; i <= 10; ++i) {
-    uint32_t id = create(i, s_Unit());// mapping_Unit, pool_Unit);
-    //Unit* u = VALID_COMPONENT(id)?&many_Unit[id]:0;
-    //Unit* u = C_GET(id, Unit);
-    Unit* u = c_Unit(id);
+    Unit* u = CreateEntity<Unit>(i);
     printf("%d unit address %p\n", i, u);
   }
   for (int i = 0; i <= 10; ++i) {
     uint32_t id= create(i, s_City());//mapping_City, pool_City);
+    uint32_t get_id = get(i, s_City());
+    printf("create %d, get %d", id, get_id);
     //City* c= VALID_COMPONENT(id)?&many_City[id]:0;
     City* c = c_City(id);
     printf("%d city address %p\n", i, c);
   }
   for (int i = 0; i <= 10; ++i) {
     uint32_t id= create(i, Testing::s_Tile());//mapping_Tile, pool_Tile);
+    uint32_t get_id = get(i, Testing::s_Tile());
+    printf("create %d, get %d", id, get_id);
     //Tile* t= VALID_COMPONENT(id)?&many_Tile[id]:0;
     Testing::Tile* t = Testing::c_Tile(id);
     printf("%d tile address %p\n", i, t);
@@ -52,8 +55,7 @@ int main() {
   getchar();
   // delete all in reverse order
   for (int i = 10; i >= 0; --i) {
-    uint32_t id = delete_c(i, s_Unit());// mapping_Unit, pool_Unit);
-    Unit* u = VALID_COMPONENT(id)?&many_Unit[id]:0;
+    Unit* u = DeleteEntity<Unit>(i);
     printf("%d unit address %p\n", i, u);
   }
   for (int i = 10; i >= 0; --i) {
@@ -71,8 +73,7 @@ int main() {
   getchar();
   // recreate
   for (int i = 0; i <= 10; ++i) {
-    uint32_t id = create(i, s_Unit());// mapping_Unit, pool_Unit);
-    Unit* u = VALID_COMPONENT(id)?&many_Unit[id]:0;
+    Unit* u = CreateEntity<Unit>(i);
     printf("%d unit address %p\n", i, u);
   }
   for (int i = 0; i <= 10; ++i) {
