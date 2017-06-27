@@ -1,20 +1,26 @@
 #include <stdint.h>
 
-// entity header?
 #define INVALID_ENTITY 0
 #define VALID_ENTITY(x) (x!=INVALID_ENTITY)
 
 #define INVALID_COMPONENT 0x7fffffff
 #define VALID_COMPONENT(x) (x!=INVALID_COMPONENT)
 
-// maps entity id to component id
-// TODO: Clear both fields on deletion
+// Internal structure
+//
+// e2c provides a mapping of entity id to component id.
 struct e2c {
   uint32_t entity;
   uint32_t component;
 }; 
 
-// all component instances and mappings to their entities
+// The C-API requires this object when accessing components.
+// One ComponentSum instance will exist for each Component.
+// The singleton is named s_<type> where 
+//   <type> is declared in the ECS_COMPONENT macro that follows.
+// 
+// ComponentSum holds all component instances and mappings to 
+//   valid entity ids.
 struct ComponentSum {
   ComponentSum(void* c, int *p, e2c* m, int l);
 
@@ -24,16 +30,13 @@ struct ComponentSum {
   int limit;
 };
 
-// do inlined templates add a lot of bloat? Do they improve the api?
-// todo: support ecs_component macro inside a namespace
+// Test c++ API in the ecs_merge branch
+//
 // todo: does it make sense to compile with a C compiler?
-// clearing e2c entity and component on deletion seems preferable.
-// simplifies iteration, and allows for look-ups by component id.
 // TODO: Allow a function for look-up by component id.
 //  This should still check the e2c mapping to verify validity.
 //  Science and Production have an assumption that enum can be mapped
 //  into a meaningful object.
-// TODO: Document how to get the ComponentSum, the Component
 // TODO: Document batch operations (for each...)
 // TODO: Document batch deletion** (2x)
 // TODO: Document batch count
@@ -51,7 +54,7 @@ ComponentSum& s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_
 c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 
 // entity: 0 is invalid, non-zero is safe
-// cs: pointer to the component information
+// cs: reference to the component singleton
 //
 // returns: integer in the valid component range
 // OR INVALID_COMPONENT when:
@@ -59,7 +62,7 @@ c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 uint32_t get(uint32_t entity, const ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
-// cs: pointer to the component information
+// cs: reference to the component singleton
 // 
 // returns: integer in the valid component range
 // OR INVALID_COMPONENT when:
@@ -68,7 +71,7 @@ uint32_t get(uint32_t entity, const ComponentSum& cs);
 uint32_t create(uint32_t entity, ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
-// cs: pointer to the component information
+// cs: reference to the component singleton
 // 
 // returns: integer in the valid component range on success
 // OR INVALID_COMPONENT when:
@@ -76,6 +79,11 @@ uint32_t create(uint32_t entity, ComponentSum& cs);
 //   entity is not found 
 uint32_t delete_c(uint32_t entity, ComponentSum& cs);
 
-// reset to initial state
+// cs: reference to the component singleton
+//
+// reset_ecs will initialize components of a type to the 
+// default state. This is equivalent to calling 
+// delete_c on all entities. It is called during global
+// static initialization by default.
 void reset_ecs(ComponentSum& cs);
 
