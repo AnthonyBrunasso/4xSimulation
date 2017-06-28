@@ -28,7 +28,7 @@ void scenario_monster::start() {
     // Get the monster and apply its channeled power to health and attack :O.
     Unit* u = unit::get_unit(id);
     if (!u) return;
-    u->m_combat_stats.m_health = s_channeled_power;
+    u->m_combat_stats.m_health = (float)s_channeled_power;
     u->m_combat_stats.m_attack = s_channeled_power / 2.0f;
     u->m_combat_stats.m_range = 2;
   };

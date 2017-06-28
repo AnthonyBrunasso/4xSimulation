@@ -72,11 +72,11 @@ void scenario_faceoff::start() {
     sf::Vector3i(-4, 8, -4),
     sf::Vector3i(-3, 8, -5) };
 
-  for (int i = 0; i < p0_locations.size(); ++i)
+  for (size_t i = 0; i < p0_locations.size(); ++i)
   {
     unit::create(any_enum(unit_types[i]), p0_locations[i], 0);
   }
-  for (int i = 0; i < p1_locations.size(); ++i)
+  for (size_t i = 0; i < p1_locations.size(); ++i)
   {
     unit::create(any_enum(unit_types[i]), p1_locations[i], 1);
   }

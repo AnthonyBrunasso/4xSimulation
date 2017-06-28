@@ -4,7 +4,7 @@
 #include <cstdint>
 
 namespace fbs {
-  class EndTurnStep;
+  struct EndTurnStep;
 };
 
 namespace simulation {

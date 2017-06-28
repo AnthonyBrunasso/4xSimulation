@@ -217,7 +217,7 @@ float DefenderVsIdle::operator()(uint32_t player_id, float threshold) {
     return threshold - 1.0f;
   }
  
-  for (int i = 0; i < player->m_cities.size(); ++i) {
+  for (size_t i = 0; i < player->m_cities.size(); ++i) {
     m_state->m_idle_units.pop_back();
   }
 

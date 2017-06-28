@@ -6,7 +6,7 @@
 
 namespace flatbuffers {
   class FlatBufferBuilder;
-  template <typename T> class Offset;
+  template <typename T> struct Offset;
 }
 
 namespace fbs {
