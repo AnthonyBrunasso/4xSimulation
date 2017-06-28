@@ -29,7 +29,7 @@ void scenario_monster::start() {
     Unit* u = unit::get_unit(id);
     if (!u) return;
     u->m_combat_stats.m_health = (float)s_channeled_power;
-    u->m_combat_stats.m_attack = s_channeled_power / 2.0f;
+    u->m_combat_stats.m_attack = float(s_channeled_power) / 2.0f;
     u->m_combat_stats.m_range = 2;
   };
   status_effect::inject_end(summon_monster);
