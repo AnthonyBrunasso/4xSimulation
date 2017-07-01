@@ -13,16 +13,15 @@
 
 // Get hex map and flatten it into an array containining enemy units and ally units.
 std::vector<float> get_input() {
-  world_map::TileMap& tile_map = world_map::get_map();
-  std::vector<float> input(tile_map.size());
+  std::vector<float> input(world_map::get_map_size());
   int i = 0;
-  for (auto& tile : tile_map) {
-    if (tile.second.m_unit_ids.empty()) {
+  world_map::for_each_tile([&input, &i] (const sf::Vector3i&, const Tile& tile) {
+    if (tile.m_unit_ids.empty()) {
       input[i] = 0.0f;
-      continue;
+      return;
     }
 
-    for (auto id : tile.second.m_unit_ids) {
+    for (auto id : tile.m_unit_ids) {
       Unit* u = unit::get_unit(id);
       if (!u) continue;
       if (u->m_id == 0) {
@@ -35,7 +34,8 @@ std::vector<float> get_input() {
       }
     }
     ++i;
-  }
+  });
+
   return std::move(input);
 }
 
@@ -47,7 +47,7 @@ int main(int, char*[]) {
 
   simulation_barbarians_set_id(0);
 
-  uint32_t nn_id = neural_net::create({ world_map::get_map().size(), 2 }, { &unit_decisions::get_wander(), &unit_decisions::get_fight() });
+  uint32_t nn_id = neural_net::create({ world_map::get_map_size(), 2 }, { &unit_decisions::get_wander(), &unit_decisions::get_fight() });
   neural_net::set_player_id(1, nn_id);
 
   simulation_start_faceoff();

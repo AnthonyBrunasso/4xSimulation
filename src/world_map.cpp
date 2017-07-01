@@ -6,11 +6,13 @@
 #include <cstring>
 #include <iostream>
 #include <set>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "ai_barbarians.h"
 #include "city.h"
+#include "entity.h"
 #include "enum_generated.h"
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/util.h"
@@ -28,10 +30,13 @@
 #include "util.h"
 
 namespace world_map {
+  typedef std::unordered_map<sf::Vector3i, Tile> TileMap;
   static TileMap s_map;
   static uint32_t s_map_size;
+  static uint32_t s_map_width;
   
   void subscribe_to_events();
+  void init_discoverable_tiles();
 
   void unit_create(Unit* u) {
     world_map::add_unit(u->m_location, u->m_id);
@@ -96,10 +101,10 @@ namespace world_map {
   }
 }
 
-void init_discoverable_tiles(uint32_t size) {
-  uint32_t tiles = size / 2;
+void world_map::init_discoverable_tiles() {
+  uint32_t tiles = 5;
   for (uint32_t i = 0; i < tiles; ++i) {
-    sf::Vector3i cube = game_random::cube_coord(size);
+    sf::Vector3i cube = game_random::cube_coord(s_map_width);
     Tile* tile = world_map::get_tile(cube);
     if (!tile) {
       std::cout << "Failed to place discoverable bonus " << format::vector3(cube) << std::endl;
@@ -109,19 +114,14 @@ void init_discoverable_tiles(uint32_t size) {
   }
 }
 
-void world_map::build(sf::Vector3i start, uint32_t size) {
-  std::vector<sf::Vector3i> coords = search::range(start, size);
+void world_map::build(sf::Vector3i start, uint32_t width) {
+  std::vector<sf::Vector3i> coords = search::range(start, width);
   for (auto tile : coords) {
     s_map[tile] = Tile(tile);
   }
-  s_map_size = size;
-  init_discoverable_tiles(size);
-
-  tile_costs::initialize();
-  barbarians::initialize();
-  improvement::initialize();
-
-  subscribe_to_events();
+  s_map_size = coords.size();
+  s_map_width = width;
+  std::cout << "Building map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
 }
 
 bool world_map::load_file_fb(const std::string& name) {
@@ -132,10 +132,14 @@ bool world_map::load_file_fb(const std::string& name) {
   if (!fbs::VerifyMapBuffer(v)) return false;
 
   auto root = fbs::GetMap(map_data.c_str());
-  //todo set map size
   std::vector<sf::Vector3i> coords;
-  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
-  std::cout << "Loading map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+  s_map_width = root->size();
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_width);
+  s_map_size = coords.size();
+  for (auto tile : coords) {
+    s_map[tile] = Tile(tile);
+  }
+  std::cout << "Loading map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
 
   const flatbuffers::Vector<uint32_t> *terrain = root->terrain();
   if (terrain->size() != coords.size()) return false;
@@ -171,9 +175,9 @@ bool world_map::load_file_fb(const std::string& name) {
 
 bool world_map::save_file_fb(const char* name) {
   std::vector<sf::Vector3i> coords;
-  coords = search::range(sf::Vector3i(0, 0, 0), s_map_size);
+  coords = search::range(sf::Vector3i(0, 0, 0), s_map_width);
 
-  std::cout << "Saving map of size " << s_map_size << " with " << coords.size() << " tiles." << std::endl;
+  std::cout << "Saving map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
   std::vector<uint32_t> terrain(coords.size());
   std::vector<uint32_t> resource(coords.size());
 
@@ -185,7 +189,7 @@ bool world_map::save_file_fb(const char* name) {
     resource[i] = any_enum(rval);
   }
 
-  const auto map_data = fbs::CreateMap(GetFBB(), s_map_size,
+  const auto map_data = fbs::CreateMap(GetFBB(), s_map_width,
       GetFBB().CreateVector(terrain),
       GetFBB().CreateVector(resource));
   fbs::FinishMapBuffer(GetFBB(), map_data);
@@ -256,7 +260,7 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
         player->m_discovered_tiles.insert(&t);
         return false;
       };
-      search::bfs(unit->m_location, 2, world_map::get_map(), fp);
+      search::bfs(unit->m_location, 2, fp);
     }
     next->m_unit_ids.push_back(unit->m_id);
     // Remove tile moved to, always erasing first TODO: Fix that when pathing implemented
@@ -267,12 +271,12 @@ uint32_t world_map::move_unit(uint32_t unit_id, uint32_t distance) {
   return moved;
 }
 
-world_map::TileMap& world_map::get_map() {
-  return s_map;
-}
-
 uint32_t world_map::get_map_size() {
   return s_map_size;
+}
+
+uint32_t world_map::get_map_width() {
+  return s_map_width;
 }
 
 Tile* world_map::get_tile(sf::Vector3i location) {
@@ -302,4 +306,5 @@ uint32_t world_map::tile_owner(const Tile& tile) {
 void world_map::reset() {
   s_map.clear();
   s_map_size = 0;
+  s_map_width = 0;
 }

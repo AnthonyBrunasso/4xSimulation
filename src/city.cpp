@@ -13,7 +13,6 @@
 #include "terrain_yield.h"
 #include "unique_id.h"
 #include "unit.h"
-#include "world_map.h"
 
 ECS_COMPONENT(City, 128);
 
@@ -323,7 +322,6 @@ void city::do_notifications(uint32_t id, NotificationVector& events) {
   }
   search::bfs_units(c->m_location,
     2,
-    world_map::get_map(),
     [&events, c](const Unit& u) {
       if (u.m_owner_id == c->m_owner_id) {
         return false;

@@ -142,17 +142,16 @@ extern "C" {
   }
 
   Tile* simulation_tiles_create() {
-    world_map::TileMap& map = world_map::get_map();
-    Tile* tiles = new Tile[map.size()];
+    uint32_t tile_count = world_map::get_map_size();
+    Tile* tiles = new Tile[tile_count];
     return tiles;
   }
 
   void simulation_tiles_sync(Tile* tiles) {
-    world_map::TileMap& map = world_map::get_map();
     int i = 0;
-    for (const auto& tile : map) {
-      tiles[i++] = tile.second;
-    }
+    world_map::for_each_tile([&i, &tiles] (const sf::Vector3i&, const Tile&tile) {
+      tiles[i++] = tile;
+    });
   }
 
   void simulation_tiles_free(Tile* tiles) {
@@ -160,7 +159,7 @@ extern "C" {
   }
 
   int simulation_tiles_size() {
-    return world_map::get_map().size();
+    return world_map::get_map_size();
   }
 
   int simulation_tiles_x(Tile* tiles, int i) {

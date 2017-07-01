@@ -133,7 +133,7 @@ namespace simulation {
           // Search every tile.
           return false;
         };
-        search::bfs(unit->m_location, 3, world_map::get_map(), found_other);
+        search::bfs(unit->m_location, 3, found_other);
         movement = true;
         unit->m_action_points -= moved;
 
@@ -318,7 +318,7 @@ namespace simulation {
       return;
     }
     bool too_close = false;
-    search::bfs(location, 3, world_map::get_map(),
+    search::bfs(location, 3, 
       [&too_close](const Tile& tile) {
       if (tile.m_city_id != unique_id::INVALID_ID) {
         std::cout << "Colonization failed: City (" << tile.m_city_id << ") is too close." << std::endl;
@@ -526,15 +526,22 @@ namespace simulation {
 
     // Restart the simulation after everything is reset
     s_game_over = false;
-    // Magic numbers
-    sf::Vector3i start;
-    world_map::build(start, 10);
+    // Create a world
+    if (!world_map::load_file_fb("marin.fbs")) {
+      world_map::build(sf::Vector3i(0, 0, 0), 10);
+    }
+    //world_map::save_file_fb("marin.fbs");
+    world_map::init_discoverable_tiles();
+    world_map::subscribe_to_events();
+    //
     // Setup unit definitions
+    tile_costs::initialize();
+    barbarians::initialize();
+    improvement::initialize();
+
     unit_definitions::initialize();
     science::initialize();
     magic::initialize();
-    world_map::load_file_fb("marin.fbs");
-    //world_map::save_file_fb("marin.fbs");
   }
 
   std::string execute_pillage(const fbs::PillageStep* pillage_step) {
@@ -609,7 +616,7 @@ namespace simulation {
     }
 
     // Run pathfinding to location
-    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, destination, world_map::get_map(), find_tiles);
+    std::vector<sf::Vector3i> path = search::path_to(unit->m_location, destination, find_tiles);
     if (!path.empty()) {
       path.erase(path.begin());
     }
@@ -889,7 +896,7 @@ namespace simulation {
       cityId = city.m_id;
       return true;
     };
-    search::bfs_cities(unit->m_location, 2, world_map::get_map(), find_defending_city);
+    search::bfs_cities(unit->m_location, 2, find_defending_city);
 
     City* city = city::get_city(cityId);
     if(!city) return "No valid city found";

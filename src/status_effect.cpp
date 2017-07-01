@@ -188,7 +188,7 @@ uint32_t status_effect::create(fbs::STATUS_TYPE type, const sf::Vector3i& locati
     tiles.push_back(tile.m_location);
     return false; 
   };
-  search::bfs(location, e->m_range, world_map::get_map(), gather);
+  search::bfs(location, e->m_range, gather);
 
   // Spread the plague! Or, you know, whatever.
   for (auto loc : tiles) {

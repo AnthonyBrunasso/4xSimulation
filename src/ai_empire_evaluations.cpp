@@ -18,7 +18,6 @@
 #include "player.h"
 #include "search.h"
 #include "unit.h"
-#include "world_map.h"
 
 float EmpireColonize::operator()(uint32_t player_id, float threshold) {
   Player* player = player::get_player(player_id);
@@ -157,16 +156,16 @@ float EmpireUnitOrder::operator()(uint32_t player_id, float threshold) {
       return true;
     };
     // Approach or attack the found unit up to 4 range.
-    if (attack && search::bfs_units(owned_unit.m_location, 4, world_map::get_map(), unit_check)) {
+    if (attack && search::bfs_units(owned_unit.m_location, 4, unit_check)) {
       return;
     }
 
-    if (attack && search::bfs_improvements(owned_unit.m_location, 4, world_map::get_map(), improvement_check)) {
+    if (attack && search::bfs_improvements(owned_unit.m_location, 4, improvement_check)) {
       return;
     }
 
     // Approch or attack a city up to 5 range if it has been discovered.
-    if (attack && search::bfs_cities(owned_unit.m_location, 5, world_map::get_map(), city_check)) {
+    if (attack && search::bfs_cities(owned_unit.m_location, 5, city_check)) {
       return;
     }
 
@@ -251,7 +250,7 @@ float ThreatenedVsAvailable::operator()(uint32_t player_id, float threshold) {
   for (uint32_t unit_id : m_state->m_idle_units) {
     Unit* u = unit::get_unit(unit_id);
     if (!u) continue;
-    search::bfs_units(u->m_location, 2, world_map::get_map(), [&threatened, u, this](const Unit& other) {
+    search::bfs_units(u->m_location, 2, [&threatened, u, this](const Unit& other) {
       if (u->m_owner_id != other.m_owner_id) {
         threatened.push_back(u->m_id);
         m_state->m_threats.push_back(other.m_id);
@@ -310,7 +309,7 @@ float PillageVsSiege::operator()(uint32_t player_id, float threshold) {
   City* c = city::get_city(m_state->m_target_city);
   if (!c) return NOOP_EVALUATION;
 
-  search::bfs_improvements(c->m_location, 3, world_map::get_map(), [player_id, this](const Improvement& imp) {
+  search::bfs_improvements(c->m_location, 3, [player_id, this](const Improvement& imp) {
     if (imp.m_owner_id == player_id) return true;
 
     m_state->m_pillage_targets.push_back(imp.m_id);

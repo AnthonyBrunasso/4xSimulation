@@ -13,6 +13,7 @@
 #include "resources.h"
 #include "tile.h"
 #include "unit.h"
+#include "world_map.h"
 
 namespace {
   struct PathNode {
@@ -80,7 +81,6 @@ std::vector<sf::Vector3i> search::range(const sf::Vector3i& start, int32_t dista
 // Calculates the path with the cheapest cumulative tile path cost
 std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     const sf::Vector3i& end,
-    world_map::TileMap& tile_map,
     std::function<bool(const Tile& tile)> expand) {
   std::vector<sf::Vector3i> coords;
   // All the discovered nodes that require evaluation.
@@ -122,13 +122,13 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
       if (closed.find(neighbor) != closed.end()) continue;
       // If the neighbors location equals end, this is our destination, don't skip it or A* will never finish.
       // If the node shouldn't be expanded add it to the closed list and continue.
-      if (neighbor != end && expand && !expand(tile_map[neighbor])) {
+      if (neighbor != end && expand && !expand(*world_map::get_tile(neighbor))) {
         closed[neighbor] = 1;
         continue;
       }
       PathNode pn(neighbor,
-            current.m_cost + tile_map[neighbor].m_path_cost,                                    // Cost of current record to this node
-            current.m_cost + tile_map[neighbor].m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
+            current.m_cost + world_map::get_tile(neighbor)->m_path_cost,                                    // Cost of current record to this node
+            current.m_cost + world_map::get_tile(neighbor)->m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
       // If not in open list, add it for evaluation.
       if (openDiscovered.find(neighbor) == openDiscovered.end()) {
         open.push(pn);
@@ -149,7 +149,6 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
 // Bfs until the comparator returns true.
 bool search::bfs(const sf::Vector3i& start,
     uint32_t depth,
-    world_map::TileMap& tile_map,
     std::function<bool(const Tile& tile)> comparator) {
   std::queue<sf::Vector3i> to_explore;
   // Used to avoid expanding nodes already explored.
@@ -161,11 +160,11 @@ bool search::bfs(const sf::Vector3i& start,
     sf::Vector3i expand = to_explore.front();
     std::vector<sf::Vector3i> cube_neighbors;
     hex::cube_neighbors(expand, cube_neighbors); 
-    if (comparator(tile_map[expand])) return true;
+    if (comparator(*world_map::get_tile(expand))) return true;
     to_explore.pop();
     for (auto n : cube_neighbors) {
       if (discovered.find(n) != discovered.end()) continue;
-      if (tile_map.find(n) == tile_map.end()) continue;
+      if (!world_map::get_tile(n)) continue;
       // Early out if the condition is meet.
       uint32_t current_depth = discovered[expand];
       if (current_depth <= depth) {
@@ -179,7 +178,6 @@ bool search::bfs(const sf::Vector3i& start,
 
 bool search::bfs_units(const sf::Vector3i& start,
     uint32_t depth,
-    world_map::TileMap& tile_map,
     std::function<bool(const Unit& unit)> comparator)
 {
   auto find_units = [&comparator](const Tile& tile) {
@@ -192,12 +190,11 @@ bool search::bfs_units(const sf::Vector3i& start,
     }
     return result;
   };
-  return bfs(start, depth, tile_map, find_units);
+  return bfs(start, depth, find_units);
 }
 
 bool search::bfs_cities(const sf::Vector3i& start,
     uint32_t depth,
-    world_map::TileMap& tile_map,
     std::function<bool(const City& unit)> comparator) {
   auto find_cities = [&comparator](const Tile& tile) {
     if (!tile.m_city_id) return false;
@@ -205,13 +202,12 @@ bool search::bfs_cities(const sf::Vector3i& start,
     if (!c) return false;
     return comparator(*c);
   };
-  return bfs(start, depth, tile_map, find_cities);
+  return bfs(start, depth, find_cities);
 }
 
 // Run bfs for each improvement to depth.
 bool search::bfs_improvements(const sf::Vector3i& start,
     uint32_t depth,
-    world_map::TileMap& tile_map,
     std::function<bool(const Improvement& unit)> comparator) {
   auto find_improvements = [&comparator](const Tile& tile) {
     if (tile.m_improvement_ids.empty()) return false;
@@ -223,13 +219,12 @@ bool search::bfs_improvements(const sf::Vector3i& start,
     }
     return result;
   };
-  return bfs(start, depth, tile_map, find_improvements);
+  return bfs(start, depth, find_improvements);
 }
 
 // Run bfs for each resource to depth.
 bool search::bfs_resources(const sf::Vector3i& start,
     uint32_t depth,
-    world_map::TileMap& tile_map,
     std::function<bool(const Resource& unit)> comparator) {
   auto find_resources = [&comparator](const Tile& tile) {
     if (tile.m_resource.m_type == fbs::RESOURCE_TYPE::UNKNOWN) return false;
@@ -237,7 +232,7 @@ bool search::bfs_resources(const sf::Vector3i& start,
     result |= comparator(tile.m_resource);
     return result;
   };
-  return bfs(start, depth, tile_map, find_resources);
+  return bfs(start, depth, find_resources);
 }
 
 

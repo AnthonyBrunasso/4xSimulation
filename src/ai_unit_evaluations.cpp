@@ -18,7 +18,7 @@ float UnitFindNear::operator()(uint32_t unit_id, float threshold) {
     return false;
   };
 
-  if (search::bfs_units(u->m_location, 4, world_map::get_map(), unit_near)) {
+  if (search::bfs_units(u->m_location, 4, unit_near)) {
     return threshold + 1.0f;
   }
   return threshold - 1.0f;

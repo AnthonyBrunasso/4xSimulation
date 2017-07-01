@@ -302,8 +302,7 @@ namespace terminal  {
     terminal::add_query("path_to", "path_to <x> <y> <z> <tox> <toy> <toz>", [](const std::vector<std::string>& tokens) -> bool {
       CHECK_VALID(7, tokens);
       std::vector<sf::Vector3i> path = search::path_to(util::str_to_vector3(tokens[1], tokens[2], tokens[3]), 
-        util::str_to_vector3(tokens[4], tokens[5], tokens[6]),
-        world_map::get_map());
+        util::str_to_vector3(tokens[4], tokens[5], tokens[6]));
 
       std::cout << "Path size: " << path.size() << std::endl;
       for (auto node : path) {
@@ -393,7 +392,7 @@ namespace terminal  {
       auto contains_unit = [](const Tile& tile) {
         return !tile.m_unit_ids.empty();
       };
-      if (search::bfs(start, depth, world_map::get_map(), contains_unit)) {
+      if (search::bfs(start, depth, contains_unit)) {
         std::cout << "Unit found in depth: " << depth << " from: " << format::vector3(start) << std::endl;
       }
       else {
@@ -425,16 +424,16 @@ namespace terminal  {
       };
       switch (type) {
       case fbs::SEARCH_TYPE::UNITS:
-        search::bfs_units(start, depth, world_map::get_map(), s_units);
+        search::bfs_units(start, depth, s_units);
         return true;
       case fbs::SEARCH_TYPE::CITIES:
-        search::bfs_cities(start, depth, world_map::get_map(), s_cities);
+        search::bfs_cities(start, depth, s_cities);
         return true;
       case fbs::SEARCH_TYPE::IMPROVEMENTS:
-        search::bfs_improvements(start, depth, world_map::get_map(), s_improvements);
+        search::bfs_improvements(start, depth, s_improvements);
         return true;
       case fbs::SEARCH_TYPE::RESOURCES:
-        search::bfs_resources(start, depth, world_map::get_map(), s_resources);
+        search::bfs_resources(start, depth, s_resources);
         return true;
       case fbs::SEARCH_TYPE::UNKNOWN:
       default:

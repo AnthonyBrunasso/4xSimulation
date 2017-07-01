@@ -46,7 +46,7 @@ namespace magic {
   bool missile_requirements(const sf::Vector3i& location, uint32_t player_id);
   bool fireball_requirements(const sf::Vector3i& location, uint32_t player_id);
   void aoe_damage(uint32_t casting_player, fbs::MAGIC_TYPE type, const Tile& origin) {
-    search::bfs(origin.m_location, 1, world_map::get_map(), std::bind(damage_units, casting_player, type, std::placeholders::_1));
+    search::bfs(origin.m_location, 1, std::bind(damage_units, casting_player, type, std::placeholders::_1));
   }
 }
 
@@ -68,7 +68,7 @@ bool magic::missile_requirements(const sf::Vector3i& location, uint32_t player_i
   };
 
   // Dfs for for a city within two tiles of the target location.
-  if (search::bfs_cities(location, 2, world_map::get_map(), find_city)) {
+  if (search::bfs_cities(location, 2, find_city)) {
     return true;
   }
 
@@ -83,7 +83,7 @@ bool magic::fireball_requirements(const sf::Vector3i& location, uint32_t player_
     return true;
   };
 
-  if (search::bfs_units(location, 3, world_map::get_map(), find_wizard)) {
+  if (search::bfs_units(location, 3, find_wizard)) {
     return true;
   }
 

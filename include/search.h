@@ -17,7 +17,6 @@ namespace search {
   std::vector<sf::Vector3i> range(const sf::Vector3i& start, int32_t distance);
   std::vector<sf::Vector3i> path_to(const sf::Vector3i& start,
       const sf::Vector3i& end, 
-      world_map::TileMap& tile_map,
       std::function<bool(const Tile& tile)> expand = {});
 
   // NOTE:
@@ -30,31 +29,26 @@ namespace search {
   // criteria given by the comparator.
   bool bfs(const sf::Vector3i& start,
       uint32_t depth,
-      world_map::TileMap& tile_map,
       std::function<bool(const Tile& tile)> comparator);
 
   // Run bfs for each unit to depth.
   bool bfs_units(const sf::Vector3i& start,
       uint32_t depth,
-      world_map::TileMap& tile_map,
       std::function<bool(const Unit& )> comparator);
 
   // Run bfs for each city to depth.
   bool bfs_cities(const sf::Vector3i& start,
       uint32_t depth,
-      world_map::TileMap& tile_map,
       std::function<bool(const City& )> comparator);
 
   // Run bfs for each improvement to depth.
   bool bfs_improvements(const sf::Vector3i& start,
       uint32_t depth,
-      world_map::TileMap& tile_map,
       std::function<bool(const Improvement& )> comparator);
 
   // Run bfs for each resource to depth.
   bool bfs_resources(const sf::Vector3i& start,
       uint32_t depth,
-      world_map::TileMap& tile_map,
       std::function<bool(const Resource& )> comparator);
 
 }

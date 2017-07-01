@@ -3,7 +3,6 @@
 #include "ai_shared.h"
 #include "search.h"
 #include "unit.h"
-#include "world_map.h"
 
 namespace unit_decisions {
   UnitWander s_wander;
@@ -30,7 +29,7 @@ void UnitFight::operator()(uint32_t unit_id) {
     return false;
   };
 
-  search::bfs_units(u->m_location, 4, world_map::get_map(), found);
+  search::bfs_units(u->m_location, 4, found);
 
   if (found_id) {
     // Awkwardly this will try to attack as well.
