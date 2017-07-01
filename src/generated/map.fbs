@@ -5,7 +5,7 @@ namespace fbs;
 
 table Map
 {
-  size: uint;
+  range: uint;
   terrain: [TERRAIN_TYPE];
   resource: [RESOURCE_TYPE];
 }

@@ -21,6 +21,7 @@ namespace world_map {
 
   uint32_t get_map_size();
   uint32_t get_map_width();
+  uint32_t get_map_range(); // width/2, maximum extend in 1 direction
 
   void init_discoverable_tiles();
   void subscribe_to_events();

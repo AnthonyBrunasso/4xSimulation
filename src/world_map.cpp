@@ -17,6 +17,7 @@
 #include "flatbuffers/flatbuffers.h"
 #include "flatbuffers/util.h"
 #include "format.h"
+#include "hex.h"
 #include "improvement.h"
 #include "map_generated.h"
 #include "player.h"
@@ -29,9 +30,9 @@
 #include "unit.h"
 #include "util.h"
 
+ECS_COMPONENT(Tile, 1023);
+
 namespace world_map {
-  typedef std::unordered_map<sf::Vector3i, Tile> TileMap;
-  static TileMap s_map;
   static uint32_t s_map_size;
   static uint32_t s_map_width;
   
@@ -104,7 +105,7 @@ namespace world_map {
 void world_map::init_discoverable_tiles() {
   uint32_t tiles = 5;
   for (uint32_t i = 0; i < tiles; ++i) {
-    sf::Vector3i cube = game_random::cube_coord(s_map_width);
+    sf::Vector3i cube = game_random::cube_coord(get_map_range());
     Tile* tile = world_map::get_tile(cube);
     if (!tile) {
       std::cout << "Failed to place discoverable bonus " << format::vector3(cube) << std::endl;
@@ -114,14 +115,16 @@ void world_map::init_discoverable_tiles() {
   }
 }
 
-void world_map::build(sf::Vector3i start, uint32_t width) {
-  std::vector<sf::Vector3i> coords = search::range(start, width);
-  for (auto tile : coords) {
-    s_map[tile] = Tile(tile);
-  }
+void world_map::build(sf::Vector3i start, uint32_t range) {
+  std::vector<sf::Vector3i> coords = search::range(start, range);
+
   s_map_size = coords.size();
-  s_map_width = width;
-  std::cout << "Building map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
+  s_map_width = range*2+1;
+  for (auto c : coords) {
+    Tile* t = get_tile(c);
+    new (t) Tile(c);
+  }
+  std::cout << "Building map of " << s_map_width << " width, " << get_map_range() << " range, " << coords.size() << " tiles." << std::endl;
 }
 
 bool world_map::load_file_fb(const std::string& name) {
@@ -133,25 +136,26 @@ bool world_map::load_file_fb(const std::string& name) {
 
   auto root = fbs::GetMap(map_data.c_str());
   std::vector<sf::Vector3i> coords;
-  s_map_width = root->size();
-  coords = search::range(sf::Vector3i(0, 0, 0), s_map_width);
+  coords = search::range(sf::Vector3i(0, 0, 0), root->range());
+  s_map_width = root->range()*2+1;
   s_map_size = coords.size();
-  for (auto tile : coords) {
-    s_map[tile] = Tile(tile);
+  for (auto c : coords) {
+    Tile* t = get_tile(c);
+    new (t) Tile(c);
   }
-  std::cout << "Loading map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
+  std::cout << "Loading map of " << s_map_width << " width, " << get_map_range() << " range, " << coords.size() << " tiles." << std::endl;
 
   const flatbuffers::Vector<uint32_t> *terrain = root->terrain();
   if (terrain->size() != coords.size()) return false;
 
   for (size_t i = 0; i < coords.size(); ++i) {
     const auto& coord = coords[i];
-    auto& tile = s_map[coord];
+    Tile* tile = get_tile(coord);
 
     uint32_t tval = (*terrain)[i];
     fbs::TERRAIN_TYPE terrain_type = any_enum(tval);
-    tile.m_terrain_type = terrain_type;
-    tile.m_path_cost = tile_costs::get(terrain_type);
+    tile->m_terrain_type = terrain_type;
+    tile->m_path_cost = tile_costs::get(terrain_type);
   }
   std::cout << "Terrain read complete." << std::endl;
 
@@ -159,14 +163,15 @@ bool world_map::load_file_fb(const std::string& name) {
   if (resource->size() != coords.size()) return false;
   for (size_t i = 0; i < coords.size(); ++i) {
     const auto& coord = coords[i];
-    auto& tile = s_map[coord];
+    Tile* tile = get_tile(coord);
+
     uint32_t rval = (*resource)[i];
     fbs::RESOURCE_TYPE resource_type = any_enum(rval);
 
     Resource r;
     r.m_type = resource_type; // may be RESOURCE_TYPE::UNKNOWN (none)
     r.m_quantity = 1;
-    tile.m_resource = r;
+    tile->m_resource = r;
   }
   std::cout << "Resource read complete." << std::endl;
 
@@ -175,21 +180,21 @@ bool world_map::load_file_fb(const std::string& name) {
 
 bool world_map::save_file_fb(const char* name) {
   std::vector<sf::Vector3i> coords;
-  coords = search::range(sf::Vector3i(0, 0, 0), s_map_width);
+  coords = search::range(sf::Vector3i(0, 0, 0), get_map_range());
 
-  std::cout << "Saving map of " << s_map_width << " width, " << coords.size() << " tiles." << std::endl;
+  std::cout << "Saving map of " << s_map_width << " width, " << get_map_range() << " range, " << coords.size() << " tiles." << std::endl;
   std::vector<uint32_t> terrain(coords.size());
   std::vector<uint32_t> resource(coords.size());
 
   for (size_t i = 0; i < coords.size(); ++i) {
-    auto& tile = s_map[coords[i]];
-    fbs::TERRAIN_TYPE tval = tile.m_terrain_type;
-    fbs::RESOURCE_TYPE rval = tile.m_resource.m_type;
+    Tile* tile = get_tile(coords[i]);
+    fbs::TERRAIN_TYPE tval = tile->m_terrain_type;
+    fbs::RESOURCE_TYPE rval = tile->m_resource.m_type;
     terrain[i] = any_enum(tval);
     resource[i] = any_enum(rval);
   }
 
-  const auto map_data = fbs::CreateMap(GetFBB(), s_map_width,
+  const auto map_data = fbs::CreateMap(GetFBB(), get_map_range(),
       GetFBB().CreateVector(terrain),
       GetFBB().CreateVector(resource));
   fbs::FinishMapBuffer(GetFBB(), map_data);
@@ -200,8 +205,9 @@ bool world_map::save_file_fb(const char* name) {
 }
 
 void world_map::for_each_tile(std::function<void(const sf::Vector3i& coord, const Tile& tile)> operation) {
-  for (auto tile : s_map) {
-    operation(tile.first, tile.second);
+  std::vector<sf::Vector3i> coords = search::range(sf::Vector3i(0, 0, 0), get_map_range());
+  for (auto c : coords) {
+    operation(c, *get_tile(c));
   }
 }
 
@@ -279,12 +285,14 @@ uint32_t world_map::get_map_width() {
   return s_map_width;
 }
 
-Tile* world_map::get_tile(sf::Vector3i location) {
-  if (s_map.find(location) == s_map.end()) {
-    return nullptr;
-  }
+uint32_t world_map::get_map_range() {
+  return s_map_width >>1;
+}
 
-  return &s_map[location];
+Tile* world_map::get_tile(sf::Vector3i location) {
+  uint32_t ord = hex::cube_to_ordinal(location, s_map_width);
+  if (ord >= uint32_t(s_Tile().limit)) return nullptr;
+  return &many_Tile[ord];
 }
 
 uint32_t world_map::tile_owner(const Tile& tile) {
@@ -304,7 +312,7 @@ uint32_t world_map::tile_owner(const Tile& tile) {
 }
 
 void world_map::reset() {
-  s_map.clear();
+  reset_ecs(s_Tile());
   s_map_size = 0;
   s_map_width = 0;
 }
