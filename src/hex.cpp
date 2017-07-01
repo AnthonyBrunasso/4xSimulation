@@ -5,6 +5,7 @@
 #include <algorithm> 
 #include <cstdlib>
 #include <cmath>
+#include <cassert>
 
 namespace {
   const static float PI = 3.1415926535897f;
@@ -38,6 +39,12 @@ sf::Vector2f hex::cube_to_axial(const sf::Vector3f& cube_coord) {
   return sf::Vector2f(cube_coord.x, cube_coord.y);
 }
 
+uint32_t hex::cube_to_ordinal(const sf::Vector3i& cube_coord, uint32_t world_width) {
+  assert(world_width > 1);
+  const uint32_t world_range = world_width >> 1;
+  return (cube_coord.x)+(cube_coord.y+world_range)*world_width;
+}
+
 sf::Vector2i hex::cube_to_offset(const sf::Vector3i& cube_coord) {
   int32_t col = cube_coord.x + (cube_coord.z - (cube_coord.z & 1)) / 2;
   int32_t row = cube_coord.z;
@@ -54,6 +61,12 @@ sf::Vector3i hex::axial_to_cube(const sf::Vector2i& axial_coord) {
 
 sf::Vector3f hex::axial_to_cube(const sf::Vector2f& axial_coord) {
   return sf::Vector3f(axial_coord.x, axial_coord.y, -axial_coord.x - axial_coord.y);
+}
+
+uint32_t hex::axial_to_ordinal(const sf::Vector2i& axial_coord, uint32_t world_width) {
+  assert(world_width > 1);
+  const uint32_t world_range = world_width >> 1;
+  return (axial_coord.x-1)+(axial_coord.y-world_range)*world_width;
 }
 
 sf::Vector2f hex::hex_corner(uint32_t size, uint32_t i) {

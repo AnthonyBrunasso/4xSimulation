@@ -55,12 +55,14 @@ namespace hex
   // Grid conversions
   sf::Vector2i cube_to_axial(const sf::Vector3i& cube_coord);
   sf::Vector2f cube_to_axial(const sf::Vector3f& cube_coord);
+  uint32_t cube_to_ordinal(const sf::Vector3i& cube_coord, uint32_t world_width);
 
   sf::Vector2i cube_to_offset(const sf::Vector3i& cube_coord);
   sf::Vector2i axial_to_offset(const sf::Vector2i& axial_coord);
 
   sf::Vector3i axial_to_cube(const sf::Vector2i& axial_coord);
   sf::Vector3f axial_to_cube(const sf::Vector2f& axial_coord);
+  uint32_t axial_to_ordinal(const sf::Vector2i& axial_coord, uint32_t world_width);
 
   // Get the pixel coordinates to the i'th corner of a hexagon offset from (0,0)
   sf::Vector2f hex_corner(uint32_t size, uint32_t i);
