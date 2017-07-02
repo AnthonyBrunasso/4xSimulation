@@ -97,9 +97,8 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
   // All the discovered nodes that require evaluation.
   search::PathNode* open[254];
   memset(open, 0, sizeof(open));
-  uint32_t nextId = 1;
   uint32_t elements = 0;
-  uint32_t pnId = create(nextId++, s_PathNode());
+  uint32_t pnId = acquire(s_PathNode());
   PathNode* pn = c_PathNode(pnId);
   new (pn) PathNode(start, 0, heuristic_estimate(start, end));
   open[elements++] = pn;
@@ -148,9 +147,9 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
         closed[neighbor] = 1;
         continue;
       }
-      pnId = create(nextId++, s_PathNode());
+      pnId = acquire(s_PathNode());
       if (!VALID_COMPONENT(pnId)) continue;
-      std::cout << "nextid " << nextId << std::endl;
+      //std::cout << "Node acquired " << pnId << std::endl;
       search::PathNode* open_pn = c_PathNode(pnId);
       new (open_pn) PathNode(neighbor,
             pn->m_cost + world_map::get_tile(neighbor)->m_path_cost,                                    // Cost of current record to this node
@@ -163,12 +162,14 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
       }
       // If this is not a better path than one already found continue.
       else if (open_pn->m_cost >= get(true_costs, neighbor)) {
+        release(open_pn, s_PathNode());
         continue;
       }
       //std::cout << format::vector3(neighbor) << " came from " << format::vector3(pn->m_location);
       came_from[neighbor] = pn->m_location;
       true_costs[neighbor] = open_pn->m_cost;
     }
+    release(pn, s_PathNode());
   }
 
   return (coords);
