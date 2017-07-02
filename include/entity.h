@@ -22,12 +22,13 @@ struct e2c {
 // ComponentSum holds all component instances and mappings to 
 //   valid entity ids.
 struct ComponentSum {
-  ComponentSum(void* c, int *p, e2c* m, int l);
+  ComponentSum(void* c, int *p, e2c* m, int l, int so);
 
   void *component;
   int *pool;
   e2c* mapping;
   int limit;
+  int size_of;
 };
 
 // Test c++ API in the ecs_merge branch
@@ -48,7 +49,7 @@ struct ComponentSum {
 c_type many_##c_type[C_LIMIT]; \
 int pool_##c_type[C_LIMIT+1]; \
 struct e2c mapping_##c_type[C_LIMIT+1]; \
-ComponentSum& s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, C_LIMIT); return s_##c_type; }; \
+ComponentSum& s_##c_type() { static ComponentSum s_##c_type(many_##c_type, pool_##c_type, mapping_##c_type, C_LIMIT, sizeof(c_type)); return s_##c_type; }; \
 c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 
 // entity: 0 is invalid, non-zero is safe
@@ -77,14 +78,14 @@ uint32_t create(uint32_t entity, ComponentSum& cs);
 
 // unsafe access to the pool of available components
 //
-// component: [0, fixed size array] (inclusive) is valid if 
-//   and only if the id was previously returned by acquire().
-//   undefined behaviors result if acquire was not called once
-//   for each release().
+// component: void* to a component. Must be called only once
+//   for each call to acquire(). If this is not honored, the 
+//   free list will be corrupted and require reset_ecs() to 
+//   be called.
 //
 // cs: reference to the component singleton
 //
-inline void release(uint32_t component, ComponentSum& cs);
+uint32_t release(void* component, ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
 // cs: reference to the component singleton

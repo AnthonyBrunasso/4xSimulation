@@ -1,10 +1,11 @@
 #include "entity.h"
 
-ComponentSum::ComponentSum(void* c, int* p, e2c* m, int l)
+ComponentSum::ComponentSum(void* c, int* p, e2c* m, int l, int so)
   : component(c)
   , pool(p)
   , mapping(m)
   , limit(l)
+  , size_of(so)
 {
   reset_ecs(*this);
 }
@@ -55,13 +56,21 @@ uint32_t create(uint32_t entity, ComponentSum& cs) {
     return a->component;
   }
 
-inline void release(uint32_t component, ComponentSum& cs) {
+inline uint32_t c_release(uint32_t component, ComponentSum& cs) {
   int* p = cs.pool;
   while(*p >= 0) {
-    // assert(p!=-2); // end of pool
+    if (*p == -2) return INVALID_COMPONENT;
     ++p;
   }
   *p = component;
+  return component;
+}
+
+uint32_t release(void* component, ComponentSum& cs) {
+  uint32_t offset = (char*)component - (char*)cs.component;
+  uint32_t c = offset/cs.size_of;
+
+  return c_release(c, cs);
 }
 
 uint32_t delete_c(uint32_t entity, ComponentSum& cs) {
@@ -83,8 +92,7 @@ uint32_t delete_c(uint32_t entity, ComponentSum& cs) {
     if (a >= end) return INVALID_COMPONENT;
     
     // restore to pool
-    release(c, cs);
-    return c;
+    return c_release(c, cs);
 }
 
 void reset_ecs(ComponentSum& cs) {
