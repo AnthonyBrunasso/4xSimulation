@@ -23,6 +23,18 @@ uint32_t get(uint32_t entity, const ComponentSum& cs) {
   return INVALID_COMPONENT;
 }
 
+uint32_t acquire(ComponentSum& cs) {
+  uint32_t ret = INVALID_COMPONENT;
+  int* p = cs.pool;
+  while (*p == -1)
+    ++p;
+
+  if (*p < 0) return ret;
+  ret = *p;
+  *p = -1;
+  return ret;
+}
+
 uint32_t create(uint32_t entity, ComponentSum& cs) {
     if (entity == INVALID_ENTITY) return INVALID_COMPONENT;
     if (VALID_COMPONENT(get(entity, cs))) return INVALID_COMPONENT; // fail creation, already exists
@@ -34,19 +46,23 @@ uint32_t create(uint32_t entity, ComponentSum& cs) {
     //printf("mapping used %p of %p %doffset\n", a, cs->mapping, (int)(a-cs->mapping));
     if (a-cs.mapping >= cs.limit) return INVALID_COMPONENT; // not found
 
-    int* p = cs.pool;
-    while (*p == -1)
-      ++p;
-
-    if (*p < 0) return INVALID_COMPONENT;
+    uint32_t p = acquire(cs);
 
     a->entity = entity;
-    a->component = *p;
-    *p = -1;
+    a->component = p;
     //printf("Assigning component id %d from pool index %d\n", c, i);
 
     return a->component;
   }
+
+inline void release(uint32_t component, ComponentSum& cs) {
+  int* p = cs.pool;
+  while(*p >= 0) {
+    // assert(p!=-2); // end of pool
+    ++p;
+  }
+  *p = component;
+}
 
 uint32_t delete_c(uint32_t entity, ComponentSum& cs) {
     if (entity == INVALID_ENTITY) return INVALID_COMPONENT;
@@ -67,11 +83,7 @@ uint32_t delete_c(uint32_t entity, ComponentSum& cs) {
     if (a >= end) return INVALID_COMPONENT;
     
     // restore to pool
-    int* p = cs.pool;
-    while(*p >= 0) {
-      ++p;
-    }
-    *p = c;
+    release(c, cs);
     return c;
 }
 

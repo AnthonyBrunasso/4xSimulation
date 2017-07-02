@@ -59,6 +59,13 @@ c_type* c_##c_type(int c) { return VALID_COMPONENT(c)?&many_##c_type[c]:0; }
 //   unable to find the entity
 uint32_t get(uint32_t entity, const ComponentSum& cs);
 
+// unsafe access to the pool of available components
+//
+// returns: integer in the valid component range
+// OR INVALID_COMPONENT when:
+//   no room is left in the fixed size component array
+uint32_t acquire(ComponentSum& cs);
+
 // entity: 0 is invalid, non-zero is safe
 // cs: reference to the component singleton
 // 
@@ -67,6 +74,17 @@ uint32_t get(uint32_t entity, const ComponentSum& cs);
 //   duplicate entity id is created
 //   no room is left in the fixed size component array
 uint32_t create(uint32_t entity, ComponentSum& cs);
+
+// unsafe access to the pool of available components
+//
+// component: [0, fixed size array] (inclusive) is valid if 
+//   and only if the id was previously returned by acquire().
+//   undefined behaviors result if acquire was not called once
+//   for each release().
+//
+// cs: reference to the component singleton
+//
+inline void release(uint32_t component, ComponentSum& cs);
 
 // entity: 0 is invalid, non-zero is safe
 // cs: reference to the component singleton
