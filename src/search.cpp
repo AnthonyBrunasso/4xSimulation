@@ -1,38 +1,47 @@
 #include "search.h"
 
 #include <algorithm>
+#include <cstring>
+#include <iostream>
 #include <queue>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "city.h"
+#include "entity.h"
 #include "enum_generated.h"
 #include "hex.h"
+#include "format.h"
 #include "improvement.h"
 #include "resources.h"
 #include "tile.h"
 #include "unit.h"
 #include "world_map.h"
 
-namespace {
+namespace search {
   struct PathNode {
     PathNode(const sf::Vector3i& location, uint32_t cost, uint32_t heuristic) 
       : m_location(location)
       , m_cost(cost)
       , m_heuristic(heuristic) {};
 
+    explicit PathNode()
+      : m_location(0, 0, 0)
+      , m_cost(0xffffffff)
+      , m_heuristic(0xffffffff)
+    {};
+
     sf::Vector3i m_location;
     uint32_t m_cost;
     uint32_t m_heuristic;
-
-  private:
-    PathNode();
   };
 
+  ECS_COMPONENT(PathNode, 254);
+
   struct PathNodeComparator {
-    bool operator() (const PathNode& lhs, const PathNode& rhs) { 
-      return lhs.m_heuristic > rhs.m_heuristic; 
+    bool operator() (const PathNode* lhs, const PathNode* rhs) { 
+      return lhs->m_heuristic > rhs->m_heuristic; 
     }
   };
 
@@ -83,9 +92,18 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     const sf::Vector3i& end,
     std::function<bool(const Tile& tile)> expand) {
   std::vector<sf::Vector3i> coords;
+  // reset state
+  reset_ecs(s_PathNode());
   // All the discovered nodes that require evaluation.
-  std::priority_queue<PathNode, std::vector<PathNode>, PathNodeComparator> open;
-  open.push(PathNode(start, 0, heuristic_estimate(start, end))); 
+  search::PathNode* open[254];
+  memset(open, 0, sizeof(open));
+  uint32_t nextId = 1;
+  uint32_t elements = 0;
+  uint32_t pnId = create(nextId++, s_PathNode());
+  PathNode* pn = c_PathNode(pnId);
+  new (pn) PathNode(start, 0, heuristic_estimate(start, end));
+  open[elements++] = pn;
+  std::push_heap(&open[0], &open[elements], PathNodeComparator());
   // Set of open list discoveries for quick lookup. Unordered map because set uses tree and needs >,< operator.
   std::unordered_map<sf::Vector3i, uint32_t> openDiscovered; 
   openDiscovered[start] = 1;
@@ -99,23 +117,27 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
   // Cost from start to start is 0.
   true_costs[start] = 0;
 
-  while (!open.empty()) {
+  while (elements > 0) {
     // Back will return path node with least path cost.
-    PathNode current = open.top();
-    if (current.m_location == end) {
-      build_path(current.m_location, came_from, coords);
+    pn = open[0];
+    std::pop_heap(&open[0], &open[elements--], PathNodeComparator());
+    /*std::cout << "popped " << pn->m_location.x << "x " << pn->m_location.y << "y " << pn->m_location.z << "z " << pn->m_heuristic <<std::endl;
+    for (uint32_t i = 0; i < elements; ++i) {
+      std::cout << " " << &open[i];
+    }
+    getchar();*/
+    if (pn->m_location == end) {
+      build_path(pn->m_location, came_from, coords);
       return (coords);
     }
-    // Remove from open list.
-    open.pop();
-    openDiscovered.erase(current.m_location);
+    openDiscovered.erase(pn->m_location);
 
     // Put into closed list.
-    closed[current.m_location] = 1;
+    closed[pn->m_location] = 1;
 
     // Get all of currents neighbors.
     std::vector<sf::Vector3i> cube_neighbors;
-    hex::cube_neighbors(current.m_location, cube_neighbors); 
+    hex::cube_neighbors(pn->m_location, cube_neighbors); 
     // Loop over neighbors and evaluate state of each node in path.
     for (auto neighbor : cube_neighbors) {
       // Ignore neighbors that have already been evaluated.
@@ -126,20 +148,26 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
         closed[neighbor] = 1;
         continue;
       }
-      PathNode pn(neighbor,
-            current.m_cost + world_map::get_tile(neighbor)->m_path_cost,                                    // Cost of current record to this node
-            current.m_cost + world_map::get_tile(neighbor)->m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
+      pnId = create(nextId++, s_PathNode());
+      if (!VALID_COMPONENT(pnId)) continue;
+      std::cout << "nextid " << nextId << std::endl;
+      search::PathNode* open_pn = c_PathNode(pnId);
+      new (open_pn) PathNode(neighbor,
+            pn->m_cost + world_map::get_tile(neighbor)->m_path_cost,                                    // Cost of current record to this node
+            pn->m_cost + world_map::get_tile(neighbor)->m_path_cost + heuristic_estimate(neighbor, end)); // Heuristic cost
       // If not in open list, add it for evaluation.
       if (openDiscovered.find(neighbor) == openDiscovered.end()) {
-        open.push(pn);
+        open[elements++] = open_pn;
+        std::push_heap(&open[0], &open[elements], PathNodeComparator());
         openDiscovered[neighbor] = 1;
       }
       // If this is not a better path than one already found continue.
-      else if (pn.m_cost > get(true_costs, neighbor)) {
+      else if (open_pn->m_cost >= get(true_costs, neighbor)) {
         continue;
       }
-      came_from[neighbor] = current.m_location;
-      true_costs[neighbor] = pn.m_cost;
+      //std::cout << format::vector3(neighbor) << " came from " << format::vector3(pn->m_location);
+      came_from[neighbor] = pn->m_location;
+      true_costs[neighbor] = open_pn->m_cost;
     }
   }
 
