@@ -108,7 +108,6 @@ void EmpireExplore::operator()(uint32_t player_id) {
     flatbuffers::Offset<fbs::MoveStep> move_step;
     uint32_t unit_id = (unit.m_id);
     fbs::v3i dest(coord.x, coord.y, coord.z);
-    uint32_t player_id = (player_id);
     bool immediate = true;
     bool avoid_city = (true);
     bool avoid_unit = (true);

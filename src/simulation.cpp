@@ -1,6 +1,5 @@
 #include "simulation.h"
 
-#include <ext/alloc_traits.h>
 #include <algorithm>
 #include <iostream>
 #include <set>

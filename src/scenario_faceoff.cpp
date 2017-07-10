@@ -1,6 +1,5 @@
 #include "scenario_faceoff.h"
 
-#include <ext/alloc_traits.h>
 #include <stddef.h>
 #include <cstdint>
 #include <unordered_map>

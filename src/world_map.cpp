@@ -1,7 +1,5 @@
 #include "world_map.h"
 
-#include <ext/alloc_traits.h>
-//#include <ext/alloc_traits.h>
 #include <algorithm>
 #include <cstring>
 #include <iostream>
