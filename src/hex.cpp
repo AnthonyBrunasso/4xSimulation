@@ -42,7 +42,7 @@ sf::Vector2f hex::cube_to_axial(const sf::Vector3f& cube_coord) {
 uint32_t hex::cube_to_ordinal(const sf::Vector3i& cube_coord, uint32_t world_width) {
   assert(world_width > 1);
   const uint32_t world_range = world_width >> 1;
-  return (cube_coord.x)+(cube_coord.y+world_range)*world_width;
+  return (cube_coord.x+world_range)+(cube_coord.y+world_range)*world_width;
 }
 
 sf::Vector2i hex::cube_to_offset(const sf::Vector3i& cube_coord) {

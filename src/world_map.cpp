@@ -1,7 +1,9 @@
 #include "world_map.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <unordered_map>
@@ -288,8 +290,11 @@ uint32_t world_map::get_map_range() {
 }
 
 Tile* world_map::get_tile(sf::Vector3i location) {
+  int32_t range = s_map_width>>1;
+  if (std::abs(location.x) > range) return nullptr;
+  if (std::abs(location.y) > range) return nullptr;
   uint32_t ord = hex::cube_to_ordinal(location, s_map_width);
-  if (ord >= uint32_t(s_Tile().limit)) return nullptr;
+  assert(ord < uint32_t(s_Tile().limit));
   return &many_Tile[ord];
 }
 

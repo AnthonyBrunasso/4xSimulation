@@ -17,7 +17,7 @@ namespace search {
   std::vector<sf::Vector3i> range(const sf::Vector3i& start, int32_t distance);
   std::vector<sf::Vector3i> path_to(const sf::Vector3i& start,
       const sf::Vector3i& end, 
-      std::function<bool(const Tile& tile)> expand = {});
+      std::function<bool(const Tile& tile)> expand =[](const Tile&) {return true;});
 
   // NOTE:
   // For bfs search, 

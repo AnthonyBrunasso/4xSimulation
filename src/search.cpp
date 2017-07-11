@@ -92,6 +92,10 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
     const sf::Vector3i& end,
     std::function<bool(const Tile& tile)> expand) {
   std::vector<sf::Vector3i> coords;
+
+  // Invalid destination
+  if (!world_map::get_tile(end)) return coords;
+
   // reset state
   reset_ecs(s_PathNode());
   // All the discovered nodes that require evaluation.
@@ -143,7 +147,8 @@ std::vector<sf::Vector3i> search::path_to(const sf::Vector3i& start,
       if (closed.find(neighbor) != closed.end()) continue;
       // If the neighbors location equals end, this is our destination, don't skip it or A* will never finish.
       // If the node shouldn't be expanded add it to the closed list and continue.
-      if (neighbor != end && expand && !expand(*world_map::get_tile(neighbor))) {
+      Tile* t = world_map::get_tile(neighbor);
+      if (!t || (!expand(*t) && neighbor != end)) {
         closed[neighbor] = 1;
         continue;
       }
