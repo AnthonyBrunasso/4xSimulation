@@ -1,10 +1,33 @@
 #pragma once
 
-
-
+#include <cstdint>
+#include <cstring>
 #include <functional>
 
-class CombatStats;
+class CombatStats {
+public:
+  CombatStats()
+  {
+    memset(this, 0, sizeof(CombatStats));
+  }
+
+  CombatStats(uint32_t action_points, float health, float attack, float backstab, float range, int food)
+    : m_action_points(action_points)
+    , m_health(health)
+    , m_attack(attack)
+    , m_backstab(backstab)
+    , m_range(range)
+    , m_food(food) {};
+
+  uint32_t m_action_points;
+  float m_health;
+  float m_attack;
+  float m_backstab;
+  float m_range;
+  int m_food;
+
+private:
+};
 
 namespace fbs {
   enum class UNIT_TYPE : uint32_t;

@@ -42,6 +42,11 @@ bool operator==(T val, const any_enum& other) {
     return val == (T)other.foo;
 }
 
+template <typename T>
+T clamp(const T& n, const T& lower, const T& upper) {
+    return n < lower?lower : n >upper?upper : n;
+}
+
 namespace util {
   sf::Vector3i str_to_vector3(const std::string& x, const std::string& y, const std::string& z);
   sf::Vector3f str_to_vector3f(const std::string& x, const std::string& y, const std::string& z);

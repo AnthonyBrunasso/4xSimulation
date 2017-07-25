@@ -171,6 +171,9 @@ void unit::replenish_actions() {
     Unit* u = c_Unit(a.component);
     if (!u) continue;
 
+    int usedAP = u->m_combat_stats.m_action_points-u->m_action_points;
+    int usedFood = clamp(usedAP, 0, 1);
+    u->m_food = clamp(u->m_food-usedFood, 0, u->m_combat_stats.m_food);
     u->m_action_points = u->m_combat_stats.m_action_points;
   }
 }

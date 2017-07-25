@@ -60,6 +60,7 @@ namespace simulation {
   void phase_diplomatic_progression();
   void phase_global_events();
   void phase_restore_actions();
+  void phase_restore_units();
 
   // Order of operations when a turn begins
   void phase_spawn_units();     // Spawn that occurs from construction countdown, etc
@@ -234,9 +235,11 @@ namespace simulation {
   void phase_global_events() {
 
   }
+  void phase_restore_units() {
+    unit::replenish_actions();
+  }
 
   void phase_restore_actions() {
-    unit::replenish_actions();
     auto replentish_cities = [](City& c) {
       c.m_defenses_used = false;
     };
@@ -1039,6 +1042,8 @@ void simulation::process_begin_turn() {
     return;
   }
 
+  phase_restore_actions();
+  phase_restore_units();
   phase_city_growth();
   phase_city_raze();
   phase_science_progression();
@@ -1058,7 +1063,6 @@ void simulation::process_begin_turn() {
   });
   std::cout << std::endl << "Beginning turn #" << s_current_turn << std::endl;
 
-  phase_restore_actions();
   status_effect::process();
 
   // Run scenarios
@@ -1084,7 +1088,6 @@ void simulation::process_end_turn(const fbs::EndTurnStep* end_turn) {
     process_begin_turn(); 
   }
 
-  std::cout << std::endl << "Active player is " << end_turn->next_player()  << std::endl;
   NotificationVector events = notification::get_player_notifications(end_turn->next_player());
   for (size_t i = 0; i < events.size(); ++i) {
     std::cout << notification::to_string(events[i]) << std::endl;

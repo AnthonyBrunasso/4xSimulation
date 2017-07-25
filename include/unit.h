@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Vector3.hpp"
-#include "combat.h"
+#include "unit_definitions.h"
 #include "unique_id.h"
 
 class Player;
@@ -28,6 +28,7 @@ public:
   // Number of actions available for the unit, simulation will dictate this value
   uint32_t m_action_points;
   uint32_t m_owner_id;
+  int m_food;
   const char* m_name;
 
   CombatStats m_combat_stats;

@@ -17,23 +17,23 @@ void unit_definitions::initialize() {
 
   // Scout
   add(any_enum(fbs::UNIT_TYPE::SCOUT),
-    CombatStats(3, 19.f, 11.f, 19.f, 1.f)); 
+    CombatStats(3, 19.f, 11.f, 19.f, 1.f, 10)); 
 
   // Archer
   add(any_enum(fbs::UNIT_TYPE::ARCHER),
-    CombatStats(2, 26.f, 13.f, 23.f, 2.f));
+    CombatStats(2, 26.f, 13.f, 23.f, 2.f, 5));
 
   // Phalanx
   add(any_enum(fbs::UNIT_TYPE::PHALANX),
-    CombatStats(2, 48.f, 17.f, 37.f, 1.f));
+    CombatStats(2, 48.f, 17.f, 37.f, 1.f, 5));
 
   // Worker
   add(any_enum(fbs::UNIT_TYPE::WORKER),
-    CombatStats(2, 38.f, 0.f, 0.f, 0.f));
+    CombatStats(2, 38.f, 0.f, 0.f, 0.f, 3));
 
   // Wizard
   add(any_enum(fbs::UNIT_TYPE::WIZARD),
-    CombatStats(2, 18.f, 7.f, 7.f, 1.f));
+    CombatStats(2, 18.f, 7.f, 7.f, 1.f, 5));
 }
 
 void unit_definitions::reset() {
