@@ -77,6 +77,7 @@ uint32_t unit::create(fbs::UNIT_TYPE unit_type, const sf::Vector3i& location, ui
   if (stats) {
     unit->m_combat_stats = *stats;
   }
+  unit->m_food = unit->m_combat_stats.m_food;
   unit->m_action_points = unit->m_combat_stats.m_action_points;
 
   // Add the unit to storage and the world map.
@@ -170,10 +171,11 @@ void unit::replenish_actions() {
 
     Unit* u = c_Unit(a.component);
     if (!u) continue;
+    if (u->m_food == 0) continue;
 
     int usedAP = u->m_combat_stats.m_action_points-u->m_action_points;
     int usedFood = clamp(usedAP, 0, 1);
-    u->m_food = clamp(u->m_food-usedFood, 0, u->m_combat_stats.m_food);
+    u->m_food -= usedFood;
     u->m_action_points = u->m_combat_stats.m_action_points;
   }
 }
